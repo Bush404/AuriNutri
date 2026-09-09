@@ -1,0 +1,22 @@
+/node_modules
+/.next/
+/out/
+/build
+.env.local
+.env*.local
+
+# Contem as chaves reais e viaja junto no deploy por drag-and-drop do Netlify.
+# NAO deve ser commitado: ao conectar o projeto ao Git, apague este arquivo e
+# use as variaveis de ambiente do painel do Netlify.
+.env.production
+.DS_Store
+*.pem
+npm-debug.log*
+next-env.d.ts
+.netlify
+
+# O CSV inicial da TACO (scripts/import-taco/data/taco-4a-edicao.csv) é
+# pequeno e faz parte do projeto — pode ser versionado normalmente. Se você
+# substituí-lo pelo arquivo completo de ~597 itens (ver README do script),
+# considere ignorá-lo caso prefira não versionar um arquivo de dados maior:
+# scripts/import-taco/data/taco-4a-edicao.csv

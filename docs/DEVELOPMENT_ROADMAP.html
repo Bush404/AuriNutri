@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AuriNutri — Roadmap de Desenvolvimento</title>
+<style>
+  :root{
+    --green-900:#0d3527; --green-800:#124532; --green-700:#17573f;
+    --green-600:#1f6d4f; --green-500:#2e8a64; --green-300:#75c1a1;
+    --green-100:#c9e6d9; --green-50:#eaf5f0;
+    --accent:#f2994a; --accent-soft:#fdf1e5;
+    --ink:#16211c; --muted:#5f6f68; --line:#e2eae6; --bg:#f7faf9;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55;
+    padding:32px 20px 64px;
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+
+  header{margin-bottom:28px}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .dot{width:26px;height:26px;border-radius:50%;background:var(--green-800);
+       display:grid;place-items:center;color:var(--accent);font-size:14px}
+  h1{font-size:22px;font-weight:650;letter-spacing:-.02em}
+  h1 span{color:var(--green-600)}
+  .sub{color:var(--muted);font-size:14px}
+
+  .overall{background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+           padding:22px;margin-bottom:24px}
+  .overall-top{display:flex;justify-content:space-between;align-items:baseline;
+               flex-wrap:wrap;gap:8px;margin-bottom:14px}
+  .overall-top h2{font-size:14px;font-weight:600;text-transform:uppercase;
+                  letter-spacing:.06em;color:var(--muted)}
+  .pct{font-size:26px;font-weight:680;color:var(--green-700)}
+  .bar{height:9px;background:var(--green-50);border-radius:99px;overflow:hidden}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--green-600),var(--green-400,#4aa87f));border-radius:99px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;
+          font-size:12.5px;color:var(--muted)}
+  .legend b{color:var(--ink);font-weight:600}
+
+  .milestones{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+              gap:12px;margin-bottom:28px}
+  .ms{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .ms .tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--green-600)}
+  .ms .t{font-size:13.5px;font-weight:600;margin:4px 0 2px}
+  .ms .d{font-size:12.5px;color:var(--muted)}
+  .ms.now{border-color:var(--green-300);background:var(--green-50)}
+
+  h2.section{font-size:13px;text-transform:uppercase;letter-spacing:.07em;
+             color:var(--muted);margin:0 0 12px;font-weight:600}
+
+  .phase{background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+         margin-bottom:10px;overflow:hidden}
+  .phase.active{border-color:var(--green-300);box-shadow:0 0 0 3px var(--green-50)}
+  .ph-head{display:flex;align-items:center;gap:14px;padding:15px 18px;cursor:pointer;
+           user-select:none}
+  .ph-head:hover{background:#fcfdfd}
+  .mark{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:grid;
+        place-items:center;font-size:12px;font-weight:700;
+        border:2px solid var(--line);color:var(--muted);background:#fff}
+  .mark.done{background:var(--green-600);border-color:var(--green-600);color:#fff}
+  .mark.prog{border-color:var(--accent);color:var(--accent)}
+  .ph-title{flex:1;min-width:0}
+  .ph-title .n{font-size:11px;letter-spacing:.07em;color:var(--muted);font-weight:600}
+  .ph-title .t{font-size:15px;font-weight:600;letter-spacing:-.01em}
+  .ph-meta{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+  .chip{font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:3px 8px;
+        border-radius:99px;text-transform:uppercase}
+  .c-critical{background:#fdeceb;color:#a8332a}
+  .c-high{background:var(--accent-soft);color:#a35a15}
+  .c-medium{background:var(--green-50);color:var(--green-700)}
+  .c-low{background:#eef1f0;color:var(--muted)}
+  .c-done{background:var(--green-100);color:var(--green-800)}
+  .c-todo{background:#eef1f0;color:var(--muted)}
+
+  .caret{color:var(--muted);font-size:11px;transition:transform .15s}
+  .phase[open] .caret{transform:rotate(90deg)}
+
+  .ph-body{padding:0 18px 18px 54px;border-top:1px solid var(--line);padding-top:14px}
+  .obj{font-size:13.5px;color:var(--muted);margin-bottom:12px}
+  .obj b{color:var(--ink);font-weight:600}
+  ul.tasks{list-style:none;display:grid;gap:5px}
+  ul.tasks li{font-size:13px;display:flex;gap:9px;align-items:flex-start;color:#33413b}
+  ul.tasks li::before{content:"";width:13px;height:13px;border:1.5px solid var(--line);
+    border-radius:3px;flex-shrink:0;margin-top:4px}
+  ul.tasks li.ok{color:var(--muted)}
+  ul.tasks li.ok::before{content:"✓";border-color:var(--green-600);background:var(--green-600);
+    color:#fff;font-size:9px;display:grid;place-items:center;line-height:1}
+  .accept{margin-top:12px;padding:11px 13px;background:var(--green-50);
+          border-radius:8px;font-size:12.5px;color:var(--green-800)}
+  .accept b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+            margin-bottom:3px;color:var(--green-700)}
+  .risk{margin-top:8px;padding:11px 13px;background:var(--accent-soft);
+        border-radius:8px;font-size:12.5px;color:#7a4a15}
+  .risk b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+          margin-bottom:3px;color:#a35a15}
+
+  .decisions{background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+             padding:18px;margin-top:28px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+     color:var(--muted);padding:6px 10px 6px 0;border-bottom:1px solid var(--line);font-weight:600}
+  td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+
+  footer{margin-top:28px;font-size:12px;color:var(--muted);text-align:center}
+  @media(max-width:640px){.ph-body{padding-left:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <div class="dot">◆</div>
+    <h1>Auri<span>Nutri</span> — Roadmap</h1>
+  </div>
+  <p class="sub">Do primeiro paciente ao seu próprio consultório · atualizado em 09/09/2026</p>
+</header>
+
+<section class="overall">
+  <div class="overall-top">
+    <h2>Progresso geral do produto</h2>
+    <div class="pct">15%</div>
+  </div>
+  <div class="bar"><i style="width:15%"></i></div>
+  <div class="legend">
+    <span><b>1</b> fase concluída</span>
+    <span><b>0</b> em andamento</span>
+    <span><b>10</b> planejadas</span>
+    <span><b>4</b> decisões pendentes</span>
+  </div>
+</section>
+
+<div class="milestones">
+  <div class="ms now">
+    <div class="tag">MVP</div>
+    <div class="t">Fases 0 → 4</div>
+    <div class="d">Paciente, avaliação, plano e PDF. O mínimo para cobrar.</div>
+  </div>
+  <div class="ms">
+    <div class="tag">V1</div>
+    <div class="t">Fases 5 → 7</div>
+    <div class="d">Agenda, receitas, exames e evolução visual.</div>
+  </div>
+  <div class="ms">
+    <div class="tag">V2</div>
+    <div class="t">Fases 8 → 10</div>
+    <div class="d">Área do paciente, financeiro e comunidade.</div>
+  </div>
+  <div class="ms">
+    <div class="tag">V3</div>
+    <div class="t">Futuro</div>
+    <div class="d">Automações e inteligência. Não planejado em detalhe.</div>
+  </div>
+</div>
+
+<h2 class="section">Fases</h2>
+
+<details class="phase" open>
+  <summary class="ph-head">
+    <span class="mark done">✓</span>
+    <span class="ph-title"><span class="n">PHASE 0</span><div class="t">Auditoria</div></span>
+    <span class="ph-meta"><span class="chip c-done">Done</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> entender o sistema existente antes de alterar qualquer coisa.</p>
+    <ul class="tasks">
+      <li class="ok">Inventário de rotas, actions, migrations e políticas RLS</li>
+      <li class="ok">PROJECT_AUDIT.md</li>
+      <li class="ok">MASTER_DEVELOPMENT_PLAN.md</li>
+      <li class="ok">DEVELOPMENT_ROADMAP.html</li>
+    </ul>
+  </div>
+</details>
+
+<details class="phase active">
+  <summary class="ph-head">
+    <span class="mark">1</span>
+    <span class="ph-title"><span class="n">PHASE 1 · PRÓXIMA</span><div class="t">Fundação e rede de segurança</div></span>
+    <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> tornar seguro alterar o sistema. Nenhuma funcionalidade nova.</p>
+    <ul class="tasks">
+      <li>Vitest + testes de <code>lib/nutrition.ts</code> (≥90% de cobertura)</li>
+      <li>Testes dos schemas Zod</li>
+      <li><code>error.tsx</code>, <code>loading.tsx</code>, <code>not-found.tsx</code></li>
+      <li>Tipos gerados do Supabase (substituir os manuais)</li>
+      <li>Paginação em pacientes, alimentos e planos</li>
+      <li>Índice trigram para a busca <code>ilike</code></li>
+      <li>Migrar deploy para Git e remover <code>.env.production</code></li>
+      <li>SMTP próprio (Resend/Brevo)</li>
+      <li><b>Decidir:</b> multi-tenancy e identidade do paciente</li>
+    </ul>
+    <div class="accept"><b>Aceite</b>
+      Suíte de testes passa; erro em produção mostra tela de recuperação; listagem com 500 registros pagina; e-mail chega em Gmail e Outlook; decisões registradas em DECISIONS.md.</div>
+    <div class="risk"><b>Risco</b>
+      Reintroduzir o generic <code>&lt;Database&gt;</code> pode ressuscitar os erros de tipo <code>never</code>. Por isso usar tipos gerados, nunca manuais.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">2</span>
+    <span class="ph-title"><span class="n">PHASE 2</span><div class="t">Identidade profissional</div></span>
+    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> o nutricionista existe como profissional, não só como login. Pré-requisito de todo documento gerado.</p>
+    <ul class="tasks">
+      <li>Migration: CRN, telefone, logo, assinatura, cor de marca, endereço</li>
+      <li>Supabase Storage com bucket privado e políticas por usuário</li>
+      <li>Componente de upload com preview e validação</li>
+      <li>Página <code>/perfil</code>; ativar o item hoje desabilitado na topbar</li>
+      <li>Teste de acesso cruzado a arquivos</li>
+    </ul>
+    <div class="risk"><b>Risco</b>
+      Storage mal configurado vaza arquivo entre contas. Testar acesso cruzado explicitamente antes de fechar a fase.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">3</span>
+    <span class="ph-title"><span class="n">PHASE 3</span><div class="t">Consultório clínico completo</div></span>
+    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> fechar lacunas do atendimento e preservar histórico clínico.</p>
+    <ul class="tasks">
+      <li>Anamnese versionada (hoje sobrescreve e perde histórico)</li>
+      <li><code>deleted_at</code> — soft delete em todas as tabelas clínicas</li>
+      <li>Tabela <code>audit_log</code> + triggers</li>
+      <li>Editar avaliação antropométrica</li>
+      <li>Exportar dados do paciente (portabilidade LGPD)</li>
+      <li>Confirmação ao sair de formulário não salvo</li>
+    </ul>
+    <div class="risk"><b>Risco</b>
+      Soft delete exige revisar todas as queries. Um filtro esquecido faz registro excluído reaparecer.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">4</span>
+    <span class="ph-title"><span class="n">PHASE 4 · FIM DO MVP</span><div class="t">Plano alimentar profissional + PDF</div></span>
+    <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> entregar ao paciente um plano com a marca do profissional. É o artefato que justifica a assinatura.</p>
+    <ul class="tasks">
+      <li>Importar TACO completa (597 alimentos)</li>
+      <li>Duplicar plano e templates de refeição</li>
+      <li>Substituições / equivalentes</li>
+      <li>Meta calórica + gasto energético (Mifflin-St Jeor)</li>
+      <li>PDF com logo, nome, CRN e atribuição de fonte</li>
+      <li>Envio via WhatsApp</li>
+    </ul>
+    <div class="accept"><b>Aceite</b>
+      Montar um plano de 5 refeições em menos de 5 minutos. Totais do PDF idênticos aos da tela.</div>
+    <div class="risk"><b>Risco</b>
+      PDF em serverless tem limite de memória. Avaliar @react-pdf/renderer antes de Puppeteer, pesado demais para Netlify Functions.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">5</span>
+    <span class="ph-title"><span class="n">PHASE 5</span><div class="t">Agenda e rotina</div></span>
+    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> a agenda conversa com os dados do paciente — a consulta mostra o que está pendente.</p>
+    <ul class="tasks">
+      <li>Tabelas <code>appointments</code> e <code>tasks</code></li>
+      <li>Calendário mensal e semanal</li>
+      <li>Status: agendado, confirmado, realizado, faltou, cancelado</li>
+      <li>Pendências do paciente na consulta</li>
+      <li>Lembrete via WhatsApp</li>
+    </ul>
+    <div class="risk"><b>Risco</b>
+      Fuso horário. Armazenar em <code>timestamptz</code> e exibir no fuso do profissional.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">6</span>
+    <span class="ph-title"><span class="n">PHASE 6</span><div class="t">Receitas e preparações</div></span>
+    <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> receita como entidade própria, com ingredientes, rendimento e porção.</p>
+    <ul class="tasks">
+      <li>Tabelas <code>recipes</code> e <code>recipe_ingredients</code></li>
+      <li>Nutrição derivada dos ingredientes</li>
+      <li>Usar receita no plano alimentar (com snapshot)</li>
+      <li>Tags, imagem e busca</li>
+    </ul>
+    <div class="risk"><b>Decisão</b>
+      Receita não é extensão de <code>foods</code> — a semântica é diferente. O snapshot precisa capturar a receita inteira no momento do uso.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">7</span>
+    <span class="ph-title"><span class="n">PHASE 7</span><div class="t">Exames e evolução visual</div></span>
+    <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> exames laboratoriais e evolução fotográfica.</p>
+    <ul class="tasks">
+      <li>Upload de exames com storage privado</li>
+      <li>Marcadores estruturados + faixas de referência</li>
+      <li>Comparação fotográfica lado a lado</li>
+      <li>Consentimento explícito registrado</li>
+    </ul>
+    <div class="risk"><b>Risco alto</b>
+      Foto de paciente é dado sensível. Exige consentimento registrado, storage privado e URLs assinadas de curta duração. Não implementar sem isso.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">8</span>
+    <span class="ph-title"><span class="n">PHASE 8 · V2</span><div class="t">Área do paciente</div></span>
+    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> "minha jornada de saúde" — experiência mobile-first, nada parecido com sistema administrativo.</p>
+    <ul class="tasks">
+      <li>Autenticação do paciente (convite por link)</li>
+      <li>RLS: paciente vê apenas os próprios dados</li>
+      <li>Plano, receitas e documentos</li>
+      <li>Registro diário de refeições e água</li>
+    </ul>
+    <div class="risk"><b>Risco</b>
+      Segunda superfície de auth. Erro de RLS aqui expõe dado clínico ao paciente errado. Exige revisão de segurança dedicada.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">9</span>
+    <span class="ph-title"><span class="n">PHASE 9 · V2</span><div class="t">Financeiro</div></span>
+    <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> ajudar o profissional a entender o consultório. Não é um ERP.</p>
+    <ul class="tasks">
+      <li>Receitas, despesas e pagamentos pendentes</li>
+      <li>Recibos com identidade profissional</li>
+      <li>Visão mensal e ticket médio</li>
+    </ul>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">10</span>
+    <span class="ph-title"><span class="n">PHASE 10 · V2/V3</span><div class="t">Biblioteca e comunidade</div></span>
+    <span class="ph-meta"><span class="chip c-low">Low</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> colaboração entre profissionais. <b>Depende de base de usuários ativa — não iniciar antes.</b></p>
+    <ul class="tasks">
+      <li>Biblioteca pessoal / oficial / comunitária</li>
+      <li>"Adicionar à minha biblioteca" por referência</li>
+      <li>Anonimização automática de casos clínicos</li>
+      <li>Moderação e denúncia</li>
+    </ul>
+    <div class="risk"><b>Risco crítico</b>
+      Caso clínico compartilhado sem anonimização adequada é incidente de LGPD. Comunidade sem moderação vira passivo legal.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">11</span>
+    <span class="ph-title"><span class="n">PHASE 11 · CONTÍNUA</span><div class="t">Polimento, acessibilidade e QA</div></span>
+    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> permeia todas as fases; auditoria formal antes de cada release.</p>
+    <ul class="tasks">
+      <li>Contraste WCAG AA e navegação por teclado</li>
+      <li>Alternativa textual para o gráfico de evolução</li>
+      <li>Responsividade da tabela de plano no mobile</li>
+      <li>E2E dos fluxos críticos (Playwright)</li>
+      <li>Teste de isolamento entre profissionais</li>
+      <li>Observabilidade, rate limiting, política de senha forte</li>
+    </ul>
+  </div>
+</details>
+
+<section class="decisions">
+  <h2 class="section" style="margin-bottom:10px">Decisões pendentes — bloqueiam fases futuras</h2>
+  <table>
+    <thead><tr><th>#</th><th>Decisão</th><th>Bloqueia</th><th>Prazo</th></tr></thead>
+    <tbody>
+      <tr><td><b>D1</b></td><td>Conta individual ou clínica com equipe?</td><td>Fase 5+</td><td>Fase 1</td></tr>
+      <tr><td><b>D2</b></td><td>O paciente será usuário autenticado?</td><td>Fase 8</td><td>Fase 1</td></tr>
+      <tr><td><b>D3</b></td><td>Licenciamento de TBCA e Tucunduva <em>(exige parecer jurídico)</em></td><td>Fase 4</td><td>Antes de importar</td></tr>
+      <tr><td><b>D4</b></td><td>Biblioteca de geração de PDF</td><td>Fase 4</td><td>Fase 4</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  Documento estático · manter sincronizado com <code>MASTER_DEVELOPMENT_PLAN.md</code> ao fim de cada fase.
+</footer>
+
+</div>
+</body>
+</html>

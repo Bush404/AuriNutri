@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Neutros */
+    --background: 0 0% 100%;
+    --foreground: 158 20% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 158 20% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 158 20% 12%;
+
+    /* Verde profundo - cor principal da marca */
+    --primary: 158 62% 22%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Verde natural - secundária */
+    --secondary: 142 32% 94%;
+    --secondary-foreground: 158 62% 18%;
+
+    --muted: 150 15% 96%;
+    --muted-foreground: 158 8% 45%;
+
+    /* Laranja suave - apenas para destaques pontuais */
+    --accent: 28 90% 62%;
+    --accent-foreground: 24 45% 15%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 150 15% 90%;
+    --input: 150 15% 88%;
+    --ring: 158 62% 22%;
+
+    --radius: 0.65rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}

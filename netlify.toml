@@ -1,0 +1,20 @@
+# Configuração de deploy da AuriNutri no Netlify.
+#
+# O plugin @netlify/plugin-nextjs é o adaptador oficial da Netlify para
+# Next.js (App Router). Ele converte automaticamente:
+#   - Server Components / rotas dinâmicas -> Netlify Functions
+#   - Server Actions ("use server")        -> Netlify Functions
+#   - middleware.ts                         -> Netlify Edge Functions
+#   - Route Handlers (app/**/route.ts)      -> Netlify Functions
+# Não é necessário (nem recomendado) usar `output: "export"` ou
+# `output: "standalone"` no next.config.mjs — o plugin cuida disso.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
