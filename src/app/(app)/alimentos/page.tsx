@@ -5,12 +5,15 @@ import type { Food } from "@/lib/types/database.types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
+import { Pagination } from "@/components/shared/pagination";
 import { FoodFilters } from "@/components/foods/food-filters";
 import { FoodsTable } from "@/components/foods/foods-table";
 import { FoodFormDialog } from "@/components/foods/food-form-dialog";
 
+const PAGE_SIZE = 20;
+
 interface AlimentosPageProps {
-  searchParams: { busca?: string; categoria?: string; ordenar?: string };
+  searchParams: { busca?: string; categoria?: string; ordenar?: string; pagina?: string };
 }
 
 // "Meus Alimentos" mostra exclusivamente os alimentos cadastrados pelo
@@ -21,8 +24,11 @@ export default async function AlimentosPage({ searchParams }: AlimentosPageProps
   const busca = searchParams.busca?.trim();
   const categoria = searchParams.categoria;
   const ordenar = searchParams.ordenar ?? "nome";
+  const page = Math.max(1, Number(searchParams.pagina) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
-  let query = supabase.from("foods").select("*").eq("is_global", false);
+  let query = supabase.from("foods").select("*", { count: "exact" }).eq("is_global", false);
 
   if (busca) {
     query = query.ilike("nome", `%${busca}%`);
@@ -33,12 +39,14 @@ export default async function AlimentosPage({ searchParams }: AlimentosPageProps
 
   const colunaOrdenacao =
     ordenar === "calorias" ? "calorias_kcal" : ordenar === "proteinas" ? "proteinas_g" : "nome";
-  query = query.order(colunaOrdenacao, {
-    ascending: colunaOrdenacao === "nome",
-    nullsFirst: false,
-  });
+  query = query
+    .order(colunaOrdenacao, {
+      ascending: colunaOrdenacao === "nome",
+      nullsFirst: false,
+    })
+    .range(from, to);
 
-  const [{ data: foods }, { data: categoriasRows }] = await Promise.all([
+  const [{ data: foods, count }, { data: categoriasRows }] = await Promise.all([
     query,
     supabase
       .from("foods")
@@ -94,6 +102,16 @@ export default async function AlimentosPage({ searchParams }: AlimentosPageProps
               title="Você ainda não cadastrou nenhum alimento"
               description="Cadastre alimentos próprios (receitas, produtos específicos, marcas) para usá-los nos planos alimentares. A base TACO já está disponível separadamente na busca do plano."
               action={<FoodFormDialog trigger={<Button size="sm">Cadastrar alimento</Button>} />}
+            />
+          )}
+
+          {!semResultados && (
+            <Pagination
+              page={page}
+              pageSize={PAGE_SIZE}
+              totalCount={count ?? 0}
+              basePath="/alimentos"
+              searchParams={{ busca, categoria, ordenar: searchParams.ordenar }}
             />
           )}
         </CardContent>

@@ -25,13 +25,13 @@ function requiredEnv(name: string, value: string | undefined) {
  * Cliente Supabase para uso em Client Components ("use client").
  * Mantém a sessão sincronizada via cookies.
  *
- * NOTA: intencionalmente NÃO passamos o generic `Database` aqui. O parser de
- * tipos do supabase-js infere o resultado de `select()` a partir do schema, e
- * um schema escrito à mão (não gerado pelo CLI do Supabase) faz esse parser
- * resolver os resultados como `never`, quebrando o build com erros do tipo
- * "Property 'x' does not exist on type 'never'". Os tipos de domínio
- * (Patient, Food, MealPlan...) continuam sendo aplicados explicitamente nas
- * queries via `.returns<T>()` / `.single<T>()` e nas props dos componentes.
+ * NOTA: intencionalmente NÃO passamos o generic `Database` aqui. Mesmo com os
+ * tipos gerados pelo CLI do Supabase (`src/lib/types/database.generated.ts`),
+ * a versão instalada de `@supabase/supabase-js` (2.45.x) resolve os argumentos
+ * de `.insert()`/`.update()` como `never` — ver `docs/DECISIONS.md` (D3) para
+ * o diagnóstico completo. Os tipos de domínio (Patient, Food, MealPlan...)
+ * continuam sendo aplicados explicitamente nas queries via `.returns<T>()` /
+ * `.single<T>()` e nas props dos componentes.
  */
 export function createClient() {
   return createBrowserClient(

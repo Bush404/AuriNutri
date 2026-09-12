@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -11,19 +11,32 @@ export function PatientSearch({ defaultValue }: { defaultValue: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
-  function handleChange(next: string) {
-    setValue(next);
+  function navigate(next: string) {
     const params = new URLSearchParams(searchParams.toString());
     if (next) {
       params.set("busca", next);
     } else {
       params.delete("busca");
     }
+    params.delete("pagina");
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`);
     });
   }
+
+  function handleChange(next: string) {
+    setValue(next);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => navigate(next), 250);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   return (
     <div className="relative w-full sm:max-w-xs">

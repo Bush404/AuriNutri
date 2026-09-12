@@ -6,14 +6,25 @@ import { formatDate } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
+import { Pagination } from "@/components/shared/pagination";
 
-export default async function PlanosPage() {
+const PAGE_SIZE = 20;
+
+interface PlanosPageProps {
+  searchParams: { pagina?: string };
+}
+
+export default async function PlanosPage({ searchParams }: PlanosPageProps) {
   const supabase = createClient();
+  const page = Math.max(1, Number(searchParams.pagina) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
-  const { data: plans } = await supabase
+  const { data: plans, count } = await supabase
     .from("meal_plans")
-    .select("*, patients(nome)")
+    .select("*, patients(nome)", { count: "exact" })
     .order("created_at", { ascending: false })
+    .range(from, to)
     .returns<
       Array<{
         id: string;
@@ -55,6 +66,13 @@ export default async function PlanosPage() {
               </Card>
             </Link>
           ))}
+          <Pagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            totalCount={count ?? 0}
+            basePath="/planos"
+            searchParams={{}}
+          />
         </div>
       ) : (
         <EmptyState

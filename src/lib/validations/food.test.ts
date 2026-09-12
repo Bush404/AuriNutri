@@ -50,13 +50,7 @@ describe("foodSchema — fibras_g (numérico opcional) com campo vazio", () => {
     }
   });
 
-  // Bug conhecido (ver docs/PROJECT_AUDIT.md, seção 7.3): um <input type="number">
-  // opcional deixado em branco envia "" para o formulário, e `z.coerce.number()`
-  // converte "" em 0 (Number("") === 0) em vez de "não informado". O padrão correto
-  // já existe em src/lib/validations/patient.ts (`optionalPositiveNumber`, que usa
-  // `z.preprocess` para tratar "" como undefined ANTES da coerção), mas não foi
-  // aplicado aqui. Este teste documenta o comportamento esperado e falha hoje.
-  it("NÃO deveria virar 0 quando o campo é enviado vazio (\"\") — bug conhecido", () => {
+  it("NÃO deveria virar 0 quando o campo é enviado vazio (\"\")", () => {
     const result = foodSchema.safeParse({ ...validInput, fibras_g: "" });
     expect(result.success).toBe(true);
     if (result.success) {

@@ -7,6 +7,12 @@ const optionalText = () =>
     .or(z.literal(""))
     .transform((v) => (v === "" || v === undefined ? undefined : v));
 
+const optionalNonNegativeNumber = () =>
+  z.preprocess(
+    (val) => (val === "" || val === undefined || val === null ? undefined : val),
+    z.coerce.number().min(0, "Não pode ser negativo").optional()
+  );
+
 export const CATEGORIAS_ALIMENTOS = [
   "Cereais e grãos",
   "Frutas",
@@ -36,7 +42,7 @@ export const foodSchema = z.object({
     .number({ invalid_type_error: "Informe os carboidratos" })
     .min(0, "Não pode ser negativo"),
   gorduras_g: z.coerce.number({ invalid_type_error: "Informe as gorduras" }).min(0, "Não pode ser negativo"),
-  fibras_g: z.coerce.number().min(0, "Não pode ser negativo").optional(),
+  fibras_g: optionalNonNegativeNumber(),
 });
 
 export type FoodInput = z.infer<typeof foodSchema>;

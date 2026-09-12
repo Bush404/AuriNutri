@@ -5,27 +5,34 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
+import { Pagination } from "@/components/shared/pagination";
 import { PatientSearch } from "@/components/patients/patient-search";
 import { PatientTable } from "@/components/patients/patient-table";
 
+const PAGE_SIZE = 20;
+
 interface PacientesPageProps {
-  searchParams: { busca?: string };
+  searchParams: { busca?: string; pagina?: string };
 }
 
 export default async function PacientesPage({ searchParams }: PacientesPageProps) {
   const supabase = createClient();
   const busca = searchParams.busca?.trim() ?? "";
+  const page = Math.max(1, Number(searchParams.pagina) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
   let query = supabase
     .from("patients")
-    .select("*")
-    .order("nome", { ascending: true });
+    .select("*", { count: "exact" })
+    .order("nome", { ascending: true })
+    .range(from, to);
 
   if (busca) {
     query = query.ilike("nome", `%${busca}%`);
   }
 
-  const { data: patients, error } = await query;
+  const { data: patients, error, count } = await query;
 
   return (
     <div className="space-y-6">
@@ -72,6 +79,16 @@ export default async function PacientesPage({ searchParams }: PacientesPageProps
                   <Link href="/pacientes/novo">Cadastrar paciente</Link>
                 </Button>
               }
+            />
+          )}
+
+          {!error && patients && patients.length > 0 && (
+            <Pagination
+              page={page}
+              pageSize={PAGE_SIZE}
+              totalCount={count ?? 0}
+              basePath="/pacientes"
+              searchParams={{ busca: searchParams.busca }}
             />
           )}
         </CardContent>

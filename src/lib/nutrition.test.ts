@@ -215,7 +215,8 @@ describe("buildFonteFooter", () => {
   it("atribui à TACO quando só alimentos TACO foram usados", () => {
     const footer = buildFonteFooter(["taco"]);
     expect(footer).toMatch(/TACO/);
-    expect(footer).toMatch(/NEPA\/UNICAMP/);
+    expect(footer).toMatch(/NEPA/);
+    expect(footer).toMatch(/UNICAMP/);
   });
 
   it("não gera nenhuma atribuição quando só alimentos personalizados foram usados", () => {
@@ -230,7 +231,7 @@ describe("buildFonteFooter", () => {
 
   it("nunca atribui um alimento personalizado à TACO", () => {
     const footer = buildFonteFooter(["personalizado", "personalizado"]);
-    expect(footer).not.toMatch(/TACO/);
+    expect(footer).toBeNull();
   });
 });
 

@@ -32,6 +32,7 @@ export function FoodFilters({ categorias }: { categorias: string[] }) {
         params.set(key, value);
       }
     }
+    params.delete("pagina");
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`);
     });

@@ -27,7 +27,7 @@ function requiredEnv(name: string, value: string | undefined) {
  * Lê/escreve a sessão através dos cookies da requisição.
  *
  * NOTA: o generic `Database` é intencionalmente omitido — ver comentário
- * equivalente em `client.ts`.
+ * equivalente em `client.ts` e `docs/DECISIONS.md` (D3).
  */
 export function createClient() {
   const cookieStore = cookies();
