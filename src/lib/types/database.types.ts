@@ -5,6 +5,14 @@ export interface Profile {
   nome: string;
   email: string;
   crn: string | null;
+  crn_uf: string | null;
+  telefone: string | null;
+  especialidade: string | null;
+  logo_url: string | null;
+  assinatura_url: string | null;
+  cor_marca: string | null;
+  endereco: string | null;
+  bio: string | null;
   created_at: string;
   updated_at: string;
 }

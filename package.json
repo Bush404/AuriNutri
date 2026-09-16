@@ -12,7 +12,8 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "import:taco": "node scripts/import-taco/import.mjs"
+    "import:taco": "node scripts/import-taco/import.mjs",
+    "test:storage-isolation": "node scripts/test-storage-isolation.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

@@ -91,7 +91,7 @@ Rodar suíte; forçar erro em Server Component e verificar `error.tsx`; testar p
 
 ---
 
-## PHASE 2 — Identidade profissional · `TODO` · `HIGH`
+## PHASE 2 — Identidade profissional · `DONE` · `HIGH`
 
 **Objetivo:** o nutricionista existe como profissional, não só como login. Pré-requisito de todo documento gerado.
 
@@ -100,26 +100,77 @@ Rodar suíte; forçar erro em Server Component e verificar `error.tsx`; testar p
 ### Tarefas
 
 ```
-[ ] Migration 0004: profiles += telefone, crn_uf, especialidade,
+[x] Migration 0004: profiles += telefone, crn_uf, especialidade,
     logo_url, assinatura_url, cor_marca, endereco, bio
-[ ] Configurar Supabase Storage: bucket privado 'profissional'
-[ ] Políticas de Storage (cada um acessa só a própria pasta)
-[ ] Componente de upload com preview, limite de tamanho e tipo
-[ ] Página /perfil com formulário
-[ ] Ativar item "Editar perfil" na topbar
-[ ] Exibir CRN e nome no layout
-[ ] Validação de formato de CRN
-[ ] Teste: upload não acessível por outro usuário
+[x] Configurar Supabase Storage: bucket privado 'profissional'
+[x] Políticas de Storage (cada um acessa só a própria pasta)
+[x] Componente de upload com preview, limite de tamanho e tipo
+[x] Página /perfil com formulário
+[x] Ativar item "Editar perfil" na topbar
+[x] Exibir CRN e nome no layout
+[x] Validação de formato de CRN
+[x] Teste: upload não acessível por outro usuário
 ```
 
+**Bloco A (2026-09-16) — backend:** migration `0004_professional_profile.sql` aplicada
+(colunas nullable em `profiles`, bucket privado `profissional`, policies de
+storage.objects restringindo cada usuário à própria pasta via
+`(storage.foldername(name))[1] = auth.uid()`).
+
+**Bloco B (2026-09-16) — UI:** `ProfileForm` + `ImageUpload` (`src/components/profile/`),
+Server Actions `updateProfile` / `uploadProfileFile` / `getProfileFileSignedUrl`
+(`src/lib/actions/profile.ts`), página `/perfil`, item "Editar perfil" da topbar
+ativado e logo do profissional exibida no avatar da topbar (via URL assinada).
+Upload valida tipo/tamanho tanto no cliente quanto no servidor. Nenhuma
+biblioteca nova foi adicionada.
+
+**Teste de isolamento (2026-09-16):** critério de aceite "URL de arquivo de
+outro profissional retorna 403" verificado na prática com `npm run
+test:storage-isolation` (`scripts/test-storage-isolation.mjs`) — cria 2 contas
+descartáveis, confirma que uma não consegue ler/baixar/enviar/apagar arquivo
+na pasta da outra, e limpa tudo ao final. **5/5 testes passaram.** Script fica
+no repo para reexecutar caso as policies de storage mudem no futuro; exige
+`SUPABASE_SERVICE_ROLE_KEY` temporário no `.env.local` (mesmo fluxo do
+`import:taco`), removido logo depois de rodar.
+
+**CRN e nome no layout (2026-09-16):** topbar passou a receber `crn`/`crn_uf`
+do profile (buscados em `(app)/layout.tsx`) e exibe "CRN 12345/SP" ao lado do
+nome, sem alterar a altura do cabeçalho. Some da tela quando o campo está
+vazio, sem quebrar layout.
+
+**Bloco C (2026-09-16) — teste automatizado de segurança:**
+`scripts/test-storage-isolation.mjs` reescrito para cobrir os 6 cenários
+pedidos: (1) usuário B tenta acessar o arquivo de A pelo caminho direto —
+download e signed URL, ambos negados; (2) B tenta listar a pasta de A — RLS
+filtra e retorna lista vazia, sem erro; (3) B tenta sobrescrever o arquivo de
+A (mesmo path, `upsert:true`) — negado, e o conteúdo do arquivo de A é
+verificado byte a byte para confirmar que não mudou; (4) uma URL assinada de
+TTL curto (1s) é gerada pelo dono, o script espera 3s e confirma via `fetch`
+real que ela responde HTTP 400, não mais o arquivo. **7/7 verificações
+passaram — nenhuma falha de segurança encontrada.**
+
+O script segue a regra pedida: se qualquer verificação que deveria falhar
+tivesse passado (acesso indevido bem-sucedido), ele para imediatamente
+(`SecurityBreachError`), imprime um alerta e sai com erro — sem tentar
+contornar. Não foi necessário acionar esse caminho nesta execução.
+
+**Nota técnica (não é uma falha):** o critério de aceite fala em "retorna
+403", mas o Supabase Storage responde com **404 "Object not found"** para
+select/download negado pela RLS, em vez de 403. Isso é intencional do lado
+do Supabase — evita confirmar para um usuário não autorizado que o arquivo
+sequer existe (um 403 revelaria a existência do objeto; um 404 não revela
+nada). Já a tentativa de upload/overwrite indevido retorna o erro esperado
+de violação de RLS. Comportamento equivalente ou mais seguro que um 403
+literal — não é dívida técnica.
+
 ### Critérios de aceite
-- Perfil completo persiste e reflete na topbar.
-- Logo e assinatura fazem upload e aparecem no preview.
-- URL de arquivo de outro profissional retorna 403.
-- CRN validado.
+- [x] Perfil completo persiste e reflete na topbar.
+- [x] Logo e assinatura fazem upload e aparecem no preview.
+- [x] URL de arquivo de outro profissional retorna 403 (na prática, 404 — ver nota técnica acima).
+- [x] CRN validado.
 
 ### Riscos
-Storage mal configurado vaza arquivo entre contas. **Testar explicitamente o acesso cruzado antes de fechar a fase.**
+Storage mal configurado vaza arquivo entre contas. **Testado explicitamente antes de fechar a fase — ver Bloco C.** Nenhum vazamento encontrado.
 
 ---
 

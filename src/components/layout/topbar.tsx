@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { BookOpen, LogOut, User as UserIcon } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,9 +20,12 @@ import { getInitials } from "@/lib/utils";
 interface TopbarProps {
   userName: string;
   userEmail: string;
+  logoUrl: string | null;
+  crn: string | null;
+  crnUf: string | null;
 }
 
-export function Topbar({ userName, userEmail }: TopbarProps) {
+export function Topbar({ userName, userEmail, logoUrl, crn, crnUf }: TopbarProps) {
   const router = useRouter();
 
   async function handleLogout() {
@@ -41,19 +44,30 @@ export function Topbar({ userName, userEmail }: TopbarProps) {
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-3 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <span className="hidden text-right sm:block">
-            <span className="block text-sm font-medium leading-tight text-foreground">{userName}</span>
+            <span className="block text-sm font-medium leading-tight text-foreground">
+              {userName}
+              {crn && (
+                <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                  CRN {crn}
+                  {crnUf ? `/${crnUf}` : ""}
+                </span>
+              )}
+            </span>
             <span className="block text-xs leading-tight text-muted-foreground">{userEmail}</span>
           </span>
           <Avatar>
+            {logoUrl && <AvatarImage src={logoUrl} alt={userName} />}
             <AvatarFallback>{getInitials(userName)}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem disabled>
-            <UserIcon className="h-4 w-4" />
-            Editar perfil
+          <DropdownMenuItem asChild>
+            <Link href="/perfil">
+              <UserIcon className="h-4 w-4" />
+              Editar perfil
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/fontes">

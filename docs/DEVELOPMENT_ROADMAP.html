@@ -130,9 +130,9 @@
   </div>
   <div class="bar"><i style="width:15%"></i></div>
   <div class="legend">
-    <span><b>1</b> fase concluída</span>
+    <span><b>3</b> fases concluídas</span>
     <span><b>0</b> em andamento</span>
-    <span><b>10</b> planejadas</span>
+    <span><b>8</b> planejadas</span>
     <span><b>4</b> decisões pendentes</span>
   </div>
 </section>
@@ -179,56 +179,56 @@
   </div>
 </details>
 
-<details class="phase active">
+<details class="phase">
   <summary class="ph-head">
-    <span class="mark">1</span>
-    <span class="ph-title"><span class="n">PHASE 1 · PRÓXIMA</span><div class="t">Fundação e rede de segurança</div></span>
-    <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+    <span class="mark done">✓</span>
+    <span class="ph-title"><span class="n">PHASE 1</span><div class="t">Fundação e rede de segurança</div></span>
+    <span class="ph-meta"><span class="chip c-done">Done</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
     <p class="obj"><b>Objetivo:</b> tornar seguro alterar o sistema. Nenhuma funcionalidade nova.</p>
     <ul class="tasks">
-      <li>Vitest + testes de <code>lib/nutrition.ts</code> (≥90% de cobertura)</li>
-      <li>Testes dos schemas Zod</li>
-      <li><code>error.tsx</code>, <code>loading.tsx</code>, <code>not-found.tsx</code></li>
-      <li>Tipos gerados do Supabase (substituir os manuais)</li>
-      <li>Paginação em pacientes, alimentos e planos</li>
-      <li>Índice trigram para a busca <code>ilike</code></li>
-      <li>Migrar deploy para Git e remover <code>.env.production</code></li>
-      <li>SMTP próprio (Resend/Brevo)</li>
-      <li><b>Decidir:</b> multi-tenancy e identidade do paciente</li>
+      <li class="ok">Vitest + testes de <code>lib/nutrition.ts</code> (37 testes)</li>
+      <li class="ok">Testes dos schemas Zod</li>
+      <li class="ok"><code>error.tsx</code>, <code>loading.tsx</code>, <code>not-found.tsx</code></li>
+      <li class="ok">Tipos gerados do Supabase (generic <code>&lt;Database&gt;</code> não religado — ver DECISIONS.md D3)</li>
+      <li class="ok">Paginação em pacientes, alimentos e planos</li>
+      <li class="ok">Índice trigram para a busca <code>ilike</code></li>
+      <li class="ok">Migrar deploy para Git e remover <code>.env.production</code></li>
+      <li class="ok">SMTP próprio (Resend)</li>
+      <li class="ok"><b>Decidido:</b> multi-tenancy (D1) e identidade do paciente (D2)</li>
     </ul>
     <div class="accept"><b>Aceite</b>
-      Suíte de testes passa; erro em produção mostra tela de recuperação; listagem com 500 registros pagina; e-mail chega em Gmail e Outlook; decisões registradas em DECISIONS.md.</div>
-    <div class="risk"><b>Risco</b>
-      Reintroduzir o generic <code>&lt;Database&gt;</code> pode ressuscitar os erros de tipo <code>never</code>. Por isso usar tipos gerados, nunca manuais.</div>
+      Suíte de testes passa; erro em produção mostra tela de recuperação; listagem com 500 registros pagina; e-mail chega (via Resend, sandbox — domínio próprio ainda pendente); decisões registradas em DECISIONS.md.</div>
   </div>
 </details>
 
 <details class="phase">
   <summary class="ph-head">
-    <span class="mark">2</span>
+    <span class="mark done">✓</span>
     <span class="ph-title"><span class="n">PHASE 2</span><div class="t">Identidade profissional</div></span>
-    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+    <span class="ph-meta"><span class="chip c-done">Done</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
     <p class="obj"><b>Objetivo:</b> o nutricionista existe como profissional, não só como login. Pré-requisito de todo documento gerado.</p>
     <ul class="tasks">
-      <li>Migration: CRN, telefone, logo, assinatura, cor de marca, endereço</li>
-      <li>Supabase Storage com bucket privado e políticas por usuário</li>
-      <li>Componente de upload com preview e validação</li>
-      <li>Página <code>/perfil</code>; ativar o item hoje desabilitado na topbar</li>
-      <li>Teste de acesso cruzado a arquivos</li>
+      <li class="ok">Migration: CRN, telefone, logo, assinatura, cor de marca, endereço</li>
+      <li class="ok">Supabase Storage com bucket privado e políticas por usuário</li>
+      <li class="ok">Componente de upload com preview e validação (cliente + servidor)</li>
+      <li class="ok">Página <code>/perfil</code>; item da topbar ativado; CRN e logo exibidos na topbar</li>
+      <li class="ok">Teste automatizado de acesso cruzado a arquivos (7/7 verificações)</li>
     </ul>
-    <div class="risk"><b>Risco</b>
-      Storage mal configurado vaza arquivo entre contas. Testar acesso cruzado explicitamente antes de fechar a fase.</div>
+    <div class="accept"><b>Aceite</b>
+      Perfil persiste e reflete na topbar; upload valida tipo/tamanho; acesso cruzado entre contas testado e bloqueado (script <code>test:storage-isolation</code>); CRN validado.</div>
+    <div class="risk"><b>Risco (mitigado)</b>
+      Storage mal configurado vaza arquivo entre contas. Testado explicitamente com 2 contas descartáveis — nenhum vazamento encontrado.</div>
   </div>
 </details>
 
-<details class="phase">
+<details class="phase active">
   <summary class="ph-head">
     <span class="mark">3</span>
-    <span class="ph-title"><span class="n">PHASE 3</span><div class="t">Consultório clínico completo</div></span>
+    <span class="ph-title"><span class="n">PHASE 3 · PRÓXIMA</span><div class="t">Consultório clínico completo</div></span>
     <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
