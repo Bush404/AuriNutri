@@ -88,9 +88,13 @@ export async function updateMealItemQuantity(
   return { success: true };
 }
 
+/** Soft delete — ver comentário equivalente em deletePatient (patients.ts). */
 export async function deleteMealItem(planId: string, itemId: string): Promise<ActionResult> {
   const supabase = createClient();
-  const { error } = await supabase.from("meal_items").delete().eq("id", itemId);
+  const { error } = await supabase
+    .from("meal_items")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", itemId);
 
   if (error) {
     return { success: false, message: error.message };

@@ -130,9 +130,9 @@
   </div>
   <div class="bar"><i style="width:15%"></i></div>
   <div class="legend">
-    <span><b>3</b> fases concluídas</span>
+    <span><b>4</b> fases concluídas</span>
     <span><b>0</b> em andamento</span>
-    <span><b>8</b> planejadas</span>
+    <span><b>7</b> planejadas</span>
     <span><b>4</b> decisões pendentes</span>
   </div>
 </section>
@@ -225,31 +225,33 @@
   </div>
 </details>
 
-<details class="phase active">
+<details class="phase">
   <summary class="ph-head">
-    <span class="mark">3</span>
-    <span class="ph-title"><span class="n">PHASE 3 · PRÓXIMA</span><div class="t">Consultório clínico completo</div></span>
-    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+    <span class="mark done">✓</span>
+    <span class="ph-title"><span class="n">PHASE 3</span><div class="t">Consultório clínico completo</div></span>
+    <span class="ph-meta"><span class="chip c-done">Done</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
     <p class="obj"><b>Objetivo:</b> fechar lacunas do atendimento e preservar histórico clínico.</p>
     <ul class="tasks">
-      <li>Anamnese versionada (hoje sobrescreve e perde histórico)</li>
-      <li><code>deleted_at</code> — soft delete em todas as tabelas clínicas</li>
-      <li>Tabela <code>audit_log</code> + triggers</li>
-      <li>Editar avaliação antropométrica</li>
-      <li>Exportar dados do paciente (portabilidade LGPD)</li>
-      <li>Confirmação ao sair de formulário não salvo</li>
+      <li class="ok">Anamnese versionada — 1:N com <code>data_registro</code>, linha do tempo na UI</li>
+      <li class="ok"><code>deleted_at</code> — soft delete nas tabelas de registro pontual (avaliação, plano, refeição, item)</li>
+      <li class="ok">Tabela <code>audit_log</code> + triggers nas 4 tabelas clínicas</li>
+      <li class="ok">Editar avaliação antropométrica</li>
+      <li class="ok">Exportar dados do paciente (portabilidade LGPD, .json)</li>
+      <li class="ok">Confirmação ao sair de formulário não salvo (beforeunload + cliques em links)</li>
     </ul>
-    <div class="risk"><b>Risco</b>
-      Soft delete exige revisar todas as queries. Um filtro esquecido faz registro excluído reaparecer.</div>
+    <div class="accept"><b>Aceite</b>
+      Anamnese nova não sobrescreve a anterior; audit_log registra alteração clínica e é isolado por profissional; exportação LGPD completa. Excluir paciente virou exclusão real e definitiva por decisão de produto (D5) — não soft delete.</div>
+    <div class="risk"><b>Risco (mitigado)</b>
+      Soft delete exigiria revisar todas as queries se dependesse de disciplina de código. Resolvido colocando o filtro na própria policy de RLS.</div>
   </div>
 </details>
 
-<details class="phase">
+<details class="phase active">
   <summary class="ph-head">
     <span class="mark">4</span>
-    <span class="ph-title"><span class="n">PHASE 4 · FIM DO MVP</span><div class="t">Plano alimentar profissional + PDF</div></span>
+    <span class="ph-title"><span class="n">PHASE 4 · FIM DO MVP · PRÓXIMA</span><div class="t">Plano alimentar profissional + PDF</div></span>
     <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">

@@ -15,6 +15,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+const CONFIRM_WORD = "excluir";
 
 interface DeletePatientDialogProps {
   patientId: string;
@@ -30,6 +34,8 @@ export function DeletePatientDialog({
   onOpenChange,
 }: DeletePatientDialogProps) {
   const [isPending, startTransition] = useTransition();
+  const [confirmText, setConfirmText] = useState("");
+  const isConfirmed = confirmText.trim().toLowerCase() === CONFIRM_WORD;
 
   function handleDelete() {
     startTransition(async () => {
@@ -43,21 +49,41 @@ export function DeletePatientDialog({
     });
   }
 
+  function handleOpenChange(nextOpen: boolean) {
+    if (!nextOpen) setConfirmText("");
+    onOpenChange(nextOpen);
+  }
+
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Excluir paciente</AlertDialogTitle>
           <AlertDialogDescription>
             Tem certeza que deseja excluir <strong>{patientName}</strong>? Essa ação também
-            removerá anamnese, avaliações e planos alimentares associados, e não pode ser desfeita.
+            remove permanentemente anamnese, avaliações e planos alimentares associados. Não há
+            como desfazer nem recuperar pela aplicação depois disso.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        <div className="space-y-2">
+          <Label htmlFor="confirm-delete">
+            Digite <strong>{CONFIRM_WORD}</strong> para confirmar
+          </Label>
+          <Input
+            id="confirm-delete"
+            autoComplete="off"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder={CONFIRM_WORD}
+          />
+        </div>
+
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+          <AlertDialogAction onClick={handleDelete} disabled={isPending || !isConfirmed}>
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-            Excluir
+            Excluir definitivamente
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

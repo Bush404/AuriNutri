@@ -11,6 +11,7 @@ import { deleteAssessment } from "@/lib/actions/clinical";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { NewAssessmentDialog } from "@/components/patients/new-assessment-dialog";
 
 export function AssessmentsTable({
   patientId,
@@ -42,7 +43,7 @@ export function AssessmentsTable({
           <TableHead>IMC</TableHead>
           <TableHead className="hidden md:table-cell">Cintura</TableHead>
           <TableHead className="hidden md:table-cell">Quadril</TableHead>
-          <TableHead className="w-[50px]" />
+          <TableHead className="w-[90px]" />
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -76,14 +77,17 @@ export function AssessmentsTable({
                 {assessment.circunferencia_quadril_cm ? `${assessment.circunferencia_quadril_cm} cm` : "—"}
               </TableCell>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={isPending}
-                  onClick={() => handleDelete(assessment.id)}
-                >
-                  <Trash2 className="h-4 w-4 text-muted-foreground" />
-                </Button>
+                <div className="flex items-center justify-end gap-1">
+                  <NewAssessmentDialog patientId={patientId} assessment={assessment} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={isPending}
+                    onClick={() => handleDelete(assessment.id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           );

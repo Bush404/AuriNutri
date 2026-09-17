@@ -15,14 +15,21 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { PatientTabs } from "@/components/patients/patient-tabs";
+import { ExportPatientButton } from "@/components/patients/export-patient-button";
 
 export default async function PacienteDetalhePage({ params }: { params: { id: string } }) {
   const supabase = createClient();
 
-  const [{ data: patient }, { data: anamnesis }, { data: assessments }, { data: mealPlans }] =
+  const [{ data: patient }, { data: anamneses }, { data: assessments }, { data: mealPlans }] =
     await Promise.all([
       supabase.from("patients").select("*").eq("id", params.id).single<Patient>(),
-      supabase.from("anamnesis").select("*").eq("patient_id", params.id).maybeSingle<Anamnesis>(),
+      supabase
+        .from("anamnesis")
+        .select("*")
+        .eq("patient_id", params.id)
+        .order("data_registro", { ascending: false })
+        .order("created_at", { ascending: false })
+        .returns<Anamnesis[]>(),
       supabase
         .from("anthropometric_assessments")
         .select("*")
@@ -71,17 +78,20 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
           </div>
         </div>
 
-        <Button variant="outline" asChild>
-          <Link href={`/pacientes/${patient.id}/editar`}>
-            <Pencil className="h-4 w-4" />
-            Editar dados
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <ExportPatientButton patientId={patient.id} patientName={patient.nome} />
+          <Button variant="outline" asChild>
+            <Link href={`/pacientes/${patient.id}/editar`}>
+              <Pencil className="h-4 w-4" />
+              Editar dados
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <PatientTabs
         patient={patient}
-        anamnesis={anamnesis ?? null}
+        anamneses={anamneses ?? []}
         assessments={assessments ?? []}
         mealPlans={mealPlans ?? []}
       />

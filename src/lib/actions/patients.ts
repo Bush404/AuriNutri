@@ -80,6 +80,13 @@ export async function updatePatient(patientId: string, input: PatientInput): Pro
   redirect(`/pacientes/${patientId}`);
 }
 
+/**
+ * Exclusão real e definitiva (decisão de produto — ver DECISIONS.md D5):
+ * apaga o paciente e, em cascata (FK on delete cascade), anamnese,
+ * avaliações, planos, refeições e itens dele. Diferente das exclusões
+ * pontuais dentro de um paciente ativo (avaliação, plano, item de
+ * refeição), que usam soft delete — aqui não há o que preservar.
+ */
 export async function deletePatient(patientId: string): Promise<ActionResult> {
   const supabase = createClient();
 

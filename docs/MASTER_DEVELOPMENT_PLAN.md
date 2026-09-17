@@ -174,7 +174,7 @@ Storage mal configurado vaza arquivo entre contas. **Testado explicitamente ante
 
 ---
 
-## PHASE 3 — Consultório clínico completo · `TODO` · `HIGH`
+## PHASE 3 — Consultório clínico completo · `DONE` · `HIGH`
 
 **Objetivo:** fechar as lacunas do atendimento e preservar histórico clínico.
 
@@ -183,28 +183,71 @@ Storage mal configurado vaza arquivo entre contas. **Testado explicitamente ante
 ### Tarefas
 
 ```
-[ ] Migration 0005: anamnesis versionada (1:N com data_registro)
-[ ] Migration 0005: deleted_at em patients, anamnesis, assessments, meal_plans
-[ ] Migration 0005: tabela audit_log (tabela, registro_id, acao, user_id, timestamp, diff)
-[ ] Trigger de auditoria nas tabelas clínicas
-[ ] Soft delete em todas as actions de exclusão
-[ ] Filtrar deleted_at nas policies RLS
-[ ] Editar avaliação antropométrica (updateAssessment)
-[ ] Histórico de anamneses no perfil (linha do tempo)
-[ ] Exportar dados do paciente (LGPD - portabilidade)
-[ ] Confirmação ao sair de formulário com alterações não salvas
-[ ] Teste: exclusão não remove fisicamente
-[ ] Teste: audit_log registra alteração clínica
+[x] Migration 0006: anamnesis versionada (1:N com data_registro)
+[x] Migration 0005: deleted_at em anamnesis, assessments, meal_plans, meals,
+    meal_items, foods (NÃO em patients — ver D5)
+[x] Migration 0005: tabela audit_log (tabela, registro_id, acao, user_id, timestamp, diff)
+[x] Trigger de auditoria nas tabelas clínicas
+[x] Soft delete nas actions de exclusão pontual (assessment/plano/refeição/item)
+[x] Filtrar deleted_at nas policies RLS
+[x] Editar avaliação antropométrica (updateAssessment)
+[x] Histórico de anamneses no perfil (linha do tempo)
+[x] Exportar dados do paciente (LGPD - portabilidade)
+[x] Confirmação ao sair de formulário com alterações não salvas
+[x] Teste: exclusão de paciente (real e definitiva, por decisão de produto)
+[x] Teste: audit_log registra alteração clínica + isolamento entre profissionais
 ```
 
-### Critérios de aceite
-- Excluir paciente o remove da lista mas preserva os dados.
-- Nova anamnese não sobrescreve a anterior; ambas visíveis com data.
-- Toda alteração em dado clínico gera linha em `audit_log`.
-- Exportação gera JSON/PDF completo do paciente.
+**Bloco A (2026-09-16) — soft delete estrutural + auditoria:** migration
+`0005_soft_delete_audit.sql`. `deleted_at` entra na cláusula `USING` das
+policies de `SELECT` (não em queries da aplicação) — um registro excluído
+fica invisível mesmo que uma query futura esqueça de filtrar. Índices
+parciais (`where deleted_at is null`) recriados para não degradar com o
+tempo. Tabela `audit_log` com policy de `SELECT` própria e nenhuma policy de
+escrita — só a trigger `log_audit_event` (security definer) grava, nunca a
+API. **Decisão de produto D5** (ver `docs/DECISIONS.md`): excluir um
+**paciente** continua sendo definitivo (apaga tudo em cascata, como já era);
+o soft delete vale só para exclusões pontuais dentro de um paciente ativo
+(avaliação, plano, refeição, item). A migration precisou de um ajuste manual
+em produção no meio do caminho — documentado como aprendizado em
+`docs/DECISIONS.md` (D5) e na memória do projeto.
 
-### Riscos
-Soft delete exige revisar **todas** as queries existentes. Esquecer um filtro faz registro excluído reaparecer.
+**Bloco B (2026-09-16) — anamnesis 1:N:** migration `0006_anamnesis_versionada.sql`
+remove a constraint `UNIQUE(patient_id)` (localizada por introspecção do
+catálogo, não por nome assumido) e adiciona `data_registro`, com backfill a
+partir de `created_at` para preservar a data real dos registros existentes.
+`createAnamnesis`/`updateAnamnesis` substituem `upsertAnamnesis`. A aba
+Anamnese virou uma linha do tempo (`AnamnesisTimeline`) com botão "Nova
+anamnese" e edição pontual por registro. Testado com
+`npm run test:anamnesis-history` (duas anamneses do mesmo paciente, ambas
+persistem).
+
+**Bloco C (2026-09-16) — UX clínico + LGPD + testes finais:**
+- `updateAssessment` + `NewAssessmentDialog` reaproveitado em modo edição
+  (botão de editar ao lado do de excluir em cada avaliação).
+- Exportação de portabilidade LGPD (`exportPatientData` +
+  `ExportPatientButton`): baixa um `.json` com cadastro, anamneses,
+  avaliações e planos (com refeições e itens) do paciente.
+- Aviso de alterações não salvas (`useUnsavedChangesWarning`): cobre
+  `beforeunload` (fechar aba/atualizar) e clique em qualquer link interno
+  (intercepta na fase de captura, antes do `<Link>` do Next navegar).
+  Aplicado em `PatientForm` e `AnamnesisForm`. **Não cobre o botão
+  voltar/avançar do navegador** (popstate) — fora de escopo, anotado como
+  limitação conhecida.
+- Confirmação reforçada de exclusão de paciente: precisa digitar "excluir"
+  no dialog antes do botão habilitar, já que a exclusão é definitiva (D5).
+- 3 scripts de teste novos: `test:patient-deletion` (exclusão é real e some
+  da listagem), `test:audit-log` (alteração clínica gera linha + um
+  profissional não vê o audit_log de outro). Todos passaram.
+
+### Critérios de aceite
+- [x] Excluir paciente o remove da lista **e apaga os dados de verdade** (D5 — mudou do critério original "preserva os dados"; ver justificativa em DECISIONS.md).
+- [x] Nova anamnese não sobrescreve a anterior; ambas visíveis com data.
+- [x] Toda alteração em dado clínico gera linha em `audit_log`, e é isolada por profissional (RLS).
+- [x] Exportação gera JSON completo do paciente (cadastro + anamneses + avaliações + planos). PDF fica para a Fase 4, que já tem geração de PDF no escopo.
+
+### Riscos (mitigado)
+Soft delete exigiria revisar **todas** as queries existentes se o filtro dependesse de disciplina de código. Mitigado colocando `deleted_at is null` na própria policy de RLS — nenhuma query da aplicação precisa se lembrar de filtrar.
 
 ---
 

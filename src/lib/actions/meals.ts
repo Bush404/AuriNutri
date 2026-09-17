@@ -56,9 +56,10 @@ export async function updateMeal(planId: string, mealId: string, input: MealInpu
   return { success: true, message: "Refeição atualizada." };
 }
 
+/** Soft delete — ver comentário equivalente em deletePatient (patients.ts). */
 export async function deleteMeal(planId: string, mealId: string): Promise<ActionResult> {
   const supabase = createClient();
-  const { error } = await supabase.from("meals").delete().eq("id", mealId);
+  const { error } = await supabase.from("meals").update({ deleted_at: new Date().toISOString() }).eq("id", mealId);
 
   if (error) {
     return { success: false, message: error.message };

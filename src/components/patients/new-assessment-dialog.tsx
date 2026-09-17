@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { assessmentSchema, type AssessmentInput } from "@/lib/validations/patient";
-import { createAssessment } from "@/lib/actions/clinical";
+import { createAssessment, updateAssessment } from "@/lib/actions/clinical";
+import type { AnthropometricAssessment } from "@/lib/types/database.types";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,9 +24,34 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export function NewAssessmentDialog({ patientId }: { patientId: string }) {
+function buildDefaults(assessment?: AnthropometricAssessment): AssessmentInput {
+  if (!assessment) {
+    return { data_avaliacao: new Date().toISOString().slice(0, 10) } as AssessmentInput;
+  }
+  return {
+    data_avaliacao: assessment.data_avaliacao,
+    peso_kg: assessment.peso_kg,
+    altura_cm: assessment.altura_cm,
+    circunferencia_cintura_cm: assessment.circunferencia_cintura_cm ?? undefined,
+    circunferencia_quadril_cm: assessment.circunferencia_quadril_cm ?? undefined,
+    circunferencia_braco_cm: assessment.circunferencia_braco_cm ?? undefined,
+    circunferencia_coxa_cm: assessment.circunferencia_coxa_cm ?? undefined,
+    circunferencia_pescoco_cm: assessment.circunferencia_pescoco_cm ?? undefined,
+    percentual_gordura: assessment.percentual_gordura ?? undefined,
+    observacoes: assessment.observacoes ?? undefined,
+  } as AssessmentInput;
+}
+
+interface NewAssessmentDialogProps {
+  patientId: string;
+  /** Presente = editar esta avaliação específica. Ausente = criar uma nova. */
+  assessment?: AnthropometricAssessment;
+}
+
+export function NewAssessmentDialog({ patientId, assessment }: NewAssessmentDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const isEditing = Boolean(assessment);
 
   const {
     register,
@@ -34,35 +60,51 @@ export function NewAssessmentDialog({ patientId }: { patientId: string }) {
     formState: { errors },
   } = useForm<AssessmentInput>({
     resolver: zodResolver(assessmentSchema),
-    defaultValues: { data_avaliacao: new Date().toISOString().slice(0, 10) },
+    defaultValues: buildDefaults(assessment),
   });
+
+  // Reabre sempre com os valores atuais (relevante em modo edição, já que o
+  // dialog não desmonta entre aberturas).
+  useEffect(() => {
+    if (open) reset(buildDefaults(assessment));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   async function onSubmit(values: AssessmentInput) {
     setLoading(true);
-    const result = await createAssessment(patientId, values);
+    const result = isEditing
+      ? await updateAssessment(assessment!.id, patientId, values)
+      : await createAssessment(patientId, values);
     setLoading(false);
 
     if (!result.success) {
-      toast.error("Não foi possível registrar a avaliação", { description: result.message });
+      toast.error(`Não foi possível ${isEditing ? "atualizar" : "registrar"} a avaliação`, {
+        description: result.message,
+      });
       return;
     }
 
-    toast.success(result.message ?? "Avaliação registrada.");
-    reset({ data_avaliacao: new Date().toISOString().slice(0, 10) });
+    toast.success(result.message ?? "Avaliação salva.");
     setOpen(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus className="h-4 w-4" />
-          Nova avaliação
-        </Button>
+        {isEditing ? (
+          <Button variant="ghost" size="icon" aria-label="Editar avaliação">
+            <Pencil className="h-4 w-4 text-muted-foreground" />
+          </Button>
+        ) : (
+          <Button size="sm">
+            <Plus className="h-4 w-4" />
+            Nova avaliação
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Nova avaliação antropométrica</DialogTitle>
+          <DialogTitle>{isEditing ? "Editar avaliação antropométrica" : "Nova avaliação antropométrica"}</DialogTitle>
           <DialogDescription>
             O IMC é calculado automaticamente a partir do peso e da altura informados.
           </DialogDescription>
@@ -129,7 +171,7 @@ export function NewAssessmentDialog({ patientId }: { patientId: string }) {
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              Salvar avaliação
+              {isEditing ? "Salvar alterações" : "Salvar avaliação"}
             </Button>
           </DialogFooter>
         </form>

@@ -8,7 +8,7 @@ import { calculateAge, formatDate } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
-import { AnamnesisForm } from "@/components/patients/anamnesis-form";
+import { AnamnesisTimeline } from "@/components/patients/anamnesis-timeline";
 import { NewAssessmentDialog } from "@/components/patients/new-assessment-dialog";
 import { AssessmentsTable } from "@/components/patients/assessments-table";
 import { EvolutionChart } from "@/components/patients/evolution-chart";
@@ -16,12 +16,12 @@ import { MealPlanList } from "@/components/meal-plans/meal-plan-list";
 
 interface PatientTabsProps {
   patient: Patient;
-  anamnesis: Anamnesis | null;
+  anamneses: Anamnesis[];
   assessments: AnthropometricAssessment[];
   mealPlans: MealPlan[];
 }
 
-export function PatientTabs({ patient, anamnesis, assessments, mealPlans }: PatientTabsProps) {
+export function PatientTabs({ patient, anamneses, assessments, mealPlans }: PatientTabsProps) {
   const age = calculateAge(patient.data_nascimento);
 
   return (
@@ -56,7 +56,7 @@ export function PatientTabs({ patient, anamnesis, assessments, mealPlans }: Pati
       </TabsContent>
 
       <TabsContent value="anamnese">
-        <AnamnesisForm patientId={patient.id} anamnesis={anamnesis} />
+        <AnamnesisTimeline patientId={patient.id} anamneses={anamneses} />
       </TabsContent>
 
       <TabsContent value="avaliacoes">

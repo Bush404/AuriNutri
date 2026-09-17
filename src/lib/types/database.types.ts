@@ -37,6 +37,8 @@ export interface Anamnesis {
   id: string;
   patient_id: string;
   user_id: string;
+  /** anamnesis é 1:N por paciente — data deste registro específico do histórico. */
+  data_registro: string;
   queixa_principal: string | null;
   historico_saude: string | null;
   historico_familiar: string | null;
@@ -50,6 +52,8 @@ export interface Anamnesis {
   observacoes: string | null;
   created_at: string;
   updated_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
 }
 
 export interface AnthropometricAssessment {
@@ -68,6 +72,8 @@ export interface AnthropometricAssessment {
   percentual_gordura: number | null;
   observacoes: string | null;
   created_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
 }
 
 export type FonteAlimento = "taco" | "personalizado";
@@ -123,6 +129,8 @@ export interface Food {
   valores_especiais: Partial<Record<string, ValorEspecial>>;
   created_at: string;
   updated_at: string;
+  /** Reservado para uso futuro — deleteFood continua fazendo hard delete, nunca é setado hoje. */
+  deleted_at: string | null;
 }
 
 export interface MealPlan {
@@ -135,6 +143,8 @@ export interface MealPlan {
   observacoes: string | null;
   created_at: string;
   updated_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
 }
 
 export interface Meal {
@@ -145,6 +155,8 @@ export interface Meal {
   horario: string | null;
   ordem: number;
   created_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
 }
 
 export interface MealItem {
@@ -168,4 +180,6 @@ export interface MealItem {
   gorduras_g: number;
   fibras_g: number;
   created_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
 }

@@ -17,6 +17,10 @@ next-env.d.ts
 tsconfig.tsbuildinfo
 supabase/.temp/
 
+# Backups manuais (scripts/backup-database.mjs) contem dados clinicos reais
+# de pacientes — NUNCA deve ser commitado.
+/backups/
+
 # O CSV inicial da TACO (scripts/import-taco/data/taco-4a-edicao.csv) é
 # pequeno e faz parte do projeto — pode ser versionado normalmente. Se você
 # substituí-lo pelo arquivo completo de ~597 itens (ver README do script),

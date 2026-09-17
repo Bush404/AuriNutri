@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { patientSchema, type PatientInput } from "@/lib/validations/patient";
 import { createPatient, updatePatient } from "@/lib/actions/patients";
 import type { Patient } from "@/lib/types/database.types";
+import { useUnsavedChangesWarning } from "@/lib/hooks/use-unsaved-changes-warning";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +36,7 @@ export function PatientForm({ patient }: PatientFormProps) {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<PatientInput>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
@@ -49,6 +50,8 @@ export function PatientForm({ patient }: PatientFormProps) {
       observacoes: patient?.observacoes ?? "",
     },
   });
+
+  useUnsavedChangesWarning(isDirty && !loading);
 
   async function onSubmit(values: PatientInput) {
     setLoading(true);

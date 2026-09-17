@@ -13,7 +13,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "import:taco": "node scripts/import-taco/import.mjs",
-    "test:storage-isolation": "node scripts/test-storage-isolation.mjs"
+    "test:storage-isolation": "node scripts/test-storage-isolation.mjs",
+    "backup:db": "node scripts/backup-database.mjs",
+    "test:anamnesis-history": "node scripts/test-anamnesis-history.mjs",
+    "test:patient-deletion": "node scripts/test-patient-deletion.mjs",
+    "test:audit-log": "node scripts/test-audit-log.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

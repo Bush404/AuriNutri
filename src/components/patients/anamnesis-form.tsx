@@ -7,15 +7,16 @@ import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 
 import { anamnesisSchema, type AnamnesisInput } from "@/lib/validations/patient";
-import { upsertAnamnesis } from "@/lib/actions/clinical";
+import { createAnamnesis, updateAnamnesis } from "@/lib/actions/clinical";
 import type { Anamnesis } from "@/lib/types/database.types";
+import { useUnsavedChangesWarning } from "@/lib/hooks/use-unsaved-changes-warning";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-const FIELDS: { name: keyof AnamnesisInput; label: string; placeholder?: string }[] = [
+export const ANAMNESIS_FIELDS: { name: keyof AnamnesisInput; label: string }[] = [
   { name: "queixa_principal", label: "Queixa principal" },
   { name: "historico_saude", label: "Histórico de saúde" },
   { name: "historico_familiar", label: "Histórico familiar" },
@@ -29,10 +30,23 @@ const FIELDS: { name: keyof AnamnesisInput; label: string; placeholder?: string 
   { name: "observacoes", label: "Observações gerais" },
 ];
 
-export function AnamnesisForm({ patientId, anamnesis }: { patientId: string; anamnesis: Anamnesis | null }) {
-  const [loading, setLoading] = useState(false);
+interface AnamnesisFormProps {
+  patientId: string;
+  /** Presente = editar este registro específico. Ausente = criar um novo. */
+  anamnesis?: Anamnesis | null;
+  onSaved?: () => void;
+  onCancel?: () => void;
+}
 
-  const { register, handleSubmit } = useForm<AnamnesisInput>({
+export function AnamnesisForm({ patientId, anamnesis, onSaved, onCancel }: AnamnesisFormProps) {
+  const [loading, setLoading] = useState(false);
+  const isEditing = Boolean(anamnesis);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { isDirty },
+  } = useForm<AnamnesisInput>({
     resolver: zodResolver(anamnesisSchema),
     defaultValues: {
       queixa_principal: anamnesis?.queixa_principal ?? "",
@@ -49,9 +63,13 @@ export function AnamnesisForm({ patientId, anamnesis }: { patientId: string; ana
     },
   });
 
+  useUnsavedChangesWarning(isDirty && !loading);
+
   async function onSubmit(values: AnamnesisInput) {
     setLoading(true);
-    const result = await upsertAnamnesis(patientId, values);
+    const result = isEditing
+      ? await updateAnamnesis(anamnesis!.id, patientId, values)
+      : await createAnamnesis(patientId, values);
     setLoading(false);
 
     if (!result.success) {
@@ -59,21 +77,23 @@ export function AnamnesisForm({ patientId, anamnesis }: { patientId: string; ana
       return;
     }
     toast.success(result.message ?? "Anamnese salva.");
+    onSaved?.();
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Anamnese</CardTitle>
+        <CardTitle>{isEditing ? "Editar registro de anamnese" : "Nova anamnese"}</CardTitle>
         <CardDescription>
-          Registre o histórico clínico e comportamental do paciente. Esses dados podem ser
-          atualizados a qualquer momento.
+          {isEditing
+            ? "Corrige o conteúdo deste registro. A data do registro não muda."
+            : "Cria um novo registro no histórico do paciente — não sobrescreve os anteriores."}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            {FIELDS.map((field) => (
+            {ANAMNESIS_FIELDS.map((field) => (
               <div key={field.name} className="space-y-2">
                 <Label htmlFor={field.name}>{field.label}</Label>
                 <Textarea id={field.name} rows={3} {...register(field.name)} />
@@ -81,10 +101,15 @@ export function AnamnesisForm({ patientId, anamnesis }: { patientId: string; ana
             ))}
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            {onCancel && (
+              <Button type="button" variant="ghost" onClick={onCancel} disabled={loading}>
+                Cancelar
+              </Button>
+            )}
             <Button type="submit" disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              Salvar anamnese
+              {isEditing ? "Salvar alterações" : "Registrar anamnese"}
             </Button>
           </div>
         </form>

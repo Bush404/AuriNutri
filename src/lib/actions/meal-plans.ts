@@ -80,9 +80,13 @@ export async function toggleMealPlanStatus(planId: string, ativo: boolean): Prom
   return { success: true };
 }
 
+/** Soft delete — ver comentário equivalente em deletePatient (patients.ts). */
 export async function deleteMealPlan(planId: string, patientId: string): Promise<ActionResult> {
   const supabase = createClient();
-  const { error } = await supabase.from("meal_plans").delete().eq("id", planId);
+  const { error } = await supabase
+    .from("meal_plans")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", planId);
 
   if (error) {
     return { success: false, message: error.message };

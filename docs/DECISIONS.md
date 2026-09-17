@@ -81,6 +81,41 @@ dedicado, testando manualmente login/logout/refresh de sessão antes de religar 
 
 ---
 
+## D5 — Excluir paciente é definitivo; exclusões pontuais são reversíveis (soft delete)
+
+**Decisão:** ao excluir um **paciente**, tudo relacionado a ele (anamnese, avaliações
+antropométricas, planos alimentares, refeições e itens) é apagado de verdade do banco, em
+cascata — igual já era antes da Fase 3. Não existe "lixeira" nem forma de desfazer pela
+aplicação; a única recuperação possível é via backup manual (`npm run backup:db`).
+
+Já exclusões **pontuais dentro de um paciente que continua ativo** — remover uma avaliação
+antropométrica, um plano alimentar, uma refeição ou um item de refeição — usam **soft delete**:
+a linha ganha `deleted_at` e fica invisível via RLS, mas não é apagada fisicamente.
+
+**Data:** 2026-09-16
+
+**Justificativa (do responsável pelo produto):** "não tem porque salvar" os dados de um
+paciente que foi de fato excluído — soft delete existe pra evitar perder trabalho por um clique
+errado num registro específico, não pra reter dado clínico de alguém que o profissional decidiu
+remover do consultório.
+
+**Impacto técnico:**
+- `patients` **não** recebe a coluna `deleted_at` — as outras 6 tabelas (`anamnesis`,
+  `anthropometric_assessments`, `meal_plans`, `meals`, `meal_items`, e `foods` por consistência
+  de schema, embora não usada lá) recebem, na migration `0005_soft_delete_audit.sql`.
+- `deletePatient` (`src/lib/actions/patients.ts`) continua fazendo `.delete()` real; as demais
+  actions de exclusão (`deleteAssessment`, `deleteMealPlan`, `deleteMeal`, `deleteMealItem`)
+  passaram a fazer `.update({ deleted_at: now() })`.
+- A trigger de auditoria (`log_audit_event`) é genérica o bastante para rodar tanto em
+  `patients` (sem `deleted_at`) quanto nas tabelas com soft delete — usa uma checagem via jsonb
+  em vez de acessar a coluna diretamente, então não quebra em `patients`.
+- Uma exclusão de paciente ainda cai inteira no `audit_log`: a cascata do Postgres dispara a
+  trigger de auditoria em cada linha de `anamnesis`/`anthropometric_assessments`/`meal_plans`
+  removida, então o rastro de "o que existia antes de ser apagado" fica registrado mesmo sendo
+  uma exclusão real.
+
+---
+
 ## Como revisitar
 
 Qualquer mudança em D1 ou D2 deve vir com uma nova entrada neste arquivo (não sobrescrever as
