@@ -7,7 +7,8 @@ import {
   type AppointmentInput,
   APPOINTMENT_STATUSES,
 } from "@/lib/validations/appointment";
-import { zonedWallTimeToUtc, DEFAULT_TIME_ZONE } from "@/lib/timezone";
+import { zonedWallTimeToUtc, utcInstantToZonedDateTime, DEFAULT_TIME_ZONE } from "@/lib/timezone";
+import { rangesOverlap } from "@/lib/agenda";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { AppointmentStatus } from "@/lib/types/database.types";
 
@@ -22,6 +23,60 @@ async function getProfessionalTimeZone(
     .eq("id", userId)
     .single<{ fuso_horario: string | null }>();
   return data?.fuso_horario || DEFAULT_TIME_ZONE;
+}
+
+/**
+ * Checagem amigável de sobreposição, feita ANTES de gravar — só pra dar uma
+ * mensagem específica (com o horário do conflito) em vez do erro genérico do
+ * Postgres. A garantia de verdade é a exclusion constraint da migration
+ * 0012 (cobre corrida de requisições concorrentes, que esta checagem sozinha
+ * não cobriria).
+ */
+async function findConflictingAppointment(
+  supabase: ReturnType<typeof createClient>,
+  newStartIso: string,
+  newEndIso: string,
+  excludeId?: string
+): Promise<{ dataHora: string; duracaoMin: number } | null> {
+  // Nenhuma consulta dura mais de 24h — essa janela já cobre qualquer candidata real.
+  const windowStart = new Date(new Date(newEndIso).getTime() - 24 * 60 * 60 * 1000).toISOString();
+
+  let query = supabase
+    .from("appointments")
+    .select("id, data_hora, duracao_min")
+    .neq("status", "cancelado")
+    .gte("data_hora", windowStart)
+    .lt("data_hora", newEndIso);
+
+  if (excludeId) {
+    query = query.neq("id", excludeId);
+  }
+
+  const { data } = await query.returns<{ id: string; data_hora: string; duracao_min: number }[]>();
+
+  const newStartMs = new Date(newStartIso).getTime();
+  const newEndMs = new Date(newEndIso).getTime();
+
+  for (const row of data ?? []) {
+    const rowStartMs = new Date(row.data_hora).getTime();
+    const rowEndMs = rowStartMs + row.duracao_min * 60_000;
+    if (rangesOverlap(newStartMs, newEndMs, rowStartMs, rowEndMs)) {
+      return { dataHora: row.data_hora, duracaoMin: row.duracao_min };
+    }
+  }
+  return null;
+}
+
+function conflictMessage(conflict: { dataHora: string; duracaoMin: number }, timeZone: string): string {
+  const inicio = utcInstantToZonedDateTime(conflict.dataHora, timeZone).timeStr;
+  const fimIso = new Date(new Date(conflict.dataHora).getTime() + conflict.duracaoMin * 60_000).toISOString();
+  const fim = utcInstantToZonedDateTime(fimIso, timeZone).timeStr;
+  return `Já existe uma consulta agendada nesse horário (${inicio}–${fim}).`;
+}
+
+/** Traduz a exclusion constraint da migration 0012 (rede de segurança contra corrida de requisições). */
+function isOverlapConstraintError(error: { code?: string } | null): boolean {
+  return error?.code === "23P01";
 }
 
 export async function createAppointment(input: AppointmentInput): Promise<ActionResult> {
@@ -41,11 +96,19 @@ export async function createAppointment(input: AppointmentInput): Promise<Action
 
   const timeZone = await getProfessionalTimeZone(supabase, user.id);
   const dataHoraUtc = zonedWallTimeToUtc(parsed.data.data_hora_local, timeZone);
+  const dataHoraIso = dataHoraUtc.toISOString();
+  const fimIso = new Date(dataHoraUtc.getTime() + parsed.data.duracao_min * 60_000).toISOString();
+
+  const conflict = await findConflictingAppointment(supabase, dataHoraIso, fimIso);
+  if (conflict) {
+    return { success: false, message: conflictMessage(conflict, timeZone) };
+  }
 
   const { error } = await supabase.from("appointments").insert({
     patient_id: parsed.data.patient_id,
     user_id: user.id,
-    data_hora: dataHoraUtc.toISOString(),
+    data_hora: dataHoraIso,
+    data_fim: fimIso,
     duracao_min: parsed.data.duracao_min,
     tipo: parsed.data.tipo,
     status: parsed.data.status ?? "agendado",
@@ -53,7 +116,10 @@ export async function createAppointment(input: AppointmentInput): Promise<Action
   });
 
   if (error) {
-    return { success: false, message: error.message };
+    return {
+      success: false,
+      message: isOverlapConstraintError(error) ? "Já existe uma consulta agendada nesse horário." : error.message,
+    };
   }
 
   revalidatePath("/agenda");
@@ -81,12 +147,20 @@ export async function updateAppointment(
 
   const timeZone = await getProfessionalTimeZone(supabase, user.id);
   const dataHoraUtc = zonedWallTimeToUtc(parsed.data.data_hora_local, timeZone);
+  const dataHoraIso = dataHoraUtc.toISOString();
+  const fimIso = new Date(dataHoraUtc.getTime() + parsed.data.duracao_min * 60_000).toISOString();
+
+  const conflict = await findConflictingAppointment(supabase, dataHoraIso, fimIso, appointmentId);
+  if (conflict) {
+    return { success: false, message: conflictMessage(conflict, timeZone) };
+  }
 
   const { error } = await supabase
     .from("appointments")
     .update({
       patient_id: parsed.data.patient_id,
-      data_hora: dataHoraUtc.toISOString(),
+      data_hora: dataHoraIso,
+      data_fim: fimIso,
       duracao_min: parsed.data.duracao_min,
       tipo: parsed.data.tipo,
       status: parsed.data.status ?? "agendado",
@@ -95,7 +169,10 @@ export async function updateAppointment(
     .eq("id", appointmentId);
 
   if (error) {
-    return { success: false, message: error.message };
+    return {
+      success: false,
+      message: isOverlapConstraintError(error) ? "Já existe uma consulta agendada nesse horário." : error.message,
+    };
   }
 
   revalidatePath("/agenda");
@@ -130,10 +207,16 @@ export async function updateAppointmentStatus(
  * "Remarcar" e pelo arrastar-para-remarcar da visão semanal, que não têm
  * (nem precisam ter) o restante do formulário em mãos.
  */
+const WALL_TIME_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+
 export async function rescheduleAppointment(
   appointmentId: string,
   dataHoraLocal: string
 ): Promise<ActionResult> {
+  if (!WALL_TIME_REGEX.test(dataHoraLocal) || Number(dataHoraLocal.slice(-2)) % 15 !== 0) {
+    return { success: false, message: "Horário inválido — use intervalos de 15 minutos." };
+  }
+
   const supabase = createClient();
   const {
     data: { user },
@@ -143,16 +226,36 @@ export async function rescheduleAppointment(
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
 
+  const { data: current } = await supabase
+    .from("appointments")
+    .select("duracao_min")
+    .eq("id", appointmentId)
+    .single<{ duracao_min: number }>();
+
+  if (!current) {
+    return { success: false, message: "Consulta não encontrada." };
+  }
+
   const timeZone = await getProfessionalTimeZone(supabase, user.id);
   const dataHoraUtc = zonedWallTimeToUtc(dataHoraLocal, timeZone);
+  const dataHoraIso = dataHoraUtc.toISOString();
+  const fimIso = new Date(dataHoraUtc.getTime() + current.duracao_min * 60_000).toISOString();
+
+  const conflict = await findConflictingAppointment(supabase, dataHoraIso, fimIso, appointmentId);
+  if (conflict) {
+    return { success: false, message: conflictMessage(conflict, timeZone) };
+  }
 
   const { error } = await supabase
     .from("appointments")
-    .update({ data_hora: dataHoraUtc.toISOString() })
+    .update({ data_hora: dataHoraIso, data_fim: fimIso })
     .eq("id", appointmentId);
 
   if (error) {
-    return { success: false, message: error.message };
+    return {
+      success: false,
+      message: isOverlapConstraintError(error) ? "Já existe uma consulta agendada nesse horário." : error.message,
+    };
   }
 
   revalidatePath("/agenda");

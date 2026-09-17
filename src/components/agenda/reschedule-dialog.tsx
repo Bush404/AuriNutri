@@ -69,6 +69,7 @@ export function RescheduleDialog({ open, onOpenChange, appointment, timeZone }: 
             <Input
               id="reschedule_data_hora"
               type="datetime-local"
+              step={900}
               value={dataHoraLocal}
               onChange={(e) => setDataHoraLocal(e.target.value)}
               required

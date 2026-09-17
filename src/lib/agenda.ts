@@ -182,3 +182,30 @@ export function formatDayShort(dateStr: string): string {
 export function formatWeekRangeLabel(days: string[]): string {
   return `${formatDayShort(days[0])} – ${formatDayShort(days[6])}`;
 }
+
+// ============================================================================
+// Horário de parede ("HH:mm") — usado para compor início/término de consulta
+// no formulário e para checar sobreposição de agendamentos.
+// ============================================================================
+
+export function timeStrToMinutes(time: string): number {
+  const [hour, minute] = time.split(":").map(Number);
+  return hour * 60 + minute;
+}
+
+export function minutesToTimeStr(totalMinutes: number): string {
+  const normalized = ((totalMinutes % 1440) + 1440) % 1440;
+  const hour = Math.floor(normalized / 60);
+  const minute = normalized % 60;
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+/** Soma minutos a um horário "HH:mm" — dá a volta à meia-noite se passar de 23:59. */
+export function addMinutesToTimeStr(time: string, minutes: number): string {
+  return minutesToTimeStr(timeStrToMinutes(time) + minutes);
+}
+
+/** Dois intervalos [aStart, aEnd) e [bStart, bEnd) (em minutos ou ms) se sobrepõem? */
+export function rangesOverlap(aStart: number, aEnd: number, bStart: number, bEnd: number): boolean {
+  return aStart < bEnd && bStart < aEnd;
+}

@@ -37,11 +37,13 @@ export const appointmentSchema = z.object({
   data_hora_local: z
     .string()
     .min(1, "Informe data e horário")
-    .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Data/horário inválido"),
+    .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Data/horário inválido")
+    .refine((v) => Number(v.slice(-2)) % 15 === 0, "O horário deve ser em intervalos de 15 minutos"),
   duracao_min: z.coerce
     .number({ invalid_type_error: "Informe a duração" })
     .int("Duração deve ser um número inteiro de minutos")
-    .positive("Duração deve ser maior que zero"),
+    .positive("Duração deve ser maior que zero")
+    .refine((v) => v % 15 === 0, "A duração deve ser em intervalos de 15 minutos"),
   tipo: z.enum(APPOINTMENT_TIPOS, { errorMap: () => ({ message: "Selecione o tipo de consulta" }) }),
   status: z.enum(APPOINTMENT_STATUSES).optional(),
   observacoes: optionalText(),

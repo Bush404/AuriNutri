@@ -9,7 +9,14 @@ import type { PatientPickerResult } from "@/lib/actions/patients";
 import { createAppointment, deleteAppointment, updateAppointment, updateAppointmentStatus } from "@/lib/actions/appointments";
 import { getPatientAgendaContext } from "@/lib/actions/patient-context";
 import type { PatientAgendaContext } from "@/lib/patient-context";
-import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_META, APPOINTMENT_TIPOS, APPOINTMENT_TIPO_LABELS } from "@/lib/agenda";
+import {
+  APPOINTMENT_STATUSES,
+  APPOINTMENT_STATUS_META,
+  APPOINTMENT_TIPOS,
+  APPOINTMENT_TIPO_LABELS,
+  addMinutesToTimeStr,
+  timeStrToMinutes,
+} from "@/lib/agenda";
 import { utcInstantToZonedDateTime } from "@/lib/timezone";
 import { formatDate } from "@/lib/utils";
 import { buildAppointmentReminderMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -31,12 +38,15 @@ import {
 } from "@/components/ui/dialog";
 
 interface FormState {
-  dataHoraLocal: string;
-  duracaoMin: string;
+  data: string;
+  horaInicio: string;
+  horaFim: string;
   tipo: AppointmentTipo | "";
   status: AppointmentStatus;
   observacoes: string;
 }
+
+const DEFAULT_DURACAO_MIN = 60;
 
 function buildInitialState(
   timeZone: string,
@@ -47,16 +57,19 @@ function buildInitialState(
   if (appointment) {
     const { dateStr, timeStr } = utcInstantToZonedDateTime(appointment.data_hora, timeZone);
     return {
-      dataHoraLocal: `${dateStr}T${timeStr}`,
-      duracaoMin: String(appointment.duracao_min),
+      data: dateStr,
+      horaInicio: timeStr,
+      horaFim: addMinutesToTimeStr(timeStr, appointment.duracao_min),
       tipo: appointment.tipo,
       status: appointment.status,
       observacoes: appointment.observacoes ?? "",
     };
   }
+  const horaInicio = defaultTimeStr ?? "08:00";
   return {
-    dataHoraLocal: `${defaultDateStr ?? new Date().toISOString().slice(0, 10)}T${defaultTimeStr ?? "08:00"}`,
-    duracaoMin: "60",
+    data: defaultDateStr ?? new Date().toISOString().slice(0, 10),
+    horaInicio,
+    horaFim: addMinutesToTimeStr(horaInicio, DEFAULT_DURACAO_MIN),
     tipo: "",
     status: "agendado",
     observacoes: "",
@@ -91,6 +104,7 @@ export function AppointmentFormDialog({
     buildInitialState(timeZone, appointment, defaultDateStr, defaultTimeStr)
   );
   const [patientError, setPatientError] = useState<string | null>(null);
+  const [horarioError, setHorarioError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [context, setContext] = useState<PatientAgendaContext | null>(null);
   const [contextLoading, setContextLoading] = useState(false);
@@ -103,6 +117,7 @@ export function AppointmentFormDialog({
       appointment ? { id: appointment.patient_id, nome: appointment.patients?.nome ?? "Paciente" } : defaultPatient ?? null
     );
     setPatientError(null);
+    setHorarioError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -138,10 +153,17 @@ export function AppointmentFormDialog({
       return;
     }
 
+    const duracaoMin = timeStrToMinutes(form.horaFim) - timeStrToMinutes(form.horaInicio);
+    if (duracaoMin <= 0) {
+      setHorarioError("O horário de término deve ser depois do início.");
+      return;
+    }
+    setHorarioError(null);
+
     const payload = {
       patient_id: selectedPatient.id,
-      data_hora_local: form.dataHoraLocal,
-      duracao_min: Number(form.duracaoMin),
+      data_hora_local: `${form.data}T${form.horaInicio}`,
+      duracao_min: duracaoMin,
       tipo,
       status: isEditing ? form.status : undefined,
       observacoes: form.observacoes,
@@ -246,32 +268,56 @@ export function AppointmentFormDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 col-span-2">
-              <Label htmlFor="data_hora_local">Data e horário *</Label>
+              <Label htmlFor="data">Data *</Label>
               <Input
-                id="data_hora_local"
-                type="datetime-local"
-                value={form.dataHoraLocal}
-                onChange={(e) => setForm((f) => ({ ...f, dataHoraLocal: e.target.value }))}
+                id="data"
+                type="date"
+                value={form.data}
+                onChange={(e) => setForm((f) => ({ ...f, data: e.target.value }))}
                 required
                 disabled={isPending}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="duracao_min">Duração (min) *</Label>
+              <Label htmlFor="hora_inicio">Início *</Label>
               <Input
-                id="duracao_min"
-                type="number"
-                min={5}
-                step={5}
-                value={form.duracaoMin}
-                onChange={(e) => setForm((f) => ({ ...f, duracaoMin: e.target.value }))}
+                id="hora_inicio"
+                type="time"
+                step={900}
+                value={form.horaInicio}
+                onChange={(e) => {
+                  const horaInicio = e.target.value;
+                  setForm((f) =>
+                    timeStrToMinutes(f.horaFim) <= timeStrToMinutes(horaInicio)
+                      ? { ...f, horaInicio, horaFim: addMinutesToTimeStr(horaInicio, DEFAULT_DURACAO_MIN) }
+                      : { ...f, horaInicio }
+                  );
+                  setHorarioError(null);
+                }}
                 required
                 disabled={isPending}
               />
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="hora_fim">Término *</Label>
+              <Input
+                id="hora_fim"
+                type="time"
+                step={900}
+                value={form.horaFim}
+                onChange={(e) => {
+                  setForm((f) => ({ ...f, horaFim: e.target.value }));
+                  setHorarioError(null);
+                }}
+                required
+                disabled={isPending}
+              />
+            </div>
+            {horarioError && <p className="text-xs text-destructive col-span-2">{horarioError}</p>}
+
+            <div className="space-y-2 col-span-2">
               <Label htmlFor="tipo">Tipo *</Label>
               <Select
                 value={form.tipo}

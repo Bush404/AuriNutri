@@ -231,6 +231,8 @@ export interface Appointment {
   user_id: string;
   /** Instante absoluto (UTC). Interpretar/exibir com o fuso de profiles.fuso_horario — ver src/lib/timezone.ts. */
   data_hora: string;
+  /** data_hora + duracao_min, gravado explicitamente pela aplicação — usado pela exclusion constraint anti-sobreposição (migration 0012). */
+  data_fim: string;
   duracao_min: number;
   tipo: AppointmentTipo;
   status: AppointmentStatus;
