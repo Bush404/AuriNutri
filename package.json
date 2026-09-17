@@ -18,7 +18,8 @@
     "test:anamnesis-history": "node scripts/test-anamnesis-history.mjs",
     "test:patient-deletion": "node scripts/test-patient-deletion.mjs",
     "test:audit-log": "node scripts/test-audit-log.mjs",
-    "test:plan-share-tokens": "node scripts/test-plan-share-tokens.mjs"
+    "test:plan-share-tokens": "node scripts/test-plan-share-tokens.mjs",
+    "test:appointments-isolation": "node scripts/test-appointments-isolation.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

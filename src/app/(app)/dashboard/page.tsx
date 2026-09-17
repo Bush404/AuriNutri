@@ -1,12 +1,26 @@
 import Link from "next/link";
-import { Users, UserPlus, Apple, ClipboardList, ArrowRight } from "lucide-react";
+import { Users, UserPlus, Apple, ClipboardList, ArrowRight, CalendarDays } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
+import { getPatientAgendaContext } from "@/lib/actions/patient-context";
+import { PENDENCIA_META, PENDENCIA_ORDEM } from "@/lib/patient-context";
+import { APPOINTMENT_STATUS_META } from "@/lib/agenda";
+import { DEFAULT_TIME_ZONE, utcInstantToZonedDateTime } from "@/lib/timezone";
+import type { AppointmentStatus } from "@/lib/types/database.types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { formatDate, getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+interface UpcomingAppointmentRow {
+  id: string;
+  data_hora: string;
+  status: AppointmentStatus;
+  patient_id: string;
+  patients: { nome: string } | null;
+}
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -16,22 +30,48 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("nome")
+    .select("nome, fuso_horario")
     .eq("id", user!.id)
-    .single<{ nome: string }>();
+    .single<{ nome: string; fuso_horario: string | null }>();
 
-  const [{ count: totalPacientes }, { count: totalAlimentos }, { count: totalPlanos }, { data: pacientesRecentes }] =
-    await Promise.all([
-      supabase.from("patients").select("*", { count: "exact", head: true }),
-      supabase.from("foods").select("*", { count: "exact", head: true }).eq("is_global", false),
-      supabase.from("meal_plans").select("*", { count: "exact", head: true }),
-      supabase
-        .from("patients")
-        .select("id, nome, email, created_at")
-        .order("created_at", { ascending: false })
-        .limit(5)
-        .returns<{ id: string; nome: string; email: string | null; created_at: string }[]>(),
-    ]);
+  const timeZone = profile?.fuso_horario || DEFAULT_TIME_ZONE;
+  const startIso = new Date().toISOString();
+  const endIso = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [
+    { count: totalPacientes },
+    { count: totalAlimentos },
+    { count: totalPlanos },
+    { data: pacientesRecentes },
+    { data: proximosAtendimentos },
+  ] = await Promise.all([
+    supabase.from("patients").select("*", { count: "exact", head: true }),
+    supabase.from("foods").select("*", { count: "exact", head: true }).eq("is_global", false),
+    supabase.from("meal_plans").select("*", { count: "exact", head: true }),
+    supabase
+      .from("patients")
+      .select("id, nome, email, created_at")
+      .order("created_at", { ascending: false })
+      .limit(5)
+      .returns<{ id: string; nome: string; email: string | null; created_at: string }[]>(),
+    supabase
+      .from("appointments")
+      .select("id, data_hora, status, patient_id, patients(nome)")
+      .gte("data_hora", startIso)
+      .lt("data_hora", endIso)
+      .order("data_hora")
+      .limit(10)
+      .returns<UpcomingAppointmentRow[]>(),
+  ]);
+
+  const proximosComPendencias = await Promise.all(
+    (proximosAtendimentos ?? []).map(async (agendamento) => ({
+      agendamento,
+      contexto: await getPatientAgendaContext(agendamento.patient_id, timeZone, {
+        excludeAppointmentId: agendamento.id,
+      }),
+    }))
+  );
 
   const firstName = (profile?.nome ?? "").split(" ")[0];
 
@@ -92,6 +132,75 @@ export default async function DashboardPage() {
           </Link>
         ))}
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardTitle>Próximos atendimentos (7 dias)</CardTitle>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/agenda">
+              Ver agenda
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {proximosComPendencias.length > 0 ? (
+            <div className="divide-y divide-border">
+              {proximosComPendencias.map(({ agendamento, contexto }) => {
+                const { dateStr, timeStr } = utcInstantToZonedDateTime(agendamento.data_hora, timeZone);
+                const statusMeta = APPOINTMENT_STATUS_META[agendamento.status];
+                const pendencias = contexto ? PENDENCIA_ORDEM.filter((t) => contexto.pendencias.includes(t)) : [];
+                return (
+                  <Link
+                    key={agendamento.id}
+                    href={`/agenda?visao=semana&data=${dateStr}&paciente=${agendamento.patient_id}`}
+                    className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 hover:opacity-80 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarFallback>{getInitials(agendamento.patients?.nome ?? "?")}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {agendamento.patients?.nome ?? "Paciente"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(dateStr)} às {timeStr}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
+                      <Badge variant={statusMeta.badgeVariant} className="text-[10px]">
+                        {statusMeta.label}
+                      </Badge>
+                      {pendencias.map((tipo) => {
+                        const meta = PENDENCIA_META[tipo];
+                        const Icon = meta.icon;
+                        return (
+                          <Badge key={tipo} variant="warning" className="gap-1 text-[10px]" title={meta.label}>
+                            <Icon className="h-3 w-3" />
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <EmptyState
+              icon={CalendarDays}
+              title="Nenhum atendimento nos próximos 7 dias"
+              description="Agende uma consulta para vê-la aparecer aqui."
+              action={
+                <Button asChild size="sm">
+                  <Link href="/agenda">Abrir agenda</Link>
+                </Button>
+              }
+            />
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">

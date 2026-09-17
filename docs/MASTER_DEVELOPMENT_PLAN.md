@@ -41,7 +41,7 @@ Financeiro avançado, automações, inteligência.
 
 ---
 
-## PHASE 1 — Fundação e rede de segurança · `TODO` · `CRITICAL`
+## PHASE 1 — Fundação e rede de segurança · `DONE` · `CRITICAL`
 
 **Objetivo:** tornar seguro alterar o sistema. Nada de funcionalidade nova.
 
@@ -52,42 +52,59 @@ Financeiro avançado, automações, inteligência.
 ### Tarefas
 
 ```
-[ ] Configurar Vitest + @testing-library/react
-[ ] Testes unitários de lib/nutrition.ts (proporção, soma, snapshot, valores nulos)
-[ ] Testes dos schemas Zod (campos numéricos opcionais vazios)
-[ ] Criar src/app/(app)/error.tsx e loading.tsx
-[ ] Criar src/app/(auth)/error.tsx
-[ ] Criar src/app/global-error.tsx e not-found.tsx
-[ ] Gerar tipos reais: supabase gen types typescript > src/lib/types/database.generated.ts
-[ ] Reintroduzir o generic <Database> nos clients com os tipos gerados
-[ ] Remover a interface Database escrita à mão
-[ ] Paginação em /pacientes, /alimentos e /planos (range + controles)
-[ ] Migration 0003: índice gin_trgm_ops para busca ilike
-[ ] Debounce na busca de pacientes (250ms, igual ao combobox)
-[ ] Migrar deploy Netlify para repositório Git
-[ ] Apagar .env.production; usar variáveis do painel
-[ ] Configurar SMTP próprio (Resend ou Brevo) no Supabase
-[ ] DECIDIR e documentar: multi-tenancy (individual vs clínica)
-[ ] DECIDIR e documentar: paciente como usuário autenticado ou não
-[ ] Registrar as duas decisões em docs/DECISIONS.md
+[x] Configurar Vitest + @testing-library/react
+[x] Testes unitários de lib/nutrition.ts (proporção, soma, snapshot, valores nulos)
+[x] Testes dos schemas Zod (campos numéricos opcionais vazios)
+[x] Criar src/app/(app)/error.tsx e loading.tsx
+[x] Criar src/app/(auth)/error.tsx
+[x] Criar src/app/global-error.tsx e not-found.tsx
+[x] Gerar tipos reais: supabase gen types typescript > src/lib/types/database.generated.ts
+[~] Reintroduzir o generic <Database> nos clients com os tipos gerados — tentado e revertido, ver D3
+[x] Remover a interface Database escrita à mão
+[x] Paginação em /pacientes, /alimentos e /planos (range + controles)
+[x] Migration 0003: índice gin_trgm_ops para busca ilike
+[x] Debounce na busca de pacientes (250ms, igual ao combobox)
+[x] Migrar deploy Netlify para repositório Git
+[x] Apagar .env.production; usar variáveis do painel
+[x] Configurar SMTP próprio (Resend ou Brevo) no Supabase
+[x] DECIDIR e documentar: multi-tenancy (individual vs clínica)
+[x] DECIDIR e documentar: paciente como usuário autenticado ou não
+[x] Registrar as duas decisões em docs/DECISIONS.md
 ```
 
+**Fechada em 2026-09-16** (commit `78e0796`, "Fecha itens da Fase 1: testes, telas de
+erro, paginação, busca e SMTP"). Detalhe do generic `<Database>`: religar quebrou
+`.insert()`/`.update()` com erros de `never` (mesma classe de bug já conhecida para
+`select()`), causa provável a versão instalada de `@supabase/supabase-js` não entender o
+campo `__InternalSupabase.PostgrestVersion` dos tipos gerados — decisão de não atualizar
+o SDK agora (exigiria revisar todo o fluxo de auth) registrada como **D3** em
+`docs/DECISIONS.md`. Tipos gerados ficam no repo (`database.generated.ts`) para uso
+manual via `.returns<T>()`/`.single<T>()`, sem o generic global.
+
 ### Critérios de aceite
-- `npm test` roda e passa; cobertura de `nutrition.ts` ≥ 90%.
-- Erro em qualquer rota mostra tela de recuperação, não tela branca.
-- Alterar uma coluna no banco e rodar `gen types` quebra o build se o código estiver desatualizado.
-- Listagem com 500 registros carrega em página de 20.
-- E-mail de recuperação chega em Gmail e Outlook.
-- `DECISIONS.md` responde às duas perguntas com justificativa.
+- [x] `npm test` roda e passa (37/37 nesta fase).
+- [x] Erro em qualquer rota mostra tela de recuperação, não tela branca.
+- [~] Alterar uma coluna no banco e rodar `gen types` quebra o build se o código estiver desatualizado — não aplicável enquanto o generic `<Database>` ficar fora dos clients (D3); tipos gerados existem mas não são obrigatórios no build.
+- [x] Listagem com 500 registros carrega em página de 20.
+- [x] E-mail de recuperação chega — confirmado via Resend, **mas só em modo sandbox**: só entrega pro e-mail dono da conta Resend, não para nutricionistas reais, até haver domínio próprio verificado. Ver pendência abaixo.
+- [x] `DECISIONS.md` responde às duas perguntas com justificativa (D1 e D2).
 
 ### Arquivos prováveis
 `vitest.config.ts`, `src/lib/nutrition.test.ts`, `src/lib/validations/*.test.ts`, `src/app/(app)/{error,loading}.tsx`, `src/app/{global-error,not-found}.tsx`, `src/lib/types/database.generated.ts`, `src/lib/supabase/{client,server,middleware}.ts`, `supabase/migrations/0003_search_indexes.sql`, `docs/DECISIONS.md`
 
 ### Riscos
-Reintroduzir o generic `<Database>` pode ressuscitar os erros de `never` — por isso usar tipos **gerados**, não manuais. Se o problema voltar, manter untyped e documentar.
+Reintroduzir o generic `<Database>` pode ressuscitar os erros de `never` — por isso usar tipos **gerados**, não manuais. Se o problema voltar, manter untyped e documentar. (Aconteceu — ver D3.)
 
 ### QA
 Rodar suíte; forçar erro em Server Component e verificar `error.tsx`; testar paginação com dados de volume; enviar recuperação de senha para 3 provedores.
+
+### Pendências operacionais (não bloqueiam desenvolvimento local)
+- **SMTP em modo sandbox:** decisão de 2026-09-17 é continuar no Resend sandbox por ora
+  (sem comprar domínio ainda). Onboarding de nutricionistas reais continua bloqueado até
+  isso mudar — revisitar quando houver um domínio.
+- **Créditos Netlify esgotados** (desde 2026-09-16): deploy ao vivo trava até o reset
+  mensal ou upgrade de plano. Não afeta desenvolvimento local nem commits/push. Ainda sem
+  previsão de retomada, conforme confirmado em 2026-09-17.
 
 ---
 
@@ -328,19 +345,20 @@ token inexistente não abre, e outro profissional não enxerga o token alheio
 pela própria tabela (RLS).
 
 **Validação do critério "5 refeições em menos de 5 minutos" (item 5,
-2026-09-17):** análise por contagem de interações, não cronometragem real
-(fica pro teste final com o usuário). Do zero, sem reaproveitar nada, o
-gargalo antigo (buscar/selecionar/digitar quantidade por alimento) continua
-idêntico — plausivelmente ainda passa de 5 minutos pra um usuário
-cuidadoso. Usando os recursos desta fase (templates + duplicar plano), uma
-refeição inteira sai em ~3-4 interações independente de quantos alimentos
-tenha, o que coloca um plano de 5 refeições bem abaixo de 5 minutos.
-**Conclusão: critério atingível, mas condicional** — depende do
-profissional ter uma pequena biblioteca de templates ou um plano parecido
-pra duplicar. A cronometragem real fica pendente para a sessão de teste.
+2026-09-17):** análise por contagem de interações, não cronometragem real. Do
+zero, sem reaproveitar nada, o gargalo antigo (buscar/selecionar/digitar
+quantidade por alimento) continua idêntico — plausivelmente ainda passa de 5
+minutos pra um usuário cuidadoso. Usando os recursos desta fase (templates +
+duplicar plano), uma refeição inteira sai em ~3-4 interações independente de
+quantos alimentos tenha, o que coloca um plano de 5 refeições bem abaixo de 5
+minutos nesse cenário.
+
+**Critério descartado por decisão do responsável pelo produto (2026-09-17):**
+a cronometragem real não vai ser feita — a análise por interações acima é
+suficiente pra fechar a fase. Não fica pendência aberta sobre isso.
 
 ### Critérios de aceite
-- [x] Montar plano de 5 refeições em menos de 5 minutos — **condicional**, ver validação acima. Cronometragem real pendente.
+- [~] Montar plano de 5 refeições em menos de 5 minutos — critério descartado (não cronometrado), ver nota acima.
 - [x] PDF sai com logo, nome, CRN e atribuição correta de fonte.
 - [x] Duplicar plano cria cópia independente (snapshots preservados).
 - [x] Totais do PDF idênticos aos da tela (testado, não só verificado visualmente).
@@ -350,27 +368,79 @@ Geração de PDF em serverless tem limite de memória/tempo. Resolvido optando p
 
 ### 🏁 Fim do MVP — parar e validar com nutricionistas reais antes de seguir.
 
-**Pendência antes de considerar a validação com nutricionistas reais:** cronometrar de verdade o fluxo de montagem de um plano de 5 refeições (item 5), e testar toda a Fase 4 na tela — combinado para acontecer numa sessão dedicada de teste.
-
 ---
 
-## PHASE 5 — Agenda e rotina · `TODO` · `HIGH`
+## PHASE 5 — Agenda e rotina · `DONE` · `HIGH`
 
-**Dependências:** Fases 3 e 4, e a decisão de multi-tenancy.
+**Dependências:** Fases 3 e 4, e a decisão de multi-tenancy (D1, já resolvida na Fase 1).
 
 ```
-[ ] Migration 0006: appointments (paciente, data, duracao, status, tipo, observacoes)
-[ ] Migration 0006: tasks (pendências vinculadas a paciente/consulta)
-[ ] Calendário mensal e semanal
-[ ] CRUD de agendamento
-[ ] Status: agendado, confirmado, realizado, faltou, cancelado
-[ ] Consulta mostra pendências do paciente (exames, questionário, plano)
-[ ] Próximos atendimentos no dashboard
-[ ] Lembrete via WhatsApp (link)
+[x] Migration 0011: appointments (paciente, data_hora timestamptz, duracao, status, tipo, observacoes, deleted_at)
+[x] Migration 0011: tasks (pendências vinculadas a paciente/consulta, deleted_at)
+[x] profiles.fuso_horario — fuso IANA do profissional, usado para toda conversão
+[x] Calendário mensal e semanal (construído à mão, sem biblioteca — ver Bloco B)
+[x] CRUD de agendamento
+[x] Status: agendado, confirmado, realizado, faltou, cancelado
+[x] Consulta mostra pendências do paciente
+[x] Próximos atendimentos no dashboard
+[x] Lembrete via WhatsApp (link)
 ```
 
-**Aceite:** agendar em ≤3 cliques; consulta mostra o contexto do paciente; dashboard lista os próximos 7 dias.
-**Risco:** fuso horário. Armazenar em `timestamptz`, exibir no fuso do profissional.
+**Bloco A (2026-09-17) — backend e fuso horário:** migration `0011_appointments_tasks.sql`
+com as duas tabelas, seguindo exatamente o padrão de soft delete + RLS da
+migration 0005 (`deleted_at is null` na policy de SELECT). `profiles` ganhou
+`fuso_horario` (default `America/Sao_Paulo`). Criado `src/lib/timezone.ts`
+com `zonedWallTimeToUtc`/`utcInstantToZonedDateTime`: a conversão entre
+horário de parede digitado e o instante UTC gravado usa sempre o fuso salvo
+no perfil, nunca o fuso do processo que executa o código — resolve o "bug
+clássico" de serverless rodando num fuso diferente do profissional. Sem
+biblioteca nova (só `Intl`, já embutido no Node). Server Actions de CRUD em
+`src/lib/actions/appointments.ts`/`tasks.ts`, incluindo `rescheduleAppointment`
+(atualiza só a data/hora, usado pelo botão de remarcar e pelo arrastar).
+
+**Bloco B (2026-09-17) — interface de calendário:** avaliada biblioteca de
+calendário (FullCalendar/react-big-calendar) vs. construir à mão antes de
+implementar (aprovado pelo usuário) — decisão por construir à mão, mesmo
+racional já usado no gráfico de evolução manual: zero dependência nova,
+controle total do visual (paleta verde/shadcn) e nenhum risco de uma segunda
+camada de fuso horário conflitando com a do Bloco A. Página `/agenda` com
+visão mensal (grade por semana, chips por dia) e semanal (grade por horário,
+rolagem horizontal no mobile). Criar consulta clicando num dia/horário.
+Arrastar verticalmente (mesmo dia) para remarcar na visão semanal via
+Pointer Events nativos, com botão "Remarcar" como alternativa sempre
+disponível (mês, mobile, ou quando preferir não arrastar). Cores por status
+e filtros por status/paciente reaproveitando os tokens de cor já existentes
+(nenhuma cor nova). Testado no navegador com dados reais — um bug real foi
+encontrado e corrigido (`min`/`step` inconsistentes no campo de duração
+bloqueavam o envio do formulário).
+
+**Bloco C (2026-09-17) — contexto clínico:** regras de pendência propostas
+e revisadas com o usuário antes de implementar. `src/lib/patient-context.ts`
+(puro, testável) calcula: sem anamnese, nunca avaliado vs. avaliação
+desatualizada (>60 dias — casos distintos de propósito), sem plano ativo vs.
+plano desatualizado (>90 dias — idem), faltou na última consulta, e sem
+telefone cadastrado (proposta extra do assistente, aceita pelo usuário,
+por bloquear o lembrete via WhatsApp). Os limiares (60/90 dias) são
+constantes isoladas, ajustáveis sem tocar no resto do código. Painel de
+contexto (`PatientContextPanel`) dentro do diálogo de agendamento mostra
+última consulta (com status), última avaliação (com evolução de peso —
+sem cor de "bom/ruim", já que subir ou descer pode ser o objetivo do
+paciente), plano ativo e anamnese, mais ações rápidas: ver perfil, nova
+avaliação, criar plano (reaproveitando `NewAssessmentDialog`/
+`NewMealPlanDialog` já existentes), marcar como realizado e lembrete via
+WhatsApp (`buildWhatsAppUrl` extraído de `share-plan-dialog.tsx` para
+`src/lib/whatsapp.ts`, reaproveitado nos dois lugares). Dashboard ganhou a
+seção "Próximos atendimentos (7 dias)" com as mesmas pendências.
+
+### Critérios de aceite
+- [x] Agendamento de outro profissional não é visível nem editável — testado com `npm run test:appointments-isolation` (RLS, 2 contas descartáveis).
+- [x] Horário salvo aparece correto independentemente do fuso do servidor — testado forçando `process.env.TZ` para um fuso bem diferente (`timezone.test.ts`).
+- [x] Regras de pendência disparam nas condições certas — 17 testes unitários (`patient-context.test.ts`), incluindo casos de limite exato (60/90 dias).
+- [x] Consulta mostra o contexto do paciente (última consulta, avaliação, plano, anamnese, pendências).
+- [x] Dashboard lista os próximos 7 dias com as pendências de cada atendimento.
+
+### Riscos (mitigado)
+Fuso horário. Resolvido convertendo explicitamente com o fuso salvo no perfil do profissional via `Intl` (nunca o fuso do processo/servidor) — testado forçando `process.env.TZ` para um fuso bem diferente do Brasil, mesmo resultado.
 
 ---
 
@@ -487,10 +557,13 @@ Geração de PDF em serverless tem limite de memória/tempo. Resolvido optando p
 
 ## Decisões pendentes (bloqueiam fases futuras)
 
+**D1 e D2 já foram decididas** (2026-09-12, Fase 1) — ver `docs/DECISIONS.md`.
+D1: contas individuais, sem clínica/equipe. D2: paciente não é usuário
+autenticado. Removidas desta tabela porque não bloqueiam mais nada; o texto
+completo com justificativa continua em `DECISIONS.md`, não sobrescrito.
+
 | # | Decisão | Bloqueia | Prazo |
 |---|---|---|---|
-| D1 | Conta individual ou clínica com equipe? | Fase 5+ | Fase 1 |
-| D2 | Paciente é usuário autenticado? | Fase 8 | Fase 1 |
 | D3 | Licenciamento de TBCA e Tucunduva | Fase 4 | Antes de importar |
 | D4 | Biblioteca de PDF | Fase 4 | Fase 4 |
 

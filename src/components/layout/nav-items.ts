@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { LayoutDashboard, Users, Apple, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Users, Apple, ClipboardList, CalendarDays } from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -19,6 +19,11 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Pacientes",
     href: "/pacientes",
     icon: Users,
+  },
+  {
+    title: "Agenda",
+    href: "/agenda",
+    icon: CalendarDays,
   },
   {
     title: "Meus Alimentos",

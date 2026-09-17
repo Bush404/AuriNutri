@@ -126,14 +126,14 @@
 <section class="overall">
   <div class="overall-top">
     <h2>Progresso geral do produto</h2>
-    <div class="pct">15%</div>
+    <div class="pct">55%</div>
   </div>
-  <div class="bar"><i style="width:15%"></i></div>
+  <div class="bar"><i style="width:55%"></i></div>
   <div class="legend">
-    <span><b>5</b> fases concluídas</span>
+    <span><b>6</b> fases concluídas</span>
     <span><b>0</b> em andamento</span>
-    <span><b>6</b> planejadas</span>
-    <span><b>4</b> decisões pendentes</span>
+    <span><b>5</b> planejadas</span>
+    <span><b>2</b> decisões pendentes</span>
   </div>
 </section>
 
@@ -271,30 +271,35 @@
   </div>
 </details>
 
-<details class="phase active">
+<details class="phase">
   <summary class="ph-head">
-    <span class="mark">5</span>
-    <span class="ph-title"><span class="n">PHASE 5 · PRÓXIMA</span><div class="t">Agenda e rotina</div></span>
-    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+    <span class="mark done">✓</span>
+    <span class="ph-title"><span class="n">PHASE 5</span><div class="t">Agenda e rotina</div></span>
+    <span class="ph-meta"><span class="chip c-done">Done</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
     <p class="obj"><b>Objetivo:</b> a agenda conversa com os dados do paciente — a consulta mostra o que está pendente.</p>
     <ul class="tasks">
-      <li>Tabelas <code>appointments</code> e <code>tasks</code></li>
-      <li>Calendário mensal e semanal</li>
-      <li>Status: agendado, confirmado, realizado, faltou, cancelado</li>
-      <li>Pendências do paciente na consulta</li>
-      <li>Lembrete via WhatsApp</li>
+      <li class="ok">Migrations <code>appointments</code> e <code>tasks</code> (soft delete + RLS por <code>user_id</code>, mesmo padrão das demais tabelas)</li>
+      <li class="ok"><code>profiles.fuso_horario</code> — conversão de fuso feita explicitamente via <code>Intl</code>, nunca implícita no fuso do servidor</li>
+      <li class="ok">Calendário mensal e semanal construído à mão (sem biblioteca) — criar clicando num horário, arrastar para remarcar na semana (desktop) ou botão "Remarcar"</li>
+      <li class="ok">Cores por status e filtros por status/paciente</li>
+      <li class="ok">Contexto clínico na consulta: última consulta, última avaliação (com evolução de peso), plano ativo, anamnese</li>
+      <li class="ok">Pendências automáticas: sem anamnese, nunca avaliado/avaliação desatualizada (60d), sem plano ativo/desatualizado (90d), faltou na última consulta, sem telefone</li>
+      <li class="ok">Dashboard: próximos 7 dias de atendimentos com as pendências de cada um</li>
+      <li class="ok">Ações rápidas na consulta: ver perfil, nova avaliação, criar plano, marcar como realizado, lembrete via WhatsApp</li>
     </ul>
-    <div class="risk"><b>Risco</b>
-      Fuso horário. Armazenar em <code>timestamptz</code> e exibir no fuso do profissional.</div>
+    <div class="accept"><b>Aceite</b>
+      Agendamento de outro profissional não é visível nem editável (script <code>test:appointments-isolation</code>, RLS). Horário salvo aparece correto independentemente do fuso do servidor (testes automatizados forçando <code>TZ</code> diferente no processo). Regras de pendência cobertas por 17 casos de teste unitário.</div>
+    <div class="risk"><b>Risco (mitigado)</b>
+      Fuso horário. Resolvido convertendo explicitamente com o fuso salvo no perfil do profissional via <code>Intl</code> — nunca o fuso do processo/servidor — e testado forçando <code>process.env.TZ</code> para um fuso bem diferente do Brasil.</div>
   </div>
 </details>
 
-<details class="phase">
+<details class="phase active">
   <summary class="ph-head">
     <span class="mark">6</span>
-    <span class="ph-title"><span class="n">PHASE 6</span><div class="t">Receitas e preparações</div></span>
+    <span class="ph-title"><span class="n">PHASE 6 · PRÓXIMA</span><div class="t">Receitas e preparações</div></span>
     <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
@@ -404,11 +409,14 @@
 
 <section class="decisions">
   <h2 class="section" style="margin-bottom:10px">Decisões pendentes — bloqueiam fases futuras</h2>
+  <p style="font-size:12.5px;color:var(--muted);margin-bottom:10px">
+    D1 e D2 já foram decididas (2026-09-12, Fase 1) — individual sem clínica/equipe;
+    paciente não autenticado. Texto completo em <code>DECISIONS.md</code>; removidas
+    daqui por não bloquearem mais nada.
+  </p>
   <table>
     <thead><tr><th>#</th><th>Decisão</th><th>Bloqueia</th><th>Prazo</th></tr></thead>
     <tbody>
-      <tr><td><b>D1</b></td><td>Conta individual ou clínica com equipe?</td><td>Fase 5+</td><td>Fase 1</td></tr>
-      <tr><td><b>D2</b></td><td>O paciente será usuário autenticado?</td><td>Fase 8</td><td>Fase 1</td></tr>
       <tr><td><b>D3</b></td><td>Licenciamento de TBCA e Tucunduva <em>(exige parecer jurídico)</em></td><td>Fase 4</td><td>Antes de importar</td></tr>
       <tr><td><b>D4</b></td><td>Biblioteca de geração de PDF</td><td>Fase 4</td><td>Fase 4</td></tr>
     </tbody>

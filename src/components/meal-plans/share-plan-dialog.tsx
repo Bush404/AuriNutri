@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import type { PlanShareToken } from "@/lib/types/database.types";
 import { createPlanShareLink, revokePlanShareLink } from "@/lib/actions/plan-share";
 import { formatDate } from "@/lib/utils";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,15 +19,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-function buildWhatsAppUrl(telefone: string | null, mensagem: string) {
-  const digits = telefone ? telefone.replace(/\D/g, "") : "";
-  // Números brasileiros sem DDI têm 10-11 dígitos (DDD + número). Se já
-  // vier com DDI (mais de 11 dígitos), usa como está.
-  const numero = digits ? (digits.length <= 11 ? `55${digits}` : digits) : "";
-  const base = numero ? `https://wa.me/${numero}` : "https://wa.me/";
-  return `${base}?text=${encodeURIComponent(mensagem)}`;
-}
 
 function linkStatus(link: PlanShareToken): { label: string; tone: "success" | "warning" | "outline" } {
   if (link.revoked_at) return { label: "Revogado", tone: "outline" };

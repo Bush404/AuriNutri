@@ -99,3 +99,22 @@ export async function deletePatient(patientId: string): Promise<ActionResult> {
   revalidatePath("/pacientes");
   return { success: true };
 }
+
+export interface PatientPickerResult {
+  id: string;
+  nome: string;
+}
+
+/** Busca leve de pacientes para seletores (agenda, etc.) — mesmo padrão de searchFoodsForPicker. */
+export async function searchPatientsForPicker(query: string): Promise<PatientPickerResult[]> {
+  const supabase = createClient();
+  const termo = query.trim();
+
+  let q = supabase.from("patients").select("id, nome").order("nome").limit(8);
+  if (termo) {
+    q = q.ilike("nome", `%${termo}%`);
+  }
+
+  const { data } = await q.returns<PatientPickerResult[]>();
+  return data ?? [];
+}

@@ -13,6 +13,8 @@ export interface Profile {
   cor_marca: string | null;
   endereco: string | null;
   bio: string | null;
+  /** Fuso IANA do profissional (ex. "America/Sao_Paulo") — usado para interpretar/exibir appointments.data_hora. */
+  fuso_horario: string;
   created_at: string;
   updated_at: string;
 }
@@ -218,6 +220,46 @@ export interface PlanShareToken {
   expires_at: string;
   revoked_at: string | null;
   created_at: string;
+}
+
+export type AppointmentTipo = "primeira_consulta" | "retorno" | "avaliacao" | "outro";
+export type AppointmentStatus = "agendado" | "confirmado" | "realizado" | "faltou" | "cancelado";
+
+export interface Appointment {
+  id: string;
+  patient_id: string;
+  user_id: string;
+  /** Instante absoluto (UTC). Interpretar/exibir com o fuso de profiles.fuso_horario — ver src/lib/timezone.ts. */
+  data_hora: string;
+  duracao_min: number;
+  tipo: AppointmentTipo;
+  status: AppointmentStatus;
+  observacoes: string | null;
+  created_at: string;
+  updated_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
+}
+
+/** Appointment com o nome do paciente já embutido (join), para exibição na agenda. */
+export interface AppointmentWithPatient extends Appointment {
+  patients: { nome: string } | null;
+}
+
+export interface Task {
+  id: string;
+  user_id: string;
+  patient_id: string | null;
+  appointment_id: string | null;
+  titulo: string;
+  descricao: string | null;
+  concluida: boolean;
+  /** Data (yyyy-mm-dd), sem horário — não precisa da precisão de fuso de appointments.data_hora. */
+  data_limite: string | null;
+  created_at: string;
+  updated_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
 }
 
 export interface MealItemSubstitution {
