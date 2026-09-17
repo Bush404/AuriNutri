@@ -384,6 +384,8 @@ Geração de PDF em serverless tem limite de memória/tempo. Resolvido optando p
 [x] Consulta mostra pendências do paciente
 [x] Próximos atendimentos no dashboard
 [x] Lembrete via WhatsApp (link)
+[x] Horários em intervalos de 15 minutos + campos de início/término
+[x] Impedir agendamentos sobrepostos do mesmo profissional
 ```
 
 **Bloco A (2026-09-17) — backend e fuso horário:** migration `0011_appointments_tasks.sql`
@@ -432,12 +434,35 @@ WhatsApp (`buildWhatsAppUrl` extraído de `share-plan-dialog.tsx` para
 `src/lib/whatsapp.ts`, reaproveitado nos dois lugares). Dashboard ganhou a
 seção "Próximos atendimentos (7 dias)" com as mesmas pendências.
 
+**Bloco D (2026-09-17) — correção pós-uso, a partir do teste do usuário:**
+três lacunas reais encontradas usando a agenda de verdade, não por leitura
+de código: (1) os campos de horário aceitavam qualquer minuto; (2)
+**nada impedia marcar dois pacientes no mesmo horário** — bug de
+correção, não capricho; (3) o usuário preferia informar início e término
+explícitos em vez de início + duração. Corrigido: `step={900}` (15 min) em
+todo input de horário + validação equivalente no Zod; `AppointmentFormDialog`
+passou a ter campos "Início"/"Término" (a duração continua sendo o que é
+gravado, só a forma de preencher mudou); e uma **exclusion constraint no
+Postgres** (migration `0012_appointments_no_overlap.sql`) impede dois
+agendamentos sobrepostos do mesmo profissional (exclui cancelados),
+somada a uma checagem prévia na Server Action que dá uma mensagem
+amigável com o horário do conflito antes de chegar no banco — mesmo
+racional de "a garantia mora no banco" já usado no soft delete (migration
+0005). A migration precisou de 3 tentativas: `timestamptz + interval` e
+`extract(epoch from timestamptz)` são `STABLE` no Postgres, não
+`IMMUTABLE` (exigido em expressão de índice GiST), mesmo quando o valor
+específico não dependeria de fuso — resolvido gravando `data_fim` como
+coluna comum, calculada pela aplicação, não por expressão SQL. Testado ao
+vivo: tentativa de agendar em cima de um horário ocupado foi rejeitada com
+a mensagem correta.
+
 ### Critérios de aceite
 - [x] Agendamento de outro profissional não é visível nem editável — testado com `npm run test:appointments-isolation` (RLS, 2 contas descartáveis).
 - [x] Horário salvo aparece correto independentemente do fuso do servidor — testado forçando `process.env.TZ` para um fuso bem diferente (`timezone.test.ts`).
 - [x] Regras de pendência disparam nas condições certas — 17 testes unitários (`patient-context.test.ts`), incluindo casos de limite exato (60/90 dias).
 - [x] Consulta mostra o contexto do paciente (última consulta, avaliação, plano, anamnese, pendências).
 - [x] Dashboard lista os próximos 7 dias com as pendências de cada atendimento.
+- [x] Não é possível agendar dois pacientes no mesmo horário — testado ao vivo (mensagem de conflito) e garantido por exclusion constraint no banco.
 
 ### Riscos (mitigado)
 Fuso horário. Resolvido convertendo explicitamente com o fuso salvo no perfil do profissional via `Intl` (nunca o fuso do processo/servidor) — testado forçando `process.env.TZ` para um fuso bem diferente do Brasil, mesmo resultado.

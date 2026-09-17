@@ -288,9 +288,10 @@
       <li class="ok">Pendências automáticas: sem anamnese, nunca avaliado/avaliação desatualizada (60d), sem plano ativo/desatualizado (90d), faltou na última consulta, sem telefone</li>
       <li class="ok">Dashboard: próximos 7 dias de atendimentos com as pendências de cada um</li>
       <li class="ok">Ações rápidas na consulta: ver perfil, nova avaliação, criar plano, marcar como realizado, lembrete via WhatsApp</li>
+      <li class="ok">Correção pós-uso: horários em intervalos de 15min, campos de início/término, e impedir agendamentos sobrepostos (exclusion constraint no Postgres)</li>
     </ul>
     <div class="accept"><b>Aceite</b>
-      Agendamento de outro profissional não é visível nem editável (script <code>test:appointments-isolation</code>, RLS). Horário salvo aparece correto independentemente do fuso do servidor (testes automatizados forçando <code>TZ</code> diferente no processo). Regras de pendência cobertas por 17 casos de teste unitário.</div>
+      Agendamento de outro profissional não é visível nem editável (script <code>test:appointments-isolation</code>, RLS). Horário salvo aparece correto independentemente do fuso do servidor (testes automatizados forçando <code>TZ</code> diferente no processo). Regras de pendência cobertas por 17 casos de teste unitário. Dois pacientes não podem mais ser marcados no mesmo horário — testado ao vivo e garantido no banco.</div>
     <div class="risk"><b>Risco (mitigado)</b>
       Fuso horário. Resolvido convertendo explicitamente com o fuso salvo no perfil do profissional via <code>Intl</code> — nunca o fuso do processo/servidor — e testado forçando <code>process.env.TZ</code> para um fuso bem diferente do Brasil.</div>
   </div>
