@@ -28,6 +28,10 @@ const PUBLIC_ROUTES = [
   "/esqueci-senha",
   "/redefinir-senha",
   "/auth/callback",
+  // Link de compartilhamento do PDF do plano — aberto pelo paciente, que
+  // nunca tem sessão (D2: paciente não é usuário autenticado). O acesso é
+  // controlado pelo token em si (ver migration 0010), não por login.
+  "/compartilhado",
 ];
 
 function isPublicRoute(pathname: string) {

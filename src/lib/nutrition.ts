@@ -71,13 +71,20 @@ export function calculateFoodMacros(food: Food, quantidadeGramas: number): Macro
   };
 }
 
+/** Campos de snapshot nutricional compartilhados por meal_items e meal_item_substitutions. */
+export type NutritionSnapshot = Pick<
+  MealItem,
+  "porcao_referencia_g" | "quantidade_g" | "calorias_kcal" | "proteinas_g" | "carboidratos_g" | "gorduras_g" | "fibras_g"
+>;
+
 /**
- * Calcula os macronutrientes de um item de refeição a partir do SEU PRÓPRIO
- * snapshot (nunca a partir do alimento "ao vivo"). Isso é o que garante que
+ * Calcula os macronutrientes de um item de refeição (ou de uma substituição
+ * sugerida, que tem o mesmo formato de snapshot) a partir do SEU PRÓPRIO
+ * snapshot — nunca a partir do alimento "ao vivo". Isso é o que garante que
  * um plano alimentar não mude se o alimento original for editado ou excluído
  * depois de já ter sido usado em um plano.
  */
-export function calculateMealItemMacros(item: MealItem): MacroTotals {
+export function calculateMealItemMacros(item: NutritionSnapshot): MacroTotals {
   const porcao = Number(item.porcao_referencia_g) || 100;
   const fator = Number(item.quantidade_g) / porcao;
 
@@ -135,3 +142,72 @@ export function formatNutrientValue(food: Food, campo: keyof Food, unit: string)
 }
 
 export type MealWithItems = Meal & { items: MealItem[] };
+
+/**
+ * Monta o snapshot nutricional de um alimento no formato gravado em
+ * `meal_items` / `meal_item_substitutions` — centraliza essa cópia de
+ * campos num único lugar, reusada sempre que um alimento real é incorporado
+ * a um plano de verdade (item novo, substituição ou item aplicado de um
+ * template), para nunca reimplementar essa lógica em mais de um ponto.
+ */
+export function buildFoodSnapshot(food: Food) {
+  return {
+    nome_alimento: food.nome,
+    fonte_alimento: food.fonte,
+    fonte_descricao_alimento: food.fonte_descricao,
+    porcao_referencia_g: food.porcao_referencia_g,
+    calorias_kcal: food.calorias_kcal ?? 0,
+    proteinas_g: food.proteinas_g ?? 0,
+    carboidratos_g: food.carboidratos_g ?? 0,
+    gorduras_g: food.gorduras_g ?? 0,
+    fibras_g: food.fibras_g ?? 0,
+  };
+}
+
+/**
+ * Gramas de `food` necessárias para chegar perto de `targetKcal` — usado
+ * para sugerir a quantidade de um alimento substituto com aporte calórico
+ * semelhante ao do item original. Retorna null quando o alimento não tem
+ * calorias cadastradas (não dá pra escalar por proporção nesse caso).
+ */
+export function calculateQuantityForTargetCalories(food: Food, targetKcal: number): number | null {
+  const caloriasPorPorcao = Number(food.calorias_kcal);
+  if (!caloriasPorPorcao || caloriasPorPorcao <= 0) return null;
+  const porcao = Number(food.porcao_referencia_g) || 100;
+  return (targetKcal / caloriasPorPorcao) * porcao;
+}
+
+export interface PlanMetas {
+  meta_kcal: number | null;
+  meta_proteinas_g: number | null;
+  meta_carboidratos_g: number | null;
+  meta_gorduras_g: number | null;
+}
+
+export interface GoalComparison {
+  label: "Dentro da meta" | "Acima da meta" | "Abaixo da meta";
+  tone: "success" | "warning";
+  diff: number;
+  detail: string;
+}
+
+const TOLERANCIA_PERCENTUAL_META = 5;
+
+/**
+ * Compara um total calculado com a meta definida para o plano, com uma
+ * tolerância de 5% pra não marcar como "fora da meta" uma diferença
+ * irrisória. Usado tanto na tela (DailyTotalsCard) quanto no PDF do plano —
+ * mesma função, mesmo resultado nos dois lugares.
+ */
+export function compareToGoal(total: number, meta: number | null, unit: string, decimals: number): GoalComparison | null {
+  if (meta === null || meta === undefined) return null;
+
+  const diff = total - meta;
+  const percentual = meta > 0 ? (diff / meta) * 100 : 0;
+  const detail = `${diff > 0 ? "+" : ""}${diff.toFixed(decimals)} ${unit}`;
+
+  if (Math.abs(percentual) <= TOLERANCIA_PERCENTUAL_META) {
+    return { label: "Dentro da meta", tone: "success", diff, detail };
+  }
+  return { label: diff > 0 ? "Acima da meta" : "Abaixo da meta", tone: "warning", diff, detail };
+}

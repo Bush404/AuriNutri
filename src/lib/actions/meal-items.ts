@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { mealItemSchema, type MealItemInput } from "@/lib/validations/meal-plan";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { Food } from "@/lib/types/database.types";
+import { buildFoodSnapshot } from "@/lib/nutrition";
 
 export async function addMealItem(
   planId: string,
@@ -48,16 +49,7 @@ export async function addMealItem(
     user_id: user.id,
     quantidade_g: parsed.data.quantidade_g,
     ordem,
-    // Snapshot nutricional:
-    nome_alimento: food.nome,
-    fonte_alimento: food.fonte,
-    fonte_descricao_alimento: food.fonte_descricao,
-    porcao_referencia_g: food.porcao_referencia_g,
-    calorias_kcal: food.calorias_kcal ?? 0,
-    proteinas_g: food.proteinas_g ?? 0,
-    carboidratos_g: food.carboidratos_g ?? 0,
-    gorduras_g: food.gorduras_g ?? 0,
-    fibras_g: food.fibras_g ?? 0,
+    ...buildFoodSnapshot(food),
   });
 
   if (error) {

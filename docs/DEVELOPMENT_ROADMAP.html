@@ -120,7 +120,7 @@
     <div class="dot">◆</div>
     <h1>Auri<span>Nutri</span> — Roadmap</h1>
   </div>
-  <p class="sub">Do primeiro paciente ao seu próprio consultório · atualizado em 09/09/2026</p>
+  <p class="sub">Do primeiro paciente ao seu próprio consultório · atualizado em 17/09/2026</p>
 </header>
 
 <section class="overall">
@@ -130,20 +130,20 @@
   </div>
   <div class="bar"><i style="width:15%"></i></div>
   <div class="legend">
-    <span><b>4</b> fases concluídas</span>
+    <span><b>5</b> fases concluídas</span>
     <span><b>0</b> em andamento</span>
-    <span><b>7</b> planejadas</span>
+    <span><b>6</b> planejadas</span>
     <span><b>4</b> decisões pendentes</span>
   </div>
 </section>
 
 <div class="milestones">
-  <div class="ms now">
-    <div class="tag">MVP</div>
-    <div class="t">Fases 0 → 4</div>
-    <div class="d">Paciente, avaliação, plano e PDF. O mínimo para cobrar.</div>
-  </div>
   <div class="ms">
+    <div class="tag">MVP ✓</div>
+    <div class="t">Fases 0 → 4</div>
+    <div class="d">Concluído em 17/09/2026. Paciente, avaliação, plano e PDF. Falta validar com nutricionistas reais antes de seguir em V1.</div>
+  </div>
+  <div class="ms now">
     <div class="tag">V1</div>
     <div class="t">Fases 5 → 7</div>
     <div class="d">Agenda, receitas, exames e evolução visual.</div>
@@ -248,33 +248,33 @@
   </div>
 </details>
 
-<details class="phase active">
+<details class="phase">
   <summary class="ph-head">
-    <span class="mark">4</span>
-    <span class="ph-title"><span class="n">PHASE 4 · FIM DO MVP · PRÓXIMA</span><div class="t">Plano alimentar profissional + PDF</div></span>
-    <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+    <span class="mark done">✓</span>
+    <span class="ph-title"><span class="n">PHASE 4 · FIM DO MVP</span><div class="t">Plano alimentar profissional + PDF</div></span>
+    <span class="ph-meta"><span class="chip c-done">Done</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
     <p class="obj"><b>Objetivo:</b> entregar ao paciente um plano com a marca do profissional. É o artefato que justifica a assinatura.</p>
     <ul class="tasks">
-      <li>Importar TACO completa (597 alimentos)</li>
-      <li>Duplicar plano e templates de refeição</li>
-      <li>Substituições / equivalentes</li>
-      <li>Meta calórica + gasto energético (Mifflin-St Jeor)</li>
-      <li>PDF com logo, nome, CRN e atribuição de fonte</li>
-      <li>Envio via WhatsApp</li>
+      <li class="ok">Importar TACO completa (597 alimentos)</li>
+      <li class="ok">Duplicar plano e templates de refeição</li>
+      <li class="ok">Substituições / equivalentes (com sugestão automática de quantidade)</li>
+      <li class="ok">Meta calórica + gasto energético (Mifflin-St Jeor / Harris-Benedict)</li>
+      <li class="ok">PDF com logo, nome, CRN e atribuição de fonte (@react-pdf/renderer, 56ms)</li>
+      <li class="ok">Compartilhamento por link (90 dias, revogável) + envio via WhatsApp</li>
     </ul>
     <div class="accept"><b>Aceite</b>
-      Montar um plano de 5 refeições em menos de 5 minutos. Totais do PDF idênticos aos da tela.</div>
-    <div class="risk"><b>Risco</b>
-      PDF em serverless tem limite de memória. Avaliar @react-pdf/renderer antes de Puppeteer, pesado demais para Netlify Functions.</div>
+      Totais do PDF idênticos aos da tela (testado). PDF com logo/CRN/fonte corretos. Duplicar plano preserva snapshots. Montar 5 refeições em &lt;5min é atingível com templates/duplicação, mas ainda pendente de cronometragem real com o usuário.</div>
+    <div class="risk"><b>Risco (mitigado)</b>
+      PDF em serverless tem limite de memória. Resolvido com @react-pdf/renderer em vez de Puppeteer — confirmado na prática, bem dentro do limite de 10s do Netlify.</div>
   </div>
 </details>
 
-<details class="phase">
+<details class="phase active">
   <summary class="ph-head">
     <span class="mark">5</span>
-    <span class="ph-title"><span class="n">PHASE 5</span><div class="t">Agenda e rotina</div></span>
+    <span class="ph-title"><span class="n">PHASE 5 · PRÓXIMA</span><div class="t">Agenda e rotina</div></span>
     <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">

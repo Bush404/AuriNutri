@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Loader2, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Copy, Download, Loader2, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import type { MealPlan } from "@/lib/types/database.types";
+import type { MealPlan, PlanShareToken } from "@/lib/types/database.types";
 import { mealPlanSchema, type MealPlanInput } from "@/lib/validations/meal-plan";
-import { updateMealPlan, deleteMealPlan, toggleMealPlanStatus } from "@/lib/actions/meal-plans";
+import { updateMealPlan, deleteMealPlan, duplicateMealPlan, toggleMealPlanStatus } from "@/lib/actions/meal-plans";
 import { formatDate } from "@/lib/utils";
+import { SharePlanDialog } from "@/components/meal-plans/share-plan-dialog";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,9 +43,11 @@ interface MealPlanHeaderProps {
   plan: MealPlan;
   patientId: string;
   patientName: string;
+  patientTelefone: string | null;
+  shareLinks: PlanShareToken[];
 }
 
-export function MealPlanHeader({ plan, patientId, patientName }: MealPlanHeaderProps) {
+export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, shareLinks }: MealPlanHeaderProps) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -59,6 +62,10 @@ export function MealPlanHeader({ plan, patientId, patientName }: MealPlanHeaderP
       nome: plan.nome,
       data_inicio: plan.data_inicio,
       observacoes: plan.observacoes ?? "",
+      meta_kcal: plan.meta_kcal ?? undefined,
+      meta_proteinas_g: plan.meta_proteinas_g ?? undefined,
+      meta_carboidratos_g: plan.meta_carboidratos_g ?? undefined,
+      meta_gorduras_g: plan.meta_gorduras_g ?? undefined,
     },
   });
 
@@ -97,6 +104,17 @@ export function MealPlanHeader({ plan, patientId, patientName }: MealPlanHeaderP
     });
   }
 
+  function handleDuplicate() {
+    startTransition(async () => {
+      const result = await duplicateMealPlan(plan.id);
+      // Em caso de sucesso, a Server Action já faz o redirect() para o novo
+      // plano, então só chegamos aqui se houver erro.
+      if (result && !result.success) {
+        toast.error("Não foi possível duplicar", { description: result.message });
+      }
+    });
+  }
+
   return (
     <div className="space-y-4">
       <Button variant="ghost" size="sm" asChild className="-ml-3">
@@ -125,7 +143,27 @@ export function MealPlanHeader({ plan, patientId, patientName }: MealPlanHeaderP
           {plan.observacoes && <p className="mt-2 max-w-xl text-sm text-muted-foreground">{plan.observacoes}</p>}
         </div>
 
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <a href={`/planos/${plan.id}/pdf`}>
+              <Download className="h-4 w-4" />
+              Baixar PDF
+            </a>
+          </Button>
+
+          <SharePlanDialog
+            planId={plan.id}
+            planNome={plan.nome}
+            patientNome={patientName}
+            patientTelefone={patientTelefone}
+            shareLinks={shareLinks}
+          />
+
+          <Button variant="outline" size="sm" onClick={handleDuplicate} disabled={isPending}>
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+            Duplicar
+          </Button>
+
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
@@ -150,6 +188,38 @@ export function MealPlanHeader({ plan, patientId, patientName }: MealPlanHeaderP
                 <div className="space-y-2">
                   <Label htmlFor="observacoes">Observações</Label>
                   <Textarea id="observacoes" rows={3} {...register("observacoes")} />
+                </div>
+
+                <div className="space-y-2 border-t border-border pt-4">
+                  <Label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Metas nutricionais diárias (opcional)
+                  </Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="meta_kcal" className="text-xs font-normal">
+                        Calorias (kcal)
+                      </Label>
+                      <Input id="meta_kcal" type="number" step="1" {...register("meta_kcal")} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="meta_proteinas_g" className="text-xs font-normal">
+                        Proteínas (g)
+                      </Label>
+                      <Input id="meta_proteinas_g" type="number" step="0.1" {...register("meta_proteinas_g")} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="meta_carboidratos_g" className="text-xs font-normal">
+                        Carboidratos (g)
+                      </Label>
+                      <Input id="meta_carboidratos_g" type="number" step="0.1" {...register("meta_carboidratos_g")} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="meta_gorduras_g" className="text-xs font-normal">
+                        Gorduras (g)
+                      </Label>
+                      <Input id="meta_gorduras_g" type="number" step="0.1" {...register("meta_gorduras_g")} />
+                    </div>
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button type="submit" disabled={isPending}>

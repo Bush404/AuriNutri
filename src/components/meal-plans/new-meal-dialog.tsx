@@ -12,6 +12,7 @@ import { createMeal } from "@/lib/actions/meals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -83,6 +84,11 @@ export function NewMealDialog({ planId, nextOrdem }: { planId: string; nextOrdem
           <div className="space-y-2">
             <Label htmlFor="horario">Horário (opcional)</Label>
             <Input id="horario" type="time" {...register("horario")} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="observacoes">Observações (opcional)</Label>
+            <Textarea id="observacoes" rows={2} {...register("observacoes")} />
           </div>
 
           <DialogFooter>

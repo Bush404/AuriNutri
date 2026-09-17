@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import type { MealItem } from "@/lib/types/database.types";
+import type { MealItem, MealItemSubstitution } from "@/lib/types/database.types";
 import { calculateMealItemMacros, formatMacro, FONTE_LABELS } from "@/lib/nutrition";
 import { updateMealItemQuantity, deleteMealItem } from "@/lib/actions/meal-items";
 
@@ -12,8 +12,13 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { MealItemSubstitutionsDialog } from "@/components/meal-plans/meal-item-substitutions-dialog";
 
-export function MealItemRow({ planId, item }: { planId: string; item: MealItem }) {
+export interface MealItemWithSubstitutions extends MealItem {
+  meal_item_substitutions: MealItemSubstitution[];
+}
+
+export function MealItemRow({ planId, item }: { planId: string; item: MealItemWithSubstitutions }) {
   const [quantidade, setQuantidade] = useState(String(item.quantidade_g));
   const [isPending, startTransition] = useTransition();
 
@@ -80,9 +85,12 @@ export function MealItemRow({ planId, item }: { planId: string; item: MealItem }
         {formatMacro(macros.gorduras)}
       </TableCell>
       <TableCell>
-        <Button variant="ghost" size="icon" onClick={handleDelete} disabled={isPending}>
-          {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-        </Button>
+        <div className="flex items-center justify-end gap-1">
+          <MealItemSubstitutionsDialog planId={planId} item={item} substitutions={item.meal_item_substitutions} />
+          <Button variant="ghost" size="icon" onClick={handleDelete} disabled={isPending}>
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+          </Button>
+        </div>
       </TableCell>
     </TableRow>
   );

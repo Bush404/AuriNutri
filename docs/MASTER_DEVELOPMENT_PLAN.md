@@ -251,7 +251,7 @@ Soft delete exigiria revisar **todas** as queries existentes se o filtro depende
 
 ---
 
-## PHASE 4 — Plano alimentar profissional + PDF · `TODO` · `CRITICAL`
+## PHASE 4 — Plano alimentar profissional + PDF · `DONE` · `CRITICAL`
 
 **Objetivo:** fechar o MVP. O nutricionista entrega ao paciente um plano com a sua marca.
 
@@ -262,29 +262,95 @@ Soft delete exigiria revisar **todas** as queries existentes se o filtro depende
 ### Tarefas
 
 ```
-[ ] Importar TACO completa (597 alimentos) via pipeline brolesi/taco
-[ ] Duplicar plano alimentar existente
-[ ] Templates de refeição reutilizáveis
-[ ] Substituições de alimento na refeição (equivalentes)
-[ ] Observações por refeição
-[ ] Meta calórica/macros do plano + comparativo com o calculado
-[ ] Cálculo de gasto energético (Harris-Benedict / Mifflin-St Jeor)
-[ ] Geração de PDF do plano com identidade do profissional
-[ ] Rodapé de fonte no PDF (buildFonteFooter já existe)
-[ ] Compartilhar PDF via WhatsApp (link wa.me)
-[ ] Teste: macros do PDF conferem com a tela
+[x] Importar TACO completa (597 alimentos) via pipeline brolesi/taco
+[x] Duplicar plano alimentar existente
+[x] Templates de refeição reutilizáveis
+[x] Substituições de alimento na refeição (equivalentes)
+[x] Observações por refeição
+[x] Meta calórica/macros do plano + comparativo com o calculado
+[x] Cálculo de gasto energético (Harris-Benedict / Mifflin-St Jeor)
+[x] Geração de PDF do plano com identidade do profissional
+[x] Rodapé de fonte no PDF (buildFonteFooter já existe)
+[x] Compartilhar PDF via WhatsApp (link wa.me)
+[x] Teste: macros do PDF conferem com a tela
 ```
 
-### Critérios de aceite
-- Montar plano de 5 refeições em menos de 5 minutos.
-- PDF sai com logo, nome, CRN e atribuição correta de fonte.
-- Duplicar plano cria cópia independente (snapshots preservados).
-- Totais do PDF idênticos aos da tela.
+**Bloco A (2026-09-17) — base de dados e cálculo:** TACO completa importada
+(597 alimentos, upsert atualizou os 43 já existentes com os micronutrientes
+que faltavam). `src/lib/energy.ts` — Mifflin-St Jeor (padrão) e
+Harris-Benedict (alternativa), fator de atividade física, 10 testes com
+valores calculados diretamente das fórmulas publicadas. `sexo = 'outro'` (ou
+sem sexo cadastrado) nunca é assumido: a calculadora pede pro profissional
+escolher uma base ou aceita GET manual. Migration `0007`: `meta_kcal`,
+`meta_proteinas_g`, `meta_carboidratos_g`, `meta_gorduras_g` em `meal_plans`
++ comparativo visual na tela (`compareToGoal`, movida para `nutrition.ts`
+pra ser reaproveitada depois pelo PDF).
 
-### Riscos
-Geração de PDF em serverless tem limite de memória/tempo. Avaliar `@react-pdf/renderer` (JS puro) antes de Puppeteer, que é pesado demais para Netlify Functions.
+**Bloco B (2026-09-17) — reduzir esforço de montar plano:** duplicar plano
+(migration nenhuma — copia snapshots verbatim, `fonte_alimento`/
+`fonte_descricao_alimento` inclusos). Templates de refeição (migration
+`0008`: `meal_templates` + `meal_template_items`, sem snapshot — decisão
+deliberada, ver comentário na migration) com salvar/aplicar/excluir.
+Substituições com sugestão automática de quantidade por aporte calórico
+semelhante (migration `0009`: `meal_item_substitutions`, com snapshot igual
+a `meal_items`). Observações por refeição. Extraído `buildFoodSnapshot` em
+`nutrition.ts` pra centralizar a cópia de campos usada em item novo,
+substituição e item de template aplicado — nunca reimplementada em mais de
+um lugar.
+
+**Bloco C (2026-09-17) — geração de PDF:** avaliado `@react-pdf/renderer` vs.
+Puppeteer antes de implementar (aprovado pelo usuário) — Puppeteer precisa de
+um Chromium inteiro (~200MB+, vários segundos de cold start) dentro do limite
+fixo de 10s/1024MB das Netlify Functions; `@react-pdf/renderer` é JS puro,
+renderizou um PDF completo em **56ms** no teste real. PDF servido via Route
+Handler (`GET /planos/[id]/pdf`), mesmo mecanismo já usado em
+`auth/callback`. Toda a lógica de números vive em `plan-pdf-data.ts`, uma
+função pura que só chama `calculatePlanTotals`/`calculateMealTotals`/
+`calculateMealItemMacros`/`buildFonteFooter`/`compareToGoal` — nunca
+reimplementa. 5 testes comparando os totais do PDF com os da tela + 1 smoke
+test renderizando um PDF de verdade. Amostra visual conferida manualmente
+(acentos em português corretos).
+
+**Bloco D (2026-09-17) — compartilhamento por link:** PDF salvo no bucket
+privado `planos` (isolado por pasta, mesmo padrão do bucket `profissional`).
+Migration `0010`: `plan_share_tokens` (token aleatório, válido por 90 dias,
+revogável) + função `get_shared_plan_pdf` (`security definer`, mesmo padrão
+de `handle_new_user`/`log_audit_event`) — única forma de um visitante sem
+sessão (o paciente, D2) acessar o PDF, exigindo o token exato; nenhuma
+policy de `SELECT` pública foi criada em nenhuma tabela ou bucket, pra evitar
+enumeração de links ativos. A revogação funciona de verdade porque a rota
+pública (`/compartilhado/[token]`) nunca expõe a signed URL do Supabase
+diretamente — sempre repassa os bytes, revalidando a cada acesso. Botão
+"Enviar por WhatsApp" monta um link `wa.me` com o telefone do paciente (ou
+sem número, se não cadastrado — abre o seletor de contato). 5 testes
+automatizados: token válido resolve, revogado não abre, expirado não abre,
+token inexistente não abre, e outro profissional não enxerga o token alheio
+pela própria tabela (RLS).
+
+**Validação do critério "5 refeições em menos de 5 minutos" (item 5,
+2026-09-17):** análise por contagem de interações, não cronometragem real
+(fica pro teste final com o usuário). Do zero, sem reaproveitar nada, o
+gargalo antigo (buscar/selecionar/digitar quantidade por alimento) continua
+idêntico — plausivelmente ainda passa de 5 minutos pra um usuário
+cuidadoso. Usando os recursos desta fase (templates + duplicar plano), uma
+refeição inteira sai em ~3-4 interações independente de quantos alimentos
+tenha, o que coloca um plano de 5 refeições bem abaixo de 5 minutos.
+**Conclusão: critério atingível, mas condicional** — depende do
+profissional ter uma pequena biblioteca de templates ou um plano parecido
+pra duplicar. A cronometragem real fica pendente para a sessão de teste.
+
+### Critérios de aceite
+- [x] Montar plano de 5 refeições em menos de 5 minutos — **condicional**, ver validação acima. Cronometragem real pendente.
+- [x] PDF sai com logo, nome, CRN e atribuição correta de fonte.
+- [x] Duplicar plano cria cópia independente (snapshots preservados).
+- [x] Totais do PDF idênticos aos da tela (testado, não só verificado visualmente).
+
+### Riscos (mitigado)
+Geração de PDF em serverless tem limite de memória/tempo. Resolvido optando por `@react-pdf/renderer` em vez de Puppeteer — confirmado na prática (56ms de renderização, bem dentro do limite de 10s do Netlify).
 
 ### 🏁 Fim do MVP — parar e validar com nutricionistas reais antes de seguir.
+
+**Pendência antes de considerar a validação com nutricionistas reais:** cronometrar de verdade o fluxo de montagem de um plano de 5 refeições (item 5), e testar toda a Fase 4 na tela — combinado para acontecer numa sessão dedicada de teste.
 
 ---
 

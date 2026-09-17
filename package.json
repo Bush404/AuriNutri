@@ -17,7 +17,8 @@
     "backup:db": "node scripts/backup-database.mjs",
     "test:anamnesis-history": "node scripts/test-anamnesis-history.mjs",
     "test:patient-deletion": "node scripts/test-patient-deletion.mjs",
-    "test:audit-log": "node scripts/test-audit-log.mjs"
+    "test:audit-log": "node scripts/test-audit-log.mjs",
+    "test:plan-share-tokens": "node scripts/test-plan-share-tokens.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -29,6 +30,7 @@
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.1",
+    "@react-pdf/renderer": "^4.9.0",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",
     "class-variance-authority": "^0.7.0",
@@ -52,7 +54,6 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@vitejs/plugin-react": "^5.2.0",
-    "vite": "^7.3.6",
     "autoprefixer": "^10.4.20",
     "csv-parse": "^5.5.6",
     "eslint": "^8",
@@ -61,6 +62,7 @@
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
     "typescript": "^5",
+    "vite": "^7.3.6",
     "vitest": "^3.2.7"
   }
 }

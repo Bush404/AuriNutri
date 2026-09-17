@@ -56,6 +56,7 @@ function makeFood(overrides: Partial<Food> = {}): Food {
     valores_especiais: {},
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-01-01T00:00:00Z",
+    deleted_at: null,
     ...overrides,
   };
 }
@@ -78,6 +79,7 @@ function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
     gorduras_g: 0.2,
     fibras_g: 1.6,
     created_at: "2026-01-01T00:00:00Z",
+    deleted_at: null,
     ...overrides,
   };
 }

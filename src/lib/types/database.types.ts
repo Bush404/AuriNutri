@@ -141,6 +141,11 @@ export interface MealPlan {
   data_inicio: string;
   ativo: boolean;
   observacoes: string | null;
+  /** Metas nutricionais diárias do plano (opcionais) — comparadas ao total calculado dos itens. */
+  meta_kcal: number | null;
+  meta_proteinas_g: number | null;
+  meta_carboidratos_g: number | null;
+  meta_gorduras_g: number | null;
   created_at: string;
   updated_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */
@@ -154,6 +159,7 @@ export interface Meal {
   nome: string;
   horario: string | null;
   ordem: number;
+  observacoes: string | null;
   created_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */
   deleted_at: string | null;
@@ -182,4 +188,53 @@ export interface MealItem {
   created_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */
   deleted_at: string | null;
+}
+
+export interface MealTemplate {
+  id: string;
+  user_id: string;
+  nome: string;
+  created_at: string;
+}
+
+export interface MealTemplateItem {
+  id: string;
+  meal_template_id: string;
+  /** NULL se o alimento original foi excluído — item ignorado ao aplicar o template. */
+  food_id: string | null;
+  user_id: string;
+  quantidade_g: number;
+  ordem: number;
+  created_at: string;
+}
+
+export interface PlanShareToken {
+  id: string;
+  meal_plan_id: string;
+  user_id: string;
+  token: string;
+  storage_path: string;
+  signed_url: string;
+  expires_at: string;
+  revoked_at: string | null;
+  created_at: string;
+}
+
+export interface MealItemSubstitution {
+  id: string;
+  meal_item_id: string;
+  food_id: string | null;
+  user_id: string;
+  quantidade_g: number;
+  ordem: number;
+  nome_alimento: string;
+  fonte_alimento: FonteAlimento;
+  fonte_descricao_alimento: string | null;
+  porcao_referencia_g: number;
+  calorias_kcal: number;
+  proteinas_g: number;
+  carboidratos_g: number;
+  gorduras_g: number;
+  fibras_g: number;
+  created_at: string;
 }
