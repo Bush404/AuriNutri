@@ -192,6 +192,76 @@ export interface MealItem {
   deleted_at: string | null;
 }
 
+export interface Recipe {
+  id: string;
+  user_id: string;
+  nome: string;
+  descricao: string | null;
+  modo_preparo: string | null;
+  imagem_url: string | null;
+  /** Peso da preparação PRONTA, informado pelo profissional na Etapa 4 — NULL enquanto a receita é rascunho. Nunca calculado pela soma dos ingredientes. */
+  rendimento_g: number | null;
+  /** Informado na Etapa 4 — NULL enquanto a receita é rascunho. */
+  numero_porcoes: number | null;
+  tempo_preparo_min: number | null;
+  tags: string[];
+  /** {campo: valor} — usado quando o profissional prefere digitar um valor à mão em vez do calculado. */
+  valores_sobrescritos: Partial<Record<string, number>>;
+  created_at: string;
+  updated_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
+}
+
+export interface RecipeIngredient {
+  id: string;
+  recipe_id: string;
+  /** Referência de rastreabilidade; pode ser NULL se o alimento original foi excluído. */
+  food_id: string | null;
+  user_id: string;
+  quantidade_g: number;
+  ordem: number;
+  // Snapshot nutricional no momento em que o ingrediente foi incluído —
+  // mesmo princípio de MealItem: a receita nunca muda se o alimento de
+  // origem for editado ou excluído depois.
+  nome_alimento: string;
+  fonte_alimento: FonteAlimento;
+  fonte_descricao_alimento: string | null;
+  porcao_referencia_g: number;
+  calorias_kcal: number;
+  proteinas_g: number;
+  carboidratos_g: number;
+  gorduras_g: number;
+  fibras_g: number;
+  // Micronutrientes — snapshot, iguais aos de Food, podem ser NULL (ver valores_especiais).
+  umidade_g: number | null;
+  cinzas_g: number | null;
+  colesterol_mg: number | null;
+  calcio_mg: number | null;
+  magnesio_mg: number | null;
+  manganes_mg: number | null;
+  fosforo_mg: number | null;
+  ferro_mg: number | null;
+  sodio_mg: number | null;
+  potassio_mg: number | null;
+  cobre_mg: number | null;
+  zinco_mg: number | null;
+  retinol_mcg: number | null;
+  re_mcg: number | null;
+  rae_mcg: number | null;
+  tiamina_mg: number | null;
+  riboflavina_mg: number | null;
+  piridoxina_mg: number | null;
+  niacina_mg: number | null;
+  vitamina_c_mg: number | null;
+  gordura_saturada_g: number | null;
+  gordura_monoinsaturada_g: number | null;
+  gordura_poliinsaturada_g: number | null;
+  /** Snapshot do mapa {coluna: motivo} do alimento de origem — preserva traço/não analisado/não informado. */
+  valores_especiais: Partial<Record<string, ValorEspecial>>;
+  created_at: string;
+}
+
 export interface MealTemplate {
   id: string;
   user_id: string;

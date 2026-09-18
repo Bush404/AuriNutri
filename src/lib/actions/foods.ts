@@ -6,6 +6,48 @@ import { foodSchema, type FoodInput } from "@/lib/validations/food";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { Food } from "@/lib/types/database.types";
 
+const MICRONUTRIENT_FIELDS = [
+  "fibras_g",
+  "umidade_g",
+  "cinzas_g",
+  "colesterol_mg",
+  "calcio_mg",
+  "magnesio_mg",
+  "manganes_mg",
+  "fosforo_mg",
+  "ferro_mg",
+  "sodio_mg",
+  "potassio_mg",
+  "cobre_mg",
+  "zinco_mg",
+  "retinol_mcg",
+  "re_mcg",
+  "rae_mcg",
+  "tiamina_mg",
+  "riboflavina_mg",
+  "piridoxina_mg",
+  "niacina_mg",
+  "vitamina_c_mg",
+  "gordura_saturada_g",
+  "gordura_monoinsaturada_g",
+  "gordura_poliinsaturada_g",
+] as const satisfies readonly (keyof FoodInput)[];
+
+/**
+ * Campo vazio no formulário chega aqui como `undefined` (ver
+ * optionalNonNegativeNumber em validations/food.ts) e precisa virar NULL no
+ * banco — nunca 0. Gravar 0 afirmaria "este alimento não tem X"; NULL diz
+ * "não sabemos quanto X tem", a mesma distinção que valores_especiais já
+ * preserva para os alimentos da TACO (ver migration 0002).
+ */
+function buildMicronutrientFields(data: FoodInput): Record<string, number | null> {
+  const fields: Record<string, number | null> = {};
+  for (const key of MICRONUTRIENT_FIELDS) {
+    fields[key] = data[key] ?? null;
+  }
+  return fields;
+}
+
 export async function createFood(input: FoodInput): Promise<ActionResult> {
   const parsed = foodSchema.safeParse(input);
   if (!parsed.success) {
@@ -36,7 +78,7 @@ export async function createFood(input: FoodInput): Promise<ActionResult> {
     proteinas_g: parsed.data.proteinas_g,
     carboidratos_g: parsed.data.carboidratos_g,
     gorduras_g: parsed.data.gorduras_g,
-    fibras_g: parsed.data.fibras_g ?? 0,
+    ...buildMicronutrientFields(parsed.data),
   });
 
   if (error) {
@@ -104,7 +146,7 @@ export async function updateFood(foodId: string, input: FoodInput): Promise<Acti
       proteinas_g: parsed.data.proteinas_g,
       carboidratos_g: parsed.data.carboidratos_g,
       gorduras_g: parsed.data.gorduras_g,
-      fibras_g: parsed.data.fibras_g ?? 0,
+      ...buildMicronutrientFields(parsed.data),
     })
     .eq("id", foodId);
 

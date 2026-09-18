@@ -6,8 +6,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 
-import { BRAZIL_UFS, profileSchema, type ProfileInput } from "@/lib/validations/profile";
-import { updateProfile } from "@/lib/actions/profile";
+import {
+  BRAZIL_UFS,
+  profileSchema,
+  type ProfileInput,
+  PROFILE_FILE_ACCEPTED_TYPES,
+  PROFILE_FILE_ACCEPTED_EXTENSIONS,
+  PROFILE_FILE_MAX_BYTES,
+} from "@/lib/validations/profile";
+import { updateProfile, uploadProfileFile } from "@/lib/actions/profile";
 import type { Profile } from "@/lib/types/database.types";
 
 import { Button } from "@/components/ui/button";
@@ -16,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ImageUpload } from "@/components/profile/image-upload";
+import { ImageUpload } from "@/components/shared/image-upload";
 
 interface ProfileFormProps {
   profile: Profile;
@@ -156,17 +163,39 @@ export function ProfileForm({ profile, logoSignedUrl, assinaturaSignedUrl }: Pro
           <div className="hidden sm:block" />
 
           <ImageUpload
-            kind="logo"
             label="Logo"
+            helperText="PNG, JPG, WEBP ou SVG — máximo 2MB."
             initialPreviewUrl={logoSignedUrl}
-            onUploaded={(path) => setValue("logo_url", path, { shouldDirty: true })}
+            acceptedTypes={PROFILE_FILE_ACCEPTED_TYPES}
+            acceptedExtensions={PROFILE_FILE_ACCEPTED_EXTENSIONS}
+            maxBytes={PROFILE_FILE_MAX_BYTES}
+            onUpload={(file) => {
+              const formData = new FormData();
+              formData.set("file", file);
+              return uploadProfileFile("logo", formData);
+            }}
+            onUploaded={(path) => {
+              setValue("logo_url", path, { shouldDirty: true });
+              toast.success("Arquivo enviado. Não esqueça de salvar o perfil.");
+            }}
           />
 
           <ImageUpload
-            kind="assinatura"
             label="Assinatura"
+            helperText="PNG, JPG, WEBP ou SVG — máximo 2MB."
             initialPreviewUrl={assinaturaSignedUrl}
-            onUploaded={(path) => setValue("assinatura_url", path, { shouldDirty: true })}
+            acceptedTypes={PROFILE_FILE_ACCEPTED_TYPES}
+            acceptedExtensions={PROFILE_FILE_ACCEPTED_EXTENSIONS}
+            maxBytes={PROFILE_FILE_MAX_BYTES}
+            onUpload={(file) => {
+              const formData = new FormData();
+              formData.set("file", file);
+              return uploadProfileFile("assinatura", formData);
+            }}
+            onUploaded={(path) => {
+              setValue("assinatura_url", path, { shouldDirty: true });
+              toast.success("Arquivo enviado. Não esqueça de salvar o perfil.");
+            }}
           />
         </CardContent>
       </Card>

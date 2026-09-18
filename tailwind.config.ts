@@ -71,6 +71,20 @@ const config: Config = {
         soft: "0 2px 12px 0 rgb(15 46 33 / 0.06)",
         card: "0 1px 3px 0 rgb(15 46 33 / 0.08), 0 1px 2px -1px rgb(15 46 33 / 0.08)",
       },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

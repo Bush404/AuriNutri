@@ -71,3 +71,38 @@ describe("foodSchema — fibras_g (numérico opcional) com campo vazio", () => {
     expect(result.success).toBe(false);
   });
 });
+
+describe("foodSchema — micronutrientes (Fase 6, Bloco 0)", () => {
+  it("todos ficam undefined quando omitidos — nunca 0", () => {
+    const result = foodSchema.safeParse(validInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.ferro_mg).toBeUndefined();
+      expect(result.data.sodio_mg).toBeUndefined();
+      expect(result.data.vitamina_c_mg).toBeUndefined();
+      expect(result.data.gordura_saturada_g).toBeUndefined();
+    }
+  });
+
+  it("campo vazio (\"\") vira undefined, não 0", () => {
+    const result = foodSchema.safeParse({ ...validInput, ferro_mg: "", calcio_mg: "" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.ferro_mg).toBeUndefined();
+      expect(result.data.calcio_mg).toBeUndefined();
+    }
+  });
+
+  it("aceita um valor de micronutriente válido", () => {
+    const result = foodSchema.safeParse({ ...validInput, ferro_mg: "1.234" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.ferro_mg).toBe(1.234);
+    }
+  });
+
+  it("rejeita micronutriente negativo", () => {
+    const result = foodSchema.safeParse({ ...validInput, potassio_mg: "-5" });
+    expect(result.success).toBe(false);
+  });
+});

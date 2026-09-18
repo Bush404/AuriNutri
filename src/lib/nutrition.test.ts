@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
-import type { Food, MealItem } from "@/lib/types/database.types";
+import type { Food, MealItem, RecipeIngredient } from "@/lib/types/database.types";
 import {
   buildFonteFooter,
   calculateFoodMacros,
   calculateMealItemMacros,
   calculateMealTotals,
   calculatePlanTotals,
+  calculateRecipePer100g,
+  calculateRecipePerPortion,
+  calculateRecipeTotals,
   collectFontesUsadas,
   formatMacro,
   formatNutrientValue,
@@ -80,6 +83,52 @@ function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
     fibras_g: 1.6,
     created_at: "2026-01-01T00:00:00Z",
     deleted_at: null,
+    ...overrides,
+  };
+}
+
+function makeRecipeIngredient(overrides: Partial<RecipeIngredient> = {}): RecipeIngredient {
+  return {
+    id: "ri-1",
+    recipe_id: "recipe-1",
+    food_id: "food-1",
+    user_id: "user-1",
+    quantidade_g: 100,
+    ordem: 0,
+    nome_alimento: "Arroz cru",
+    fonte_alimento: "taco",
+    fonte_descricao_alimento: null,
+    porcao_referencia_g: 100,
+    calorias_kcal: 130,
+    proteinas_g: 2.7,
+    carboidratos_g: 28,
+    gorduras_g: 0.3,
+    fibras_g: 1.6,
+    umidade_g: null,
+    cinzas_g: null,
+    colesterol_mg: null,
+    calcio_mg: null,
+    magnesio_mg: null,
+    manganes_mg: null,
+    fosforo_mg: null,
+    ferro_mg: null,
+    sodio_mg: null,
+    potassio_mg: null,
+    cobre_mg: null,
+    zinco_mg: null,
+    retinol_mcg: null,
+    re_mcg: null,
+    rae_mcg: null,
+    tiamina_mg: null,
+    riboflavina_mg: null,
+    piridoxina_mg: null,
+    niacina_mg: null,
+    vitamina_c_mg: null,
+    gordura_saturada_g: null,
+    gordura_monoinsaturada_g: null,
+    gordura_poliinsaturada_g: null,
+    valores_especiais: {},
+    created_at: "2026-01-01T00:00:00Z",
     ...overrides,
   };
 }
@@ -280,5 +329,115 @@ describe("formatNutrientValue", () => {
   it("formata um valor numérico normal com a unidade informada", () => {
     const food = makeFood({ calcio_mg: 12.5 });
     expect(formatNutrientValue(food, "calcio_mg", "mg")).toBe("12,5mg");
+  });
+});
+
+describe("calculateRecipeTotals — soma macros e micros a partir do snapshot dos ingredientes", () => {
+  it("soma os macros dos ingredientes (mesma fórmula de calculateMealItemMacros)", () => {
+    const ingredients = [
+      makeRecipeIngredient({ id: "i1", calorias_kcal: 130, quantidade_g: 100, porcao_referencia_g: 100 }),
+      makeRecipeIngredient({ id: "i2", calorias_kcal: 165, quantidade_g: 200, porcao_referencia_g: 100 }),
+    ];
+    const totals = calculateRecipeTotals(ingredients);
+    expect(totals.macros.calorias).toBe(130 + 165 * 2);
+  });
+
+  it("retorna zero e nenhum micro parcial para uma receita sem ingredientes", () => {
+    const totals = calculateRecipeTotals([]);
+    expect(totals.macros).toEqual(ZERO_MACROS);
+    expect(totals.micros.ferro_mg).toEqual({ valor: 0, parcial: false, ingredientesSemDado: 0 });
+  });
+
+  it("usa o snapshot do ingrediente, nunca um alimento atual editado depois", () => {
+    const ingredient = makeRecipeIngredient({ calorias_kcal: 130, quantidade_g: 100, porcao_referencia_g: 100 });
+
+    // Simula o alimento de origem sendo editado após já ter sido incluído na receita.
+    const foodEditadoDepois = makeFood({ id: "food-1", calorias_kcal: 999 });
+
+    const totals = calculateRecipeTotals([ingredient]);
+
+    expect(totals.macros.calorias).toBe(130);
+    expect(totals.macros.calorias).not.toBe(foodEditadoDepois.calorias_kcal);
+  });
+
+  it("continua calculando corretamente mesmo com o alimento de origem excluído (food_id null)", () => {
+    const ingredient = makeRecipeIngredient({ food_id: null, calorias_kcal: 130, quantidade_g: 200, porcao_referencia_g: 100 });
+    const totals = calculateRecipeTotals([ingredient]);
+    expect(totals.macros.calorias).toBe(260);
+  });
+});
+
+describe("calculateRecipeTotals — micronutriente parcial nunca vira zero", () => {
+  it("soma só os ingredientes que têm o dado e marca o total como parcial", () => {
+    const ingredients = [
+      makeRecipeIngredient({ id: "i1", ferro_mg: 4, quantidade_g: 100, porcao_referencia_g: 100 }),
+      makeRecipeIngredient({ id: "i2", ferro_mg: null, quantidade_g: 100, porcao_referencia_g: 100 }),
+    ];
+    const totals = calculateRecipeTotals(ingredients);
+
+    expect(totals.micros.ferro_mg.valor).toBe(4);
+    expect(totals.micros.ferro_mg.parcial).toBe(true);
+    expect(totals.micros.ferro_mg.ingredientesSemDado).toBe(1);
+  });
+
+  it("não fica parcial quando todos os ingredientes têm o dado", () => {
+    const ingredients = [
+      makeRecipeIngredient({ id: "i1", sodio_mg: 10, quantidade_g: 100, porcao_referencia_g: 100 }),
+      makeRecipeIngredient({ id: "i2", sodio_mg: 20, quantidade_g: 100, porcao_referencia_g: 100 }),
+    ];
+    const totals = calculateRecipeTotals(ingredients);
+
+    expect(totals.micros.sodio_mg).toEqual({ valor: 30, parcial: false, ingredientesSemDado: 0 });
+  });
+
+  it("fica parcial mesmo quando NENHUM ingrediente tem o dado (soma 0, mas marcado como incompleto)", () => {
+    const ingredients = [
+      makeRecipeIngredient({ id: "i1", zinco_mg: null }),
+      makeRecipeIngredient({ id: "i2", zinco_mg: null }),
+    ];
+    const totals = calculateRecipeTotals(ingredients);
+
+    expect(totals.micros.zinco_mg.valor).toBe(0);
+    expect(totals.micros.zinco_mg.parcial).toBe(true);
+    expect(totals.micros.zinco_mg.ingredientesSemDado).toBe(2);
+  });
+});
+
+describe("calculateRecipePerPortion / calculateRecipePer100g — fator de cocção", () => {
+  it("por porção divide pelo número de porções informado, não pela contagem de ingredientes", () => {
+    const ingredients = [
+      makeRecipeIngredient({ id: "i1", calorias_kcal: 100, quantidade_g: 100, porcao_referencia_g: 100 }),
+      makeRecipeIngredient({ id: "i2", calorias_kcal: 200, quantidade_g: 100, porcao_referencia_g: 100 }),
+    ];
+    // Total = 300 kcal, dividido em 4 porções (não em 2, que é o nº de ingredientes).
+    const perPortion = calculateRecipePerPortion(ingredients, 4);
+    expect(perPortion.macros.calorias).toBe(75);
+  });
+
+  it("por 100g usa o rendimento informado quando é MENOR que a soma dos ingredientes (perda de água/cocção)", () => {
+    // 200g de ingredientes crus, mas a preparação pronta rende só 150g (ex.: carne grelhada).
+    const ingredients = [makeRecipeIngredient({ calorias_kcal: 200, quantidade_g: 200, porcao_referencia_g: 100 })];
+    const per100g = calculateRecipePer100g(ingredients, 150);
+    // Total = 400 kcal (200 * 2) em 150g de preparação pronta => 400/150*100.
+    expect(per100g.macros.calorias).toBeCloseTo((400 / 150) * 100, 5);
+  });
+
+  it("por 100g usa o rendimento informado quando é MAIOR que a soma dos ingredientes (absorção de água)", () => {
+    // 100g de arroz cru rendem 250g de arroz cozido (absorve água).
+    const ingredients = [makeRecipeIngredient({ calorias_kcal: 130, quantidade_g: 100, porcao_referencia_g: 100 })];
+    const per100g = calculateRecipePer100g(ingredients, 250);
+    // Total = 130 kcal em 250g de preparação pronta => 130/250*100.
+    expect(per100g.macros.calorias).toBeCloseTo((130 / 250) * 100, 5);
+  });
+
+  it("escala o valor do micronutriente mas preserva a marca de parcial", () => {
+    const ingredients = [
+      makeRecipeIngredient({ id: "i1", ferro_mg: 10, quantidade_g: 100, porcao_referencia_g: 100 }),
+      makeRecipeIngredient({ id: "i2", ferro_mg: null, quantidade_g: 100, porcao_referencia_g: 100 }),
+    ];
+    const per100g = calculateRecipePer100g(ingredients, 200);
+    expect(per100g.micros.ferro_mg.valor).toBe(5); // 10 em 200g de rendimento => 10/200*100
+    expect(per100g.micros.ferro_mg.parcial).toBe(true);
+    expect(per100g.micros.ferro_mg.ingredientesSemDado).toBe(1);
   });
 });

@@ -1,4 +1,5 @@
-import type { Food, Meal, MealItem, FonteAlimento } from "@/lib/types/database.types";
+import type { Food, Meal, MealItem, FonteAlimento, RecipeIngredient } from "@/lib/types/database.types";
+import { MICRONUTRIENTE_KEYS, type MicronutrienteKey } from "@/lib/validations/food";
 
 export interface MacroTotals {
   calorias: number;
@@ -165,6 +166,25 @@ export function buildFoodSnapshot(food: Food) {
 }
 
 /**
+ * Snapshot nutricional COMPLETO (macros + os 23 micronutrientes +
+ * valores_especiais) de um alimento — usado em `recipe_ingredients`, que
+ * precisa dos micros para os cálculos de receita, ao contrário de
+ * `meal_items`/`meal_item_substitutions` (só macros). Reaproveita
+ * buildFoodSnapshot para a parte de macros em vez de duplicar a cópia.
+ */
+export function buildFoodSnapshotWithMicros(food: Food) {
+  const micros: Partial<Record<MicronutrienteKey, number | null>> = {};
+  for (const key of MICRONUTRIENTE_KEYS) {
+    micros[key] = food[key];
+  }
+  return {
+    ...buildFoodSnapshot(food),
+    ...micros,
+    valores_especiais: food.valores_especiais,
+  };
+}
+
+/**
  * Gramas de `food` necessárias para chegar perto de `targetKcal` — usado
  * para sugerir a quantidade de um alimento substituto com aporte calórico
  * semelhante ao do item original. Retorna null quando o alimento não tem
@@ -210,4 +230,113 @@ export function compareToGoal(total: number, meta: number | null, unit: string, 
     return { label: "Dentro da meta", tone: "success", diff, detail };
   }
   return { label: diff > 0 ? "Acima da meta" : "Abaixo da meta", tone: "warning", diff, detail };
+}
+
+// ============================================================================
+// RECEITAS (Fase 6) — cálculo a partir do snapshot de cada ingrediente,
+// nunca do alimento "ao vivo" (mesmo princípio de calculateMealItemMacros).
+// ============================================================================
+
+/**
+ * Agregado de um micronutriente ao longo dos ingredientes de uma receita.
+ * `valor` soma só o que existe — ingredientes sem o dado NUNCA entram como
+ * 0 silenciosamente. `parcial` avisa que o total é incompleto, pra UI nunca
+ * apresentar um número parcial como se fosse exato (mesmo princípio de
+ * valores_especiais na TACO).
+ */
+export interface MicronutrientAggregate {
+  valor: number;
+  parcial: boolean;
+  ingredientesSemDado: number;
+}
+
+export type MicronutrientTotals = Record<MicronutrienteKey, MicronutrientAggregate>;
+
+export interface RecipeTotals {
+  macros: MacroTotals;
+  micros: MicronutrientTotals;
+}
+
+function scaleMacros(macros: MacroTotals, fator: number): MacroTotals {
+  return {
+    calorias: macros.calorias * fator,
+    proteinas: macros.proteinas * fator,
+    carboidratos: macros.carboidratos * fator,
+    gorduras: macros.gorduras * fator,
+    fibras: macros.fibras * fator,
+  };
+}
+
+function scaleMicros(micros: MicronutrientTotals, fator: number): MicronutrientTotals {
+  const scaled = {} as MicronutrientTotals;
+  for (const key of MICRONUTRIENTE_KEYS) {
+    const atual = micros[key];
+    scaled[key] = { ...atual, valor: atual.valor * fator };
+  }
+  return scaled;
+}
+
+function scaleRecipeTotals(totals: RecipeTotals, fator: number): RecipeTotals {
+  return { macros: scaleMacros(totals.macros, fator), micros: scaleMicros(totals.micros, fator) };
+}
+
+/**
+ * Soma um micronutriente específico ao longo dos ingredientes. Um
+ * ingrediente sem o dado não conta como 0 — entra em `ingredientesSemDado`
+ * e o agregado volta marcado como `parcial`.
+ */
+function aggregateMicronutrient(ingredients: RecipeIngredient[], key: MicronutrienteKey): MicronutrientAggregate {
+  let valor = 0;
+  let ingredientesSemDado = 0;
+
+  for (const ingrediente of ingredients) {
+    const bruto = ingrediente[key];
+    if (bruto === null || bruto === undefined) {
+      ingredientesSemDado += 1;
+      continue;
+    }
+    const porcao = Number(ingrediente.porcao_referencia_g) || 100;
+    const fator = Number(ingrediente.quantidade_g) / porcao;
+    valor += Number(bruto) * fator;
+  }
+
+  return { valor, parcial: ingredientesSemDado > 0, ingredientesSemDado };
+}
+
+function calculateRecipeMicros(ingredients: RecipeIngredient[]): MicronutrientTotals {
+  const totals = {} as MicronutrientTotals;
+  for (const key of MICRONUTRIENTE_KEYS) {
+    totals[key] = aggregateMicronutrient(ingredients, key);
+  }
+  return totals;
+}
+
+/**
+ * Total nutricional (macros + micros) da receita inteira, a partir do
+ * snapshot de cada ingrediente — nunca de uma busca ao alimento atual.
+ * Editar o alimento de origem depois não pode mudar uma receita já salva,
+ * pelo mesmo motivo de calculateMealItemMacros.
+ */
+export function calculateRecipeTotals(ingredients: RecipeIngredient[]): RecipeTotals {
+  return {
+    macros: sumMacros(ingredients.map(calculateMealItemMacros)),
+    micros: calculateRecipeMicros(ingredients),
+  };
+}
+
+/** Total por porção — divide pelo número de porções informado (nunca derivado dos ingredientes). */
+export function calculateRecipePerPortion(ingredients: RecipeIngredient[], numeroPorcoes: number): RecipeTotals {
+  const divisor = numeroPorcoes > 0 ? numeroPorcoes : 1;
+  return scaleRecipeTotals(calculateRecipeTotals(ingredients), 1 / divisor);
+}
+
+/**
+ * Total por 100g da preparação PRONTA — usa `rendimento_g` (informado pelo
+ * profissional), nunca a soma dos ingredientes crus: cocção altera peso por
+ * perda de água (carne) ou absorção (arroz), então rendimento ≠ soma dos
+ * ingredientes.
+ */
+export function calculateRecipePer100g(ingredients: RecipeIngredient[], rendimentoG: number): RecipeTotals {
+  const divisor = rendimentoG > 0 ? rendimentoG : 100;
+  return scaleRecipeTotals(calculateRecipeTotals(ingredients), 100 / divisor);
 }

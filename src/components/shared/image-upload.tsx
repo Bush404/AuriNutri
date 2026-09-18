@@ -5,34 +5,49 @@ import Image from "next/image";
 import { ImageOff, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
-import { uploadProfileFile } from "@/lib/actions/profile";
-import {
-  PROFILE_FILE_ACCEPTED_EXTENSIONS,
-  PROFILE_FILE_ACCEPTED_TYPES,
-  PROFILE_FILE_MAX_BYTES,
-} from "@/lib/validations/profile";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
+interface UploadResult {
+  success: boolean;
+  message?: string;
+  path?: string;
+}
+
 interface ImageUploadProps {
-  kind: "logo" | "assinatura";
   label: string;
   helperText?: string;
   initialPreviewUrl: string | null;
+  acceptedTypes: readonly string[];
+  acceptedExtensions: string;
+  maxBytes: number;
+  /** Faz o upload de verdade (Server Action) e retorna o path salvo no storage. */
+  onUpload: (file: File) => Promise<UploadResult>;
+  /** Chamado com o path retornado por onUpload — quem usa decide o que fazer com ele (setValue, toast, etc.). */
   onUploaded: (path: string) => void;
 }
 
-export function ImageUpload({ kind, label, helperText, initialPreviewUrl, onUploaded }: ImageUploadProps) {
+/** Campo de upload de imagem com preview — reusado no perfil (logo/assinatura) e em receitas. */
+export function ImageUpload({
+  label,
+  helperText,
+  initialPreviewUrl,
+  acceptedTypes,
+  acceptedExtensions,
+  maxBytes,
+  onUpload,
+  onUploaded,
+}: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(initialPreviewUrl);
   const [uploading, setUploading] = useState(false);
 
   function validate(file: File): string | null {
-    if (!PROFILE_FILE_ACCEPTED_TYPES.includes(file.type as (typeof PROFILE_FILE_ACCEPTED_TYPES)[number])) {
-      return "Formato inválido. Use PNG, JPG, WEBP ou SVG.";
+    if (!acceptedTypes.includes(file.type)) {
+      return "Formato de arquivo inválido.";
     }
-    if (file.size > PROFILE_FILE_MAX_BYTES) {
-      return "Arquivo muito grande. O limite é 2MB.";
+    if (file.size > maxBytes) {
+      return `Arquivo muito grande. O limite é ${Math.round(maxBytes / (1024 * 1024))}MB.`;
     }
     return null;
   }
@@ -52,10 +67,7 @@ export function ImageUpload({ kind, label, helperText, initialPreviewUrl, onUplo
     setPreview(URL.createObjectURL(file));
     setUploading(true);
 
-    const formData = new FormData();
-    formData.set("file", file);
-
-    const result = await uploadProfileFile(kind, formData);
+    const result = await onUpload(file);
     setUploading(false);
     event.target.value = "";
 
@@ -66,7 +78,6 @@ export function ImageUpload({ kind, label, helperText, initialPreviewUrl, onUplo
     }
 
     onUploaded(result.path);
-    toast.success("Arquivo enviado. Não esqueça de salvar o perfil.");
   }
 
   return (
@@ -86,13 +97,13 @@ export function ImageUpload({ kind, label, helperText, initialPreviewUrl, onUplo
             {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
             {preview ? "Trocar imagem" : "Enviar imagem"}
           </Button>
-          <p className="text-xs text-muted-foreground">{helperText ?? "PNG, JPG, WEBP ou SVG — máximo 2MB."}</p>
+          <p className="text-xs text-muted-foreground">{helperText}</p>
         </div>
 
         <input
           ref={inputRef}
           type="file"
-          accept={PROFILE_FILE_ACCEPTED_EXTENSIONS}
+          accept={acceptedExtensions}
           className="hidden"
           onChange={handleFileChange}
         />

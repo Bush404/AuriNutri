@@ -6,7 +6,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { foodSchema, type FoodInput, CATEGORIAS_ALIMENTOS } from "@/lib/validations/food";
+import {
+  foodSchema,
+  type FoodInput,
+  type MicronutrienteKey,
+  CATEGORIAS_ALIMENTOS,
+  MICRONUTRIENTE_GRUPOS,
+  MICRONUTRIENTE_KEYS,
+  MICRONUTRIENTE_LABELS,
+} from "@/lib/validations/food";
 import { createFood, updateFood } from "@/lib/actions/foods";
 import type { Food } from "@/lib/types/database.types";
 
@@ -20,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +42,14 @@ import {
 interface FoodFormDialogProps {
   food?: Food;
   trigger: React.ReactNode;
+}
+
+function buildMicronutrientDefaults(food: Food | undefined): Record<MicronutrienteKey, number | undefined> {
+  const defaults = {} as Record<MicronutrienteKey, number | undefined>;
+  for (const key of MICRONUTRIENTE_KEYS) {
+    defaults[key] = food?.[key] ?? undefined;
+  }
+  return defaults;
 }
 
 export function FoodFormDialog({ food, trigger }: FoodFormDialogProps) {
@@ -57,7 +74,8 @@ export function FoodFormDialog({ food, trigger }: FoodFormDialogProps) {
       proteinas_g: food?.proteinas_g ?? 0,
       carboidratos_g: food?.carboidratos_g ?? 0,
       gorduras_g: food?.gorduras_g ?? 0,
-      fibras_g: food?.fibras_g ?? 0,
+      fibras_g: food?.fibras_g ?? undefined,
+      ...buildMicronutrientDefaults(food),
     },
   });
 
@@ -168,6 +186,40 @@ export function FoodFormDialog({ food, trigger }: FoodFormDialogProps) {
               <Label htmlFor="fibras_g">Fibras (g)</Label>
               <Input id="fibras_g" type="number" step="0.1" {...register("fibras_g")} />
             </div>
+          </div>
+
+          <div>
+            <p className="mb-1 text-xs text-muted-foreground">
+              Micronutrientes (opcional) — deixe em branco quando não souber o valor; branco é
+              diferente de zero.
+            </p>
+            <Accordion type="multiple" className="rounded-md border border-border px-3">
+              {Object.entries(MICRONUTRIENTE_GRUPOS).map(([grupo, chaves]) => (
+                <AccordionItem key={grupo} value={grupo}>
+                  <AccordionTrigger>{grupo}</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="grid grid-cols-2 gap-4">
+                      {chaves.map((chave) => {
+                        const meta = MICRONUTRIENTE_LABELS[chave];
+                        return (
+                          <div key={chave} className="space-y-2">
+                            <Label htmlFor={chave}>
+                              {meta.label} ({meta.unit})
+                            </Label>
+                            <Input id={chave} type="number" step="0.001" {...register(chave as MicronutrienteKey)} />
+                            {errors[chave as MicronutrienteKey] && (
+                              <p className="text-xs text-destructive">
+                                {errors[chave as MicronutrienteKey]?.message}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
 
           <DialogFooter>
