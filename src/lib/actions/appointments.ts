@@ -262,17 +262,17 @@ export async function rescheduleAppointment(
   return { success: true, message: "Consulta remarcada." };
 }
 
-/** Soft delete — mesmo padrão de deleteAssessment/deleteMealPlan (deleted_at, nunca .delete() real). */
+/** Soft delete via função `security definer` (migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
 export async function deleteAppointment(appointmentId: string): Promise<ActionResult> {
   const supabase = createClient();
 
-  const { error } = await supabase
-    .from("appointments")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", appointmentId);
+  const { data, error } = await supabase.rpc("soft_delete_appointment", { appointment_id: appointmentId });
 
   if (error) {
     return { success: false, message: error.message };
+  }
+  if (!data) {
+    return { success: false, message: "Agendamento não encontrado." };
   }
 
   revalidatePath("/agenda");

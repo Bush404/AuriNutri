@@ -200,16 +200,22 @@ export async function clearRecipeValorSobrescrito(recipeId: string, campo: strin
   return { success: true };
 }
 
-/** Soft delete — mesmo padrão de deleteAssessment/deleteMealPlan (deleted_at, nunca .delete() real). */
+/**
+ * Soft delete — via função `security definer` (migration 0017), não via
+ * `.update()` direto. RLS puro falha aqui: a policy de SELECT filtra
+ * `deleted_at is null`, e o Postgres rejeita o UPDATE que torna a própria
+ * linha invisível por essa mesma policy ("new row violates row-level
+ * security policy"), mesmo a policy de UPDATE permitindo a operação.
+ */
 export async function deleteRecipe(recipeId: string): Promise<ActionResult> {
   const supabase = createClient();
-  const { error } = await supabase
-    .from("recipes")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", recipeId);
+  const { data, error } = await supabase.rpc("soft_delete_recipe", { recipe_id: recipeId });
 
   if (error) {
     return { success: false, message: error.message };
+  }
+  if (!data) {
+    return { success: false, message: "Receita não encontrada." };
   }
 
   revalidatePath("/receitas");

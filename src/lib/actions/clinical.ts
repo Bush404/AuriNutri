@@ -147,16 +147,17 @@ export async function updateAssessment(
   return { success: true, message: "Avaliação atualizada com sucesso." };
 }
 
+/** Soft delete via função `security definer` (migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
 export async function deleteAssessment(patientId: string, assessmentId: string): Promise<ActionResult> {
   const supabase = createClient();
 
-  const { error } = await supabase
-    .from("anthropometric_assessments")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", assessmentId);
+  const { data, error } = await supabase.rpc("soft_delete_assessment", { assessment_id: assessmentId });
 
   if (error) {
     return { success: false, message: error.message };
+  }
+  if (!data) {
+    return { success: false, message: "Avaliação não encontrada." };
   }
 
   revalidatePath(`/pacientes/${patientId}`);

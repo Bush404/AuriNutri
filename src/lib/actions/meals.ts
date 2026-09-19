@@ -142,13 +142,16 @@ export async function createMealFromTemplate(
   };
 }
 
-/** Soft delete — ver comentário equivalente em deletePatient (patients.ts). */
+/** Soft delete via função `security definer` (migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
 export async function deleteMeal(planId: string, mealId: string): Promise<ActionResult> {
   const supabase = createClient();
-  const { error } = await supabase.from("meals").update({ deleted_at: new Date().toISOString() }).eq("id", mealId);
+  const { data, error } = await supabase.rpc("soft_delete_meal", { meal_id: mealId });
 
   if (error) {
     return { success: false, message: error.message };
+  }
+  if (!data) {
+    return { success: false, message: "Refeição não encontrada." };
   }
 
   revalidatePath(`/planos/${planId}`);

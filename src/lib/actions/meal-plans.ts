@@ -216,16 +216,16 @@ export async function duplicateMealPlan(planId: string): Promise<ActionResult> {
   redirect(`/planos/${newPlan.id}`);
 }
 
-/** Soft delete — ver comentário equivalente em deletePatient (patients.ts). */
+/** Soft delete via função `security definer` (migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
 export async function deleteMealPlan(planId: string, patientId: string): Promise<ActionResult> {
   const supabase = createClient();
-  const { error } = await supabase
-    .from("meal_plans")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", planId);
+  const { data, error } = await supabase.rpc("soft_delete_meal_plan", { plan_id: planId });
 
   if (error) {
     return { success: false, message: error.message };
+  }
+  if (!data) {
+    return { success: false, message: "Plano não encontrado." };
   }
 
   revalidatePath(`/pacientes/${patientId}`);
