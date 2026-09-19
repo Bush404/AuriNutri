@@ -147,7 +147,9 @@ export function PlanPdfDocument({ data }: { data: PlanPdfViewModel }) {
                 <Text style={styles.colAlimento}>
                   {item.nomeAlimento} ({FONTE_LABELS[item.fonteAlimento]})
                 </Text>
-                <Text style={styles.colQtd}>{item.quantidadeG}g</Text>
+                <Text style={styles.colQtd}>
+                  {item.quantidadePorcoes !== null ? `${item.quantidadePorcoes} porção(ões)` : `${item.quantidadeG}g`}
+                </Text>
                 <Text style={styles.colMacro}>{item.macros.calorias.toFixed(0)}</Text>
                 <Text style={styles.colMacro}>{item.macros.proteinas.toFixed(1)}</Text>
                 <Text style={styles.colMacro}>{item.macros.carboidratos.toFixed(1)}</Text>

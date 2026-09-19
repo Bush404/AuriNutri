@@ -120,19 +120,19 @@
     <div class="dot">◆</div>
     <h1>Auri<span>Nutri</span> — Roadmap</h1>
   </div>
-  <p class="sub">Do primeiro paciente ao seu próprio consultório · atualizado em 17/09/2026</p>
+  <p class="sub">Do primeiro paciente ao seu próprio consultório · atualizado em 19/09/2026</p>
 </header>
 
 <section class="overall">
   <div class="overall-top">
     <h2>Progresso geral do produto</h2>
-    <div class="pct">55%</div>
+    <div class="pct">64%</div>
   </div>
-  <div class="bar"><i style="width:55%"></i></div>
+  <div class="bar"><i style="width:64%"></i></div>
   <div class="legend">
-    <span><b>6</b> fases concluídas</span>
+    <span><b>7</b> fases concluídas</span>
     <span><b>0</b> em andamento</span>
-    <span><b>5</b> planejadas</span>
+    <span><b>4</b> planejadas</span>
     <span><b>2</b> decisões pendentes</span>
   </div>
 </section>
@@ -297,29 +297,35 @@
   </div>
 </details>
 
-<details class="phase active">
+<details class="phase">
   <summary class="ph-head">
-    <span class="mark">6</span>
-    <span class="ph-title"><span class="n">PHASE 6 · PRÓXIMA</span><div class="t">Receitas e preparações</div></span>
-    <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+    <span class="mark done">✓</span>
+    <span class="ph-title"><span class="n">PHASE 6</span><div class="t">Receitas e preparações</div></span>
+    <span class="ph-meta"><span class="chip c-done">Done</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
-    <p class="obj"><b>Objetivo:</b> receita como entidade própria, com ingredientes, rendimento e porção.</p>
+    <p class="obj"><b>Objetivo:</b> receita como entidade própria, com ingredientes, rendimento e porção, e usável no plano alimentar.</p>
     <ul class="tasks">
-      <li>Tabelas <code>recipes</code> e <code>recipe_ingredients</code></li>
-      <li>Nutrição derivada dos ingredientes</li>
-      <li>Usar receita no plano alimentar (com snapshot)</li>
-      <li>Tags, imagem e busca</li>
+      <li class="ok">Micronutrientes no cadastro de alimento personalizado (pré-requisito)</li>
+      <li class="ok">Tabelas <code>recipes</code> e <code>recipe_ingredients</code> (snapshot nutricional por ingrediente)</li>
+      <li class="ok">Nutrição derivada dos ingredientes (total / por porção / por 100g, fator de cocção)</li>
+      <li class="ok">Wizard de criação em 4 etapas com rascunho progressivo, imagem, tags e busca</li>
+      <li class="ok">Correção manual de qualquer valor calculado, sem perder o cálculo original</li>
+      <li class="ok">Usar receita no plano alimentar — snapshot dos totais por porção, quantidade sempre em porções (tela e PDF)</li>
+      <li class="ok">Atribuição de fonte considera os ingredientes da receita (credita TACO mesmo dentro de uma receita)</li>
+      <li class="ok">Bug sistêmico de RLS que impedia excluir receita/avaliação/plano/refeição/item/agendamento — corrigido</li>
     </ul>
-    <div class="risk"><b>Decisão</b>
-      Receita não é extensão de <code>foods</code> — a semântica é diferente. O snapshot precisa capturar a receita inteira no momento do uso.</div>
+    <div class="accept"><b>Aceite</b>
+      Cálculo da receita bate com a soma manual dos ingredientes. Editar a receita depois de usá-la num plano não altera o plano já montado (testado e coberto por teste automatizado). PDF e tela mostram exatamente os mesmos números. Excluir qualquer entidade com soft delete funciona de verdade.</div>
+    <div class="risk"><b>Risco (mitigado)</b>
+      O snapshot precisa capturar a receita inteira no momento do uso — resolvido guardando os totais efetivos por porção (com correção manual aplicada) e o conjunto de fontes dos ingredientes no item do plano, sem depender de uma junção "ao vivo" com a receita.</div>
   </div>
 </details>
 
-<details class="phase">
+<details class="phase active">
   <summary class="ph-head">
     <span class="mark">7</span>
-    <span class="ph-title"><span class="n">PHASE 7</span><div class="t">Exames e evolução visual</div></span>
+    <span class="ph-title"><span class="n">PHASE 7 · PRÓXIMA</span><div class="t">Exames e evolução visual</div></span>
     <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">

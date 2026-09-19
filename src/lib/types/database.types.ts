@@ -80,6 +80,9 @@ export interface AnthropometricAssessment {
 
 export type FonteAlimento = "taco" | "personalizado";
 
+/** Fonte de um item de refeição — como FonteAlimento, mais 'receita' (o item veio de uma receita, não de um alimento avulso). */
+export type ItemFonte = FonteAlimento | "receita";
+
 /** Motivo pelo qual um valor nutricional não é um número (preservado da fonte original). */
 export type ValorEspecial = "traco" | "nao_analisado" | "nao_informado";
 
@@ -170,16 +173,22 @@ export interface Meal {
 export interface MealItem {
   id: string;
   meal_id: string;
-  /** Referência de rastreabilidade; pode ser NULL se o alimento original foi excluído. */
+  /** Referência de rastreabilidade; pode ser NULL se o alimento original foi excluído, ou se o item é uma receita (ver recipe_id). Mutuamente exclusivo com recipe_id. */
   food_id: string | null;
+  /** Referência de rastreabilidade a uma receita; pode ser NULL se a receita original foi excluída, ou se o item é um alimento avulso (ver food_id). Mutuamente exclusivo com food_id. */
+  recipe_id: string | null;
   user_id: string;
   quantidade_g: number;
+  /** Quantidade em porções da receita, como o profissional digita — NULL para itens de alimento avulso. quantidade_g é derivado a partir deste valor. */
+  quantidade_porcoes: number | null;
   ordem: number;
   // Snapshot nutricional no momento em que o item foi adicionado — garante
-  // que o plano alimentar nunca mude se o alimento de origem for editado
-  // ou excluído posteriormente.
+  // que o plano alimentar nunca mude se o alimento/receita de origem for
+  // editado ou excluído posteriormente. Para um item de receita,
+  // porcao_referencia_g é os gramas de UMA porção e os macros já refletem
+  // eventuais valores_sobrescritos da receita naquele momento.
   nome_alimento: string;
-  fonte_alimento: FonteAlimento;
+  fonte_alimento: ItemFonte;
   fonte_descricao_alimento: string | null;
   porcao_referencia_g: number;
   calorias_kcal: number;
@@ -187,6 +196,8 @@ export interface MealItem {
   carboidratos_g: number;
   gorduras_g: number;
   fibras_g: number;
+  /** Só para itens de receita: snapshot do conjunto de fontes (taco/personalizado) usadas pelos ingredientes no momento da inclusão — usado na atribuição de fonte do plano/PDF. */
+  fontes_ingredientes_receita: FonteAlimento[] | null;
   created_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */
   deleted_at: string | null;

@@ -49,6 +49,15 @@ export type MealItemInput = z.infer<typeof mealItemSchema>;
 export const mealItemSubstitutionSchema = mealItemSchema;
 export type MealItemSubstitutionInput = MealItemInput;
 
+/** Fase 6, Bloco C — versão de mealItemSchema para adicionar uma RECEITA como item, em porções (não gramas). */
+export const mealItemRecipeSchema = z.object({
+  recipe_id: z.string().min(1, "Selecione uma receita"),
+  quantidade_porcoes: z.coerce
+    .number({ invalid_type_error: "Informe a quantidade" })
+    .positive("A quantidade deve ser maior que zero"),
+});
+export type MealItemRecipeInput = z.infer<typeof mealItemRecipeSchema>;
+
 export const mealTemplateNameSchema = z.object({
   nome: z.string().min(2, "Informe um nome para o template"),
 });

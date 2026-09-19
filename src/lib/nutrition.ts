@@ -1,4 +1,4 @@
-import type { Food, Meal, MealItem, FonteAlimento, RecipeIngredient } from "@/lib/types/database.types";
+import type { Food, Meal, MealItem, FonteAlimento, ItemFonte, Recipe, RecipeIngredient } from "@/lib/types/database.types";
 import { MICRONUTRIENTE_KEYS, type MicronutrienteKey } from "@/lib/validations/food";
 
 export interface MacroTotals {
@@ -17,10 +17,11 @@ export const ZERO_MACROS: MacroTotals = {
   fibras: 0,
 };
 
-/** Textos de atribuição de fonte, usados na UI e em relatórios/PDFs futuros. */
-export const FONTE_LABELS: Record<FonteAlimento, string> = {
+/** Textos de atribuição de fonte, usados na UI e em relatórios/PDFs. Indexável tanto por FonteAlimento quanto por ItemFonte (que a inclui). */
+export const FONTE_LABELS: Record<ItemFonte, string> = {
   taco: "TACO",
   personalizado: "Personalizado",
+  receita: "Receita",
 };
 
 export const FONTE_DESCRICAO_PADRAO: Record<FonteAlimento, string> = {
@@ -121,9 +122,19 @@ export function calculatePlanTotals(meals: { items: MealItem[] }[]): MacroTotals
   return sumMacros(meals.map((meal) => calculateMealTotals(meal.items)));
 }
 
-/** Reúne as fontes distintas realmente usadas em um plano, para atribuição em relatórios. */
+/**
+ * Reúne as fontes distintas realmente usadas em um plano, para atribuição em
+ * relatórios. Um item de receita não tem uma fonte única — contribui com o
+ * CONJUNTO de fontes de seus ingredientes (snapshot em
+ * fontes_ingredientes_receita), para uma receita que usa TACO não deixar de
+ * creditar o NEPA/UNICAMP só porque o item em si é "receita".
+ */
 export function collectFontesUsadas(meals: { items: MealItem[] }[]): FonteAlimento[] {
-  return meals.flatMap((meal) => meal.items.map((item) => item.fonte_alimento));
+  return meals.flatMap((meal) =>
+    meal.items.flatMap((item) =>
+      item.fonte_alimento === "receita" ? (item.fontes_ingredientes_receita ?? []) : [item.fonte_alimento]
+    )
+  );
 }
 
 export function formatMacro(value: number, unit = "g") {
@@ -339,4 +350,72 @@ export function calculateRecipePerPortion(ingredients: RecipeIngredient[], numer
 export function calculateRecipePer100g(ingredients: RecipeIngredient[], rendimentoG: number): RecipeTotals {
   const divisor = rendimentoG > 0 ? rendimentoG : 100;
   return scaleRecipeTotals(calculateRecipeTotals(ingredients), 100 / divisor);
+}
+
+// ============================================================================
+// RECEITA COMO ITEM DE REFEIÇÃO (Fase 6, Bloco C)
+// ============================================================================
+
+/**
+ * Macros por porção que REALMENTE valem para a receita — os calculados a
+ * partir dos ingredientes, com qualquer correção manual do profissional
+ * (`valores_sobrescritos`, chaves "porcao.<campo>") sobrepondo o calculado,
+ * exatamente como já é exibido em recipe-nutrition-panel.tsx. Usar isto (e
+ * não calculateRecipePerPortion puro) é o que garante que uma correção
+ * manual não se perca ao levar a receita para um plano.
+ */
+export function calculateRecipeEffectivePerPortion(
+  ingredients: RecipeIngredient[],
+  numeroPorcoes: number,
+  valoresSobrescritos: Partial<Record<string, number>>
+): MacroTotals {
+  const calculado = calculateRecipePerPortion(ingredients, numeroPorcoes).macros;
+  const comOverride = (campo: keyof MacroTotals): number => {
+    const override = valoresSobrescritos[`porcao.${campo}`];
+    return override !== undefined ? override : calculado[campo];
+  };
+
+  return {
+    calorias: comOverride("calorias"),
+    proteinas: comOverride("proteinas"),
+    carboidratos: comOverride("carboidratos"),
+    gorduras: comOverride("gorduras"),
+    fibras: comOverride("fibras"),
+  };
+}
+
+/**
+ * Monta o snapshot nutricional de uma receita no formato gravado em
+ * `meal_items` quando ela é usada como item de refeição — mesmo papel de
+ * buildFoodSnapshot, mas para receitas. `porcao_referencia_g` vira os gramas
+ * de UMA porção (rendimento_g / numero_porcoes): é o que permite
+ * `calculateMealItemMacros` (quantidade_g / porcao_referencia_g) funcionar
+ * sem nenhuma mudança de fórmula, tratando a receita como só mais um tipo de
+ * item. `fontesIngredientes` é o conjunto de fontes dos ingredientes NAQUELE
+ * momento — usado depois por collectFontesUsadas/buildFonteFooter.
+ *
+ * Requer `recipe.rendimento_g`/`recipe.numero_porcoes` já preenchidos (uma
+ * receita ainda em rascunho, sem esses campos, não pode ser usada em um
+ * plano) — a checagem é responsabilidade de quem chama (a Server Action).
+ */
+export function buildRecipeSnapshot(recipe: Recipe, ingredients: RecipeIngredient[]) {
+  const numeroPorcoes = recipe.numero_porcoes ?? 1;
+  const rendimentoG = recipe.rendimento_g ?? 0;
+  const gramasPorPorcao = numeroPorcoes > 0 ? rendimentoG / numeroPorcoes : rendimentoG;
+
+  const macros = calculateRecipeEffectivePerPortion(ingredients, numeroPorcoes, recipe.valores_sobrescritos);
+  const fontesIngredientes = Array.from(new Set(ingredients.map((i) => i.fonte_alimento)));
+
+  return {
+    nome_alimento: recipe.nome,
+    fonte_alimento: "receita" as const,
+    fonte_descricao_alimento: null,
+    porcao_referencia_g: gramasPorPorcao,
+    calorias_kcal: macros.calorias,
+    proteinas_g: macros.proteinas,
+    carboidratos_g: macros.carboidratos,
+    gorduras_g: macros.gorduras,
+    fibras_g: macros.fibras,
+    fontes_ingredientes_receita: fontesIngredientes,
+  };
 }

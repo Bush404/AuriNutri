@@ -186,13 +186,19 @@ export async function duplicateMealPlan(planId: string): Promise<ActionResult> {
 
     // Snapshot copiado verbatim — inclusive fonte_alimento e
     // fonte_descricao_alimento, para a atribuição da TACO continuar correta
-    // na cópia mesmo que o alimento original seja editado depois.
+    // na cópia mesmo que o alimento/receita original seja editado depois.
+    // recipe_id/quantidade_porcoes/fontes_ingredientes_receita também
+    // precisam ser copiados (não só food_id): um item de receita não tem
+    // food_id, e o CHECK meal_items_food_or_recipe_check exige exatamente
+    // um dos dois preenchidos.
     const { error: itemsError } = await supabase.from("meal_items").insert(
       items.map((item) => ({
         meal_id: newMeal.id,
         food_id: item.food_id,
+        recipe_id: item.recipe_id,
         user_id: user.id,
         quantidade_g: item.quantidade_g,
+        quantidade_porcoes: item.quantidade_porcoes,
         ordem: item.ordem,
         nome_alimento: item.nome_alimento,
         fonte_alimento: item.fonte_alimento,
@@ -203,6 +209,7 @@ export async function duplicateMealPlan(planId: string): Promise<ActionResult> {
         carboidratos_g: item.carboidratos_g,
         gorduras_g: item.gorduras_g,
         fibras_g: item.fibras_g,
+        fontes_ingredientes_receita: item.fontes_ingredientes_receita,
       }))
     );
 

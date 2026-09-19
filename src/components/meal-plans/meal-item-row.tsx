@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import type { MealItem, MealItemSubstitution } from "@/lib/types/database.types";
 import { calculateMealItemMacros, formatMacro, FONTE_LABELS } from "@/lib/nutrition";
-import { updateMealItemQuantity, deleteMealItem } from "@/lib/actions/meal-items";
+import { updateMealItemQuantity, updateMealItemPortions, deleteMealItem } from "@/lib/actions/meal-items";
 
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -19,24 +19,34 @@ export interface MealItemWithSubstitutions extends MealItem {
 }
 
 export function MealItemRow({ planId, item }: { planId: string; item: MealItemWithSubstitutions }) {
-  const [quantidade, setQuantidade] = useState(String(item.quantidade_g));
+  const isReceita = item.recipe_id !== null;
+  // Item de receita: o profissional edita em PORÇÕES, não em gramas —
+  // quantidade_g continua sendo o que o cálculo usa por baixo, mas quem
+  // digita nunca vê gramas para esse tipo de item.
+  const [quantidade, setQuantidade] = useState(String(isReceita ? (item.quantidade_porcoes ?? 0) : item.quantidade_g));
   const [isPending, startTransition] = useTransition();
 
   // O cálculo usa exclusivamente o snapshot gravado no item — nunca o
-  // alimento "ao vivo" — para não alterar planos já montados.
-  const macros = calculateMealItemMacros({ ...item, quantidade_g: Number(quantidade) || 0 });
+  // alimento/receita "ao vivo" — para não alterar planos já montados.
+  const quantidadeGramasParaCalculo = isReceita
+    ? (Number(quantidade) || 0) * item.porcao_referencia_g
+    : Number(quantidade) || 0;
+  const macros = calculateMealItemMacros({ ...item, quantidade_g: quantidadeGramasParaCalculo });
 
   function handleBlur() {
     const parsed = Number(quantidade);
-    if (!parsed || parsed <= 0 || parsed === Number(item.quantidade_g)) {
-      setQuantidade(String(item.quantidade_g));
+    const valorAtual = isReceita ? (item.quantidade_porcoes ?? 0) : item.quantidade_g;
+    if (!parsed || parsed <= 0 || parsed === Number(valorAtual)) {
+      setQuantidade(String(valorAtual));
       return;
     }
     startTransition(async () => {
-      const result = await updateMealItemQuantity(planId, item.id, parsed);
+      const result = isReceita
+        ? await updateMealItemPortions(planId, item.id, parsed, item.porcao_referencia_g)
+        : await updateMealItemQuantity(planId, item.id, parsed);
       if (!result.success) {
         toast.error("Não foi possível atualizar", { description: result.message });
-        setQuantidade(String(item.quantidade_g));
+        setQuantidade(String(valorAtual));
       }
     });
   }
@@ -67,11 +77,11 @@ export function MealItemRow({ planId, item }: { planId: string; item: MealItemWi
             onChange={(e) => setQuantidade(e.target.value)}
             onBlur={handleBlur}
             type="number"
-            step="0.1"
+            step={isReceita ? "0.5" : "0.1"}
             className="h-8 w-20"
             disabled={isPending}
           />
-          <span className="text-xs text-muted-foreground">g</span>
+          <span className="text-xs text-muted-foreground">{isReceita ? "porção(ões)" : "g"}</span>
         </div>
       </TableCell>
       <TableCell className="text-sm">{formatMacro(macros.calorias, " kcal")}</TableCell>

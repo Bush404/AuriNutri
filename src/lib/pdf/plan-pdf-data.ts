@@ -10,7 +10,7 @@ import {
   type MealWithItems,
   type PlanMetas,
 } from "@/lib/nutrition";
-import type { FonteAlimento, MealPlan } from "@/lib/types/database.types";
+import type { ItemFonte, MealPlan } from "@/lib/types/database.types";
 
 /**
  * Monta todos os dados que o PDF do plano precisa exibir. NENHUM total é
@@ -39,8 +39,10 @@ export interface PlanPdfProfissional {
 
 export interface PlanPdfItem {
   nomeAlimento: string;
-  fonteAlimento: FonteAlimento;
+  fonteAlimento: ItemFonte;
   quantidadeG: number;
+  /** Só para item de receita — quando presente, a UI exibe porções em vez de gramas. */
+  quantidadePorcoes: number | null;
   macros: MacroTotals;
 }
 
@@ -107,6 +109,7 @@ export function buildPlanPdfViewModel({
         nomeAlimento: item.nome_alimento,
         fonteAlimento: item.fonte_alimento,
         quantidadeG: item.quantidade_g,
+        quantidadePorcoes: item.quantidade_porcoes,
         macros: calculateMealItemMacros(item),
       })),
     totais: calculateMealTotals(meal.items),

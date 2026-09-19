@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
-import type { Food, MealItem, RecipeIngredient } from "@/lib/types/database.types";
+import type { Food, MealItem, Recipe, RecipeIngredient } from "@/lib/types/database.types";
 import {
   buildFonteFooter,
+  buildRecipeSnapshot,
   calculateFoodMacros,
   calculateMealItemMacros,
   calculateMealTotals,
   calculatePlanTotals,
+  calculateRecipeEffectivePerPortion,
   calculateRecipePer100g,
   calculateRecipePerPortion,
   calculateRecipeTotals,
@@ -69,8 +71,10 @@ function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
     id: "item-1",
     meal_id: "meal-1",
     food_id: "food-1",
+    recipe_id: null,
     user_id: "user-1",
     quantidade_g: 100,
+    quantidade_porcoes: null,
     ordem: 0,
     nome_alimento: "Arroz branco cozido",
     fonte_alimento: "taco",
@@ -81,6 +85,7 @@ function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
     carboidratos_g: 28.1,
     gorduras_g: 0.2,
     fibras_g: 1.6,
+    fontes_ingredientes_receita: null,
     created_at: "2026-01-01T00:00:00Z",
     deleted_at: null,
     ...overrides,
@@ -129,6 +134,26 @@ function makeRecipeIngredient(overrides: Partial<RecipeIngredient> = {}): Recipe
     gordura_poliinsaturada_g: null,
     valores_especiais: {},
     created_at: "2026-01-01T00:00:00Z",
+    ...overrides,
+  };
+}
+
+function makeRecipe(overrides: Partial<Recipe> = {}): Recipe {
+  return {
+    id: "recipe-1",
+    user_id: "user-1",
+    nome: "Panqueca de banana",
+    descricao: null,
+    modo_preparo: null,
+    imagem_url: null,
+    rendimento_g: 200,
+    numero_porcoes: 2,
+    tempo_preparo_min: null,
+    tags: [],
+    valores_sobrescritos: {},
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
+    deleted_at: null,
     ...overrides,
   };
 }
@@ -439,5 +464,145 @@ describe("calculateRecipePerPortion / calculateRecipePer100g — fator de cocç�
     expect(per100g.micros.ferro_mg.valor).toBe(5); // 10 em 200g de rendimento => 10/200*100
     expect(per100g.micros.ferro_mg.parcial).toBe(true);
     expect(per100g.micros.ferro_mg.ingredientesSemDado).toBe(1);
+  });
+});
+
+describe("calculateRecipeEffectivePerPortion — correção manual do profissional prevalece sobre o calculado", () => {
+  it("usa o calculado quando não há override para 'porcao.<campo>'", () => {
+    const ingredients = [makeRecipeIngredient({ calorias_kcal: 100, quantidade_g: 100, porcao_referencia_g: 100 })];
+    const macros = calculateRecipeEffectivePerPortion(ingredients, 2, {});
+    expect(macros.calorias).toBe(50); // 100 kcal / 2 porções
+  });
+
+  it("usa o valor sobrescrito quando 'porcao.calorias' está definido, mesmo que difira do calculado", () => {
+    const ingredients = [makeRecipeIngredient({ calorias_kcal: 100, quantidade_g: 100, porcao_referencia_g: 100 })];
+    const macros = calculateRecipeEffectivePerPortion(ingredients, 2, { "porcao.calorias": 999 });
+    expect(macros.calorias).toBe(999);
+    expect(macros.proteinas).not.toBe(999); // só o campo sobrescrito muda, os outros continuam calculados
+  });
+});
+
+describe("buildRecipeSnapshot — receita usada como item de refeição (Fase 6, Bloco C)", () => {
+  it("porcao_referencia_g vira os gramas de UMA porção (rendimento_g / numero_porcoes)", () => {
+    const recipe = makeRecipe({ rendimento_g: 200, numero_porcoes: 4 });
+    const snapshot = buildRecipeSnapshot(recipe, []);
+    expect(snapshot.porcao_referencia_g).toBe(50);
+  });
+
+  it("aplica valores_sobrescritos da receita ao snapshot, não o bruto calculado", () => {
+    const recipe = makeRecipe({
+      rendimento_g: 200,
+      numero_porcoes: 2,
+      valores_sobrescritos: { "porcao.calorias": 300 },
+    });
+    const ingredients = [makeRecipeIngredient({ calorias_kcal: 100, quantidade_g: 100, porcao_referencia_g: 100 })];
+    const snapshot = buildRecipeSnapshot(recipe, ingredients);
+    expect(snapshot.calorias_kcal).toBe(300);
+  });
+
+  it("marca fonte_alimento como 'receita' e reúne o CONJUNTO de fontes dos ingredientes", () => {
+    const recipe = makeRecipe();
+    const ingredients = [
+      makeRecipeIngredient({ id: "i1", fonte_alimento: "taco" }),
+      makeRecipeIngredient({ id: "i2", fonte_alimento: "personalizado" }),
+      makeRecipeIngredient({ id: "i3", fonte_alimento: "taco" }), // duplicata não deve aparecer duas vezes
+    ];
+    const snapshot = buildRecipeSnapshot(recipe, ingredients);
+    expect(snapshot.fonte_alimento).toBe("receita");
+    expect(snapshot.fontes_ingredientes_receita.sort()).toEqual(["personalizado", "taco"]);
+  });
+
+  it("editar a receita depois de tirar o snapshot NÃO altera o snapshot já tirado (mesmo princípio de calculateRecipeTotals)", () => {
+    const recipeV1 = makeRecipe({ rendimento_g: 200, numero_porcoes: 2 });
+    const ingredientsV1 = [makeRecipeIngredient({ calorias_kcal: 100, quantidade_g: 100, porcao_referencia_g: 100 })];
+
+    const snapshotTiradoAoAdicionarAoPlano = buildRecipeSnapshot(recipeV1, ingredientsV1);
+
+    // A receita é editada DEPOIS: ingrediente trocado por um bem mais calórico.
+    const recipeV2Ingredients = [makeRecipeIngredient({ calorias_kcal: 900, quantidade_g: 100, porcao_referencia_g: 100 })];
+    const snapshotSeFosseTiradoAgora = buildRecipeSnapshot(recipeV1, recipeV2Ingredients);
+
+    expect(snapshotTiradoAoAdicionarAoPlano.calorias_kcal).toBe(50); // 100 kcal / 2 porções, congelado
+    expect(snapshotSeFosseTiradoAgora.calorias_kcal).toBe(450); // o que teria sido se tirado só agora
+    expect(snapshotTiradoAoAdicionarAoPlano.calorias_kcal).not.toBe(snapshotSeFosseTiradoAgora.calorias_kcal);
+  });
+});
+
+describe("collectFontesUsadas / buildFonteFooter — item de receita credita as fontes dos SEUS ingredientes", () => {
+  it("um item de receita contribui com o conjunto de fontes de fontes_ingredientes_receita, não com 'receita'", () => {
+    const itemReceita: MealItem = {
+      id: "item-receita",
+      meal_id: "meal-1",
+      food_id: null,
+      recipe_id: "recipe-1",
+      user_id: "user-1",
+      quantidade_g: 100,
+      quantidade_porcoes: 2,
+      ordem: 0,
+      nome_alimento: "Panqueca de banana",
+      fonte_alimento: "receita",
+      fonte_descricao_alimento: null,
+      porcao_referencia_g: 50,
+      calorias_kcal: 100,
+      proteinas_g: 5,
+      carboidratos_g: 10,
+      gorduras_g: 2,
+      fibras_g: 1,
+      fontes_ingredientes_receita: ["taco"],
+      created_at: "2026-01-01T00:00:00Z",
+      deleted_at: null,
+    };
+
+    const fontes = collectFontesUsadas([{ items: [itemReceita] }]);
+    expect(fontes).toEqual(["taco"]);
+  });
+
+  it("um plano com só um item de receita que usa TACO ainda credita o NEPA/UNICAMP no rodapé", () => {
+    const itemReceita: MealItem = {
+      id: "item-receita",
+      meal_id: "meal-1",
+      food_id: null,
+      recipe_id: "recipe-1",
+      user_id: "user-1",
+      quantidade_g: 100,
+      quantidade_porcoes: 2,
+      ordem: 0,
+      nome_alimento: "Panqueca de banana",
+      fonte_alimento: "receita",
+      fonte_descricao_alimento: null,
+      porcao_referencia_g: 50,
+      calorias_kcal: 100,
+      proteinas_g: 5,
+      carboidratos_g: 10,
+      gorduras_g: 2,
+      fibras_g: 1,
+      fontes_ingredientes_receita: ["taco", "personalizado"],
+      created_at: "2026-01-01T00:00:00Z",
+      deleted_at: null,
+    };
+
+    const footer = buildFonteFooter(collectFontesUsadas([{ items: [itemReceita] }]));
+    expect(footer).toContain("TACO");
+  });
+});
+
+describe("calculateMealItemMacros — item de receita (quantidade em porções convertida para gramas no snapshot)", () => {
+  it("bate com o cálculo manual: quantidade_porcoes * macros por porção", () => {
+    // Receita: 200 kcal por porção (porcao_referencia_g = 50g/porção, calorias_kcal = 200 nessa porção).
+    const item = {
+      porcao_referencia_g: 50,
+      quantidade_g: 2 * 50, // 2 porções, já convertido para gramas como addMealItemRecipe faz
+      calorias_kcal: 200,
+      proteinas_g: 10,
+      carboidratos_g: 20,
+      gorduras_g: 5,
+      fibras_g: 3,
+    };
+    const macros = calculateMealItemMacros(item);
+    // Cálculo manual: 2 porções inteiras => o dobro dos valores por porção.
+    expect(macros.calorias).toBe(400);
+    expect(macros.proteinas).toBe(20);
+    expect(macros.carboidratos).toBe(40);
+    expect(macros.gorduras).toBe(10);
   });
 });

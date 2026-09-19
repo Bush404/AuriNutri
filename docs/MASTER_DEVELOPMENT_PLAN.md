@@ -469,20 +469,112 @@ Fuso horário. Resolvido convertendo explicitamente com o fuso salvo no perfil d
 
 ---
 
-## PHASE 6 — Receitas e preparações · `TODO` · `MEDIUM`
+## PHASE 6 — Receitas e preparações · `DONE` · `MEDIUM`
 
 **Dependências:** Fase 4.
 
 ```
-[ ] Migration 0007: recipes + recipe_ingredients (rendimento, porção)
-[ ] Cálculo nutricional derivado dos ingredientes
-[ ] CRUD de receita com imagem
-[ ] Usar receita como item de plano alimentar (com snapshot)
-[ ] Tags e busca
+[x] Bloco 0 (pré-requisito): micronutrientes no cadastro de alimento personalizado
+[x] Migration 0013: recipes + recipe_ingredients (rendimento, porção, snapshot dos ingredientes)
+[x] Cálculo nutricional derivado dos ingredientes (total / por porção / por 100g, fator de cocção)
+[x] CRUD de receita com imagem (wizard de 4 etapas, rascunho progressivo)
+[x] Correção manual de qualquer macro/micro calculado (valores_sobrescritos)
+[x] Tags e busca
+[x] Usar receita como item de plano alimentar (com snapshot, em porções)
+[x] PDF do plano exibe receitas corretamente (quantidade em porções + atribuição de fonte)
 ```
 
 **Decisão registrada:** receita é entidade própria, não extensão de `foods`. Uma receita tem ingredientes, rendimento e porção — semântica diferente.
-**Risco:** o snapshot precisa capturar a receita inteira no momento do uso.
+
+**Bloco 0 (2026-09-17) — pré-requisito, micronutrientes em alimento personalizado:**
+`FoodFormDialog` só expunha os 5 macros principais, embora `foods` já tivesse
+todas as colunas de micronutriente da TACO desde a migration 0002 — um
+alimento cadastrado à mão (ex.: whey protein) não conseguia registrar sódio,
+ferro, vitaminas etc. Estendido para os 23 micronutrientes, agrupados num
+acordeão fechado por padrão (cadastro rápido continua só-macros). Regra
+crítica aplicada: campo vazio vira `NULL` no banco, nunca `0`
+(`buildMicronutrientFields` em `src/lib/actions/foods.ts`) — e um bug
+preexistente equivalente em `fibras_g` (`?? 0` em vez de `?? null`) foi
+corrigido de passagem.
+
+**Bloco A (2026-09-17) — backend de receitas:** migration `0013_recipes.sql`
+cria `recipes` (com `rendimento_g`/`numero_porcoes` informados pelo
+profissional — nunca derivados da soma dos ingredientes, já que cocção
+altera peso por perda de água ou absorção) e `recipe_ingredients` (snapshot
+nutricional completo por ingrediente, mesmo princípio de `meal_items`:
+editar/excluir o alimento de origem depois não muda a receita já salva).
+`calculateRecipeTotals`/`calculateRecipePerPortion`/`calculateRecipePer100g`
+em `lib/nutrition.ts` operam só sobre esse snapshot. Migration `0014` relaxa
+`rendimento_g`/`numero_porcoes` para `NULL` (rascunho progressivo — ver
+Bloco B) e `0015` cria o bucket privado `receitas` para as imagens.
+
+**Bloco B (2026-09-17) — wizard de criação, imagem e correção manual:**
+CRUD completo num wizard de 4 etapas que salva rascunho a cada etapa
+(identificação → modo de preparo → ingredientes → rendimento/porções),
+upload de imagem para o bucket privado (URL sempre assinada), tags com
+busca/filtro na listagem (`/receitas`). `RecipeNutritionPanel` mostra os
+totais em 3 visões (total/por porção/por 100g) com todos os 23
+micronutrientes, e permite correção manual de qualquer valor calculado
+(`valores_sobrescritos`, mapa `{"<visão>.<campo>": valor}`) sem perder o
+calculado original — "limpar" volta a aceitar o cálculo automático.
+
+**Bloco C (2026-09-19) — usar receita no plano alimentar:** decisão de
+design tomada com o usuário antes de implementar — snapshot no `meal_item`
+guarda só os TOTAIS por porção da receita (macros + conjunto de fontes dos
+ingredientes), não a composição ingrediente-a-ingrediente; reaproveita 100%
+do modelo já existente para alimentos avulsos, sem tabela nova. Migration
+`0018_meal_items_recipe.sql`: `meal_items` ganha `recipe_id` (mutuamente
+exclusivo com `food_id`, via CHECK), `quantidade_porcoes` e
+`fontes_ingredientes_receita`. `porcao_referencia_g` do snapshot vira os
+gramas de UMA porção (`rendimento_g / numero_porcoes`), o que faz
+`calculateMealItemMacros` funcionar sem NENHUMA mudança de fórmula — a
+receita é só mais um tipo de item do ponto de vista do cálculo.
+`buildRecipeSnapshot` (novo, em `lib/nutrition.ts`) aplica eventuais
+`valores_sobrescritos` da receita ao snapshot (uma correção manual do
+profissional não pode se perder ao levar a receita para um plano) e reúne o
+conjunto de fontes dos ingredientes naquele momento. `collectFontesUsadas`/
+`buildFonteFooter` passaram a considerar esse conjunto para um item
+"receita" (em vez de uma fonte única), garantindo que uma receita com
+ingrediente TACO continue creditando o NEPA/UNICAMP no rodapé do plano/PDF
+mesmo o item em si não sendo "taco". UI: abas Alimento/Receita no formulário
+de adicionar item, `RecipeCombobox` (só receitas finalizadas, não
+rascunhos), quantidade sempre em porções (nunca gramas) na tela e no PDF.
+A função de duplicar plano (`meal-plans.ts`) precisou ser corrigida para
+copiar também `recipe_id`/`quantidade_porcoes`/`fontes_ingredientes_receita`
+— sem isso, duplicar um plano com item de receita violaria o novo CHECK.
+10 novos testes (`nutrition.test.ts`, `plan-pdf-data.test.ts`): edição da
+receita depois de usada não altera o snapshot já gravado, totais do plano
+batem com o cálculo manual, atribuição de fonte correta com receita
+TACO, e PDF/tela usando exatamente os mesmos números.
+
+**Bug sistêmico de RLS encontrado e corrigido durante o retest do Bloco C
+(2026-09-19):** ao testar a exclusão de uma receita, apareceu
+`42501 new row violates row-level security policy for table "recipes"`.
+Diagnosticado via SQL direto (impersonando a role `authenticated` com o JWT
+do usuário) até a causa raiz: TODA tabela com soft delete no projeto
+(`recipes`, `anthropometric_assessments`, `meal_plans`, `meals`,
+`meal_items`, `appointments`, `tasks`) tinha esse bug — a política de SELECT
+filtra `deleted_at is null`, e o Postgres rejeita o UPDATE que torna a
+própria linha invisível por essa mesma política, mesmo a política de UPDATE
+permitindo a operação. Corrigido na migration `0017_soft_delete_definer_functions.sql`:
+cada exclusão passou a rodar por uma função `SECURITY DEFINER` que replica a
+checagem de posse (`user_id = auth.uid()`) explicitamente no `WHERE` — a
+garantia continua vivendo no banco, só que na função em vez da policy.
+Detalhe completo em `docs/PROJECT_AUDIT.md`/memória do projeto.
+
+### Critérios de aceite
+- [x] Cálculo nutricional da receita bate com a soma manual dos ingredientes (por porção e por 100g).
+- [x] Editar a receita depois de usá-la num plano não altera o plano já montado (testado e coberto por teste automatizado).
+- [x] Receita usada num plano é exibida em porções, não em gramas, na tela e no PDF.
+- [x] Atribuição de fonte credita TACO quando um ingrediente da receita é TACO, mesmo o item do plano sendo "receita".
+- [x] Excluir receita, plano, avaliação, refeição, item ou agendamento funciona de verdade (bug de RLS sistêmico corrigido).
+- [x] PDF e tela mostram exatamente os mesmos números (mesma função por baixo dos dois).
+
+### Riscos (mitigado)
+O snapshot precisa capturar a receita inteira no momento do uso — resolvido
+guardando os totais efetivos por porção (com correção manual aplicada) e o
+conjunto de fontes dos ingredientes no `meal_item`, sem depender de uma
+junção "ao vivo" com `recipe_ingredients` em nenhum momento do cálculo.
 
 ---
 

@@ -8,8 +8,10 @@ function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
     id: "item-1",
     meal_id: "meal-1",
     food_id: "food-1",
+    recipe_id: null,
     user_id: "user-1",
     quantidade_g: 100,
+    quantidade_porcoes: null,
     ordem: 0,
     nome_alimento: "Arroz branco cozido",
     fonte_alimento: "taco",
@@ -20,6 +22,7 @@ function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
     carboidratos_g: 28.1,
     gorduras_g: 0.2,
     fibras_g: 1.6,
+    fontes_ingredientes_receita: null,
     created_at: "2026-01-01T00:00:00Z",
     deleted_at: null,
     ...overrides,
@@ -161,6 +164,44 @@ describe("buildPlanPdfViewModel — os totais do PDF são os MESMOS da tela", ()
     });
 
     expect(viewModel.refeicoes[0].itens.map((i) => i.fonteAlimento)).toEqual(["taco", "personalizado"]);
+    expect(viewModel.fonteFooter).toContain("TACO");
+  });
+
+  it("item de receita: total do PDF bate com calculatePlanTotals (mesmo código da tela) e credita a TACO via ingredientes", () => {
+    const itemReceita = makeMealItem({
+      id: "item-receita",
+      food_id: null,
+      recipe_id: "recipe-1",
+      quantidade_g: 100, // 2 porções * 50g/porção
+      quantidade_porcoes: 2,
+      nome_alimento: "Panqueca de banana",
+      fonte_alimento: "receita",
+      fontes_ingredientes_receita: ["taco"],
+      porcao_referencia_g: 50,
+      calorias_kcal: 200,
+      proteinas_g: 10,
+      carboidratos_g: 20,
+      gorduras_g: 5,
+      fibras_g: 3,
+    });
+    const refeicoes = [makeMeal({ items: [itemReceita] })];
+
+    const totalDaTela = calculatePlanTotals(refeicoes);
+    const viewModel = buildPlanPdfViewModel({
+      profissional: PROFISSIONAL_BASE,
+      pacienteNome: "Paciente Teste",
+      plano: PLANO_BASE,
+      refeicoes,
+    });
+
+    // Mesmos números na tela e no PDF — mesma função por baixo dos dois.
+    expect(viewModel.totais).toEqual(totalDaTela);
+    expect(viewModel.totais.calorias).toBe(400); // 2 porções * 200 kcal/porção
+
+    // O item em si é "receita", mas a atribuição de fonte olha para os
+    // ingredientes que a compõem (TACO, nesse caso) — nunca fica muda.
+    expect(viewModel.refeicoes[0].itens[0].fonteAlimento).toBe("receita");
+    expect(viewModel.refeicoes[0].itens[0].quantidadePorcoes).toBe(2);
     expect(viewModel.fonteFooter).toContain("TACO");
   });
 });

@@ -17,7 +17,7 @@ import {
 } from "@/lib/validations/recipe";
 import { buildFoodSnapshotWithMicros } from "@/lib/nutrition";
 import type { ActionResult } from "@/lib/actions/patients";
-import type { Food } from "@/lib/types/database.types";
+import type { Food, Recipe } from "@/lib/types/database.types";
 
 export interface CreateRecipeResult extends ActionResult {
   id?: string;
@@ -389,4 +389,30 @@ export async function getRecipeImageSignedUrl(path: string | null | undefined): 
   }
 
   return data.signedUrl;
+}
+
+/**
+ * Busca receitas para o seletor do construtor de plano alimentar (Fase 6,
+ * Bloco C) — só retorna receitas FINALIZADAS (rendimento_g/numero_porcoes
+ * preenchidos, ou seja, fora da Etapa 4 ainda em rascunho), já que só essas
+ * têm os dados necessários para virar um item de refeição.
+ */
+export async function searchRecipesForPicker(query: string): Promise<Recipe[]> {
+  const supabase = createClient();
+  const termo = query.trim();
+
+  let recipesQuery = supabase
+    .from("recipes")
+    .select("*")
+    .not("rendimento_g", "is", null)
+    .not("numero_porcoes", "is", null)
+    .order("nome")
+    .limit(8);
+
+  if (termo) {
+    recipesQuery = recipesQuery.ilike("nome", `%${termo}%`);
+  }
+
+  const { data } = await recipesQuery.returns<Recipe[]>();
+  return data ?? [];
 }
