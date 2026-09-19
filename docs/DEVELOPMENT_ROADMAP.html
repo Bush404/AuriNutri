@@ -120,19 +120,19 @@
     <div class="dot">◆</div>
     <h1>Auri<span>Nutri</span> — Roadmap</h1>
   </div>
-  <p class="sub">Do primeiro paciente ao seu próprio consultório · atualizado em 19/09/2026</p>
+  <p class="sub">Do primeiro paciente ao seu próprio consultório · atualizado em 19/09/2026 (Fase 7 concluída — fim do V1)</p>
 </header>
 
 <section class="overall">
   <div class="overall-top">
     <h2>Progresso geral do produto</h2>
-    <div class="pct">64%</div>
+    <div class="pct">73%</div>
   </div>
-  <div class="bar"><i style="width:64%"></i></div>
+  <div class="bar"><i style="width:73%"></i></div>
   <div class="legend">
-    <span><b>7</b> fases concluídas</span>
+    <span><b>8</b> fases concluídas</span>
     <span><b>0</b> em andamento</span>
-    <span><b>4</b> planejadas</span>
+    <span><b>3</b> planejadas</span>
     <span><b>2</b> decisões pendentes</span>
   </div>
 </section>
@@ -143,12 +143,12 @@
     <div class="t">Fases 0 → 4</div>
     <div class="d">Concluído em 17/09/2026. Paciente, avaliação, plano e PDF. Falta validar com nutricionistas reais antes de seguir em V1.</div>
   </div>
-  <div class="ms now">
-    <div class="tag">V1</div>
-    <div class="t">Fases 5 → 7</div>
-    <div class="d">Agenda, receitas, exames e evolução visual.</div>
-  </div>
   <div class="ms">
+    <div class="tag">V1 ✓</div>
+    <div class="t">Fases 5 → 7</div>
+    <div class="d">Concluído em 19/09/2026. Agenda, receitas, exames e evolução visual/fotográfica.</div>
+  </div>
+  <div class="ms now">
     <div class="tag">V2</div>
     <div class="t">Fases 8 → 10</div>
     <div class="d">Área do paciente, financeiro e comunidade.</div>
@@ -322,29 +322,35 @@
   </div>
 </details>
 
-<details class="phase active">
+<details class="phase">
   <summary class="ph-head">
-    <span class="mark">7</span>
-    <span class="ph-title"><span class="n">PHASE 7 · PRÓXIMA</span><div class="t">Exames e evolução visual</div></span>
-    <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+    <span class="mark done">✓</span>
+    <span class="ph-title"><span class="n">PHASE 7 · FIM DO V1</span><div class="t">Exames e evolução visual</div></span>
+    <span class="ph-meta"><span class="chip c-done">Done</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
-    <p class="obj"><b>Objetivo:</b> exames laboratoriais e evolução fotográfica.</p>
+    <p class="obj"><b>Objetivo:</b> consentimento LGPD, exames laboratoriais e evolução fotográfica.</p>
     <ul class="tasks">
-      <li>Upload de exames com storage privado</li>
-      <li>Marcadores estruturados + faixas de referência</li>
-      <li>Comparação fotográfica lado a lado</li>
-      <li>Consentimento explícito registrado</li>
+      <li class="ok">Consentimento por tipo de dado (exames/fotos/dados clínicos), com revogação — evento imutável, nunca editado</li>
+      <li class="ok">Upload de exames com storage privado, bloqueado sem consentimento</li>
+      <li class="ok">Marcadores estruturados + faixas de referência (catálogo global + pessoal, por sexo/idade, snapshot no resultado)</li>
+      <li class="ok">Tela de exames com "Anexar PDF" e "Preencher marcadores" totalmente independentes</li>
+      <li class="ok">Evolução fotográfica em aba própria, bucket separado, URLs de 15min, comparação lado a lado</li>
+      <li class="ok">Exclusão de foto remove o arquivo do storage de verdade, não só a linha</li>
+      <li class="ok">Consentimento de fotos garantido também na policy de INSERT do banco (não só na aplicação)</li>
+      <li class="ok">Auditoria de quem visualizou qual foto e quando</li>
     </ul>
-    <div class="risk"><b>Risco alto</b>
-      Foto de paciente é dado sensível. Exige consentimento registrado, storage privado e URLs assinadas de curta duração. Não implementar sem isso.</div>
+    <div class="accept"><b>Aceite</b>
+      Faixa de referência correta por sexo/idade, sem o sistema decidir sozinho quando o sexo é ambíguo. Editar catálogo global não reinterpreta exame já lançado. Isolamento entre profissionais e expiração de URL testados ao vivo (exames e fotos). Os 5 testes obrigatórios de segurança do bloco de fotos (maior risco da fase) passaram contra o projeto real.</div>
+    <div class="risk"><b>Risco alto (mitigado)</b>
+      Foto de paciente é dado sensível. Mitigado com bucket separado, consentimento exigido na própria policy de banco, URLs de 15min nunca cacheadas, exclusão física do arquivo e trilha de auditoria de acesso.</div>
   </div>
 </details>
 
-<details class="phase">
+<details class="phase active">
   <summary class="ph-head">
     <span class="mark">8</span>
-    <span class="ph-title"><span class="n">PHASE 8 · V2</span><div class="t">Área do paciente</div></span>
+    <span class="ph-title"><span class="n">PHASE 8 · V2 · PRÓXIMA</span><div class="t">Área do paciente</div></span>
     <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">

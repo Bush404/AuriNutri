@@ -578,19 +578,95 @@ junção "ao vivo" com `recipe_ingredients` em nenhum momento do cálculo.
 
 ---
 
-## PHASE 7 — Exames e evolução visual · `TODO` · `MEDIUM`
+## PHASE 7 — Exames e evolução visual · `DONE` · `MEDIUM`
 
 **Dependências:** Fase 2 (storage).
 
 ```
-[ ] Migration 0008: lab_exams, patient_photos, patient_documents
-[ ] Upload de exames (PDF/imagem) com storage privado
-[ ] Marcadores laboratoriais estruturados + faixas de referência
-[ ] Evolução fotográfica com comparação lado a lado
-[ ] Consentimento explícito para fotos (LGPD)
+[x] Migrations 0019–0023: patient_consents, lab_exams, lab_reference_ranges, lab_markers, patient_photos
+[x] Consentimento explícito por tipo de dado (exames/fotos/dados_clínicos), com revogação
+[x] Upload de exames (PDF/imagem) com storage privado, bloqueado sem consentimento
+[x] Marcadores laboratoriais estruturados + faixas de referência (catálogo global + pessoal, por sexo/idade)
+[x] Evolução fotográfica com comparação lado a lado, aba própria
+[x] Bucket de fotos SEPARADO do de exames, URLs de 15min, exclusão física do arquivo
+[x] Trilha de auditoria de quem visualizou qual foto e quando
 ```
 
-**Risco alto:** foto de paciente é dado sensível. Exige consentimento registrado, storage privado e URLs assinadas de curta duração. **Não implementar sem isso.**
+**Bloco A (2026-09-19) — base de consentimento:** tabela `patient_consents`
+(migration 0019). Cada linha é um evento IMUTÁVEL — revogar nunca edita
+nem apaga o histórico, só marca `concedido`/`data_revogacao` NESSE mesmo
+registro (as únicas colunas que a role `authenticated` pode alterar depois
+de criado, via `GRANT` por coluna — nem o dono edita tipo/forma/data
+original). Sem policy de `DELETE`: a trilha de consentimento é permanente
+por design. Decisão registrada com o usuário sobre revogação: bloqueia
+coleta futura daquele tipo (`has_active_patient_consent`, security
+definer) — nunca apaga dado já coletado sob consentimento válido; excluir
+o que já existe seria uma ação separada e explícita, fora de escopo aqui.
+
+**Bloco B (2026-09-19) — exames laboratoriais:** `lab_exams` +
+`lab_reference_ranges` (catálogo global + customização pessoal por
+profissional, mesmo padrão de `foods.is_global`) + `lab_markers`
+(migrations 0020/0021). Faixa de referência sempre um SNAPSHOT no
+resultado (nunca FK) — editar o catálogo depois não reinterpreta exame já
+lançado (confirmado com script live). Busca cruza marcador + sexo do
+paciente + idade; quando o sexo é `outro`/não informado, o sistema nunca
+escolhe sozinho — mostra as duas opções (mesmo cuidado do cálculo de
+gasto energético). Upload bloqueado sem consentimento ativo tipo
+`exames`. Catálogo de 20 marcadores revisado linha a linha com o usuário
+(nutricionista) antes de aplicar no banco. Vocabulário deliberadamente
+neutro: "fora da faixa de referência", nunca rótulos interpretativos.
+Iteração pós-uso: campo de marcador virou busca com lista clicável do
+catálogo (era texto livre); tela de exames virou um MENU com duas opções
+totalmente independentes — "Anexar PDF" e "Preencher marcadores" — cada
+uma abrindo uma tela só daquilo; um exame criado do lado do arquivo
+sempre nasce COM o arquivo (upload+registro num único passo, com rollback
+se falhar) e nunca aparece do lado dos marcadores, e vice-versa
+(filtrado por `arquivo_path`, sem coluna nova).
+
+**Bloco C (2026-09-19) — evolução fotográfica, RISCO ALTO:** `patient_photos`
+em bucket **separado** (`fotos-evolucao`, não reaproveita o bucket
+`profissional` da Fase 2) — migrations 0022/0023. A garantia de
+consentimento aqui é mais forte que em exames: a própria política de
+`INSERT` do banco chama `has_active_patient_consent()` no `WITH CHECK` —
+mesmo um bug na Server Action não abriria brecha, o Postgres rejeita o
+INSERT sozinho. Componente de upload literalmente não renderiza sem
+consentimento ativo (nem botão desabilitado — ausência mesmo). URLs
+assinadas de 15 minutos (mais curtas que exames, por ser dado mais
+sensível), nunca armazenadas nem cacheadas. Exclusão remove o arquivo do
+storage **de verdade** antes de marcar a linha como excluída (ordem
+importa: se a remoção do storage falhar, a linha não é marcada, para o
+sistema nunca "mentir" que a foto sumiu enquanto o arquivo ainda existe).
+Todo acesso (gerar a URL assinada) grava em `audit_log` quem visualizou e
+quando — `audit_log.acao` ganhou o valor `view` (antes só
+insert/update/delete). Aba própria "Evolução Fotográfica" (pedido do
+usuário — inicialmente ficou dentro da aba "Evolução", mas photos e
+antropometria são conceitos distintos o bastante pra abas separadas).
+
+### Testes obrigatórios do Bloco C (RISCO ALTO) — todos passaram
+Script live `scripts/test-patient-photos-isolation.mjs`
+(`npm run test:patient-photos-isolation`): profissional B não acessa foto
+de A por caminho direto (download/URL assinada) nem lista a pasta de A;
+URL assinada expirada deixa de funcionar; exclusão remove o arquivo do
+storage de verdade (confirmado via `admin.storage.download` falhando
+depois); upload sem consentimento é rejeitado pela própria policy do
+banco (código `42501`), não só pela aplicação.
+
+### Critérios de aceite
+- [x] Faixa de referência de exame correta por sexo/idade, sem o sistema decidir sozinho quando o sexo é ambíguo.
+- [x] Editar catálogo global de exames não reinterpreta resultado já lançado.
+- [x] Upload de exame e de foto bloqueados de verdade sem consentimento ativo (foto: garantido também na policy do banco).
+- [x] Exclusão de foto remove o arquivo do storage, não só a linha.
+- [x] URLs de exame (1h) e de foto (15min) sempre assinadas, nunca permanentes; expiração testada ao vivo.
+- [x] Isolamento entre profissionais (exames e fotos) testado ao vivo com contas descartáveis.
+- [x] Acesso a foto registrado em auditoria (quem, quando).
+
+### Riscos (mitigado)
+Foto de paciente é dado sensível — mitigado com bucket separado, RLS
+exigindo consentimento ativo na própria policy de INSERT (não só na
+aplicação), URLs de 15min nunca cacheadas, exclusão física do arquivo, e
+trilha de auditoria de acesso. Os 5 testes obrigatórios do bloco (item de
+maior risco da fase) rodaram contra o projeto real e todos passaram —
+nenhuma verificação que deveria falhar passou.
 
 ---
 

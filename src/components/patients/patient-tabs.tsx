@@ -2,7 +2,14 @@
 
 import { ClipboardList, LineChart as LineChartIcon } from "lucide-react";
 
-import type { Anamnesis, AnthropometricAssessment, MealPlan, Patient, PatientConsent } from "@/lib/types/database.types";
+import type {
+  Anamnesis,
+  AnthropometricAssessment,
+  MealPlan,
+  Patient,
+  PatientConsent,
+  PatientPhoto,
+} from "@/lib/types/database.types";
 import { calculateAge, formatDate } from "@/lib/utils";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +23,7 @@ import { MealPlanList } from "@/components/meal-plans/meal-plan-list";
 import { PatientConsentsPanel } from "@/components/patients/patient-consents-panel";
 import { LabExamsPanel } from "@/components/patients/lab-exams-panel";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
+import { PatientPhotosPanel } from "@/components/patients/patient-photos-panel";
 
 interface PatientTabsProps {
   patient: Patient;
@@ -25,6 +33,8 @@ interface PatientTabsProps {
   consents: PatientConsent[];
   labExams: LabExamWithMarkers[];
   consentimentoAtivoExames: boolean;
+  photos: PatientPhoto[];
+  consentimentoAtivoFotos: boolean;
 }
 
 export function PatientTabs({
@@ -35,6 +45,8 @@ export function PatientTabs({
   consents,
   labExams,
   consentimentoAtivoExames,
+  photos,
+  consentimentoAtivoFotos,
 }: PatientTabsProps) {
   const age = calculateAge(patient.data_nascimento);
 
@@ -45,6 +57,7 @@ export function PatientTabs({
         <TabsTrigger value="anamnese">Anamnese</TabsTrigger>
         <TabsTrigger value="avaliacoes">Avaliações</TabsTrigger>
         <TabsTrigger value="evolucao">Evolução</TabsTrigger>
+        <TabsTrigger value="evolucao-fotografica">Evolução Fotográfica</TabsTrigger>
         <TabsTrigger value="planos">Planos alimentares</TabsTrigger>
         <TabsTrigger value="exames">Exames</TabsTrigger>
         <TabsTrigger value="consentimentos">Consentimentos</TabsTrigger>
@@ -112,6 +125,10 @@ export function PatientTabs({
             )}
           </CardContent>
         </Card>
+      </TabsContent>
+
+      <TabsContent value="evolucao-fotografica">
+        <PatientPhotosPanel patientId={patient.id} photos={photos} consentimentoAtivoFotos={consentimentoAtivoFotos} />
       </TabsContent>
 
       <TabsContent value="planos">

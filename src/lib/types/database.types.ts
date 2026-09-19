@@ -55,6 +55,22 @@ export interface PatientConsent {
   created_at: string;
 }
 
+/** Ângulo da foto de evolução — usado para comparar duas datas do MESMO ângulo. */
+export type TipoFotoEvolucao = "frente" | "perfil" | "costas";
+
+export interface PatientPhoto {
+  id: string;
+  patient_id: string;
+  user_id: string;
+  data_registro: string;
+  tipo: TipoFotoEvolucao;
+  /** Path no bucket privado 'fotos-evolucao' — nunca uma URL. NULL após exclusão (arquivo removido do storage de verdade). */
+  arquivo_path: string | null;
+  created_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). O arquivo já foi removido do storage nesse ponto. */
+  deleted_at: string | null;
+}
+
 export interface Anamnesis {
   id: string;
   patient_id: string;

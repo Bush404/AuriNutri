@@ -10,6 +10,7 @@ import type {
   MealPlan,
   Patient,
   PatientConsent,
+  PatientPhoto,
 } from "@/lib/types/database.types";
 import { hasActiveConsent } from "@/lib/actions/patient-consents";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
@@ -31,6 +32,8 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
     { data: consents },
     { data: labExams },
     consentimentoAtivoExames,
+    { data: photos },
+    consentimentoAtivoFotos,
   ] = await Promise.all([
     supabase.from("patients").select("*").eq("id", params.id).single<Patient>(),
     supabase
@@ -65,6 +68,13 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
       .order("data_coleta", { ascending: false })
       .returns<LabExamWithMarkers[]>(),
     hasActiveConsent(params.id, "exames"),
+    supabase
+      .from("patient_photos")
+      .select("*")
+      .eq("patient_id", params.id)
+      .order("data_registro", { ascending: false })
+      .returns<PatientPhoto[]>(),
+    hasActiveConsent(params.id, "fotos"),
   ]);
 
   if (!patient) {
@@ -120,6 +130,8 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
         consents={consents ?? []}
         labExams={labExams ?? []}
         consentimentoAtivoExames={consentimentoAtivoExames}
+        photos={photos ?? []}
+        consentimentoAtivoFotos={consentimentoAtivoFotos}
       />
     </div>
   );
