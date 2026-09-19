@@ -31,14 +31,18 @@ export interface LabExamWithMarkers extends LabExam {
   lab_markers: LabMarker[];
 }
 
-interface LabExamCardProps {
+interface LabExamRowProps {
   patientId: string;
   exam: LabExamWithMarkers;
+  /** Qual bloco mostrar — as duas telas (Arquivos/Marcadores) são separadas, nunca aparecem juntas. */
+  foco: "arquivo" | "marcadores";
   /** REGRA ESTRUTURAL do Bloco A: sem consentimento ativo, a opção de anexar arquivo não aparece — não é um aviso, é ausência. */
-  consentimentoAtivoExames: boolean;
+  /** Só relevante quando foco="arquivo". */
+  consentimentoAtivoExames?: boolean;
 }
 
-export function LabExamCard({ patientId, exam, consentimentoAtivoExames }: LabExamCardProps) {
+/** Um exame (data + laboratório), mostrando só o bloco de arquivo OU só o de marcadores — nunca os dois juntos. */
+export function LabExamRow({ patientId, exam, foco, consentimentoAtivoExames }: LabExamRowProps) {
   const [isPending, startTransition] = useTransition();
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -116,8 +120,9 @@ export function LabExamCard({ patientId, exam, consentimentoAtivoExames }: LabEx
             <AlertDialogHeader>
               <AlertDialogTitle>Excluir exame?</AlertDialogTitle>
               <AlertDialogDescription>
-                Os marcadores registrados nesse exame também deixam de ser exibidos. O arquivo anexado (se houver)
-                não é apagado do armazenamento por esta ação.
+                {foco === "arquivo"
+                  ? "Isso remove o registro deste exame, inclusive os marcadores lançados nele (se houver). O arquivo anexado não é apagado do armazenamento por esta ação."
+                  : "Isso remove o registro deste exame, inclusive o arquivo anexado (se houver) deixa de ser listado aqui — o arquivo em si não é apagado do armazenamento por esta ação."}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -128,9 +133,9 @@ export function LabExamCard({ patientId, exam, consentimentoAtivoExames }: LabEx
         </AlertDialog>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          {exam.arquivo_path ? (
+      <CardContent>
+        {foco === "arquivo" ? (
+          exam.arquivo_path ? (
             <Button type="button" size="sm" variant="outline" onClick={handleVerArquivo}>
               <FileText className="h-4 w-4" />
               Ver arquivo
@@ -153,58 +158,60 @@ export function LabExamCard({ patientId, exam, consentimentoAtivoExames }: LabEx
             <p className="text-xs text-muted-foreground">
               Registre o consentimento de exames na aba Consentimentos para poder anexar o arquivo deste exame.
             </p>
-          )}
-        </div>
+          )
+        ) : (
+          <div className="space-y-4">
+            {exam.lab_markers.length > 0 && (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Marcador</TableHead>
+                    <TableHead>Resultado</TableHead>
+                    <TableHead>Referência</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {exam.lab_markers.map((marker) => (
+                    <TableRow key={marker.id}>
+                      <TableCell className="font-medium">{marker.nome_marcador}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5">
+                          <span>
+                            {marker.valor} {marker.unidade}
+                          </span>
+                          {marker.fora_da_faixa && (
+                            <Badge variant="outline" className="text-[10px]">
+                              fora da faixa de referência
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {marker.referencia_min !== null || marker.referencia_max !== null
+                          ? `${marker.referencia_min ?? "—"} a ${marker.referencia_max ?? "—"} ${marker.unidade}`
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground hover:text-destructive"
+                          onClick={() => handleDeleteMarker(marker.id)}
+                          disabled={isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
 
-        {exam.lab_markers.length > 0 && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Marcador</TableHead>
-                <TableHead>Resultado</TableHead>
-                <TableHead>Referência</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {exam.lab_markers.map((marker) => (
-                <TableRow key={marker.id}>
-                  <TableCell className="font-medium">{marker.nome_marcador}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      <span>
-                        {marker.valor} {marker.unidade}
-                      </span>
-                      {marker.fora_da_faixa && (
-                        <Badge variant="outline" className="text-[10px]">
-                          fora da faixa de referência
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {marker.referencia_min !== null || marker.referencia_max !== null
-                      ? `${marker.referencia_min ?? "—"} a ${marker.referencia_max ?? "—"} ${marker.unidade}`
-                      : "—"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-destructive"
-                      onClick={() => handleDeleteMarker(marker.id)}
-                      disabled={isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+            <LabMarkerForm patientId={patientId} examId={exam.id} />
+          </div>
         )}
-
-        <LabMarkerForm patientId={patientId} examId={exam.id} />
       </CardContent>
     </Card>
   );
