@@ -9,7 +9,10 @@ import type {
   AnthropometricAssessment,
   MealPlan,
   Patient,
+  PatientConsent,
 } from "@/lib/types/database.types";
+import { hasActiveConsent } from "@/lib/actions/patient-consents";
+import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -20,29 +23,49 @@ import { ExportPatientButton } from "@/components/patients/export-patient-button
 export default async function PacienteDetalhePage({ params }: { params: { id: string } }) {
   const supabase = createClient();
 
-  const [{ data: patient }, { data: anamneses }, { data: assessments }, { data: mealPlans }] =
-    await Promise.all([
-      supabase.from("patients").select("*").eq("id", params.id).single<Patient>(),
-      supabase
-        .from("anamnesis")
-        .select("*")
-        .eq("patient_id", params.id)
-        .order("data_registro", { ascending: false })
-        .order("created_at", { ascending: false })
-        .returns<Anamnesis[]>(),
-      supabase
-        .from("anthropometric_assessments")
-        .select("*")
-        .eq("patient_id", params.id)
-        .order("data_avaliacao", { ascending: false })
-        .returns<AnthropometricAssessment[]>(),
-      supabase
-        .from("meal_plans")
-        .select("*")
-        .eq("patient_id", params.id)
-        .order("created_at", { ascending: false })
-        .returns<MealPlan[]>(),
-    ]);
+  const [
+    { data: patient },
+    { data: anamneses },
+    { data: assessments },
+    { data: mealPlans },
+    { data: consents },
+    { data: labExams },
+    consentimentoAtivoExames,
+  ] = await Promise.all([
+    supabase.from("patients").select("*").eq("id", params.id).single<Patient>(),
+    supabase
+      .from("anamnesis")
+      .select("*")
+      .eq("patient_id", params.id)
+      .order("data_registro", { ascending: false })
+      .order("created_at", { ascending: false })
+      .returns<Anamnesis[]>(),
+    supabase
+      .from("anthropometric_assessments")
+      .select("*")
+      .eq("patient_id", params.id)
+      .order("data_avaliacao", { ascending: false })
+      .returns<AnthropometricAssessment[]>(),
+    supabase
+      .from("meal_plans")
+      .select("*")
+      .eq("patient_id", params.id)
+      .order("created_at", { ascending: false })
+      .returns<MealPlan[]>(),
+    supabase
+      .from("patient_consents")
+      .select("*")
+      .eq("patient_id", params.id)
+      .order("data_consentimento", { ascending: false })
+      .returns<PatientConsent[]>(),
+    supabase
+      .from("lab_exams")
+      .select("*, lab_markers(*)")
+      .eq("patient_id", params.id)
+      .order("data_coleta", { ascending: false })
+      .returns<LabExamWithMarkers[]>(),
+    hasActiveConsent(params.id, "exames"),
+  ]);
 
   if (!patient) {
     notFound();
@@ -94,6 +117,9 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
         anamneses={anamneses ?? []}
         assessments={assessments ?? []}
         mealPlans={mealPlans ?? []}
+        consents={consents ?? []}
+        labExams={labExams ?? []}
+        consentimentoAtivoExames={consentimentoAtivoExames}
       />
     </div>
   );

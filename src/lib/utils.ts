@@ -12,6 +12,13 @@ export function formatDate(value: string | null | undefined) {
   return date.toLocaleDateString("pt-BR");
 }
 
+/** Formata um timestamp ISO completo (ex.: created_at) para dd/mm/aaaa às HH:mm. */
+export function formatDateTime(value: string | null | undefined) {
+  if (!value) return "—";
+  const date = new Date(value);
+  return `${date.toLocaleDateString("pt-BR")} às ${date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+}
+
 /** Calcula a idade em anos a partir de uma data de nascimento (yyyy-mm-dd). */
 export function calculateAge(birthDate: string | null | undefined) {
   if (!birthDate) return null;

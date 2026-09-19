@@ -35,6 +35,26 @@ export interface Patient {
   updated_at: string;
 }
 
+/** Tipo de dado sensível a que um consentimento se refere (Fase 7, Bloco A). */
+export type TipoConsentimento = "exames" | "fotos" | "dados_clinicos";
+
+/** Como o consentimento foi obtido. */
+export type FormaConsentimento = "presencial" | "documento_assinado" | "verbal_registrado";
+
+export interface PatientConsent {
+  id: string;
+  patient_id: string;
+  user_id: string;
+  tipo: TipoConsentimento;
+  /** true enquanto ativo; revogar seta para false NESTE mesmo registro — nunca edita/apaga o histórico. */
+  concedido: boolean;
+  data_consentimento: string;
+  data_revogacao: string | null;
+  forma: FormaConsentimento;
+  observacoes: string | null;
+  created_at: string;
+}
+
 export interface Anamnesis {
   id: string;
   patient_id: string;
@@ -76,6 +96,56 @@ export interface AnthropometricAssessment {
   created_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */
   deleted_at: string | null;
+}
+
+/** Sexo laboratorial usado nas faixas de referência — vocabulário próprio de lab_reference_ranges, distinto de Sexo (patients.sexo usa feminino/masculino/outro). */
+export type SexoLaboratorial = "M" | "F" | "ambos";
+
+export interface LabExam {
+  id: string;
+  patient_id: string;
+  user_id: string;
+  data_coleta: string;
+  laboratorio: string | null;
+  /** Path no bucket privado 'profissional' (pasta <user_id>/exames/) — nunca uma URL. */
+  arquivo_path: string | null;
+  observacoes: string | null;
+  created_at: string;
+  updated_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
+}
+
+export interface LabReferenceRange {
+  id: string;
+  /** NULL = catálogo global do sistema; preenchido = customização do profissional. */
+  user_id: string | null;
+  nome_marcador: string;
+  unidade: string;
+  sexo: SexoLaboratorial;
+  idade_min_anos: number | null;
+  idade_max_anos: number | null;
+  valor_min: number | null;
+  valor_max: number | null;
+  fonte: string | null;
+  created_at: string;
+}
+
+export interface LabMarker {
+  id: string;
+  exam_id: string;
+  user_id: string;
+  nome_marcador: string;
+  valor: number;
+  unidade: string;
+  /** Snapshot da faixa no momento do registro — nunca uma FK para lab_reference_ranges. */
+  referencia_min: number | null;
+  referencia_max: number | null;
+  /** true quando o profissional ajustou manualmente a faixa sugerida antes de salvar. */
+  referencia_editada: boolean;
+  /** Sinalização neutra — valor fora de [referencia_min, referencia_max]. Não é rótulo diagnóstico. */
+  fora_da_faixa: boolean;
+  created_at: string;
 }
 
 export type FonteAlimento = "taco" | "personalizado";

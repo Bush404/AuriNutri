@@ -2,7 +2,7 @@
 
 import { ClipboardList, LineChart as LineChartIcon } from "lucide-react";
 
-import type { Anamnesis, AnthropometricAssessment, MealPlan, Patient } from "@/lib/types/database.types";
+import type { Anamnesis, AnthropometricAssessment, MealPlan, Patient, PatientConsent } from "@/lib/types/database.types";
 import { calculateAge, formatDate } from "@/lib/utils";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,15 +13,29 @@ import { NewAssessmentDialog } from "@/components/patients/new-assessment-dialog
 import { AssessmentsTable } from "@/components/patients/assessments-table";
 import { EvolutionChart } from "@/components/patients/evolution-chart";
 import { MealPlanList } from "@/components/meal-plans/meal-plan-list";
+import { PatientConsentsPanel } from "@/components/patients/patient-consents-panel";
+import { LabExamsPanel } from "@/components/patients/lab-exams-panel";
+import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
 
 interface PatientTabsProps {
   patient: Patient;
   anamneses: Anamnesis[];
   assessments: AnthropometricAssessment[];
   mealPlans: MealPlan[];
+  consents: PatientConsent[];
+  labExams: LabExamWithMarkers[];
+  consentimentoAtivoExames: boolean;
 }
 
-export function PatientTabs({ patient, anamneses, assessments, mealPlans }: PatientTabsProps) {
+export function PatientTabs({
+  patient,
+  anamneses,
+  assessments,
+  mealPlans,
+  consents,
+  labExams,
+  consentimentoAtivoExames,
+}: PatientTabsProps) {
   const age = calculateAge(patient.data_nascimento);
 
   return (
@@ -32,6 +46,8 @@ export function PatientTabs({ patient, anamneses, assessments, mealPlans }: Pati
         <TabsTrigger value="avaliacoes">Avaliações</TabsTrigger>
         <TabsTrigger value="evolucao">Evolução</TabsTrigger>
         <TabsTrigger value="planos">Planos alimentares</TabsTrigger>
+        <TabsTrigger value="exames">Exames</TabsTrigger>
+        <TabsTrigger value="consentimentos">Consentimentos</TabsTrigger>
       </TabsList>
 
       <TabsContent value="informacoes">
@@ -107,6 +123,14 @@ export function PatientTabs({ patient, anamneses, assessments, mealPlans }: Pati
             <MealPlanList patientId={patient.id} mealPlans={mealPlans} />
           </CardContent>
         </Card>
+      </TabsContent>
+
+      <TabsContent value="exames">
+        <LabExamsPanel patientId={patient.id} exams={labExams} consentimentoAtivoExames={consentimentoAtivoExames} />
+      </TabsContent>
+
+      <TabsContent value="consentimentos">
+        <PatientConsentsPanel patientId={patient.id} consents={consents} />
       </TabsContent>
     </Tabs>
   );

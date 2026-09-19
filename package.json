@@ -19,7 +19,8 @@
     "test:patient-deletion": "node scripts/test-patient-deletion.mjs",
     "test:audit-log": "node scripts/test-audit-log.mjs",
     "test:plan-share-tokens": "node scripts/test-plan-share-tokens.mjs",
-    "test:appointments-isolation": "node scripts/test-appointments-isolation.mjs"
+    "test:appointments-isolation": "node scripts/test-appointments-isolation.mjs",
+    "test:lab-exams-isolation": "node scripts/test-lab-exams-isolation.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
