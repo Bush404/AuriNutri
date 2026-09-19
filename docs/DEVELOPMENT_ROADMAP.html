@@ -132,7 +132,8 @@
   <div class="legend">
     <span><b>8</b> fases concluídas</span>
     <span><b>0</b> em andamento</span>
-    <span><b>3</b> planejadas</span>
+    <span><b>2</b> planejadas</span>
+    <span><b>1</b> adiada</span>
     <span><b>2</b> decisões pendentes</span>
   </div>
 </section>
@@ -150,8 +151,8 @@
   </div>
   <div class="ms now">
     <div class="tag">V2</div>
-    <div class="t">Fases 8 → 10</div>
-    <div class="d">Área do paciente, financeiro e comunidade.</div>
+    <div class="t">Fases 9 → 10</div>
+    <div class="d">Financeiro e comunidade. Fase 8 (área do paciente) adiada — ver DECISIONS.md D2.</div>
   </div>
   <div class="ms">
     <div class="tag">V3</div>
@@ -347,11 +348,11 @@
   </div>
 </details>
 
-<details class="phase active">
+<details class="phase">
   <summary class="ph-head">
     <span class="mark">8</span>
-    <span class="ph-title"><span class="n">PHASE 8 · V2 · PRÓXIMA</span><div class="t">Área do paciente</div></span>
-    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+    <span class="ph-title"><span class="n">PHASE 8 · V2 · ADIADA</span><div class="t">Área do paciente</div></span>
+    <span class="ph-meta"><span class="chip c-low">Adiada</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
     <p class="obj"><b>Objetivo:</b> "minha jornada de saúde" — experiência mobile-first, nada parecido com sistema administrativo.</p>
@@ -361,15 +362,15 @@
       <li>Plano, receitas e documentos</li>
       <li>Registro diário de refeições e água</li>
     </ul>
-    <div class="risk"><b>Risco</b>
-      Segunda superfície de auth. Erro de RLS aqui expõe dado clínico ao paciente errado. Exige revisão de segurança dedicada.</div>
+    <div class="risk"><b>Adiada em 19/09/2026, reafirmando a decisão D2</b>
+      O nutricionista já entrega plano/receitas ao paciente hoje sem nenhuma segunda superfície de autenticação (PDF + link assinado por WhatsApp, Fase 4). Abrir login de paciente é risco real de RLS por um ganho que já existe de outra forma. Nada implementado — retomar é aditivo, não exige desfazer nada. Pulando direto para a Fase 9.</div>
   </div>
 </details>
 
-<details class="phase">
+<details class="phase active">
   <summary class="ph-head">
     <span class="mark">9</span>
-    <span class="ph-title"><span class="n">PHASE 9 · V2</span><div class="t">Financeiro</div></span>
+    <span class="ph-title"><span class="n">PHASE 9 · V2 · PRÓXIMA</span><div class="t">Financeiro</div></span>
     <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">

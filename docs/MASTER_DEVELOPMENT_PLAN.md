@@ -9,7 +9,7 @@
 
 Uma fase por vez. Ao final de cada fase, apresentar o checkpoint (implementado / testado / problemas / decisões / próximo passo) e atualizar este arquivo e o `DEVELOPMENT_ROADMAP.html`.
 
-**Status:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
+**Status:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE` · `ADIADA` (parada por decisão de produto — ver `docs/DECISIONS.md` — não por dependência técnica pendente, essa é a diferença de `BLOCKED`)
 **Prioridade:** `CRITICAL` · `HIGH` · `MEDIUM` · `LOW`
 
 Uma tarefa só é `DONE` quando: funciona, valida entrada, tem loading, tem empty state, trata erro, respeita RLS, não vaza dados entre profissionais e tem teste proporcional ao risco.
@@ -670,19 +670,28 @@ nenhuma verificação que deveria falhar passou.
 
 ---
 
-## PHASE 8 — Área do paciente · `TODO` · `HIGH` (V2)
+## PHASE 8 — Área do paciente · `ADIADA` · `HIGH` (V2)
 
 **Dependências:** decisão de identidade do paciente (Fase 1) + Fases 4 e 5.
 
 ```
 [ ] Modelo de autenticação do paciente (convite por link/e-mail)
-[ ] Migration 0009: patient_users, vínculo com patients
+[ ] Migration: patient_users, vínculo com patients
 [ ] RLS: paciente vê apenas os próprios dados
 [ ] Layout mobile-first separado
 [ ] Visualizar plano, receitas, documentos
 [ ] Registro diário (refeições, água)
 [ ] Próxima consulta
 ```
+
+**Adiada em 2026-09-19, reafirmando a decisão D2** (`docs/DECISIONS.md`):
+o nutricionista já consegue entregar plano/receitas ao paciente hoje sem
+nenhuma segunda superfície de autenticação (PDF + link assinado por
+WhatsApp, Fase 4) — abrir login de paciente é risco real (vazar dado
+clínico entre pacientes) por um ganho que já existe de outra forma. Não
+implementado, nenhuma migration escrita — retomar é aditivo (não exige
+desfazer nada) se/quando fizer sentido reabrir D2. Pular direto para a
+Fase 9 enquanto isso.
 
 **Risco:** é uma segunda superfície de autenticação e autorização. Erro de RLS aqui expõe dado clínico ao paciente errado. Exige revisão de segurança dedicada.
 
@@ -741,8 +750,9 @@ nenhuma verificação que deveria falhar passou.
 
 ```
 1 → 2 → 3 → 4 → [MVP · validar com usuários reais]
-     → 5 → 6 → 7 → [V1]
-     → 8 → 9 → 10 → [V2]
+     → 5 → 6 → 7 → [V1 · concluído em 19/09/2026]
+     → 9 → 10 → [V2]
+8 adiada (ver DECISIONS.md D2) — não bloqueia 9/10, retomar só se/quando fizer sentido reabrir.
 11 permeia todas.
 ```
 
