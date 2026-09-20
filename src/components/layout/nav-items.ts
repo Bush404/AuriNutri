@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { LayoutDashboard, Users, Apple, ClipboardList, CalendarDays, CookingPot } from "lucide-react";
+import { LayoutDashboard, Users, Apple, ClipboardList, CalendarDays, CookingPot, Wallet } from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -39,5 +39,10 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Planos Alimentares",
     href: "/planos",
     icon: ClipboardList,
+  },
+  {
+    title: "Financeiro",
+    href: "/financeiro",
+    icon: Wallet,
   },
 ];

@@ -466,3 +466,92 @@ export interface MealItemSubstitution {
   fibras_g: number;
   created_at: string;
 }
+
+// ----------------------------------------------------------------------------
+// Fase 9 — Financeiro (Bloco A: backend)
+// ----------------------------------------------------------------------------
+
+export type ExpenseRecorrencia = "unica" | "mensal" | "trimestral" | "semestral" | "anual";
+
+export type ExpenseParcelamento = "avista" | "parcelado";
+
+export interface Expense {
+  id: string;
+  user_id: string;
+  descricao: string;
+  categoria: string;
+  valor: number;
+  recorrencia: ExpenseRecorrencia;
+  /** Só usado quando recorrencia <> 'unica'. */
+  dia_vencimento: number | null;
+  /** Só usado quando recorrencia é trimestral/semestral/anual — mensal recorre todo mês, não precisa fixar um. */
+  mes_vencimento: number | null;
+  /** Só usado quando recorrencia = 'unica'. */
+  data_vencimento: string | null;
+  /** Etiqueta informativa (só trimestral/semestral/anual) — não divide valor nem gera parcelas reais. */
+  parcelamento: ExpenseParcelamento | null;
+  /** Despesa recorrente encerrada (sem apagar histórico) — não é a mesma coisa que deleted_at. */
+  ativa: boolean;
+  created_at: string;
+  updated_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
+}
+
+/** Histórico de vencimentos/pagamentos de uma despesa — equivalente de Payment, mas para despesas do consultório. */
+export interface ExpenseOccurrence {
+  id: string;
+  expense_id: string;
+  user_id: string;
+  /** Snapshot do valor no momento em que a ocorrência foi gerada. */
+  valor: number;
+  data_vencimento: string;
+  /** "Pendente" é derivado disto (data_pagamento is null) — nunca uma coluna de status própria. */
+  data_pagamento: string | null;
+  forma_pagamento: FormaPagamento | null;
+  observacoes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PatientBillingTipo = "avulso" | "pacote";
+
+/** O acordo de cobrança com o paciente. As parcelas/recebimentos ficam em Payment. */
+export interface PatientBilling {
+  id: string;
+  patient_id: string;
+  user_id: string;
+  tipo: PatientBillingTipo;
+  descricao: string;
+  valor_total: number;
+  /** Só para tipo = 'pacote'. */
+  numero_consultas: number | null;
+  data_inicio: string;
+  created_at: string;
+  updated_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
+}
+
+export type FormaPagamento = "pix" | "dinheiro" | "cartao" | "transferencia" | "outro";
+
+export interface Payment {
+  id: string;
+  billing_id: string;
+  user_id: string;
+  valor: number;
+  data_vencimento: string;
+  /** "Pendente" é derivado disto (data_pagamento is null) — nunca uma coluna de status própria. */
+  data_pagamento: string | null;
+  forma_pagamento: FormaPagamento | null;
+  observacoes: string | null;
+  created_at: string;
+  updated_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
+}
+
+/** Payment com o nome do paciente e a descrição da cobrança já embutidos (join), para telas de listagem. */
+export interface PaymentWithBilling extends Payment {
+  patient_billings: { descricao: string; tipo: PatientBillingTipo; patients: { nome: string } | null } | null;
+}

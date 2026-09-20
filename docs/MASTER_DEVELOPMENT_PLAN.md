@@ -708,17 +708,184 @@ enviado) — só fecha a lacuna prática enquanto D2 continuar valendo.
 
 ---
 
-## PHASE 9 — Financeiro · `TODO` · `MEDIUM` (V2)
+## PHASE 9 — Financeiro · `IN_PROGRESS` · `MEDIUM` (V2)
+
+**Objetivo:** ajudar o profissional a entender o consultório e a pensar no preço da consulta.
+**Escopo:** NÃO é um ERP — sem centro de custo, rateio contábil, conciliação bancária, DRE ou
+plano de contas.
+
+**Dependências:** Fase 4 (identidade do profissional, para o recibo).
+
+### Tarefas
 
 ```
-[ ] Migration 0010: transactions, payments
-[ ] Receitas e despesas
-[ ] Pagamentos pendentes por paciente
-[ ] Recibos com identidade profissional
-[ ] Visão mensal, ticket médio
+[x] Migration 0025: expenses (despesas do consultório)
+[x] Migration 0025: patient_billings (o acordo de cobrança com o paciente)
+[x] Migration 0025: payments (parcelas/recebimentos, "pendente" derivado)
+[x] src/lib/finance.ts: normalizeToMonthly, monthlyFixedCost, costPerAppointment, splitInstallments
+[x] Testes de finance.ts (recorrências, despesa única/inativa, divisão por zero, precisão decimal)
+[x] Server Actions de CRUD das três tabelas
+[x] Bloco B — UI: página /financeiro com despesas e custo do consultório
+[ ] UI de cobrança/pagamentos por paciente, dar baixa (bloco futuro)
+[ ] Recibo em PDF com identidade profissional (reaproveita @react-pdf/renderer, Fase 4)
+[ ] Visão mensal e ticket médio (bloco futuro)
 ```
 
-**Escopo:** ajudar a entender o consultório, não virar ERP.
+**Bloco A (2026-09-20) — backend:** migration `0025_finance.sql`. Três tabelas, mesmo
+padrão de soft delete + RLS desde a 0005: `expenses` (despesa do consultório, com
+`recorrencia` e normalização para base mensal), `patient_billings` (o ACORDO de cobrança
+com o paciente — avulso ou pacote, nunca a parcela em si) e `payments` (as parcelas desse
+acordo). "Pendente" é **derivado** de `data_pagamento is null`, nunca uma coluna de status
+própria — mesmo princípio já usado no projeto para evitar um campo que possa ficar
+dessincronizado do dado real. Todo valor é `numeric(10,2)`, nunca float. Seguindo o
+aprendizado da Fase 6 (bug sistêmico de RLS), as três exclusões lógicas já nasceram como
+funções `security definer` (`soft_delete_expense`/`soft_delete_patient_billing`/
+`soft_delete_payment`), sem passar pelo bug da migration 0017.
+
+`src/lib/finance.ts` centraliza todo o cálculo monetário — `normalizeToMonthly` (mensal =
+valor, trimestral = valor/3, semestral = valor/6, anual = valor/12, única = 0, nunca entra
+no custo fixo recorrente), `monthlyFixedCost` (soma das despesas ativas normalizadas),
+`costPerAppointment` (custo mensal ÷ atendimentos/mês, com guarda contra divisão por zero)
+e `splitInstallments` (divide o valor de um pacote em N parcelas sem deixar sobra por
+arredondamento independente). Todas operam em **centavos internamente** — nunca somando
+reais em ponto flutuante — convertendo de volta para reais só no retorno. 18 testes novos
+em `finance.test.ts`, incluindo o caso de precisão decimal pedido (somar 0.1 + 0.2 três
+vezes dá exatamente 0.90, não `0.9000000000000001`).
+
+Server Actions (`src/lib/actions/finance.ts`) cobrem CRUD das três tabelas. Criar uma
+`patient_billing` já gera as `payments` correspondentes na mesma chamada (avulso = 1
+parcela; pacote = N parcelas via `splitInstallments`, vencendo uma por mês a partir de
+`data_inicio`) — se a geração das parcelas falhar, a cobrança recém-criada é desfeita via
+`soft_delete_patient_billing` para não deixar uma cobrança "fantasma" sem parcela nenhuma.
+Edição de `patient_billing` depois de criada é restrita a `descricao`/`data_inicio` — mudar
+`valor_total`/`tipo`/`numero_consultas` deixaria as parcelas já geradas dessincronizadas do
+acordo; trocar o valor de um pacote já cobrado é uma cobrança nova, não uma edição.
+`npm test` (156/156) e `npm run build` passam.
+
+**Limite conhecido, a revisitar em bloco futuro se necessário:** excluir uma
+`patient_billing` (soft delete) não excomunga em cascata as `payments` associadas — elas
+continuam visíveis por consulta direta à tabela `payments`, mesmo com a cobrança "pai" já
+invisível. Não é um problema de segurança (RLS por `user_id` continua valendo), mas pode
+exigir tratamento quando a UI de cobrança/pagamentos for construída.
+
+**Bloco B (2026-09-20) — UI de despesas e custo do consultório:** página `/financeiro`
+(nova entrada "Financeiro" na navegação lateral), com duas seções lado a lado. Despesas:
+cadastro rápido (`ExpenseFormDialog`) com a recorrência em destaque como abas (não um
+`<select>` escondido), campo condicional — dia do mês para recorrentes, data completa para
+'única' — e listagem (`ExpensesTable`) com descrição, categoria, valor, recorrência e
+próximo vencimento; encerrar/reativar uma despesa recorrente mexe só em `ativa`
+(`setExpenseActive`, nova action), nunca em `deleted_at`. Custo do consultório
+(`CustoConsultorioCard`): custo fixo mensal, quebra por categoria (barra proporcional) e
+custo por atendimento, com simulação ao vivo — o campo de atendimentos/mês parte de uma
+sugestão (média dos últimos 3 meses de `appointments` com `status = 'realizado'`, nova
+`averageMonthlyAppointments`) mas é livremente editável, recalculando na hora
+(`costPerAppointment`, já existente do Bloco A). Cuidado deliberado de vocabulário: a tela
+nunca chama esse número de "preço sugerido" — só "custo por atendimento", com uma nota
+fixa explicando que não inclui lucro, imposto nem custo variável, e que cobrar exatamente
+esse valor é trabalhar de graça.
+
+Duas funções novas em `finance.ts`, ambas puras e testadas: `monthlyFixedCostByCategory`
+(mesma soma em centavos de `monthlyFixedCost`, agrupada por categoria) e `nextDueDate`
+(ver correção abaixo — a primeira versão inferia o mês de recorrência a partir de
+`created_at`, substituída ainda no mesmo dia). Formatação monetária centralizada em
+`formatCurrencyBRL` (pt-BR, "R$ 1.234,56"). Estados de loading/vazio/erro seguem o padrão
+já usado em `/receitas`: loading fica a cargo do `(app)/loading.tsx` compartilhado (Server
+Component, sem loading próprio da rota), erro de query é exibido inline, e o vazio usa
+`EmptyState`.
+
+**Correções pós-uso, ainda em 2026-09-20 (a partir do teste real do usuário):**
+
+1. **Migration 0026** — bug de nomes de constraint: `patient_billings_numero_consultas_check`
+   e `payments_forma_pagamento_check` (migration 0025) colidiam com o nome que o Postgres
+   gera sozinho para o CHECK inline da própria coluna (`<tabela>_<coluna>_check`), causando
+   `ERROR 42710: already exists` na primeira execução real no SQL Editor — não era um
+   problema de reexecução, o erro acontecia na primeira vez em qualquer banco. Renomeados
+   para `patient_billings_tipo_consultas_check` e `payments_pagamento_consistente_check`.
+   **Lição registrada na memória do projeto:** nunca nomear uma constraint de tabela igual
+   ao padrão `<tabela>_<coluna>_check` de uma coluna que já tem CHECK inline.
+
+2. **Migration 0026** também trocou o modelo de "próximo vencimento": trimestral/semestral/
+   anual passaram a guardar `mes_vencimento` (1-12) explícito, em vez de inferir o mês pelo
+   `created_at` (pedido do usuário — o mês real do ciclo é uma decisão do profissional, não
+   algo dedutível). Como os intervalos (3/6/12) sempre dividem 12 igualmente, os meses de
+   vencimento caem sempre nos mesmos meses todo ano (ex.: mês 3 + trimestral = mar/jun/set/
+   dez) — `nextDueDate` e a nova `occurrenceDateInMonth` usam só a fase (`mes_vencimento mod
+   intervalo`), sem precisar de uma data de início. `dia_vencimento` continua existindo só
+   para mensal/trimestral/semestral/anual; `data_vencimento` só para 'unica'.
+
+3. **Migration 0027** — dois pedidos novos do usuário: (a) etiqueta informativa
+   `parcelamento` ("à vista"/"parcelado", só para trimestral/semestral/anual) — não divide
+   valor nem gera parcelas de verdade, é só lembrete; (b) tabela `expense_occurrences`,
+   equivalente de `payments` mas para despesas do consultório — cada vencimento real vira
+   uma linha, "pendente" derivado de `data_pagamento is null` (mesmo princípio de sempre).
+   Sem job agendado neste projeto: a ocorrência do mês vigente de cada despesa recorrente
+   ativa é garantida (`ensureCurrentMonthExpenseOccurrences`, upsert idempotente) toda vez
+   que `/financeiro` carrega; despesa 'unica' já nasce com sua única ocorrência na criação.
+   Base explícita para um futuro card "Despesas do mês" no dashboard (ainda não construído
+   — só a captura de dados começou agora). UI: coluna "Este mês" na tabela de despesas
+   (badge Pago/Pendente + `RegisterExpenseOccurrenceDialog` para dar baixa, ou desfazer).
+
+4. **Sem migration nova** — troca de UX pedida pelo usuário: removido o botão "Encerrar/
+   Reativar" (toggle de `ativa`), substituído por **editar** e **excluir de verdade**.
+   `ExpenseFormDialog` ganhou modo de edição (prop `expense`, mesmo padrão de
+   `NewAssessmentDialog`/`FoodFormDialog`) com trigger customizável (usado como item de
+   dropdown na tabela, não só o botão "Nova despesa"). `deleteExpense` deixou de chamar a
+   função `security definer` de soft delete e passou a fazer `DELETE` de verdade — decisão
+   explícita do usuário: "ao excluir, ela simplesmente some", sem exigir um passo de
+   "encerrar" antes nem preservar histórico da exclusão (diferente de paciente/avaliação/
+   plano, que são dados clínicos). `expense_occurrences` some junto via `on delete cascade`.
+   Editar uma despesa 'unica' também atualiza sua única ocorrência (valor/vencimento) para
+   não ficar dessincronizada — despesas recorrentes não sincronizam ocorrências já geradas
+   retroativamente (só as futuras nascem com o novo agendamento), simplificação deliberada
+   já que o pedido foi "não precisa ter essa ação no histórico". Exclusão pede confirmação
+   simples (`AlertDialog`, sem digitar "excluir" — despesa não é dado clínico de alto risco
+   como paciente). A função `soft_delete_expense` (migration 0025) fica sem uso, mas não foi
+   removida do banco — não valia uma 4ª migration na mesma noite só por limpeza.
+
+5. **Sem migration nova** — pagar adiantado: o usuário notou que pagar a parcela atual não
+   liberava a próxima antes do mês dela chegar (ex.: aluguel mensal vence dia 10, pagar dia
+   20 do mês anterior devia já mostrar o vencimento seguinte, não o mesmo). Trocado o modelo
+   de geração de `expense_occurrences`: em vez de "uma ocorrência por mês calendário"
+   (`ensureCurrentMonthExpenseOccurrences`), agora é "no máximo uma parcela PENDENTE por vez"
+   (`ensureNextExpenseOccurrences`) — pagar a atual (mesmo antes do mês dela chegar) libera a
+   seguinte na hora (`advanceOneOccurrence`, sempre um ciclo à frente, mesmo dia,
+   respeitando o último dia do mês). Duas colunas antigas ("Próximo vencimento", calculado só
+   pelo calendário, e "Este mês", pela ocorrência do mês corrente) viraram uma só: **"Próxima
+   parcela"** — sempre a ocorrência de maior `data_vencimento` já registrada para aquela
+   despesa (`latestOccurrencePerExpense`). Desfazer um pagamento também desfaz o avanço que
+   ele causou: remove a parcela seguinte se ainda não foi paga (só existiria por causa
+   daquele pagamento) — se o profissional já tiver adiantado duas, desfazer a primeira não
+   apaga a segunda, que é histórico real. `nextDueDate`/`occurrenceDateInMonth` continuam no
+   código (ainda corretos, só não usados nesta tabela) — podem servir uma futura visão de
+   calendário. 10 testes novos (`advanceOneOccurrence`, `firstOccurrenceOnOrAfter`,
+   `latestOccurrencePerExpense`).
+
+46 testes em `finance.test.ts` ao final do dia. `npm test` (184/184), `npm run build` e
+`npm run lint` passam.
+
+### Critérios de aceite
+- [x] Custo fixo mensal soma corretamente despesas de qualquer recorrência, ignorando
+      inativas e "única".
+- [x] Nenhuma soma monetária sofre erro de arredondamento de ponto flutuante (testado).
+- [x] Sugestão de atendimentos/mês vem da média real dos últimos 3 meses, não de um chute,
+      e é livremente sobrescrevível para simular outro cenário.
+- [x] A tela nunca chama o custo por atendimento de "preço sugerido"/"quanto cobrar", e
+      deixa explícito que o valor não inclui lucro, imposto nem custo variável.
+- [x] Mês de vencimento de despesa trimestral/semestral/anual é uma escolha explícita do
+      profissional, não uma inferência do sistema.
+- [x] Dar baixa numa ocorrência de despesa reflete imediatamente o status "Pago"/"Pendente"
+      na tela, com histórico preservado (base do futuro "Despesas do mês").
+- [ ] Dar baixa num pagamento de paciente reflete imediatamente em "pendentes" (falta a UI
+      de cobrança/pagamentos do paciente — bloco futuro).
+- [ ] Recibo sai com identidade profissional (logo, nome, CRN) — bloco futuro.
+- [ ] Card "Despesas do mês" no dashboard, agregando `expense_occurrences` — bloco futuro
+      (pedido explicitamente para depois pelo usuário).
+- [ ] Visão mensal bate com a soma manual de receitas e despesas do período — bloco futuro.
+
+### Riscos
+Cálculo monetário incorreto é o pior tipo de bug num módulo financeiro — silencioso e só
+percebido no fechamento do mês. Mitigado centralizando 100% da matemática em
+`src/lib/finance.ts` (nunca duplicada em componente) e operando em centavos internamente.
 
 ---
 
