@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { PatientTabs } from "@/components/patients/patient-tabs";
 import { ExportPatientButton } from "@/components/patients/export-patient-button";
+import { PatientSendDialog } from "@/components/patients/patient-send-dialog";
 
 export default async function PacienteDetalhePage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -115,6 +116,14 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
         </div>
 
         <div className="flex items-center gap-2">
+          <PatientSendDialog
+            patientId={patient.id}
+            patientNome={patient.nome}
+            patientTelefone={patient.telefone}
+            context={
+              sendCenterContext ?? { profissionalNome: "", planoAtivo: null, planoShareLinks: [], receitasDoPlano: [], proximaConsulta: null }
+            }
+          />
           <ExportPatientButton patientId={patient.id} patientName={patient.nome} />
           <Button variant="outline" asChild>
             <Link href={`/pacientes/${patient.id}/editar`}>
@@ -135,9 +144,6 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
         consentimentoAtivoExames={consentimentoAtivoExames}
         photos={photos ?? []}
         consentimentoAtivoFotos={consentimentoAtivoFotos}
-        sendCenterContext={
-          sendCenterContext ?? { profissionalNome: "", planoAtivo: null, planoShareLinks: [], receitasDoPlano: [], proximaConsulta: null }
-        }
       />
     </div>
   );

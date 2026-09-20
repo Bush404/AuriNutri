@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, LineChart as LineChartIcon } from "lucide-react";
+import { ClipboardList } from "lucide-react";
 
 import type {
   Anamnesis,
@@ -24,8 +24,6 @@ import { PatientConsentsPanel } from "@/components/patients/patient-consents-pan
 import { LabExamsPanel } from "@/components/patients/lab-exams-panel";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
 import { PatientPhotosPanel } from "@/components/patients/patient-photos-panel";
-import { PatientSendPanel } from "@/components/patients/patient-send-panel";
-import type { SendCenterContext } from "@/lib/actions/patient-send";
 
 interface PatientTabsProps {
   patient: Patient;
@@ -37,7 +35,6 @@ interface PatientTabsProps {
   consentimentoAtivoExames: boolean;
   photos: PatientPhoto[];
   consentimentoAtivoFotos: boolean;
-  sendCenterContext: SendCenterContext;
 }
 
 export function PatientTabs({
@@ -50,7 +47,6 @@ export function PatientTabs({
   consentimentoAtivoExames,
   photos,
   consentimentoAtivoFotos,
-  sendCenterContext,
 }: PatientTabsProps) {
   const age = calculateAge(patient.data_nascimento);
 
@@ -59,13 +55,11 @@ export function PatientTabs({
       <TabsList className="flex-wrap">
         <TabsTrigger value="informacoes">Informações gerais</TabsTrigger>
         <TabsTrigger value="anamnese">Anamnese</TabsTrigger>
-        <TabsTrigger value="avaliacoes">Avaliações</TabsTrigger>
-        <TabsTrigger value="evolucao">Evolução</TabsTrigger>
+        <TabsTrigger value="avaliacoes">Antropometria Geral</TabsTrigger>
         <TabsTrigger value="evolucao-fotografica">Evolução Fotográfica</TabsTrigger>
         <TabsTrigger value="planos">Planos alimentares</TabsTrigger>
         <TabsTrigger value="exames">Exames</TabsTrigger>
         <TabsTrigger value="consentimentos">Consentimentos</TabsTrigger>
-        <TabsTrigger value="enviar">Enviar</TabsTrigger>
       </TabsList>
 
       <TabsContent value="informacoes">
@@ -93,7 +87,7 @@ export function PatientTabs({
         <AnamnesisTimeline patientId={patient.id} anamneses={anamneses} />
       </TabsContent>
 
-      <TabsContent value="avaliacoes">
+      <TabsContent value="avaliacoes" className="space-y-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle>Avaliações antropométricas</CardTitle>
@@ -111,9 +105,8 @@ export function PatientTabs({
             )}
           </CardContent>
         </Card>
-      </TabsContent>
 
-      <TabsContent value="evolucao">
+        {/* Evolução (peso/IMC) unificada aqui — deixou de ser uma aba própria, pedido do usuário: TODO reestruturar a antropometria de verdade mais pra frente, isto aqui ainda é bem simples. */}
         <Card>
           <CardHeader>
             <CardTitle>Evolução</CardTitle>
@@ -122,11 +115,9 @@ export function PatientTabs({
             {assessments.length >= 2 ? (
               <EvolutionChart assessments={assessments} />
             ) : (
-              <EmptyState
-                icon={LineChartIcon}
-                title="Dados insuficientes para exibir evolução"
-                description="Registre ao menos duas avaliações antropométricas para visualizar a evolução do paciente."
-              />
+              <p className="text-sm text-muted-foreground">
+                Registre ao menos duas avaliações para visualizar a evolução do paciente.
+              </p>
             )}
           </CardContent>
         </Card>
@@ -153,15 +144,6 @@ export function PatientTabs({
 
       <TabsContent value="consentimentos">
         <PatientConsentsPanel patientId={patient.id} consents={consents} />
-      </TabsContent>
-
-      <TabsContent value="enviar">
-        <PatientSendPanel
-          patientId={patient.id}
-          patientNome={patient.nome}
-          patientTelefone={patient.telefone}
-          context={sendCenterContext}
-        />
       </TabsContent>
     </Tabs>
   );
