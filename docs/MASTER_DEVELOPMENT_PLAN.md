@@ -944,10 +944,9 @@ cada paciente; `/financeiro` é o destino mais próximo do "aqui" dessas métric
   `npm run test:finance-patient-isolation`), mesmo padrão de contas descartáveis dos scripts
   anteriores — confirma que `patient_billings`/`payments` de um profissional não são
   visíveis nem editáveis por outro (select vazio, update 0 linhas, RPC de exclusão retorna
-  `false`). **Não executado nesta sessão** — precisa de `SUPABASE_SERVICE_ROLE_KEY` no
-  `.env.local` do usuário e roda contra o projeto Supabase real; fica pendente de execução
-  pelo usuário antes de considerar o isolamento formalmente verificado (mesma ressalva de
-  todo script desta família).
+  `false`). **Executado em 2026-09-20 contra o projeto Supabase real — 6/6 passaram,
+  nenhum vazamento encontrado.** Contas de teste descartáveis criadas e removidas
+  automaticamente ao final.
 
 64 testes novos nesta sessão inteira de Fase 9 (18 Bloco A + 18 correções pós-uso do Bloco B
 + 28 do Bloco C: 3 `sumCurrency` + 5 `buildInstallmentPayments` + 24 `valorPorExtenso`... — a
@@ -974,8 +973,9 @@ soma exata está no `npm test` abaixo, não recontada manualmente aqui). `npm te
       vencidas).
 - [x] Ticket médio no dashboard, com o denominador (consultas realizadas, não pacientes
       distintos) documentado e justificado.
-- [ ] Isolamento financeiro entre profissionais testado ao vivo — script escrito, ainda não
-      executado pelo usuário (precisa da service role key local).
+- [x] Isolamento financeiro entre profissionais testado ao vivo — `npm run
+      test:finance-patient-isolation`, executado em 2026-09-20, **6/6 passaram** (nenhum
+      vazamento encontrado).
 - [~] "Visão mensal" genérica (receitas e despesas do período lado a lado, tipo um relatório
       fechado do mês) não foi construída como tela própria — as peças (recebido no mês,
       pendente, despesas a vencer) já estão no dashboard, mas não há uma tela dedicada de
