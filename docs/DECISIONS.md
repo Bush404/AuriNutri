@@ -116,6 +116,38 @@ remover do consultório.
 
 ---
 
+## D6 — Central de Envio substitui o portal do paciente por ora
+
+**Decisão:** em vez de abrir a Fase 8 (área do paciente, login próprio), o AuriNutri ganhou uma
+"Central de Envio" — uma aba no perfil do paciente que reúne tudo que já podia ser mandado por
+WhatsApp (plano alimentar com link assinado, receitas do plano, lembrete de consulta, mensagem
+livre) num só lugar, com mensagem pronta e editável antes de enviar.
+
+**Data:** 2026-09-20
+
+**Justificativa (do responsável pelo produto):** reafirma D2. A Fase 8 foi cogitada logo após o
+fim do V1 e conscientemente adiada na mesma conversa (ver nota em D2 e em
+`MASTER_DEVELOPMENT_PLAN.md`, Fase 8 marcada `ADIADA`) — abrir login de paciente é uma segunda
+superfície de autenticação, com risco real de expor dado clínico entre pacientes, por um ganho
+(paciente recebe o material) que já existia de outra forma. A Central de Envio é o "melhor do que
+nada" que fecha essa lacuna sem esse risco: nenhuma conta nova, nenhuma RLS nova para paciente,
+só uma tela que organiza o que o profissional já fazia manualmente (copiar link, abrir WhatsApp,
+colar).
+
+**Impacto técnico:**
+- Nenhuma tabela nova de sessão/autenticação de paciente. Reaproveita integralmente o mecanismo de
+  link assinado do plano (`plan_share_tokens`, `createPlanShareLink`, Fase 4) — não criou um
+  segundo sistema de links.
+- Sem tabela de registro de envios (decisão tomada junto: não rastrear o que foi mandado).
+- `docs/patient_documents` (item "documentos gerados para o paciente", cogitado originalmente na
+  Fase 7) foi deliberadamente deixado de fora da Central — não existe essa funcionalidade no
+  projeto ainda, e criar um upload de documento só para caber aqui seria escopo bem maior que uma
+  tela de envio. Fica para se um dia for construído como recurso próprio.
+- Se a Fase 8 for retomada no futuro, a Central de Envio não precisa ser desfeita — ela continua
+  fazendo sentido como atalho rápido do dia a dia mesmo que exista um portal completo depois.
+
+---
+
 ## Como revisitar
 
 Qualquer mudança em D1 ou D2 deve vir com uma nova entrada neste arquivo (não sobrescrever as

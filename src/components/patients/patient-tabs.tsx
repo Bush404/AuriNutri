@@ -24,6 +24,8 @@ import { PatientConsentsPanel } from "@/components/patients/patient-consents-pan
 import { LabExamsPanel } from "@/components/patients/lab-exams-panel";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
 import { PatientPhotosPanel } from "@/components/patients/patient-photos-panel";
+import { PatientSendPanel } from "@/components/patients/patient-send-panel";
+import type { SendCenterContext } from "@/lib/actions/patient-send";
 
 interface PatientTabsProps {
   patient: Patient;
@@ -35,6 +37,7 @@ interface PatientTabsProps {
   consentimentoAtivoExames: boolean;
   photos: PatientPhoto[];
   consentimentoAtivoFotos: boolean;
+  sendCenterContext: SendCenterContext;
 }
 
 export function PatientTabs({
@@ -47,6 +50,7 @@ export function PatientTabs({
   consentimentoAtivoExames,
   photos,
   consentimentoAtivoFotos,
+  sendCenterContext,
 }: PatientTabsProps) {
   const age = calculateAge(patient.data_nascimento);
 
@@ -61,6 +65,7 @@ export function PatientTabs({
         <TabsTrigger value="planos">Planos alimentares</TabsTrigger>
         <TabsTrigger value="exames">Exames</TabsTrigger>
         <TabsTrigger value="consentimentos">Consentimentos</TabsTrigger>
+        <TabsTrigger value="enviar">Enviar</TabsTrigger>
       </TabsList>
 
       <TabsContent value="informacoes">
@@ -148,6 +153,15 @@ export function PatientTabs({
 
       <TabsContent value="consentimentos">
         <PatientConsentsPanel patientId={patient.id} consents={consents} />
+      </TabsContent>
+
+      <TabsContent value="enviar">
+        <PatientSendPanel
+          patientId={patient.id}
+          patientNome={patient.nome}
+          patientTelefone={patient.telefone}
+          context={sendCenterContext}
+        />
       </TabsContent>
     </Tabs>
   );

@@ -13,6 +13,7 @@ import type {
   PatientPhoto,
 } from "@/lib/types/database.types";
 import { hasActiveConsent } from "@/lib/actions/patient-consents";
+import { getSendCenterContext } from "@/lib/actions/patient-send";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
 
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
     consentimentoAtivoExames,
     { data: photos },
     consentimentoAtivoFotos,
+    sendCenterContext,
   ] = await Promise.all([
     supabase.from("patients").select("*").eq("id", params.id).single<Patient>(),
     supabase
@@ -75,6 +77,7 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
       .order("data_registro", { ascending: false })
       .returns<PatientPhoto[]>(),
     hasActiveConsent(params.id, "fotos"),
+    getSendCenterContext(params.id),
   ]);
 
   if (!patient) {
@@ -132,6 +135,9 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
         consentimentoAtivoExames={consentimentoAtivoExames}
         photos={photos ?? []}
         consentimentoAtivoFotos={consentimentoAtivoFotos}
+        sendCenterContext={
+          sendCenterContext ?? { profissionalNome: "", planoAtivo: null, planoShareLinks: [], receitasDoPlano: [], proximaConsulta: null }
+        }
       />
     </div>
   );

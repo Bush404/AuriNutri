@@ -8,6 +8,7 @@ import type { PlanShareToken } from "@/lib/types/database.types";
 import { createPlanShareLink, revokePlanShareLink } from "@/lib/actions/plan-share";
 import { formatDate } from "@/lib/utils";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { planShareLinkStatus, findActivePlanShareLink } from "@/lib/plan-share-status";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,12 +20,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-function linkStatus(link: PlanShareToken): { label: string; tone: "success" | "warning" | "outline" } {
-  if (link.revoked_at) return { label: "Revogado", tone: "outline" };
-  if (new Date(link.expires_at) <= new Date()) return { label: "Expirado", tone: "outline" };
-  return { label: "Ativo", tone: "success" };
-}
 
 interface SharePlanDialogProps {
   planId: string;
@@ -38,7 +33,7 @@ export function SharePlanDialog({ planId, planNome, patientNome, patientTelefone
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const activeLink = shareLinks.find((link) => linkStatus(link).label === "Ativo") ?? null;
+  const activeLink = findActivePlanShareLink(shareLinks);
 
   function handleCreate() {
     startTransition(async () => {
@@ -93,7 +88,7 @@ export function SharePlanDialog({ planId, planNome, patientNome, patientTelefone
             <p className="text-sm text-muted-foreground">Nenhum link gerado ainda para este plano.</p>
           )}
           {shareLinks.map((link) => {
-            const status = linkStatus(link);
+            const status = planShareLinkStatus(link);
             return (
               <div
                 key={link.id}
