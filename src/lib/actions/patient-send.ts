@@ -4,22 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 import { listPlanShareLinks } from "@/lib/actions/plan-share";
 import { utcInstantToZonedDateTime } from "@/lib/timezone";
 import { formatDate } from "@/lib/utils";
-import type { PlanShareToken, Recipe, RecipeIngredient } from "@/lib/types/database.types";
-
-export interface SendCenterRecipe {
-  id: string;
-  nome: string;
-  modoPreparo: string | null;
-  rendimentoG: number | null;
-  numeroPorcoes: number | null;
-  ingredientes: { nome: string; quantidadeG: number }[];
-}
+import type { PlanShareToken } from "@/lib/types/database.types";
 
 export interface SendCenterContext {
   profissionalNome: string;
   planoAtivo: { id: string; nome: string } | null;
   planoShareLinks: PlanShareToken[];
-  receitasDoPlano: SendCenterRecipe[];
+  /** Se o paciente tem ao menos uma avaliação antropométrica — controla o estado vazio de "Evolução física". */
+  temAvaliacoes: boolean;
   /** Data/hora já formatadas no fuso do profissional (profiles.fuso_horario) — nunca no fuso do processo/servidor. */
   proximaConsulta: { dataFormatada: string; horaFormatada: string } | null;
 }
@@ -40,7 +32,7 @@ export async function getSendCenterContext(patientId: string): Promise<SendCente
 
   if (!user) return null;
 
-  const [{ data: profile }, { data: planos }, { data: proximaRows }] = await Promise.all([
+  const [{ data: profile }, { data: planos }, { data: proximaRows }, { count: totalAvaliacoes }] = await Promise.all([
     supabase
       .from("profiles")
       .select("nome, fuso_horario")
@@ -63,14 +55,15 @@ export async function getSendCenterContext(patientId: string): Promise<SendCente
       .order("data_hora", { ascending: true })
       .limit(1)
       .returns<{ data_hora: string }[]>(),
+    supabase
+      .from("anthropometric_assessments")
+      .select("id", { count: "exact", head: true })
+      .eq("patient_id", patientId),
   ]);
 
   const planoAtivo = planos?.[0] ?? null;
 
-  const [planoShareLinks, receitasDoPlano] = await Promise.all([
-    planoAtivo ? listPlanShareLinks(planoAtivo.id) : Promise.resolve([]),
-    planoAtivo ? buscarReceitasDoPlano(supabase, planoAtivo.id) : Promise.resolve([]),
-  ]);
+  const planoShareLinks = planoAtivo ? await listPlanShareLinks(planoAtivo.id) : [];
 
   const timeZone = profile?.fuso_horario || "America/Sao_Paulo";
   const proximaRow = proximaRows?.[0] ?? null;
@@ -85,57 +78,7 @@ export async function getSendCenterContext(patientId: string): Promise<SendCente
     profissionalNome: profile?.nome ?? "",
     planoAtivo: planoAtivo ? { id: planoAtivo.id, nome: planoAtivo.nome } : null,
     planoShareLinks,
-    receitasDoPlano,
+    temAvaliacoes: (totalAvaliacoes ?? 0) > 0,
     proximaConsulta,
   };
-}
-
-/** Receitas distintas usadas nos itens de refeição do plano — via meal_items.recipe_id, mesmo vínculo criado na Fase 6, Bloco C. */
-async function buscarReceitasDoPlano(
-  supabase: ReturnType<typeof createClient>,
-  planoId: string
-): Promise<SendCenterRecipe[]> {
-  const { data: meals } = await supabase
-    .from("meals")
-    .select("id")
-    .eq("meal_plan_id", planoId)
-    .returns<{ id: string }[]>();
-
-  const mealIds = (meals ?? []).map((m) => m.id);
-  if (mealIds.length === 0) return [];
-
-  const { data: items } = await supabase
-    .from("meal_items")
-    .select("recipe_id")
-    .in("meal_id", mealIds)
-    .not("recipe_id", "is", null)
-    .returns<{ recipe_id: string }[]>();
-
-  const recipeIds = Array.from(new Set((items ?? []).map((i) => i.recipe_id)));
-  if (recipeIds.length === 0) return [];
-
-  const [{ data: recipes }, { data: ingredientes }] = await Promise.all([
-    supabase
-      .from("recipes")
-      .select("id, nome, modo_preparo, rendimento_g, numero_porcoes")
-      .in("id", recipeIds)
-      .returns<Pick<Recipe, "id" | "nome" | "modo_preparo" | "rendimento_g" | "numero_porcoes">[]>(),
-    supabase
-      .from("recipe_ingredients")
-      .select("recipe_id, nome_alimento, quantidade_g")
-      .in("recipe_id", recipeIds)
-      .order("ordem")
-      .returns<Pick<RecipeIngredient, "recipe_id" | "nome_alimento" | "quantidade_g">[]>(),
-  ]);
-
-  return (recipes ?? []).map((r) => ({
-    id: r.id,
-    nome: r.nome,
-    modoPreparo: r.modo_preparo,
-    rendimentoG: r.rendimento_g,
-    numeroPorcoes: r.numero_porcoes,
-    ingredientes: (ingredientes ?? [])
-      .filter((i) => i.recipe_id === r.id)
-      .map((i) => ({ nome: i.nome_alimento, quantidadeG: i.quantidade_g })),
-  }));
 }

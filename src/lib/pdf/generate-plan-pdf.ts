@@ -2,10 +2,10 @@ import { createElement, type ReactElement } from "react";
 import { renderToBuffer, type DocumentProps } from "@react-pdf/renderer";
 import type { createClient } from "@/lib/supabase/server";
 
-import { getProfileFileSignedUrl } from "@/lib/actions/profile";
 import { buildPlanPdfViewModel } from "@/lib/pdf/plan-pdf-data";
 import { PlanPdfDocument } from "@/lib/pdf/plan-pdf-document";
-import type { Meal, MealItem, MealPlan, Profile } from "@/lib/types/database.types";
+import { buildProfissionalPdfHeaderData } from "@/lib/pdf/profissional-header";
+import type { Meal, MealItem, MealPlan } from "@/lib/types/database.types";
 
 export function slugify(value: string) {
   return value
@@ -48,8 +48,8 @@ export async function generatePlanPdf(
     return null;
   }
 
-  const [{ data: profile }, { data: meals }] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", user.id).single<Profile>(),
+  const [profissional, { data: meals }] = await Promise.all([
+    buildProfissionalPdfHeaderData(supabase, user),
     supabase
       .from("meals")
       .select("*, meal_items(*)")
@@ -58,28 +58,13 @@ export async function generatePlanPdf(
       .returns<MealRow[]>(),
   ]);
 
-  const [logoUrl, assinaturaUrl] = await Promise.all([
-    getProfileFileSignedUrl(profile?.logo_url),
-    getProfileFileSignedUrl(profile?.assinatura_url),
-  ]);
-
   const refeicoes = (meals ?? []).map((meal) => ({
     ...meal,
     items: (meal.meal_items ?? []).slice().sort((a, b) => a.ordem - b.ordem),
   }));
 
   const viewModel = buildPlanPdfViewModel({
-    profissional: {
-      nome: profile?.nome ?? user.email?.split("@")[0] ?? "Nutricionista",
-      crn: profile?.crn ?? null,
-      crnUf: profile?.crn_uf ?? null,
-      especialidade: profile?.especialidade ?? null,
-      telefone: profile?.telefone ?? null,
-      endereco: profile?.endereco ?? null,
-      corMarca: profile?.cor_marca ?? null,
-      logoUrl,
-      assinaturaUrl,
-    },
+    profissional,
     pacienteNome: plan.patients.nome,
     plano: plan,
     refeicoes,

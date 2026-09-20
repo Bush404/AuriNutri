@@ -21,36 +21,22 @@ export function buildPlanoWhatsAppMessage(input: {
   return `Oi, ${input.primeiroNome}! Aqui é ${input.nomeProfissional}. Segue o seu plano alimentar "${input.nomePlano}": ${input.link}\n\nQualquer dúvida sobre alguma refeição, me chama por aqui.`;
 }
 
-export interface ReceitaParaMensagem {
-  nome: string;
-  modoPreparo: string | null;
-  rendimentoG: number | null;
-  numeroPorcoes: number | null;
-  ingredientes: { nome: string; quantidadeG: number }[];
-}
-
-export function buildReceitaWhatsAppMessage(input: {
+export function buildEvolucaoFisicaWhatsAppMessage(input: {
   primeiroNome: string;
   nomeProfissional: string;
-  receita: ReceitaParaMensagem;
+  link: string;
 }): string {
-  const { primeiroNome, nomeProfissional, receita } = input;
+  return `Oi, ${input.primeiroNome}! Aqui é ${input.nomeProfissional}. Segue o resumo da sua evolução física em PDF: ${input.link}\n\nQualquer dúvida, me chama por aqui.`;
+}
 
-  const linhasIngredientes = receita.ingredientes
-    .map((i) => `• ${i.nome} — ${i.quantidadeG}g`)
-    .join("\n");
-
-  const porcoes = receita.numeroPorcoes ? `Rende ${receita.numeroPorcoes} porção(ões).` : "";
-
-  const partes = [
-    `Oi, ${primeiroNome}! Aqui é ${nomeProfissional}. Separei a receita de "${receita.nome}" pra você:`,
-    linhasIngredientes ? `\n*Ingredientes:*\n${linhasIngredientes}` : "",
-    porcoes ? `\n${porcoes}` : "",
-    receita.modoPreparo ? `\n*Modo de preparo:*\n${receita.modoPreparo}` : "",
-    "\nBom apetite! Qualquer dúvida no preparo, me chama.",
-  ];
-
-  return partes.filter(Boolean).join("\n").trim();
+/** Mensagem genérica pra qualquer item de "Impressos" (receita avulsa ou arquivo do computador) — o título já identifica o que é. */
+export function buildImpressoWhatsAppMessage(input: {
+  primeiroNome: string;
+  nomeProfissional: string;
+  titulo: string;
+  link: string;
+}): string {
+  return `Oi, ${input.primeiroNome}! Aqui é ${input.nomeProfissional}. Segue "${input.titulo}" em PDF: ${input.link}`;
 }
 
 export function buildConsultaLembreteWhatsAppMessage(input: {

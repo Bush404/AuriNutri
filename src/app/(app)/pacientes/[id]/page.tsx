@@ -121,7 +121,13 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
             patientNome={patient.nome}
             patientTelefone={patient.telefone}
             context={
-              sendCenterContext ?? { profissionalNome: "", planoAtivo: null, planoShareLinks: [], receitasDoPlano: [], proximaConsulta: null }
+              sendCenterContext ?? {
+                profissionalNome: "",
+                planoAtivo: null,
+                planoShareLinks: [],
+                temAvaliacoes: false,
+                proximaConsulta: null,
+              }
             }
           />
           <ExportPatientButton patientId={patient.id} patientName={patient.nome} />

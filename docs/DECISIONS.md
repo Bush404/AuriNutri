@@ -146,6 +146,19 @@ colar).
 - Se a Fase 8 for retomada no futuro, a Central de Envio não precisa ser desfeita — ela continua
   fazendo sentido como atalho rápido do dia a dia mesmo que exista um portal completo depois.
 
+**Atualização (2026-09-20) — redesenho:** o botão "Enviar" saiu de aba própria e virou um diálogo
+no cabeçalho do paciente (ao lado de "Exportar dados"/"Editar dados"), com seleção por checkbox de
+5 itens: Plano Alimentar, Evolução Física, Impressos, Lembrete de consulta e Mensagem livre.
+Evolução Física (PDF com todas as avaliações antropométricas) e Impressos (qualquer receita do
+profissional, não só as do plano ativo, + PDFs avulsos do computador) passaram a ser enviados
+como **PDF de verdade**, não texto solto — generalizando o mecanismo de link assinado do plano
+(`plan_share_tokens`) para uma tabela nova, `document_share_tokens` (migration 0024), com sua
+própria função `get_shared_document` (mesmo padrão de segurança: token exato, nada enumerável).
+A seção antiga "Receitas do plano" (texto solto via WhatsApp) foi removida — Impressos a substitui
+por completo. O link do Plano Alimentar em si não mudou (WhatsApp continua sem suportar anexar
+arquivo de verdade — só texto/link; decisão explícita do responsável pelo produto: manter assim
+por ora, revisitar mecanismo de anexo real depois).
+
 ---
 
 ## Como revisitar

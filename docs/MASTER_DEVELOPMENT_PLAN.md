@@ -694,12 +694,15 @@ desfazer nada) se/quando fizer sentido reabrir D2. Pular direto para a
 Fase 9 enquanto isso.
 
 **Em 2026-09-20, ganhou um substituto parcial: a "Central de Envio"**
-(decisão D6, `docs/DECISIONS.md`) — uma aba no perfil do paciente que
-reúne plano/receitas/lembrete de consulta/mensagem livre pra mandar por
-WhatsApp num só lugar, reaproveitando o link assinado do plano (Fase 4).
-Não é a Fase 8 nem a substitui de verdade (sem conta de paciente, sem
-histórico do que foi enviado) — só fecha a lacuna prática enquanto D2
-continuar valendo.
+(decisão D6, `docs/DECISIONS.md`) — um diálogo no cabeçalho do perfil do
+paciente (ao lado de "Exportar dados"/"Editar dados") com seleção por
+checkbox: Plano Alimentar, Evolução Física, Impressos (qualquer receita +
+PDFs avulsos), Lembrete de consulta e Mensagem livre — tudo pronto pra
+mandar por WhatsApp num só lugar. Evolução Física e Impressos vão como PDF
+de verdade (`document_share_tokens`, migration 0024, generaliza o link
+assinado do plano da Fase 4 pra qualquer tipo de documento). Não é a Fase 8
+nem a substitui de verdade (sem conta de paciente, sem histórico do que foi
+enviado) — só fecha a lacuna prática enquanto D2 continuar valendo.
 
 **Risco:** é uma segunda superfície de autenticação e autorização. Erro de RLS aqui expõe dado clínico ao paciente errado. Exige revisão de segurança dedicada.
 

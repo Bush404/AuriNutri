@@ -389,6 +389,23 @@ export interface PlanShareToken {
   created_at: string;
 }
 
+export type DocumentShareTipo = "antropometria" | "receita" | "arquivo";
+
+export interface DocumentShareToken {
+  id: string;
+  user_id: string;
+  patient_id: string;
+  tipo: DocumentShareTipo;
+  referencia_id: string | null;
+  titulo: string;
+  token: string;
+  storage_path: string;
+  signed_url: string;
+  expires_at: string;
+  revoked_at: string | null;
+  created_at: string;
+}
+
 export type AppointmentTipo = "primeira_consulta" | "retorno" | "avaliacao" | "outro";
 export type AppointmentStatus = "agendado" | "confirmado" | "realizado" | "faltou" | "cancelado";
 
