@@ -3,11 +3,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { listPlanShareLinks } from "@/lib/actions/plan-share";
 import { utcInstantToZonedDateTime } from "@/lib/timezone";
+import { formatCurrencyBRL } from "@/lib/finance";
 import { formatDate } from "@/lib/utils";
 import type { PlanShareToken } from "@/lib/types/database.types";
 
 export interface SendCenterAssessment {
   id: string;
+  dataFormatada: string;
+}
+
+export interface SendCenterPayment {
+  id: string;
+  descricao: string;
+  valorFormatado: string;
   dataFormatada: string;
 }
 
@@ -19,6 +27,8 @@ export interface SendCenterContext {
   avaliacoes: SendCenterAssessment[];
   /** Data/hora já formatadas no fuso do profissional (profiles.fuso_horario) — nunca no fuso do processo/servidor. */
   proximaConsulta: { dataFormatada: string; horaFormatada: string } | null;
+  /** Pagamentos já recebidos deste paciente, mais recente primeiro — só estes podem virar Recibo (pagamento pendente não tem o que recibar). */
+  pagamentosRecebidos: SendCenterPayment[];
 }
 
 /**
@@ -37,7 +47,8 @@ export async function getSendCenterContext(patientId: string): Promise<SendCente
 
   if (!user) return null;
 
-  const [{ data: profile }, { data: planos }, { data: proximaRows }, { data: avaliacoesRows }] = await Promise.all([
+  const [{ data: profile }, { data: planos }, { data: proximaRows }, { data: avaliacoesRows }, { data: pagamentosRows }] =
+    await Promise.all([
     supabase
       .from("profiles")
       .select("nome, fuso_horario")
@@ -66,6 +77,13 @@ export async function getSendCenterContext(patientId: string): Promise<SendCente
       .eq("patient_id", patientId)
       .order("data_avaliacao", { ascending: false })
       .returns<{ id: string; data_avaliacao: string }[]>(),
+    supabase
+      .from("payments")
+      .select("id, valor, data_pagamento, patient_billings!inner(descricao, patient_id)")
+      .eq("patient_billings.patient_id", patientId)
+      .not("data_pagamento", "is", null)
+      .order("data_pagamento", { ascending: false })
+      .returns<{ id: string; valor: number; data_pagamento: string; patient_billings: { descricao: string } }[]>(),
   ]);
 
   const planoAtivo = planos?.[0] ?? null;
@@ -87,5 +105,11 @@ export async function getSendCenterContext(patientId: string): Promise<SendCente
     planoShareLinks,
     avaliacoes: (avaliacoesRows ?? []).map((a) => ({ id: a.id, dataFormatada: formatDate(a.data_avaliacao) })),
     proximaConsulta,
+    pagamentosRecebidos: (pagamentosRows ?? []).map((p) => ({
+      id: p.id,
+      descricao: p.patient_billings.descricao,
+      valorFormatado: formatCurrencyBRL(p.valor),
+      dataFormatada: formatDate(p.data_pagamento),
+    })),
   };
 }

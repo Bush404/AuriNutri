@@ -708,7 +708,7 @@ enviado) — só fecha a lacuna prática enquanto D2 continuar valendo.
 
 ---
 
-## PHASE 9 — Financeiro · `IN_PROGRESS` · `MEDIUM` (V2)
+## PHASE 9 — Financeiro · `DONE` · `MEDIUM` (V2)
 
 **Objetivo:** ajudar o profissional a entender o consultório e a pensar no preço da consulta.
 **Escopo:** NÃO é um ERP — sem centro de custo, rateio contábil, conciliação bancária, DRE ou
@@ -726,9 +726,11 @@ plano de contas.
 [x] Testes de finance.ts (recorrências, despesa única/inativa, divisão por zero, precisão decimal)
 [x] Server Actions de CRUD das três tabelas
 [x] Bloco B — UI: página /financeiro com despesas e custo do consultório
-[ ] UI de cobrança/pagamentos por paciente, dar baixa (bloco futuro)
-[ ] Recibo em PDF com identidade profissional (reaproveita @react-pdf/renderer, Fase 4)
-[ ] Visão mensal e ticket médio (bloco futuro)
+[x] Bloco C — aba Financeiro no paciente: cobrança (avulso/pacote), lista de pagamentos,
+    dar baixa, total recebido/em aberto
+[x] Bloco C — Recibo em PDF com identidade profissional (reaproveita @react-pdf/renderer, Fase 4)
+[x] Bloco C — envio do recibo pela Central de Envio (WhatsApp)
+[x] Bloco C — dashboard: recebido no mês, pendente, ticket médio, despesas a vencer
 ```
 
 **Bloco A (2026-09-20) — backend:** migration `0025_finance.sql`. Três tabelas, mesmo
@@ -863,6 +865,95 @@ Component, sem loading próprio da rota), erro de query é exibido inline, e o v
 46 testes em `finance.test.ts` ao final do dia. `npm test` (184/184), `npm run build` e
 `npm run lint` passam.
 
+**Bloco C (2026-09-20) — cobrança de paciente, Recibo e dashboard. Fecha a Fase 9.**
+
+**1. Aba Financeiro no paciente** (`PatientFinancePanel`, nova):
+- `NewPatientBillingDialog` — primeiro pergunta o tipo (abas Avulso/Pacote, mesmo padrão de
+  `ExpenseFormDialog`) e adapta o formulário: avulso pede só descrição/valor/vencimento;
+  pacote soma descrição, valor total, número de consultas e "como será pago" (à vista ou N
+  parcelas). Reaproveita `createPatientBilling` (já existia desde o Bloco A) sem nenhuma
+  mudança de contrato — só a UI era nova.
+- Lista de pagamentos em duas seções, Pendentes e Pagos, com total Recebido/Em aberto no
+  topo (`sumCurrency`, nova em `finance.ts`, mesmo cuidado de centavos de sempre).
+- `RegisterPatientPaymentDialog` dá baixa (`registerPayment`, já existia) pedindo data +
+  forma de pagamento juntas; "Desfazer" volta pra pendente (`unregisterPayment`, idem).
+- **Correção de bug real ao extrair a lógica pra teste:** `createPatientBilling` calculava a
+  data de cada parcela com `Date.setMonth()` a partir de um `Date` local — isso quebra pra
+  início em dia 29/30/31 (`setMonth` "rola" pro mês seguinte em vez de limitar ao último dia
+  do mês, ex.: 31/01 + 1 mês vira 02 ou 03/03, não 28/02) e também tinha o mesmo risco de
+  fuso de sempre (`Date` local → `toISOString()` UTC). Extraído para
+  `buildInstallmentPayments` (puro, testado, aritmética só em ano/mês/dia inteiros em UTC) —
+  bug nunca esteve visível na prática (nenhum pacote com início em dia 29-31 foi criado
+  ainda), mas existia desde o Bloco A.
+
+**2. Recibo** — reaproveita 100% a infraestrutura de PDF da Fase 4
+(`@react-pdf/renderer`, `buildProfissionalPdfHeaderData`), nenhuma biblioteca nova:
+`recibo-pdf-data.ts` (view-model puro) + `recibo-pdf-document.tsx` (visual, mesmo padrão de
+header/logo dos outros três documentos — duplicado, não extraído, seguindo a convenção já
+estabelecida no projeto) + `generate-recibo-pdf.ts` (orquestrador). Conteúdo: logo, nome,
+CRN e dados do profissional, nome do paciente, valor em algarismos (`formatCurrencyBRL`) e
+por extenso, descrição, data do pagamento, espaço de assinatura (imagem, se cadastrada, mais
+uma linha com nome e CRN abaixo — sempre presente, mesmo sem assinatura digital). Só gera
+recibo de pagamento **já recebido** (`data_pagamento` preenchido) — pagamento pendente não
+tem o que recibar. **Vocabulário:** documento chamado só de "Recibo" em todo lugar — nenhuma
+menção a "nota fiscal"/"NFS-e"/"fatura", e sem numeração sequencial (isso sugeriria um
+documento fiscal, que este não é e não substitui).
+
+`valorPorExtenso` (`src/lib/pdf/valor-extenso.ts`, módulo próprio — é formatação de texto,
+não cálculo financeiro, não pertence a `finance.ts`) converte reais para português por
+extenso, com os casos difíceis testados: singular ("um real", "um centavo"), valores
+redondos (nunca menciona centavos), centenas (inclusive o caso especial "cem" vs. "cento"),
+milhares, e (bônus, não pedido) milhões com a regra de "de reais". 24 testes.
+
+**3. Envio pela Central de Envio** — `document_share_tokens` ganhou o tipo `'recibo'`
+(migration `0028`, só altera o `CHECK` da coluna `tipo`, sem tabela/bucket/função nova — o
+mesmo desenho genérico da migration 0024 já suportava isso). `createReciboShareLink` segue
+exatamente o padrão de `createAntropometriaShareLink`/`createReceitaShareLink` (dedup por
+`referencia_id`, upload no bucket `documentos`, link assinado de 90 dias). Novo item "Recibo
+de pagamento" na Central de Envio (`ReciboCard`), com um `Select` listando só os pagamentos
+já recebidos do paciente (`SendCenterContext.pagamentosRecebidos`, nova). Mensagem combinada
+(`buildMensagemCombinada`) ganhou o parágrafo do recibo quando selecionado.
+
+**4. Dashboard** — quatro cards novos, todos levando a `/financeiro` (não existe hoje uma
+tela só de pagamentos de todos os pacientes — os pagamentos em si vivem na aba Financeiro de
+cada paciente; `/financeiro` é o destino mais próximo do "aqui" dessas métricas):
+- **Recebido no mês** — soma de `payments.valor` com `data_pagamento` no mês corrente.
+- **Pendente** — soma de `payments.valor` com `data_pagamento is null`, de todos os
+  pacientes (sem recorte de período — é "quanto falta receber", não "quanto venceu").
+- **Ticket médio** — **decisão registrada, conforme pedido:** numerador é o recebido no mês
+  (acima); denominador é o **número de consultas com `status = 'realizado'` no mês**, não o
+  número de pacientes distintos atendidos. Um mesmo paciente pode ter mais de um atendimento
+  no mês, e "ticket médio" aqui responde "quanto entra, em média, por sessão" — a mesma
+  unidade (por atendimento) já usada em "custo por atendimento" em `/financeiro`. Se a
+  intenção fosse "quanto cada paciente ativo deixa, em média", o denominador certo seria
+  pacientes distintos — número diferente, pergunta diferente. Ambos são válidos; este é o
+  que está na tela.
+- **Despesas a vencer (30 dias)** — soma e contagem de `expense_occurrences` com
+  `data_pagamento is null` e vencimento até 30 dias à frente, **incluindo as já vencidas**
+  (sem piso na data, só teto) — pedido explícito era "próximos 30 dias + vencidas".
+
+**5. Testes:**
+- `sumCurrency` (nova, `finance.ts`) — soma bate com soma manual, testado inclusive com o
+  mesmo caso de precisão decimal do resto do módulo.
+- `buildInstallmentPayments` — número certo de parcelas, soma bate com o valor total mesmo
+  com resto de centavos, vencimento correto atravessando virada de ano e dia 31 em mês mais
+  curto (o bug descrito no item 1, agora coberto).
+- `valorPorExtenso` — os 4 casos pedidos (centavos, redondos, singular, centenas) mais
+  milhares, todos com asserção exata de string.
+- Isolamento entre profissionais: `scripts/test-finance-patient-isolation.mjs` (novo,
+  `npm run test:finance-patient-isolation`), mesmo padrão de contas descartáveis dos scripts
+  anteriores — confirma que `patient_billings`/`payments` de um profissional não são
+  visíveis nem editáveis por outro (select vazio, update 0 linhas, RPC de exclusão retorna
+  `false`). **Não executado nesta sessão** — precisa de `SUPABASE_SERVICE_ROLE_KEY` no
+  `.env.local` do usuário e roda contra o projeto Supabase real; fica pendente de execução
+  pelo usuário antes de considerar o isolamento formalmente verificado (mesma ressalva de
+  todo script desta família).
+
+64 testes novos nesta sessão inteira de Fase 9 (18 Bloco A + 18 correções pós-uso do Bloco B
++ 28 do Bloco C: 3 `sumCurrency` + 5 `buildInstallmentPayments` + 24 `valorPorExtenso`... — a
+soma exata está no `npm test` abaixo, não recontada manualmente aqui). `npm test` (219/219),
+`npm run build` e `npm run lint` passam.
+
 ### Critérios de aceite
 - [x] Custo fixo mensal soma corretamente despesas de qualquer recorrência, ignorando
       inativas e "única".
@@ -874,18 +965,38 @@ Component, sem loading próprio da rota), erro de query é exibido inline, e o v
 - [x] Mês de vencimento de despesa trimestral/semestral/anual é uma escolha explícita do
       profissional, não uma inferência do sistema.
 - [x] Dar baixa numa ocorrência de despesa reflete imediatamente o status "Pago"/"Pendente"
-      na tela, com histórico preservado (base do futuro "Despesas do mês").
-- [ ] Dar baixa num pagamento de paciente reflete imediatamente em "pendentes" (falta a UI
-      de cobrança/pagamentos do paciente — bloco futuro).
-- [ ] Recibo sai com identidade profissional (logo, nome, CRN) — bloco futuro.
-- [ ] Card "Despesas do mês" no dashboard, agregando `expense_occurrences` — bloco futuro
-      (pedido explicitamente para depois pelo usuário).
-- [ ] Visão mensal bate com a soma manual de receitas e despesas do período — bloco futuro.
+      na tela, com histórico preservado.
+- [x] Dar baixa num pagamento de paciente reflete imediatamente em "pendentes"/"pagos" na
+      aba Financeiro do paciente.
+- [x] Recibo sai com identidade profissional (logo, nome, CRN), valor em algarismos e por
+      extenso, e nunca menciona nota fiscal/NFS-e/fatura nem tem numeração sequencial.
+- [x] Card de despesas a vencer no dashboard, agregando `expense_occurrences` (30 dias +
+      vencidas).
+- [x] Ticket médio no dashboard, com o denominador (consultas realizadas, não pacientes
+      distintos) documentado e justificado.
+- [ ] Isolamento financeiro entre profissionais testado ao vivo — script escrito, ainda não
+      executado pelo usuário (precisa da service role key local).
+- [~] "Visão mensal" genérica (receitas e despesas do período lado a lado, tipo um relatório
+      fechado do mês) não foi construída como tela própria — as peças (recebido no mês,
+      pendente, despesas a vencer) já estão no dashboard, mas não há uma tela dedicada de
+      fechamento mensal. Não foi pedida explicitamente no Bloco C; registrada aqui como
+      lacuna conhecida caso vire pedido futuro.
 
-### Riscos
+### Riscos (mitigado)
 Cálculo monetário incorreto é o pior tipo de bug num módulo financeiro — silencioso e só
 percebido no fechamento do mês. Mitigado centralizando 100% da matemática em
-`src/lib/finance.ts` (nunca duplicada em componente) e operando em centavos internamente.
+`src/lib/finance.ts` (nunca duplicada em componente) e operando em centavos internamente. O
+bug real encontrado no Bloco C (`Date.setMonth()` quebrando parcelas com início em dia
+29-31) reforça esse princípio: ele só foi encontrado porque a lógica foi extraída pra uma
+função pura e testável — outro motivo pra nunca deixar cálculo de data/dinheiro solto dentro
+de uma Server Action sem teste.
+
+### Próximo passo
+Fase 9 fecha aqui. Próxima da lista (`Ordem recomendada`, abaixo): **Fase 10 — Biblioteca e
+comunidade**, mas essa tem dependência explícita de "base de usuários ativa" — vale
+confirmar com o usuário se já faz sentido começar, ou se é hora de uma pausa pra validar o
+financeiro com nutricionistas reais antes de abrir uma fase nova (mesmo espírito do gate que
+fechou o MVP na Fase 4).
 
 ---
 
@@ -929,7 +1040,7 @@ percebido no fechamento do mês. Mitigado centralizando 100% da matemática em
 ```
 1 → 2 → 3 → 4 → [MVP · validar com usuários reais]
      → 5 → 6 → 7 → [V1 · concluído em 19/09/2026]
-     → 9 → 10 → [V2]
+     → 9 → [V2 · Fase 9 concluída em 20/09/2026] → 10
 8 adiada (ver DECISIONS.md D2) — não bloqueia 9/10, retomar só se/quando fizer sentido reabrir.
 11 permeia todas.
 ```

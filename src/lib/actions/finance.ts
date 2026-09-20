@@ -2,7 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { advanceOneOccurrence, firstOccurrenceOnOrAfter, latestOccurrencePerExpense, splitInstallments } from "@/lib/finance";
+import {
+  advanceOneOccurrence,
+  buildInstallmentPayments,
+  firstOccurrenceOnOrAfter,
+  latestOccurrencePerExpense,
+} from "@/lib/finance";
 import {
   expenseSchema,
   patientBillingSchema,
@@ -320,19 +325,14 @@ export async function createPatientBilling(input: PatientBillingInput): Promise<
   }
 
   const numeroParcelas = parsed.data.tipo === "pacote" ? parsed.data.numero_parcelas ?? 1 : 1;
-  const valoresParcelas = splitInstallments(parsed.data.valor_total, numeroParcelas);
-  const dataInicio = new Date(`${parsed.data.data_inicio}T00:00:00`);
+  const parcelas = buildInstallmentPayments(parsed.data.valor_total, numeroParcelas, parsed.data.data_inicio);
 
-  const paymentsToInsert = valoresParcelas.map((valor, index) => {
-    const vencimento = new Date(dataInicio);
-    vencimento.setMonth(vencimento.getMonth() + index);
-    return {
-      billing_id: billing.id,
-      user_id: user.id,
-      valor,
-      data_vencimento: vencimento.toISOString().slice(0, 10),
-    };
-  });
+  const paymentsToInsert = parcelas.map(({ valor, data_vencimento }) => ({
+    billing_id: billing.id,
+    user_id: user.id,
+    valor,
+    data_vencimento,
+  }));
 
   const { error: paymentsError } = await supabase.from("payments").insert(paymentsToInsert);
 

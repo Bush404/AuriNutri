@@ -24,6 +24,7 @@ import { PatientConsentsPanel } from "@/components/patients/patient-consents-pan
 import { LabExamsPanel } from "@/components/patients/lab-exams-panel";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
 import { PatientPhotosPanel } from "@/components/patients/patient-photos-panel";
+import { PatientFinancePanel, type PatientBillingWithPayments } from "@/components/patients/patient-finance-panel";
 
 interface PatientTabsProps {
   patient: Patient;
@@ -35,6 +36,7 @@ interface PatientTabsProps {
   consentimentoAtivoExames: boolean;
   photos: PatientPhoto[];
   consentimentoAtivoFotos: boolean;
+  billings: PatientBillingWithPayments[];
 }
 
 export function PatientTabs({
@@ -47,6 +49,7 @@ export function PatientTabs({
   consentimentoAtivoExames,
   photos,
   consentimentoAtivoFotos,
+  billings,
 }: PatientTabsProps) {
   const age = calculateAge(patient.data_nascimento);
 
@@ -59,6 +62,7 @@ export function PatientTabs({
         <TabsTrigger value="evolucao-fotografica">Evolução Fotográfica</TabsTrigger>
         <TabsTrigger value="planos">Planos alimentares</TabsTrigger>
         <TabsTrigger value="exames">Exames</TabsTrigger>
+        <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
         <TabsTrigger value="consentimentos">Consentimentos</TabsTrigger>
       </TabsList>
 
@@ -140,6 +144,10 @@ export function PatientTabs({
 
       <TabsContent value="exames">
         <LabExamsPanel patientId={patient.id} exams={labExams} consentimentoAtivoExames={consentimentoAtivoExames} />
+      </TabsContent>
+
+      <TabsContent value="financeiro">
+        <PatientFinancePanel patientId={patient.id} billings={billings} />
       </TabsContent>
 
       <TabsContent value="consentimentos">

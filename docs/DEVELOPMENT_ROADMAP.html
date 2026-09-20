@@ -367,11 +367,11 @@
   </div>
 </details>
 
-<details class="phase active">
+<details class="phase">
   <summary class="ph-head">
-    <span class="mark">9</span>
-    <span class="ph-title"><span class="n">PHASE 9 · V2 · EM ANDAMENTO</span><div class="t">Financeiro</div></span>
-    <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-todo">Em andamento</span><span class="caret">▶</span></span>
+    <span class="mark done">✓</span>
+    <span class="ph-title"><span class="n">PHASE 9 · V2</span><div class="t">Financeiro</div></span>
+    <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-done">Done</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
     <p class="obj"><b>Objetivo:</b> ajudar o profissional a entender o consultório e a pensar no preço da consulta. Não é um ERP — sem centro de custo, rateio contábil, conciliação bancária, DRE ou plano de contas.</p>
@@ -382,8 +382,9 @@
       <li class="ok">Server Actions de CRUD das três tabelas, incluindo geração automática das parcelas ao criar uma cobrança</li>
       <li class="ok">Bloco B — UI: página /financeiro com despesas (cadastro rápido, encerrar/reativar) e custo do consultório (custo fixo, quebra por categoria, custo por atendimento com simulação)</li>
       <li class="ok">Correções pós-uso: mês de vencimento explícito p/ trimestral/semestral/anual, etiqueta "à vista/parcelado", histórico de pagamento por despesa (<code>expense_occurrences</code>)</li>
-      <li>UI de cobrança/pagamentos do paciente e recibo em PDF (bloco futuro)</li>
-      <li>Card "Despesas do mês" no dashboard e visão mensal/ticket médio (bloco futuro)</li>
+      <li class="ok">Bloco C — aba Financeiro no paciente (cobrança avulso/pacote, dar baixa, recebido/em aberto)</li>
+      <li class="ok">Bloco C — Recibo em PDF (identidade profissional, valor por extenso) enviado pela Central de Envio</li>
+      <li class="ok">Bloco C — dashboard: recebido no mês, pendente, ticket médio, despesas a vencer</li>
     </ul>
     <div class="accept"><b>Bloco A concluído — 20/09/2026</b>
       Migration 0025 (tabelas + funções <code>security definer</code> de soft delete, mesmo padrão da 0017). 18 testes novos em <code>finance.test.ts</code>, incluindo precisão decimal (soma de 0.1 + 0.2 repetida dá exatamente 0.90).</div>
@@ -394,7 +395,9 @@
     <div class="accept"><b>Troca de UX (sem migration) — 20/09/2026</b>
       Removido o botão "Encerrar/Reativar"; despesa agora tem editar de verdade e excluir de verdade (pedido do usuário: "ao excluir, ela simplesmente some", sem precisar de um passo de encerrar antes nem preservar histórico). <code>deleteExpense</code> passou de soft delete para <code>DELETE</code> real — a função de soft delete da migration 0025 fica sem uso, mas não foi removida do banco.</div>
     <div class="accept"><b>Pagar adiantado (sem migration) — 20/09/2026</b>
-      Pagar a parcela atual agora libera a seguinte na hora, mesmo antes do mês dela chegar (ex.: aluguel mensal vencendo dia 10 — pagar adiantado já mostra o próximo vencimento certo, não o mesmo). "Próximo vencimento" e "Este mês" viraram uma coluna só, "Próxima parcela" — sempre a ocorrência mais recente registrada. Desfazer um pagamento desfaz o avanço junto (remove a parcela seguinte, se ainda não paga). 10 testes novos, 46 no total em <code>finance.test.ts</code>. <code>npm test</code> (184/184), <code>npm run build</code> e <code>npm run lint</code> passam.</div>
+      Pagar a parcela atual agora libera a seguinte na hora, mesmo antes do mês dela chegar (ex.: aluguel mensal vencendo dia 10 — pagar adiantado já mostra o próximo vencimento certo, não o mesmo). "Próximo vencimento" e "Este mês" viraram uma coluna só, "Próxima parcela" — sempre a ocorrência mais recente registrada. Desfazer um pagamento desfaz o avanço junto (remove a parcela seguinte, se ainda não paga). 10 testes novos, 46 no total em <code>finance.test.ts</code>.</div>
+    <div class="accept"><b>Bloco C concluído — 20/09/2026 — fecha a Fase 9</b>
+      Aba Financeiro no paciente (cobrança avulso/pacote com parcelamento, dar baixa, recebido/em aberto) — reaproveitou o backend do Bloco A sem mudar contrato nenhum, só UI nova. Recibo em PDF reaproveita 100% a infra de PDF da Fase 4 (sem lib nova): logo, nome, CRN, valor em algarismos e por extenso, nunca menciona nota fiscal/NFS-e/fatura, sem numeração sequencial. Função de valor por extenso testada nos casos difíceis (singular, redondos, centenas, milhares). Envio do recibo pela Central de Envio já existente (novo tipo <code>'recibo'</code> em <code>document_share_tokens</code>, migration 0028 — só ajusta o CHECK, sem tabela nova). Dashboard ganhou 4 cards: recebido no mês, pendente, ticket médio (denominador = consultas realizadas no mês, não pacientes distintos — decisão registrada e justificada no MASTER_DEVELOPMENT_PLAN) e despesas a vencer (30 dias + vencidas). Bug real encontrado e corrigido ao extrair o cálculo de parcelas pra função testável: <code>Date.setMonth()</code> quebrava parcelamento com início em dia 29-31. Script de isolamento novo (<code>test:finance-patient-isolation</code>) — escrito, ainda não executado pelo usuário. <code>npm test</code> (219/219), <code>npm run build</code> e <code>npm run lint</code> passam.</div>
   </div>
 </details>
 

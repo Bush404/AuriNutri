@@ -3,6 +3,7 @@ import type { Expense } from "@/lib/types/database.types";
 import {
   advanceOneOccurrence,
   averageMonthlyAppointments,
+  buildInstallmentPayments,
   costPerAppointment,
   firstOccurrenceOnOrAfter,
   formatCurrencyBRL,
@@ -13,6 +14,7 @@ import {
   normalizeToMonthly,
   occurrenceDateInMonth,
   splitInstallments,
+  sumCurrency,
 } from "./finance";
 
 type ExpenseInput = Pick<Expense, "valor" | "recorrencia" | "ativa">;
@@ -396,5 +398,50 @@ describe("latestOccurrencePerExpense", () => {
 
   it("lista vazia resulta em mapa vazio", () => {
     expect(latestOccurrencePerExpense([]).size).toBe(0);
+  });
+});
+
+describe("sumCurrency", () => {
+  it("soma exata sem erro de ponto flutuante", () => {
+    expect(sumCurrency([0.1, 0.2, 0.1, 0.2, 0.1, 0.2])).toBe(0.9);
+  });
+
+  it("bate com a soma manual de uma lista de lançamentos", () => {
+    const lancamentos = [150, 89.9, 200, 45.5];
+    expect(sumCurrency(lancamentos)).toBe(485.4);
+  });
+
+  it("lista vazia soma zero", () => {
+    expect(sumCurrency([])).toBe(0);
+  });
+});
+
+describe("buildInstallmentPayments", () => {
+  it("gera o número certo de parcelas, uma por mês a partir da data de início", () => {
+    const parcelas = buildInstallmentPayments(300, 3, "2026-01-15");
+    expect(parcelas).toHaveLength(3);
+    expect(parcelas.map((p) => p.data_vencimento)).toEqual(["2026-01-15", "2026-02-15", "2026-03-15"]);
+    expect(parcelas.map((p) => p.valor)).toEqual([100, 100, 100]);
+  });
+
+  it("a soma das parcelas bate exatamente com o valor total, mesmo com resto", () => {
+    const parcelas = buildInstallmentPayments(100, 3, "2026-01-01");
+    expect(sumCurrency(parcelas.map((p) => p.valor))).toBe(100);
+  });
+
+  it("avulso (1 parcela) vence na própria data de início", () => {
+    const parcelas = buildInstallmentPayments(150, 1, "2026-03-20");
+    expect(parcelas).toEqual([{ valor: 150, data_vencimento: "2026-03-20" }]);
+  });
+
+  it("início no dia 31 e uma parcela caindo em fevereiro é limitada ao dia 28", () => {
+    const parcelas = buildInstallmentPayments(300, 3, "2026-01-31");
+    // jan/31, fev (limitado a 28), mar/31
+    expect(parcelas.map((p) => p.data_vencimento)).toEqual(["2026-01-31", "2026-02-28", "2026-03-31"]);
+  });
+
+  it("atravessa a virada de ano corretamente", () => {
+    const parcelas = buildInstallmentPayments(200, 2, "2026-12-10");
+    expect(parcelas.map((p) => p.data_vencimento)).toEqual(["2026-12-10", "2027-01-10"]);
   });
 });

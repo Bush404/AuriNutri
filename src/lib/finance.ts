@@ -16,6 +16,12 @@ function centavosParaReais(centavos: number): number {
   return centavos / CENTAVOS_POR_REAL;
 }
 
+/** Soma valores monetários em centavos, evitando erro de ponto flutuante — mesmo cuidado do resto do módulo. */
+export function sumCurrency(valores: number[]): number {
+  const totalCentavos = valores.reduce((soma, valor) => soma + reaisParaCentavos(valor), 0);
+  return centavosParaReais(totalCentavos);
+}
+
 /**
  * Quantos meses separam duas ocorrências de cada recorrência — usado tanto
  * para normalizar o valor para base mensal (divisor) quanto para achar a
@@ -287,4 +293,40 @@ export function splitInstallments(valorTotal: number, numeroParcelas: number): n
   const resto = totalCentavos - base * numeroParcelas;
 
   return Array.from({ length: numeroParcelas }, (_, i) => centavosParaReais(base + (i < resto ? 1 : 0)));
+}
+
+export interface InstallmentPayment {
+  valor: number;
+  /** "yyyy-mm-dd" */
+  data_vencimento: string;
+}
+
+/**
+ * Monta as parcelas de um pacote de paciente: divide o valor total
+ * (`splitInstallments`) e distribui uma por mês a partir de `dataInicio`,
+ * sempre no mesmo dia do mês (limitado ao último dia do mês candidato, ex.:
+ * início dia 31 e uma parcela caindo em fevereiro vira dia 28). Extraída de
+ * createPatientBilling pra ser testável isoladamente, sem precisar de banco.
+ *
+ * Toda a aritmética é em ano/mês/dia inteiros — nunca via `Date.setMonth()`
+ * (que "rola" datas inválidas pro mês seguinte, ex.: 31/01 + 1 mês vira
+ * 02 ou 03/03, não 28/02) nem `Date.toISOString()` a partir de um Date local
+ * (que pode empurrar a data pro dia anterior/seguinte dependendo do fuso do
+ * processo).
+ */
+export function buildInstallmentPayments(
+  valorTotal: number,
+  numeroParcelas: number,
+  dataInicio: string
+): InstallmentPayment[] {
+  const valores = splitInstallments(valorTotal, numeroParcelas);
+  const [anoInicial, mesInicial, diaInicial] = dataInicio.split("-").map(Number);
+
+  return valores.map((valor, index) => {
+    let month0 = mesInicial - 1 + index;
+    const year = anoInicial + Math.floor(month0 / 12);
+    month0 = ((month0 % 12) + 12) % 12;
+    const day = Math.min(diaInicial, daysInMonthUtc(year, month0));
+    return { valor, data_vencimento: `${year}-${pad2(month0 + 1)}-${pad2(day)}` };
+  });
 }

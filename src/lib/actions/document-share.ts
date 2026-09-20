@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { generateAntropometriaPdf } from "@/lib/pdf/generate-antropometria-pdf";
 import { generateReceitaPdf } from "@/lib/pdf/generate-receita-pdf";
+import { generateReciboPdf } from "@/lib/pdf/generate-recibo-pdf";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { DocumentShareTipo, DocumentShareToken } from "@/lib/types/database.types";
 
@@ -184,6 +185,58 @@ export async function createReceitaShareLink(recipeId: string, patientId: string
     tipo: "receita",
     referenciaId: recipeId,
     titulo: generated.nome,
+    storagePath,
+    signedUrl: signedUrlData.signedUrl,
+  });
+}
+
+/**
+ * Recibo de UM pagamento já recebido ("Recibo de pagamento" na Central de
+ * Envio) — reaproveita um link ainda válido pra aquele mesmo pagamento em
+ * vez de gerar um novo a cada clique, mesmo espírito de
+ * createAntropometriaShareLink.
+ */
+export async function createReciboShareLink(paymentId: string, patientId: string): Promise<CreateDocumentShareLinkResult> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, message: "Sessão expirada. Faça login novamente." };
+  }
+
+  const existente = await findActiveToken(supabase, "recibo", paymentId);
+  if (existente) return tokenToResult(existente);
+
+  const generated = await generateReciboPdf(supabase, user, paymentId);
+  if (!generated) {
+    return { success: false, message: "Pagamento não encontrado ou ainda pendente — só é possível gerar recibo de pagamento já recebido." };
+  }
+
+  const storagePath = `${user.id}/recibos/${paymentId}.pdf`;
+
+  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(storagePath, generated.buffer, {
+    contentType: "application/pdf",
+    upsert: true,
+  });
+  if (uploadError) {
+    return { success: false, message: uploadError.message };
+  }
+
+  const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+    .from(BUCKET)
+    .createSignedUrl(storagePath, EXPIRES_IN_SECONDS);
+  if (signedUrlError || !signedUrlData) {
+    return { success: false, message: signedUrlError?.message ?? "Falha ao gerar o link do arquivo." };
+  }
+
+  return insertToken(supabase, {
+    userId: user.id,
+    patientId,
+    tipo: "recibo",
+    referenciaId: paymentId,
+    titulo: generated.filename.replace(/\.pdf$/, ""),
     storagePath,
     signedUrl: signedUrlData.signedUrl,
   });

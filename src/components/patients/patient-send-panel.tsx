@@ -8,6 +8,7 @@ import {
   Loader2,
   MessageCircle,
   Paperclip,
+  Receipt,
   RotateCcw,
   Salad,
   Search,
@@ -19,9 +20,14 @@ import {
 import { toast } from "sonner";
 
 import type { PlanShareToken, Recipe } from "@/lib/types/database.types";
-import type { SendCenterAssessment, SendCenterContext } from "@/lib/actions/patient-send";
+import type { SendCenterAssessment, SendCenterContext, SendCenterPayment } from "@/lib/actions/patient-send";
 import { createPlanShareLink } from "@/lib/actions/plan-share";
-import { createAntropometriaShareLink, createArquivoShareLink, createReceitaShareLink } from "@/lib/actions/document-share";
+import {
+  createAntropometriaShareLink,
+  createArquivoShareLink,
+  createReceitaShareLink,
+  createReciboShareLink,
+} from "@/lib/actions/document-share";
 import { searchRecipesForPicker } from "@/lib/actions/recipes";
 import { findActivePlanShareLink, planShareDisplayUrl } from "@/lib/plan-share-status";
 import { normalizePhoneToWhatsApp, buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -46,6 +52,7 @@ const SEND_ITEMS = [
   { id: "plano", label: "Plano Alimentar" },
   { id: "avaliacao", label: "Avaliação Antropométrica" },
   { id: "impressos", label: "Impressos" },
+  { id: "recibo", label: "Recibo de pagamento" },
   { id: "consulta", label: "Lembrete de consulta" },
   { id: "mensagem", label: "Mensagem livre" },
 ] as const;
@@ -74,6 +81,7 @@ export function PatientSendPanel({ patientId, patientNome, patientTelefone, cont
   const [planoInfo, setPlanoInfo] = useState<{ nome: string; link: string } | null>(null);
   const [avaliacaoInfo, setAvaliacaoInfo] = useState<{ dataFormatada: string; link: string } | null>(null);
   const [impressosProntos, setImpressosProntos] = useState<ImpressoPronto[]>([]);
+  const [reciboInfo, setReciboInfo] = useState<{ descricao: string; link: string } | null>(null);
   const [mensagemLivreTexto, setMensagemLivreTexto] = useState("");
   const [mensagemManual, setMensagemManual] = useState<string | null>(null);
 
@@ -93,6 +101,7 @@ export function PatientSendPanel({ patientId, patientNome, patientTelefone, cont
     avaliacao: selecionados.has("avaliacao") ? avaliacaoInfo : null,
     impressos: selecionados.has("impressos") ? impressosProntos.map((i) => ({ titulo: i.titulo, link: i.link })) : [],
     consulta: selecionados.has("consulta") ? context.proximaConsulta : null,
+    recibo: selecionados.has("recibo") ? reciboInfo : null,
     mensagemLivre: selecionados.has("mensagem") ? mensagemLivreTexto : "",
   });
   const mensagemFinal = mensagemManual ?? mensagemAuto;
@@ -155,6 +164,10 @@ export function PatientSendPanel({ patientId, patientNome, patientTelefone, cont
 
       {selecionados.has("impressos") && (
         <ImpressosSection patientId={patientId} onItensChange={setImpressosProntos} />
+      )}
+
+      {selecionados.has("recibo") && (
+        <ReciboCard patientId={patientId} pagamentos={context.pagamentosRecebidos} onLinkReady={setReciboInfo} />
       )}
 
       {selecionados.has("consulta") && <ConsultaCard proximaConsulta={context.proximaConsulta} />}
@@ -360,6 +373,89 @@ function AvaliacaoAntropometricaCard({
               </Button>
             ) : (
               <p className="text-sm text-muted-foreground">✓ Link pronto — incluído na mensagem abaixo.</p>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ReciboCard({
+  patientId,
+  pagamentos,
+  onLinkReady,
+}: {
+  patientId: string;
+  pagamentos: SendCenterPayment[];
+  onLinkReady: (info: { descricao: string; link: string } | null) => void;
+}) {
+  const [selecionadoId, setSelecionadoId] = useState<string | null>(pagamentos[0]?.id ?? null);
+  const [link, setLink] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const selecionado = pagamentos.find((p) => p.id === selecionadoId) ?? null;
+
+  const stableOnLinkReady = useEventCallback(onLinkReady);
+  useEffect(() => {
+    stableOnLinkReady(link && selecionado ? { descricao: selecionado.descricao, link } : null);
+  }, [link, selecionado, stableOnLinkReady]);
+
+  function handleSelecionar(id: string) {
+    setSelecionadoId(id);
+    setLink(null);
+  }
+
+  function handleGerarLink() {
+    if (!selecionadoId) return;
+    startTransition(async () => {
+      const result = await createReciboShareLink(selecionadoId, patientId);
+      if (!result.success || !result.url) {
+        toast.error("Não foi possível gerar o recibo", { description: result.message });
+        return;
+      }
+      setLink(result.url);
+      toast.success("Recibo gerado — link válido por 90 dias.");
+    });
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Receipt className="h-4 w-4" />
+          Recibo de pagamento
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {pagamentos.length === 0 ? (
+          <EmptyState
+            icon={Receipt}
+            title="Nenhum pagamento recebido ainda"
+            description="Registre uma cobrança e marque um pagamento como recebido na aba Financeiro para poder gerar o recibo."
+          />
+        ) : (
+          <div className="space-y-3">
+            <Select value={selecionadoId ?? undefined} onValueChange={handleSelecionar}>
+              <SelectTrigger className="w-full sm:w-80">
+                <SelectValue placeholder="Escolha o pagamento" />
+              </SelectTrigger>
+              <SelectContent>
+                {pagamentos.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.descricao} — {p.valorFormatado} ({p.dataFormatada})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {!link ? (
+              <Button type="button" variant="outline" onClick={handleGerarLink} disabled={isPending || !selecionadoId}>
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+                Gerar recibo e link
+              </Button>
+            ) : (
+              <p className="text-sm text-muted-foreground">✓ Recibo pronto — incluído na mensagem abaixo.</p>
             )}
           </div>
         )}

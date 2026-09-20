@@ -21,7 +21,8 @@
     "test:plan-share-tokens": "node scripts/test-plan-share-tokens.mjs",
     "test:appointments-isolation": "node scripts/test-appointments-isolation.mjs",
     "test:lab-exams-isolation": "node scripts/test-lab-exams-isolation.mjs",
-    "test:patient-photos-isolation": "node scripts/test-patient-photos-isolation.mjs"
+    "test:patient-photos-isolation": "node scripts/test-patient-photos-isolation.mjs",
+    "test:finance-patient-isolation": "node scripts/test-finance-patient-isolation.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

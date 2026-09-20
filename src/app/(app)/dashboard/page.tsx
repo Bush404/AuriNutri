@@ -1,11 +1,23 @@
 import Link from "next/link";
-import { Users, UserPlus, Apple, ClipboardList, ArrowRight, CalendarDays } from "lucide-react";
+import {
+  Users,
+  UserPlus,
+  Apple,
+  ClipboardList,
+  ArrowRight,
+  CalendarDays,
+  Wallet,
+  CircleDollarSign,
+  TrendingUp,
+  CalendarClock,
+} from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 import { getPatientAgendaContext } from "@/lib/actions/patient-context";
 import { PENDENCIA_META, PENDENCIA_ORDEM } from "@/lib/patient-context";
 import { APPOINTMENT_STATUS_META } from "@/lib/agenda";
 import { DEFAULT_TIME_ZONE, utcInstantToZonedDateTime } from "@/lib/timezone";
+import { formatCurrencyBRL, sumCurrency } from "@/lib/finance";
 import type { AppointmentStatus } from "@/lib/types/database.types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +25,10 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { formatDate, getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
+}
 
 interface UpcomingAppointmentRow {
   id: string;
@@ -38,12 +54,23 @@ export default async function DashboardPage() {
   const startIso = new Date().toISOString();
   const endIso = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
+  const hoje = new Date();
+  const inicioDoMesUtc = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1));
+  const inicioDoProximoMesUtc = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth() + 1, 1));
+  const inicioDoMesData = `${inicioDoMesUtc.getUTCFullYear()}-${pad2(inicioDoMesUtc.getUTCMonth() + 1)}-01`;
+  const inicioDoProximoMesData = `${inicioDoProximoMesUtc.getUTCFullYear()}-${pad2(inicioDoProximoMesUtc.getUTCMonth() + 1)}-01`;
+  const em30DiasData = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
   const [
     { count: totalPacientes },
     { count: totalAlimentos },
     { count: totalPlanos },
     { data: pacientesRecentes },
     { data: proximosAtendimentos },
+    { data: pagamentosDoMes },
+    { data: pagamentosPendentes },
+    { count: consultasRealizadasNoMes },
+    { data: despesasAVencer },
   ] = await Promise.all([
     supabase.from("patients").select("*", { count: "exact", head: true }),
     supabase.from("foods").select("*", { count: "exact", head: true }).eq("is_global", false),
@@ -62,7 +89,39 @@ export default async function DashboardPage() {
       .order("data_hora")
       .limit(10)
       .returns<UpcomingAppointmentRow[]>(),
+    supabase
+      .from("payments")
+      .select("valor")
+      .gte("data_pagamento", inicioDoMesData)
+      .lt("data_pagamento", inicioDoProximoMesData)
+      .returns<{ valor: number }[]>(),
+    supabase.from("payments").select("valor").is("data_pagamento", null).returns<{ valor: number }[]>(),
+    supabase
+      .from("appointments")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "realizado")
+      .gte("data_hora", inicioDoMesUtc.toISOString())
+      .lt("data_hora", inicioDoProximoMesUtc.toISOString()),
+    supabase
+      .from("expense_occurrences")
+      .select("id, valor, data_vencimento")
+      .is("data_pagamento", null)
+      .lte("data_vencimento", em30DiasData)
+      .returns<{ id: string; valor: number; data_vencimento: string }[]>(),
   ]);
+
+  const recebidoNoMes = sumCurrency((pagamentosDoMes ?? []).map((p) => p.valor));
+  const totalPendente = sumCurrency((pagamentosPendentes ?? []).map((p) => p.valor));
+  /**
+   * Ticket médio = receitas recebidas no mês ÷ CONSULTAS REALIZADAS no mês
+   * (não pacientes distintos atendidos) — um mesmo paciente pode ter mais de
+   * um atendimento no mês, e o ticket médio "por atendimento" é o que se
+   * paga por sessão, não por pessoa. Consistente com o "custo por
+   * atendimento" já usado em /financeiro (mesma unidade: por consulta).
+   */
+  const ticketMedio = consultasRealizadasNoMes && consultasRealizadasNoMes > 0 ? recebidoNoMes / consultasRealizadasNoMes : 0;
+  const despesasAVencerCount = despesasAVencer?.length ?? 0;
+  const despesasAVencerTotal = sumCurrency((despesasAVencer ?? []).map((d) => d.valor));
 
   const proximosComPendencias = await Promise.all(
     (proximosAtendimentos ?? []).map(async (agendamento) => ({
@@ -131,6 +190,68 @@ export default async function DashboardPage() {
             </Card>
           </Link>
         ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Link href="/financeiro">
+          <Card className="transition-shadow hover:shadow-card">
+            <CardContent className="flex items-center justify-between p-6">
+              <div>
+                <p className="text-sm text-muted-foreground">Recebido no mês</p>
+                <p className="mt-1 text-2xl font-semibold text-foreground">{formatCurrencyBRL(recebidoNoMes)}</p>
+              </div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-50">
+                <Wallet className="h-5 w-5 text-primary-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/financeiro">
+          <Card className="transition-shadow hover:shadow-card">
+            <CardContent className="flex items-center justify-between p-6">
+              <div>
+                <p className="text-sm text-muted-foreground">Pendente</p>
+                <p className="mt-1 text-2xl font-semibold text-foreground">{formatCurrencyBRL(totalPendente)}</p>
+              </div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-50">
+                <CircleDollarSign className="h-5 w-5 text-primary-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/financeiro">
+          <Card className="transition-shadow hover:shadow-card">
+            <CardContent className="flex items-center justify-between p-6">
+              <div>
+                <p className="text-sm text-muted-foreground">Ticket médio</p>
+                <p className="mt-1 text-2xl font-semibold text-foreground">{formatCurrencyBRL(ticketMedio)}</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">por consulta realizada no mês</p>
+              </div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-50">
+                <TrendingUp className="h-5 w-5 text-primary-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/financeiro">
+          <Card className="transition-shadow hover:shadow-card">
+            <CardContent className="flex items-center justify-between p-6">
+              <div>
+                <p className="text-sm text-muted-foreground">Despesas a vencer (30 dias)</p>
+                <p className="mt-1 text-2xl font-semibold text-foreground">{formatCurrencyBRL(despesasAVencerTotal)}</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {despesasAVencerCount} {despesasAVencerCount === 1 ? "lançamento" : "lançamentos"} (inclui vencidas)
+                </p>
+              </div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-50">
+                <CalendarClock className="h-5 w-5 text-primary-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       <Card>

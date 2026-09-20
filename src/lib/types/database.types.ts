@@ -389,7 +389,7 @@ export interface PlanShareToken {
   created_at: string;
 }
 
-export type DocumentShareTipo = "antropometria" | "receita" | "arquivo";
+export type DocumentShareTipo = "antropometria" | "receita" | "arquivo" | "recibo";
 
 export interface DocumentShareToken {
   id: string;

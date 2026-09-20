@@ -15,6 +15,7 @@ import type {
 import { hasActiveConsent } from "@/lib/actions/patient-consents";
 import { getSendCenterContext } from "@/lib/actions/patient-send";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
+import type { PatientBillingWithPayments } from "@/components/patients/patient-finance-panel";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -37,6 +38,7 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
     { data: photos },
     consentimentoAtivoFotos,
     sendCenterContext,
+    { data: billings },
   ] = await Promise.all([
     supabase.from("patients").select("*").eq("id", params.id).single<Patient>(),
     supabase
@@ -79,6 +81,13 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
       .returns<PatientPhoto[]>(),
     hasActiveConsent(params.id, "fotos"),
     getSendCenterContext(params.id),
+    supabase
+      .from("patient_billings")
+      .select("*, payments(*)")
+      .eq("patient_id", params.id)
+      .order("created_at", { ascending: false })
+      .order("data_vencimento", { foreignTable: "payments", ascending: true })
+      .returns<PatientBillingWithPayments[]>(),
   ]);
 
   if (!patient) {
@@ -127,6 +136,7 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
                 planoShareLinks: [],
                 avaliacoes: [],
                 proximaConsulta: null,
+                pagamentosRecebidos: [],
               }
             }
           />
@@ -150,6 +160,7 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
         consentimentoAtivoExames={consentimentoAtivoExames}
         photos={photos ?? []}
         consentimentoAtivoFotos={consentimentoAtivoFotos}
+        billings={billings ?? []}
       />
     </div>
   );
