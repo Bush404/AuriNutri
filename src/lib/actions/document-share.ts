@@ -82,12 +82,16 @@ function tokenToResult(token: DocumentShareToken): CreateDocumentShareLinkResult
 }
 
 /**
- * PDF com todas as avaliações antropométricas do paciente ("Evolução
- * física" na Central de Envio). Reaproveita um link ainda válido em vez de
- * gerar um novo a cada clique — mesmo espírito do link do plano, mas sem a
- * etapa de revogação manual (não há tela própria de gerenciar esses links).
+ * PDF de UMA avaliação antropométrica específica (escolhida por data na
+ * Central de Envio, não o histórico inteiro). Reaproveita um link ainda
+ * válido pra aquela mesma data em vez de gerar um novo a cada clique —
+ * mesmo espírito do link do plano, mas sem a etapa de revogação manual (não
+ * há tela própria de gerenciar esses links).
  */
-export async function createAntropometriaShareLink(patientId: string): Promise<CreateDocumentShareLinkResult> {
+export async function createAntropometriaShareLink(
+  patientId: string,
+  assessmentId: string
+): Promise<CreateDocumentShareLinkResult> {
   const supabase = createClient();
   const {
     data: { user },
@@ -97,15 +101,15 @@ export async function createAntropometriaShareLink(patientId: string): Promise<C
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
 
-  const existente = await findActiveToken(supabase, "antropometria", patientId);
+  const existente = await findActiveToken(supabase, "antropometria", assessmentId);
   if (existente) return tokenToResult(existente);
 
-  const generated = await generateAntropometriaPdf(supabase, user, patientId);
+  const generated = await generateAntropometriaPdf(supabase, user, patientId, assessmentId);
   if (!generated) {
-    return { success: false, message: "Nenhuma avaliação antropométrica registrada para este paciente ainda." };
+    return { success: false, message: "Avaliação não encontrada." };
   }
 
-  const storagePath = `${user.id}/antropometria/${patientId}.pdf`;
+  const storagePath = `${user.id}/antropometria/${assessmentId}.pdf`;
 
   const { error: uploadError } = await supabase.storage.from(BUCKET).upload(storagePath, generated.buffer, {
     contentType: "application/pdf",
@@ -126,7 +130,7 @@ export async function createAntropometriaShareLink(patientId: string): Promise<C
     userId: user.id,
     patientId,
     tipo: "antropometria",
-    referenciaId: patientId,
+    referenciaId: assessmentId,
     titulo: generated.filename.replace(/\.pdf$/, ""),
     storagePath,
     signedUrl: signedUrlData.signedUrl,

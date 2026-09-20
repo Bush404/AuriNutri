@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import {
   Activity,
@@ -8,6 +8,7 @@ import {
   Loader2,
   MessageCircle,
   Paperclip,
+  RotateCcw,
   Salad,
   Search,
   Send,
@@ -18,26 +19,20 @@ import {
 import { toast } from "sonner";
 
 import type { PlanShareToken, Recipe } from "@/lib/types/database.types";
-import type { SendCenterContext } from "@/lib/actions/patient-send";
+import type { SendCenterAssessment, SendCenterContext } from "@/lib/actions/patient-send";
 import { createPlanShareLink } from "@/lib/actions/plan-share";
 import { createAntropometriaShareLink, createArquivoShareLink, createReceitaShareLink } from "@/lib/actions/document-share";
 import { searchRecipesForPicker } from "@/lib/actions/recipes";
 import { findActivePlanShareLink, planShareDisplayUrl } from "@/lib/plan-share-status";
 import { normalizePhoneToWhatsApp, buildWhatsAppUrl } from "@/lib/whatsapp";
-import {
-  buildConsultaLembreteWhatsAppMessage,
-  buildEvolucaoFisicaWhatsAppMessage,
-  buildImpressoWhatsAppMessage,
-  buildMensagemLivreWhatsAppTemplate,
-  buildPlanoWhatsAppMessage,
-  primeiroNomeDe,
-} from "@/lib/whatsapp-templates";
+import { buildMensagemCombinada, primeiroNomeDe } from "@/lib/whatsapp-templates";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState } from "@/components/shared/empty-state";
 
 interface PatientSendPanelProps {
@@ -49,7 +44,7 @@ interface PatientSendPanelProps {
 
 const SEND_ITEMS = [
   { id: "plano", label: "Plano Alimentar" },
-  { id: "evolucao", label: "Evolução Física" },
+  { id: "avaliacao", label: "Avaliação Antropométrica" },
   { id: "impressos", label: "Impressos" },
   { id: "consulta", label: "Lembrete de consulta" },
   { id: "mensagem", label: "Mensagem livre" },
@@ -57,10 +52,30 @@ const SEND_ITEMS = [
 
 type SendItemId = (typeof SEND_ITEMS)[number]["id"];
 
+/** Mantém uma callback sempre atualizada sem precisar entrar como dependência do efeito que a usa — evita loop de re-render quando o componente pai passa uma função nova a cada render. */
+function useEventCallback<T extends (...args: never[]) => void>(fn: T): T {
+  const ref = useRef(fn);
+  ref.current = fn;
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- por design: ref.current sempre atualizado acima, a wrapper nunca precisa mudar de identidade.
+  return useCallback(((...args: Parameters<T>) => ref.current(...args)) as T, []);
+}
+
+interface ImpressoPronto {
+  chave: string;
+  titulo: string;
+  link: string;
+}
+
 export function PatientSendPanel({ patientId, patientNome, patientTelefone, context }: PatientSendPanelProps) {
   const primeiroNome = primeiroNomeDe(patientNome);
   const telefone = normalizePhoneToWhatsApp(patientTelefone);
   const [selecionados, setSelecionados] = useState<Set<SendItemId>>(new Set());
+
+  const [planoInfo, setPlanoInfo] = useState<{ nome: string; link: string } | null>(null);
+  const [avaliacaoInfo, setAvaliacaoInfo] = useState<{ dataFormatada: string; link: string } | null>(null);
+  const [impressosProntos, setImpressosProntos] = useState<ImpressoPronto[]>([]);
+  const [mensagemLivreTexto, setMensagemLivreTexto] = useState("");
+  const [mensagemManual, setMensagemManual] = useState<string | null>(null);
 
   function toggle(id: SendItemId, checked: boolean) {
     setSelecionados((prev) => {
@@ -70,6 +85,17 @@ export function PatientSendPanel({ patientId, patientNome, patientTelefone, cont
       return next;
     });
   }
+
+  const mensagemAuto = buildMensagemCombinada({
+    primeiroNome,
+    nomeProfissional: context.profissionalNome,
+    plano: selecionados.has("plano") ? planoInfo : null,
+    avaliacao: selecionados.has("avaliacao") ? avaliacaoInfo : null,
+    impressos: selecionados.has("impressos") ? impressosProntos.map((i) => ({ titulo: i.titulo, link: i.link })) : [],
+    consulta: selecionados.has("consulta") ? context.proximaConsulta : null,
+    mensagemLivre: selecionados.has("mensagem") ? mensagemLivreTexto : "",
+  });
+  const mensagemFinal = mensagemManual ?? mensagemAuto;
 
   return (
     <div className="space-y-6">
@@ -113,94 +139,91 @@ export function PatientSendPanel({ patientId, patientNome, patientTelefone, cont
 
       {selecionados.has("plano") && (
         <PlanoCard
-          patientId={patientId}
-          primeiroNome={primeiroNome}
-          profissionalNome={context.profissionalNome}
-          telefone={telefone}
           planoAtivo={context.planoAtivo}
           shareLinks={context.planoShareLinks}
+          onLinkReady={setPlanoInfo}
         />
       )}
 
-      {selecionados.has("evolucao") && (
-        <EvolucaoFisicaCard
+      {selecionados.has("avaliacao") && (
+        <AvaliacaoAntropometricaCard
           patientId={patientId}
-          primeiroNome={primeiroNome}
-          profissionalNome={context.profissionalNome}
-          telefone={telefone}
-          temAvaliacoes={context.temAvaliacoes}
+          avaliacoes={context.avaliacoes}
+          onLinkReady={setAvaliacaoInfo}
         />
       )}
 
       {selecionados.has("impressos") && (
-        <ImpressosSection
-          patientId={patientId}
-          primeiroNome={primeiroNome}
-          profissionalNome={context.profissionalNome}
-          telefone={telefone}
-        />
+        <ImpressosSection patientId={patientId} onItensChange={setImpressosProntos} />
       )}
 
-      {selecionados.has("consulta") && (
-        <ConsultaCard
-          primeiroNome={primeiroNome}
-          profissionalNome={context.profissionalNome}
-          telefone={telefone}
-          proximaConsulta={context.proximaConsulta}
-        />
-      )}
+      {selecionados.has("consulta") && <ConsultaCard proximaConsulta={context.proximaConsulta} />}
 
       {selecionados.has("mensagem") && (
-        <MensagemLivreCard primeiroNome={primeiroNome} profissionalNome={context.profissionalNome} telefone={telefone} />
+        <MensagemLivreCard texto={mensagemLivreTexto} onChange={setMensagemLivreTexto} />
       )}
-    </div>
-  );
-}
 
-/** Bloco reutilizado por todas as seções: textarea editável (pré-preenchida) e botão de enviar — o título/ícone já vem do Card ao redor. */
-function SendCard({ mensagemInicial, telefone }: { mensagemInicial: string; telefone: string | null }) {
-  const [mensagem, setMensagem] = useState(mensagemInicial);
-
-  return (
-    <div className="space-y-3">
-      <Textarea value={mensagem} onChange={(e) => setMensagem(e.target.value)} rows={5} className="text-sm" />
-      <Button asChild disabled={!telefone} className="w-full sm:w-auto">
-        <a
-          href={telefone ? buildWhatsAppUrl(telefone, mensagem) : undefined}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-disabled={!telefone}
-          onClick={(e) => {
-            if (!telefone) e.preventDefault();
-          }}
-        >
-          <MessageCircle className="h-4 w-4" />
-          Enviar por WhatsApp
-        </a>
-      </Button>
+      {selecionados.size > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Send className="h-4 w-4" />
+              Mensagem para enviar
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Textarea
+              value={mensagemFinal}
+              onChange={(e) => setMensagemManual(e.target.value)}
+              rows={8}
+              className="text-sm"
+            />
+            {mensagemManual !== null && (
+              <Button type="button" variant="ghost" size="sm" onClick={() => setMensagemManual(null)}>
+                <RotateCcw className="h-3.5 w-3.5" />
+                Recompor mensagem automaticamente
+              </Button>
+            )}
+            <Button asChild disabled={!telefone} className="w-full sm:w-auto">
+              <a
+                href={telefone ? buildWhatsAppUrl(telefone, mensagemFinal) : undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-disabled={!telefone}
+                onClick={(e) => {
+                  if (!telefone) e.preventDefault();
+                }}
+              >
+                <MessageCircle className="h-4 w-4" />
+                Enviar por WhatsApp
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
 
 function PlanoCard({
-  patientId,
-  primeiroNome,
-  profissionalNome,
-  telefone,
   planoAtivo,
   shareLinks,
+  onLinkReady,
 }: {
-  patientId: string;
-  primeiroNome: string;
-  profissionalNome: string;
-  telefone: string | null;
   planoAtivo: { id: string; nome: string } | null;
   shareLinks: PlanShareToken[];
+  onLinkReady: (info: { nome: string; link: string } | null) => void;
 }) {
   const [links, setLinks] = useState(shareLinks);
   const [isPending, startTransition] = useTransition();
-
   const linkAtivo = findActivePlanShareLink(links);
+
+  const stableOnLinkReady = useEventCallback(onLinkReady);
+  useEffect(() => {
+    stableOnLinkReady(
+      planoAtivo && linkAtivo ? { nome: planoAtivo.nome, link: planShareDisplayUrl(linkAtivo) } : null
+    );
+  }, [planoAtivo, linkAtivo, stableOnLinkReady]);
 
   function handleGerarLink() {
     if (!planoAtivo) return;
@@ -210,8 +233,6 @@ function PlanoCard({
         toast.error("Não foi possível gerar o link", { description: result.message });
         return;
       }
-      // Atualiza a lista local direto com o retorno da action, sem esperar
-      // uma revalidação — createPlanShareLink já retorna tudo que precisa.
       setLinks((prev) => [
         {
           id: crypto.randomUUID(),
@@ -257,40 +278,42 @@ function PlanoCard({
             </Button>
           </div>
         ) : (
-          <SendCard
-            telefone={telefone}
-            mensagemInicial={buildPlanoWhatsAppMessage({
-              primeiroNome,
-              nomeProfissional: profissionalNome,
-              nomePlano: planoAtivo.nome,
-              link: planShareDisplayUrl(linkAtivo),
-            })}
-          />
+          <p className="text-sm text-muted-foreground">✓ Link do plano pronto — incluído na mensagem abaixo.</p>
         )}
       </CardContent>
     </Card>
   );
 }
 
-function EvolucaoFisicaCard({
+function AvaliacaoAntropometricaCard({
   patientId,
-  primeiroNome,
-  profissionalNome,
-  telefone,
-  temAvaliacoes,
+  avaliacoes,
+  onLinkReady,
 }: {
   patientId: string;
-  primeiroNome: string;
-  profissionalNome: string;
-  telefone: string | null;
-  temAvaliacoes: boolean;
+  avaliacoes: SendCenterAssessment[];
+  onLinkReady: (info: { dataFormatada: string; link: string } | null) => void;
 }) {
+  const [selecionadaId, setSelecionadaId] = useState<string | null>(avaliacoes[0]?.id ?? null);
   const [link, setLink] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  const selecionada = avaliacoes.find((a) => a.id === selecionadaId) ?? null;
+
+  const stableOnLinkReady = useEventCallback(onLinkReady);
+  useEffect(() => {
+    stableOnLinkReady(link && selecionada ? { dataFormatada: selecionada.dataFormatada, link } : null);
+  }, [link, selecionada, stableOnLinkReady]);
+
+  function handleSelecionar(id: string) {
+    setSelecionadaId(id);
+    setLink(null);
+  }
+
   function handleGerarLink() {
+    if (!selecionadaId) return;
     startTransition(async () => {
-      const result = await createAntropometriaShareLink(patientId);
+      const result = await createAntropometriaShareLink(patientId, selecionadaId);
       if (!result.success || !result.url) {
         toast.error("Não foi possível gerar o link", { description: result.message });
         return;
@@ -305,31 +328,40 @@ function EvolucaoFisicaCard({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Activity className="h-4 w-4" />
-          Evolução física
+          Avaliação antropométrica
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {!temAvaliacoes ? (
+        {avaliacoes.length === 0 ? (
           <EmptyState
             icon={Activity}
             title="Nenhuma avaliação registrada"
-            description="Registre ao menos uma avaliação antropométrica na aba Antropometria Geral para poder enviá-la."
+            description="Registre uma avaliação antropométrica na aba Antropometria Geral para poder enviá-la."
           />
-        ) : !link ? (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Gera um PDF com todas as avaliações antropométricas do paciente até agora.
-            </p>
-            <Button type="button" variant="outline" onClick={handleGerarLink} disabled={isPending}>
-              {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-              Gerar PDF e link
-            </Button>
-          </div>
         ) : (
-          <SendCard
-            telefone={telefone}
-            mensagemInicial={buildEvolucaoFisicaWhatsAppMessage({ primeiroNome, nomeProfissional: profissionalNome, link })}
-          />
+          <div className="space-y-3">
+            <Select value={selecionadaId ?? undefined} onValueChange={handleSelecionar}>
+              <SelectTrigger className="w-full sm:w-64">
+                <SelectValue placeholder="Escolha a data da avaliação" />
+              </SelectTrigger>
+              <SelectContent>
+                {avaliacoes.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.dataFormatada}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {!link ? (
+              <Button type="button" variant="outline" onClick={handleGerarLink} disabled={isPending || !selecionadaId}>
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+                Gerar PDF e link
+              </Button>
+            ) : (
+              <p className="text-sm text-muted-foreground">✓ Link pronto — incluído na mensagem abaixo.</p>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>
@@ -351,14 +383,10 @@ const ARQUIVO_MAX_BYTES = 10 * 1024 * 1024;
 
 function ImpressosSection({
   patientId,
-  primeiroNome,
-  profissionalNome,
-  telefone,
+  onItensChange,
 }: {
   patientId: string;
-  primeiroNome: string;
-  profissionalNome: string;
-  telefone: string | null;
+  onItensChange: (itens: ImpressoPronto[]) => void;
 }) {
   const [query, setQuery] = useState("");
   const [resultados, setResultados] = useState<Recipe[]>([]);
@@ -366,6 +394,15 @@ function ImpressosSection({
   const [itens, setItens] = useState<ImpressoItem[]>([]);
   const buscaTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const stableOnItensChange = useEventCallback(onItensChange);
+  useEffect(() => {
+    stableOnItensChange(
+      itens
+        .filter((i): i is ImpressoItem & { url: string } => i.status === "pronto" && !!i.url)
+        .map((i) => ({ chave: i.key, titulo: i.titulo, link: i.url }))
+    );
+  }, [itens, stableOnItensChange]);
 
   function handleQueryChange(value: string) {
     setQuery(value);
@@ -435,7 +472,7 @@ function ImpressosSection({
         return;
       }
 
-      setItens((prev) => (prev.map((i) => (i.key === item.key ? { ...i, status: "pronto", url: result.url } : i))));
+      setItens((prev) => prev.map((i) => (i.key === item.key ? { ...i, status: "pronto", url: result.url } : i)));
       toast.success("Link gerado — válido por 90 dias.");
     })();
   }
@@ -522,16 +559,8 @@ function ImpressosSection({
                   </p>
                 )}
                 {item.status === "erro" && <p className="text-sm text-destructive">{item.erro}</p>}
-                {item.status === "pronto" && item.url && (
-                  <SendCard
-                    telefone={telefone}
-                    mensagemInicial={buildImpressoWhatsAppMessage({
-                      primeiroNome,
-                      nomeProfissional: profissionalNome,
-                      titulo: item.titulo,
-                      link: item.url,
-                    })}
-                  />
+                {item.status === "pronto" && (
+                  <p className="text-sm text-muted-foreground">✓ Link pronto — incluído na mensagem abaixo.</p>
                 )}
               </div>
             ))}
@@ -543,14 +572,8 @@ function ImpressosSection({
 }
 
 function ConsultaCard({
-  primeiroNome,
-  profissionalNome,
-  telefone,
   proximaConsulta,
 }: {
-  primeiroNome: string;
-  profissionalNome: string;
-  telefone: string | null;
   proximaConsulta: { dataFormatada: string; horaFormatada: string } | null;
 }) {
   return (
@@ -565,30 +588,17 @@ function ConsultaCard({
         {!proximaConsulta ? (
           <p className="text-sm text-muted-foreground">Nenhuma consulta futura agendada para este paciente.</p>
         ) : (
-          <SendCard
-            telefone={telefone}
-            mensagemInicial={buildConsultaLembreteWhatsAppMessage({
-              primeiroNome,
-              nomeProfissional: profissionalNome,
-              dataFormatada: proximaConsulta.dataFormatada,
-              horaFormatada: proximaConsulta.horaFormatada,
-            })}
-          />
+          <p className="text-sm text-muted-foreground">
+            ✓ Consulta em {proximaConsulta.dataFormatada} às {proximaConsulta.horaFormatada} — incluída na mensagem
+            abaixo.
+          </p>
         )}
       </CardContent>
     </Card>
   );
 }
 
-function MensagemLivreCard({
-  primeiroNome,
-  profissionalNome,
-  telefone,
-}: {
-  primeiroNome: string;
-  profissionalNome: string;
-  telefone: string | null;
-}) {
+function MensagemLivreCard({ texto, onChange }: { texto: string; onChange: (value: string) => void }) {
   return (
     <Card>
       <CardHeader>
@@ -598,9 +608,12 @@ function MensagemLivreCard({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <SendCard
-          telefone={telefone}
-          mensagemInicial={buildMensagemLivreWhatsAppTemplate({ primeiroNome, nomeProfissional: profissionalNome })}
+        <Textarea
+          value={texto}
+          onChange={(e) => onChange(e.target.value)}
+          rows={3}
+          placeholder="Escreva algo pra incluir na mensagem..."
+          className="text-sm"
         />
       </CardContent>
     </Card>

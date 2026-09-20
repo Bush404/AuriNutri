@@ -54,7 +54,7 @@ export function AntropometriaPdfDocument({ data }: { data: AntropometriaPdfViewM
   const ultima = sorted[sorted.length - 1] ?? null;
 
   return (
-    <Document title={`Evolução física - ${data.pacienteNome}`} author={profissional.nome} creator="AuriNutri">
+    <Document title={`Avaliação antropométrica - ${data.pacienteNome}`} author={profissional.nome} creator="AuriNutri">
       <Page size="A4" style={styles.page} wrap>
         <View style={styles.headerRow}>
           <View>
@@ -72,7 +72,7 @@ export function AntropometriaPdfDocument({ data }: { data: AntropometriaPdfViewM
           {profissional.logoUrl && <Image src={profissional.logoUrl} style={styles.logo} />}
         </View>
 
-        <Text style={styles.titulo}>Evolução física</Text>
+        <Text style={styles.titulo}>Avaliação antropométrica</Text>
         <Text style={styles.pacienteInfo}>
           Paciente: {data.pacienteNome} · Gerado em {formatDate(data.geradoEm.slice(0, 10))}
         </Text>

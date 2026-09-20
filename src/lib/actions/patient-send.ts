@@ -6,12 +6,17 @@ import { utcInstantToZonedDateTime } from "@/lib/timezone";
 import { formatDate } from "@/lib/utils";
 import type { PlanShareToken } from "@/lib/types/database.types";
 
+export interface SendCenterAssessment {
+  id: string;
+  dataFormatada: string;
+}
+
 export interface SendCenterContext {
   profissionalNome: string;
   planoAtivo: { id: string; nome: string } | null;
   planoShareLinks: PlanShareToken[];
-  /** Se o paciente tem ao menos uma avaliação antropométrica — controla o estado vazio de "Evolução física". */
-  temAvaliacoes: boolean;
+  /** Avaliações antropométricas do paciente, mais recente primeiro — o profissional escolhe qual data enviar. */
+  avaliacoes: SendCenterAssessment[];
   /** Data/hora já formatadas no fuso do profissional (profiles.fuso_horario) — nunca no fuso do processo/servidor. */
   proximaConsulta: { dataFormatada: string; horaFormatada: string } | null;
 }
@@ -32,7 +37,7 @@ export async function getSendCenterContext(patientId: string): Promise<SendCente
 
   if (!user) return null;
 
-  const [{ data: profile }, { data: planos }, { data: proximaRows }, { count: totalAvaliacoes }] = await Promise.all([
+  const [{ data: profile }, { data: planos }, { data: proximaRows }, { data: avaliacoesRows }] = await Promise.all([
     supabase
       .from("profiles")
       .select("nome, fuso_horario")
@@ -57,8 +62,10 @@ export async function getSendCenterContext(patientId: string): Promise<SendCente
       .returns<{ data_hora: string }[]>(),
     supabase
       .from("anthropometric_assessments")
-      .select("id", { count: "exact", head: true })
-      .eq("patient_id", patientId),
+      .select("id, data_avaliacao")
+      .eq("patient_id", patientId)
+      .order("data_avaliacao", { ascending: false })
+      .returns<{ id: string; data_avaliacao: string }[]>(),
   ]);
 
   const planoAtivo = planos?.[0] ?? null;
@@ -78,7 +85,7 @@ export async function getSendCenterContext(patientId: string): Promise<SendCente
     profissionalNome: profile?.nome ?? "",
     planoAtivo: planoAtivo ? { id: planoAtivo.id, nome: planoAtivo.nome } : null,
     planoShareLinks,
-    temAvaliacoes: (totalAvaliacoes ?? 0) > 0,
+    avaliacoes: (avaliacoesRows ?? []).map((a) => ({ id: a.id, dataFormatada: formatDate(a.data_avaliacao) })),
     proximaConsulta,
   };
 }

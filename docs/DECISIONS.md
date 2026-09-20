@@ -159,6 +159,16 @@ por completo. O link do Plano Alimentar em si não mudou (WhatsApp continua sem 
 arquivo de verdade — só texto/link; decisão explícita do responsável pelo produto: manter assim
 por ora, revisitar mecanismo de anexo real depois).
 
+**Ajuste (2026-09-20, mesmo dia):** dois refinamentos pedidos após o primeiro teste. (1) "Evolução
+Física" virou **"Avaliação Antropométrica"** — em vez de mandar sempre o histórico inteiro, o
+profissional escolhe por data QUAL avaliação enviar (o PDF passou a ser de uma avaliação
+específica, não da série completa; `document_share_tokens.referencia_id` agora aponta pro id da
+avaliação, não do paciente, pra poder reaproveitar o link certo por data). (2) Os itens marcados
+deixaram de gerar uma mensagem de WhatsApp cada um — agora só existe **uma mensagem final**, que
+já reúne todos os links/textos prontos (plano, avaliação, impressos, lembrete, mensagem livre) num
+textarea só, com um único botão "Enviar por WhatsApp". Cada seção virou só o painel de preparo
+(escolher/gerar o link); o envio em si é sempre no fim do diálogo.
+
 ---
 
 ## Como revisitar

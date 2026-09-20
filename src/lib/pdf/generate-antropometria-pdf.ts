@@ -14,15 +14,16 @@ export interface GenerateAntropometriaPdfResult {
 }
 
 /**
- * Gera o PDF de "Evolução física" (todas as avaliações antropométricas do
- * paciente, em ordem cronológica) — usado pela Central de Envio. Retorna
- * null se o paciente não existe/não pertence ao usuário (RLS) ou não tem
- * nenhuma avaliação registrada ainda.
+ * Gera o PDF de "Avaliação antropométrica" de UMA avaliação específica
+ * (escolhida por data na Central de Envio, não o histórico inteiro) — usado
+ * pela Central de Envio. Retorna null se o paciente ou a avaliação não
+ * existem/não pertencem ao usuário (RLS).
  */
 export async function generateAntropometriaPdf(
   supabase: ReturnType<typeof createClient>,
   user: { id: string; email?: string | null },
-  patientId: string
+  patientId: string,
+  assessmentId: string
 ): Promise<GenerateAntropometriaPdfResult | null> {
   const { data: patient } = await supabase
     .from("patients")
@@ -32,14 +33,14 @@ export async function generateAntropometriaPdf(
 
   if (!patient) return null;
 
-  const { data: assessments } = await supabase
+  const { data: assessment } = await supabase
     .from("anthropometric_assessments")
     .select("*")
+    .eq("id", assessmentId)
     .eq("patient_id", patientId)
-    .order("data_avaliacao", { ascending: true })
-    .returns<AnthropometricAssessment[]>();
+    .single<AnthropometricAssessment>();
 
-  if (!assessments || assessments.length === 0) return null;
+  if (!assessment) return null;
 
   const profissional = await buildProfissionalPdfHeaderData(supabase, user);
 
@@ -48,12 +49,12 @@ export async function generateAntropometriaPdf(
       profissional,
       pacienteNome: patient.nome,
       geradoEm: new Date().toISOString(),
-      assessments,
+      assessments: [assessment],
     },
   }) as unknown as ReactElement<DocumentProps>;
 
   const buffer = await renderToBuffer(element);
-  const filename = `evolucao-fisica-${slugify(patient.nome)}.pdf`;
+  const filename = `avaliacao-antropometrica-${slugify(patient.nome)}-${assessment.data_avaliacao}.pdf`;
 
   return { buffer, pacienteNome: patient.nome, filename };
 }

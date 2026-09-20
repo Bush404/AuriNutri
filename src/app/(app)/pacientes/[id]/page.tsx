@@ -125,7 +125,7 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
                 profissionalNome: "",
                 planoAtivo: null,
                 planoShareLinks: [],
-                temAvaliacoes: false,
+                avaliacoes: [],
                 proximaConsulta: null,
               }
             }

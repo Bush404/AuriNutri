@@ -1,56 +1,55 @@
 /**
- * Modelos de mensagem da Central de Envio (Fase 8, Bloco B — substituto do
- * portal do paciente). Centralizados aqui, não espalhados pelos
- * componentes, pra manter um tom só e facilitar ajustar o texto no futuro
- * sem caçar em vários arquivos. Tom humano, de quem manda mensagem pra um
- * paciente de verdade — nunca um aviso corporativo. O profissional sempre
- * pode editar antes de enviar; isto aqui é só o ponto de partida.
+ * Modelo de mensagem da Central de Envio (Fase 8, Bloco B — substituto do
+ * portal do paciente). Centralizado aqui, não espalhado pelos componentes,
+ * pra manter um tom só e facilitar ajustar o texto no futuro sem caçar em
+ * vários arquivos. Tom humano, de quem manda mensagem pra um paciente de
+ * verdade — nunca um aviso corporativo. O profissional sempre pode editar
+ * antes de enviar; isto aqui é só o ponto de partida.
+ *
+ * Uma ÚNICA mensagem combinada reúne tudo que foi marcado pra enviar (plano,
+ * avaliação antropométrica, impressos, lembrete de consulta, mensagem
+ * livre) — pedido explícito do usuário pra não precisar mandar uma
+ * mensagem de WhatsApp por item.
  */
 
-/** Primeiro nome a partir do nome completo — usado em toda mensagem pra soar pessoal. */
+/** Primeiro nome a partir do nome completo — usado na saudação pra soar pessoal. */
 export function primeiroNomeDe(nomeCompleto: string): string {
   return nomeCompleto.trim().split(/\s+/)[0] || nomeCompleto;
 }
 
-export function buildPlanoWhatsAppMessage(input: {
+export interface MensagemCombinadaInput {
   primeiroNome: string;
   nomeProfissional: string;
-  nomePlano: string;
-  link: string;
-}): string {
-  return `Oi, ${input.primeiroNome}! Aqui é ${input.nomeProfissional}. Segue o seu plano alimentar "${input.nomePlano}": ${input.link}\n\nQualquer dúvida sobre alguma refeição, me chama por aqui.`;
+  plano: { nome: string; link: string } | null;
+  avaliacao: { dataFormatada: string; link: string } | null;
+  impressos: { titulo: string; link: string }[];
+  consulta: { dataFormatada: string; horaFormatada: string } | null;
+  mensagemLivre: string;
 }
 
-export function buildEvolucaoFisicaWhatsAppMessage(input: {
-  primeiroNome: string;
-  nomeProfissional: string;
-  link: string;
-}): string {
-  return `Oi, ${input.primeiroNome}! Aqui é ${input.nomeProfissional}. Segue o resumo da sua evolução física em PDF: ${input.link}\n\nQualquer dúvida, me chama por aqui.`;
-}
+/** Monta a mensagem única a partir de só as partes que já estão prontas (link gerado, item selecionado) — partes sem dado ficam de fora, nunca aparecem como placeholder vazio. */
+export function buildMensagemCombinada(input: MensagemCombinadaInput): string {
+  const partes: string[] = [`Oi, ${input.primeiroNome}! Aqui é ${input.nomeProfissional}.`];
 
-/** Mensagem genérica pra qualquer item de "Impressos" (receita avulsa ou arquivo do computador) — o título já identifica o que é. */
-export function buildImpressoWhatsAppMessage(input: {
-  primeiroNome: string;
-  nomeProfissional: string;
-  titulo: string;
-  link: string;
-}): string {
-  return `Oi, ${input.primeiroNome}! Aqui é ${input.nomeProfissional}. Segue "${input.titulo}" em PDF: ${input.link}`;
-}
+  if (input.plano) {
+    partes.push(`Segue o seu plano alimentar "${input.plano.nome}": ${input.plano.link}`);
+  }
 
-export function buildConsultaLembreteWhatsAppMessage(input: {
-  primeiroNome: string;
-  nomeProfissional: string;
-  dataFormatada: string;
-  horaFormatada: string;
-}): string {
-  return `Oi, ${input.primeiroNome}! Aqui é ${input.nomeProfissional}, passando pra lembrar da nossa consulta em ${input.dataFormatada} às ${input.horaFormatada}. Te espero!`;
-}
+  if (input.avaliacao) {
+    partes.push(`Segue sua avaliação antropométrica de ${input.avaliacao.dataFormatada}: ${input.avaliacao.link}`);
+  }
 
-export function buildMensagemLivreWhatsAppTemplate(input: {
-  primeiroNome: string;
-  nomeProfissional: string;
-}): string {
-  return `Oi, ${input.primeiroNome}! Aqui é ${input.nomeProfissional}.`;
+  for (const impresso of input.impressos) {
+    partes.push(`Segue "${impresso.titulo}": ${impresso.link}`);
+  }
+
+  if (input.consulta) {
+    partes.push(`Lembrando da nossa consulta em ${input.consulta.dataFormatada} às ${input.consulta.horaFormatada}.`);
+  }
+
+  if (input.mensagemLivre.trim()) {
+    partes.push(input.mensagemLivre.trim());
+  }
+
+  return partes.join("\n\n");
 }
