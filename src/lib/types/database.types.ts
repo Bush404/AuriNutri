@@ -587,3 +587,21 @@ export interface Payment {
 export interface PaymentWithBilling extends Payment {
   patient_billings: { descricao: string; tipo: PatientBillingTipo; patients: { nome: string } | null } | null;
 }
+
+export type FeedbackTipo = "sugestao" | "problema" | "elogio" | "outro";
+
+export interface Feedback {
+  id: string;
+  user_id: string;
+  tipo: FeedbackTipo;
+  mensagem: string;
+  /** Pathname da tela em que o usuário estava, capturado automaticamente. */
+  rota: string | null;
+  /** navigator.userAgent no momento do envio — só para diagnóstico de bug. */
+  user_agent: string | null;
+  /** "larguraxaltura" no momento do envio — só para diagnóstico de bug. */
+  viewport: string | null;
+  /** Marcado manualmente pelo painel do Supabase — sem fluxo de UI nesta fase. */
+  lido: boolean;
+  created_at: string;
+}

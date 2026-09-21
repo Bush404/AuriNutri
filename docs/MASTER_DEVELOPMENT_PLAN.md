@@ -1171,9 +1171,7 @@ benefício, já que não há com quem compartilhar ainda.
 [x] Criar material escrevendo direto (editor de texto simples) ou enviando arquivo
     (PDF/imagem, bucket privado 'profissional' da Fase 2, pasta "biblioteca")
 [x] Enviar material para um paciente pela Central de Envio (reutilizável — escrito uma vez,
-    enviado a vários pacientes)
-[x] Atalho no perfil do paciente: "Enviar material da biblioteca" (abre a Central de Envio
-    já com o item pré-marcado, direto na busca)
+    enviado a vários pacientes), com busca por título e por tag
 [x] Estados de loading, vazio e erro no padrão do projeto (loading.tsx compartilhado,
     EmptyState com e sem filtro ativo, erro de query inline)
 [ ] Biblioteca oficial/comunitária — ADIADA
@@ -1182,6 +1180,10 @@ benefício, já que não há com quem compartilhar ainda.
 [ ] Anonimização automática de casos clínicos — ADIADA
 [ ] Moderação e denúncia — ADIADA
 [ ] Feed de discussões — ADIADA
+[x] Migration 0033: tabela feedback (identificado, RLS mínima sem policy de admin)
+[x] Canal de feedback (item "Enviar feedback" no menu do usuário) com contexto automático
+    (rota/user_agent/viewport), aviso de privacidade e confirmação humana — construído no
+    lugar da comunidade, como preparação para os primeiros usuários
 ```
 
 **Biblioteca pessoal (2026-09-21):** `library_materials` segue exatamente o padrão de soft
@@ -1208,20 +1210,70 @@ re-renderizado); arquivo de imagem é embutido numa página de PDF — garante q
 `/compartilhado/[token]` (que sempre serve `Content-Type: application/pdf`) nunca quebre por
 receber uma imagem crua.
 
-**Central de Envio e atalho:** "Material da biblioteca" virou mais um item de checkbox no
-painel existente (`patient-send-panel.tsx`), com busca por título e reaproveitando
-`buildMensagemCombinada`. O atalho pedido no perfil do paciente é o mesmo diálogo da Central de
-Envio, só com um gatilho próprio (ícone de livro) e o item "material" pré-marcado ao abrir —
-evita duplicar o fluxo de busca/gerar link/mensagem só pra um caminho "mais rápido".
+**Central de Envio:** "Material da biblioteca" virou mais um item de checkbox no painel
+existente (`patient-send-panel.tsx`), com busca por título **e por tag** (pós-uso: buscar só
+por título não bastava quando o material não tinha um nome fácil de lembrar, mas estava bem
+taggeado) e reaproveitando `buildMensagemCombinada`. Um atalho dedicado no perfil do paciente
+foi cogitado e removido no mesmo dia — era o mesmo diálogo da Central de Envio com um gatilho a
+mais, sem ganho real sobre clicar em "Enviar" e marcar o item.
 
-`npm run build`, `npm run lint` e `npm test` (227/227, sem teste novo — a lógica nova é CRUD +
-storage seguindo padrão já testado no resto do projeto, sem cálculo/regra de negócio própria
-que justifique um teste unitário dedicado, mesmo critério já aplicado a `recipe_ingredients`) passam.
+**Correções pós-uso (mesmo dia):** "Título" do material virou "Nome" na tela (para não colidir
+com o conceito de título de seção, abaixo); o campo único "Conteúdo" do material escrito virou
+uma estrutura guiada — **Título** e **Subtítulo** da seção (opcionais, campos próprios,
+`secao_titulo`/`secao_subtitulo`, migration `0032`) mais o **Texto livre** (obrigatório, só
+`**negrito**` como formatação — sem `#`/`-` de linha, mais fácil de aprender pra quem não é
+técnico); Tags passou a ser **obrigatória** nas duas formas de criação (escrito e arquivo). No
+PDF gerado, o Nome do material nunca aparece (é só organização interna da biblioteca) — quem
+ocupa visualmente o lugar do título é o campo Título da seção, com Subtítulo abaixo em negrito
+(tamanho intermediário) e o texto corrido em peso normal. Nova opção "Visualizar" na listagem
+(ícone de olho, só para material escrito) abre esse PDF numa aba nova via rota própria
+(`/biblioteca/[id]/pdf`, mesmo padrão de `/planos/[id]/pdf`), pra conferir como o material vai
+chegar ao paciente antes de enviar.
+
+`npm run build`, `npm run lint` e `npm test` (236/236 ao final desta rodada — 9 testes novos em
+`material-markdown.test.ts`/`material-pdf-document.test.ts`, cobrindo o negrito inline e o
+smoke test de renderização com título/subtítulo/imagem) passam.
 
 **Comunidade — permanece ADIADA.** Não implementado, nenhuma migration escrita. Retomar exige,
 no mínimo: anonimização automática de caso clínico compartilhado (validada antes de qualquer
 publicação) e moderação/denúncia — sem isso, compartilhar é incidente de LGPD e passivo legal em
 potencial. `visibilidade` já preparada (ver acima) pra essa retomada ser aditiva.
+
+**Canal de feedback (2026-09-21) — construído no lugar da comunidade, como preparação prática
+para os primeiros usuários reais.** Em vez de abrir a superfície de compartilhamento entre
+profissionais (que segue sem base de usuários pra justificar o risco), o pedido foi um canal
+direto e simples de feedback — a peça que efetivamente prepara o produto pra receber
+nutricionistas de verdade, sem o risco de LGPD da comunidade.
+
+Migration `0033`: tabela `feedback` (`tipo` orientação/problema/elogio/outro, `mensagem`,
+contexto capturado automaticamente — `rota`, `user_agent`, `viewport` — e `lido`, sempre
+`false` na criação). RLS deliberadamente mínima: `INSERT` só com o próprio `user_id`, `SELECT`
+só do próprio registro, **nenhuma policy de admin** — leitura é manual pelo painel do Supabase
+(service role, ignora RLS) por decisão explícita do usuário, pra não introduzir o primeiro
+usuário privilegiado do sistema por conveniência (mesma cautela já registrada sobre
+multi-tenancy/papéis desde a Fase 1). Sem notificação por e-mail, sem soft delete, sem UI de
+listagem do próprio histórico — o escopo pedido é só "enviar e sumir da tela".
+
+Gatilho: inicialmente um item dentro do menu de conta na topbar; pós-uso no mesmo dia, o usuário
+pediu mais visibilidade — virou um ícone próprio (círculo de interrogação) na topbar, à esquerda
+do bloco de usuário/avatar, que abre um menuzinho com duas opções: **Feedback** (o formulário) e
+**Suporte** (fase futura, item visível mas desabilitado com selo "Em breve", mesmo padrão já
+usado nos itens "em desenvolvimento" da barra lateral). Ainda não é um botão flutuante fixo por
+cima do conteúdo — continua vivendo na topbar, só que com ícone próprio em vez de escondido
+atrás de "Editar perfil".
+
+Contexto automático: `usePathname()` (rota), `navigator.userAgent` e
+`` `${window.innerWidth}x${window.innerHeight}` `` (viewport) — capturados no momento do envio,
+sem o profissional digitar nada disso. Único campo obrigatório é a mensagem (mínimo de
+caracteres só pra barrar envio vazio) — zero atrito deliberado, pedido explícito. Aviso de
+privacidade fixo no formulário ("evite incluir nome, prontuário ou qualquer dado de paciente na
+mensagem") — o profissional escrever "quando abri o prontuário da Maria..." sem pensar colocaria
+dado de saúde de terceiro num canal sem o aparato de RLS/consentimento do resto do projeto.
+Confirmação após enviar é uma tela própria dentro do diálogo ("Agradecemos pelo Feedback!"), não
+um toast genérico — pedido explícito do usuário.
+
+`npm run build`, `npm run lint` e `npm test` passam. Sem teste unitário novo: a lógica é um
+insert simples sem cálculo ou regra de negócio própria (mesmo critério de `library_materials`).
 
 ### Critérios de aceite (biblioteca pessoal)
 - [x] Material criado escrevendo ou enviando arquivo, nunca as duas formas ao mesmo tempo
@@ -1229,8 +1281,8 @@ potencial. `visibilidade` já preparada (ver acima) pra essa retomada ser aditiv
 - [x] Listagem com busca por título, filtro por tipo e por tag, paginação — mesmo padrão de
       `/receitas`.
 - [x] Material reutilizável: mesmo material enviado a mais de um paciente sem recriar nada.
-- [x] Atalho no perfil do paciente abre direto a busca de material, sem precisar marcar o
-      checkbox manualmente.
+- [x] Busca da Central de Envio funciona por título e por tag.
+- [x] Nome do material (organização interna) nunca aparece no PDF enviado ao paciente.
 - [x] Não duplica receitas/alimentos — biblioteca é só orientação/educação (nenhuma coluna de
       macro/nutrição na tabela).
 - [x] Isolado por profissional via RLS (`user_id = auth.uid()`, mesmo padrão de `recipes`) —
