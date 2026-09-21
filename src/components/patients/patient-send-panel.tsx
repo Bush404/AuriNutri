@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import {
   Activity,
+  BookOpen,
   FileText,
   Loader2,
   MessageCircle,
@@ -19,7 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import type { PlanShareToken, Recipe } from "@/lib/types/database.types";
+import type { LibraryMaterial, PlanShareToken, Recipe } from "@/lib/types/database.types";
 import type { SendCenterAssessment, SendCenterContext, SendCenterPayment } from "@/lib/actions/patient-send";
 import { createPlanShareLink } from "@/lib/actions/plan-share";
 import {
@@ -27,8 +28,10 @@ import {
   createArquivoShareLink,
   createReceitaShareLink,
   createReciboShareLink,
+  createMaterialShareLink,
 } from "@/lib/actions/document-share";
 import { searchRecipesForPicker } from "@/lib/actions/recipes";
+import { searchLibraryMaterialsForPicker, listLibraryMaterialTags } from "@/lib/actions/library-materials";
 import { findActivePlanShareLink, planShareDisplayUrl } from "@/lib/plan-share-status";
 import { normalizePhoneToWhatsApp, buildWhatsAppUrl } from "@/lib/whatsapp";
 import { buildMensagemCombinada, primeiroNomeDe } from "@/lib/whatsapp-templates";
@@ -53,6 +56,7 @@ const SEND_ITEMS = [
   { id: "avaliacao", label: "Avaliação Antropométrica" },
   { id: "impressos", label: "Impressos" },
   { id: "recibo", label: "Recibo de pagamento" },
+  { id: "material", label: "Material da biblioteca" },
   { id: "consulta", label: "Lembrete de consulta" },
   { id: "mensagem", label: "Mensagem livre" },
 ] as const;
@@ -82,6 +86,7 @@ export function PatientSendPanel({ patientId, patientNome, patientTelefone, cont
   const [avaliacaoInfo, setAvaliacaoInfo] = useState<{ dataFormatada: string; link: string } | null>(null);
   const [impressosProntos, setImpressosProntos] = useState<ImpressoPronto[]>([]);
   const [reciboInfo, setReciboInfo] = useState<{ descricao: string; link: string } | null>(null);
+  const [materialInfo, setMaterialInfo] = useState<{ titulo: string; link: string } | null>(null);
   const [mensagemLivreTexto, setMensagemLivreTexto] = useState("");
   const [mensagemManual, setMensagemManual] = useState<string | null>(null);
 
@@ -102,6 +107,7 @@ export function PatientSendPanel({ patientId, patientNome, patientTelefone, cont
     impressos: selecionados.has("impressos") ? impressosProntos.map((i) => ({ titulo: i.titulo, link: i.link })) : [],
     consulta: selecionados.has("consulta") ? context.proximaConsulta : null,
     recibo: selecionados.has("recibo") ? reciboInfo : null,
+    material: selecionados.has("material") ? materialInfo : null,
     mensagemLivre: selecionados.has("mensagem") ? mensagemLivreTexto : "",
   });
   const mensagemFinal = mensagemManual ?? mensagemAuto;
@@ -168,6 +174,10 @@ export function PatientSendPanel({ patientId, patientNome, patientTelefone, cont
 
       {selecionados.has("recibo") && (
         <ReciboCard patientId={patientId} pagamentos={context.pagamentosRecebidos} onLinkReady={setReciboInfo} />
+      )}
+
+      {selecionados.has("material") && (
+        <MaterialBibliotecaCard patientId={patientId} onLinkReady={setMaterialInfo} />
       )}
 
       {selecionados.has("consulta") && <ConsultaCard proximaConsulta={context.proximaConsulta} />}
@@ -458,6 +468,148 @@ function ReciboCard({
               <p className="text-sm text-muted-foreground">✓ Recibo pronto — incluído na mensagem abaixo.</p>
             )}
           </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function MaterialBibliotecaCard({
+  patientId,
+  onLinkReady,
+}: {
+  patientId: string;
+  onLinkReady: (info: { titulo: string; link: string } | null) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [tagFiltro, setTagFiltro] = useState("todas");
+  const [tagsDisponiveis, setTagsDisponiveis] = useState<string[]>([]);
+  const [resultados, setResultados] = useState<LibraryMaterial[]>([]);
+  const [buscando, setBuscando] = useState(false);
+  const [selecionado, setSelecionado] = useState<LibraryMaterial | null>(null);
+  const [link, setLink] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const buscaTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const stableOnLinkReady = useEventCallback(onLinkReady);
+  useEffect(() => {
+    stableOnLinkReady(link && selecionado ? { titulo: selecionado.titulo, link } : null);
+  }, [link, selecionado, stableOnLinkReady]);
+
+  useEffect(() => {
+    listLibraryMaterialTags().then(setTagsDisponiveis);
+  }, []);
+
+  async function runSearch(value: string, tag: string) {
+    setBuscando(true);
+    const data = await searchLibraryMaterialsForPicker(value, tag === "todas" ? undefined : tag);
+    setResultados(data);
+    setBuscando(false);
+  }
+
+  function handleQueryChange(value: string) {
+    setQuery(value);
+    setSelecionado(null);
+    setLink(null);
+    if (buscaTimeout.current) clearTimeout(buscaTimeout.current);
+    buscaTimeout.current = setTimeout(() => runSearch(value, tagFiltro), 300);
+  }
+
+  function handleTagChange(tag: string) {
+    setTagFiltro(tag);
+    setSelecionado(null);
+    setLink(null);
+    runSearch(query, tag);
+  }
+
+  function handleSelecionar(material: LibraryMaterial) {
+    setSelecionado(material);
+    setLink(null);
+    setResultados([]);
+    setQuery(material.titulo);
+  }
+
+  function handleGerarLink() {
+    if (!selecionado) return;
+    startTransition(async () => {
+      const result = await createMaterialShareLink(selecionado.id, patientId);
+      if (!result.success || !result.url) {
+        toast.error("Não foi possível gerar o link", { description: result.message });
+        return;
+      }
+      setLink(result.url);
+      toast.success("Link gerado — válido por 90 dias.");
+    });
+  }
+
+  const temFiltroAtivo = Boolean(query) || tagFiltro !== "todas";
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <BookOpen className="h-4 w-4" />
+          Material da biblioteca
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => handleQueryChange(e.target.value)}
+              placeholder="Buscar material pelo nome..."
+              className="pl-8"
+            />
+          </div>
+          <Select value={tagFiltro} onValueChange={handleTagChange}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="Filtrar por tag" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todas">Todas as tags</SelectItem>
+              {tagsDisponiveis.map((tag) => (
+                <SelectItem key={tag} value={tag}>
+                  {tag}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {buscando && <p className="text-xs text-muted-foreground">Buscando...</p>}
+        {!buscando && resultados.length > 0 && (
+          <div className="space-y-1 rounded-md border border-border p-2">
+            {resultados.map((material) => (
+              <button
+                key={material.id}
+                type="button"
+                onClick={() => handleSelecionar(material)}
+                className="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-sm hover:bg-muted"
+              >
+                {material.titulo}
+                <span className="text-xs text-muted-foreground">Selecionar</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {!buscando && temFiltroAtivo && resultados.length === 0 && !selecionado && (
+          <EmptyState
+            icon={BookOpen}
+            title="Nenhum material encontrado"
+            description="Cadastre materiais de orientação na página Biblioteca para poder enviá-los."
+          />
+        )}
+
+        {selecionado && !link && (
+          <Button type="button" variant="outline" onClick={handleGerarLink} disabled={isPending}>
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+            Gerar PDF e link
+          </Button>
+        )}
+        {selecionado && link && (
+          <p className="text-sm text-muted-foreground">✓ Link pronto — incluído na mensagem abaixo.</p>
         )}
       </CardContent>
     </Card>

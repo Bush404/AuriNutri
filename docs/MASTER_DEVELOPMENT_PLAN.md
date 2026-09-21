@@ -1153,20 +1153,95 @@ de abrir uma fase nova (mesmo espírito do gate que fechou o MVP na Fase 4).
 
 ---
 
-## PHASE 10 — Biblioteca e comunidade · `TODO` · `LOW` (V2/V3)
+## PHASE 10 — Biblioteca e comunidade · Biblioteca pessoal: `DONE` · Comunidade: `ADIADA` · `LOW` (V2/V3)
 
-**Dependências:** base de usuários ativa. **Não iniciar antes disso.**
+**Dependências (comunidade):** base de usuários ativa. **Não iniciar antes disso.**
+
+**Escopo executado em 2026-09-21:** só a biblioteca PESSOAL do profissional — materiais de
+orientação/educação que ele escreve ou envia, reutilizáveis para quantos pacientes precisar.
+Comunidade e compartilhamento entre profissionais ficam adiados, pelo mesmo motivo já registrado
+antes de abrir a fase: só fazem sentido depois de existir uma base de usuários ativa usando o
+produto — abrir a superfície de compartilhamento/anonimização agora seria risco de LGPD sem
+benefício, já que não há com quem compartilhar ainda.
 
 ```
-[ ] Biblioteca pessoal vs oficial vs comunitária
-[ ] Compartilhar receita/alimento
-[ ] "Adicionar à minha biblioteca" (referência, sem duplicar)
-[ ] Anonimização automática de casos clínicos
-[ ] Moderação e denúncia
-[ ] Feed de discussões
+[x] Migration 0031: library_materials (tipo, conteudo XOR arquivo_path, tags, visibilidade,
+    deleted_at) + soft_delete_library_material (security definer, mesmo padrão da 0017)
+[x] Página /biblioteca: listagem, busca por título, filtro por tipo e por tag, paginação
+[x] Criar material escrevendo direto (editor de texto simples) ou enviando arquivo
+    (PDF/imagem, bucket privado 'profissional' da Fase 2, pasta "biblioteca")
+[x] Enviar material para um paciente pela Central de Envio (reutilizável — escrito uma vez,
+    enviado a vários pacientes)
+[x] Atalho no perfil do paciente: "Enviar material da biblioteca" (abre a Central de Envio
+    já com o item pré-marcado, direto na busca)
+[x] Estados de loading, vazio e erro no padrão do projeto (loading.tsx compartilhado,
+    EmptyState com e sem filtro ativo, erro de query inline)
+[ ] Biblioteca oficial/comunitária — ADIADA
+[ ] Compartilhar receita/alimento entre profissionais — ADIADA
+[ ] "Adicionar à minha biblioteca" (referência, sem duplicar) — ADIADA
+[ ] Anonimização automática de casos clínicos — ADIADA
+[ ] Moderação e denúncia — ADIADA
+[ ] Feed de discussões — ADIADA
 ```
 
-**Risco crítico:** caso clínico compartilhado sem anonimização adequada é incidente de LGPD. A anonimização automática (remover nome, CPF, telefone, data de nascimento) precisa ser validada antes de qualquer publicação. Comunidade sem moderação vira passivo legal.
+**Biblioteca pessoal (2026-09-21):** `library_materials` segue exatamente o padrão de soft
+delete do projeto (`deleted_at is null` na policy de SELECT + função `security definer` pra
+excluir, mesmo bug/correção da migration 0017 — sem isso, o soft delete falharia com "new row
+violates row-level security policy"). Um material nasce de UMA das duas formas — `conteudo`
+(escrito no editor de texto simples da tela) ou `arquivo_path` (PDF/imagem) — nunca as duas,
+nunca nenhuma, via CHECK `library_materials_conteudo_xor_arquivo` (mesmo espírito do
+`food_id`/`recipe_id` mutuamente exclusivos em `meal_items`). `visibilidade` só aceita
+`'privado'` por ora (CHECK de um valor só) — o campo já existe pra que uma futura Fase de
+comunidade seja uma migração aditiva (relaxar o CHECK + tabelas de compartilhamento), nunca uma
+refatoração do que já existe.
+
+**Reaproveitamento deliberado, zero infraestrutura nova:** o upload de arquivo reusa o bucket
+privado `profissional` (Fase 2, migration 0004) na pasta `"<user_id>/biblioteca/..."` — as
+policies de storage já são por pasta (`(storage.foldername(name))[1] = auth.uid()`), então
+nenhuma migration de storage foi necessária; mesmo padrão que exames (Fase 7) já usa pra anexar
+PDF/imagem no mesmo bucket, pasta "exames". O envio pela Central de Envio generaliza
+`document_share_tokens` (migration 0024) com o tipo `'material'` — só um ajuste de CHECK, igual
+já feito pra `'recibo'` (migration 0028). `generateMaterialPdf` cobre os 3 casos possíveis:
+material escrito vira PDF renderizado (mesmo `@react-pdf/renderer` da Fase 4, sem lib nova);
+arquivo já em PDF é baixado do bucket original e reenviado byte a byte (nunca reaberto/
+re-renderizado); arquivo de imagem é embutido numa página de PDF — garante que
+`/compartilhado/[token]` (que sempre serve `Content-Type: application/pdf`) nunca quebre por
+receber uma imagem crua.
+
+**Central de Envio e atalho:** "Material da biblioteca" virou mais um item de checkbox no
+painel existente (`patient-send-panel.tsx`), com busca por título e reaproveitando
+`buildMensagemCombinada`. O atalho pedido no perfil do paciente é o mesmo diálogo da Central de
+Envio, só com um gatilho próprio (ícone de livro) e o item "material" pré-marcado ao abrir —
+evita duplicar o fluxo de busca/gerar link/mensagem só pra um caminho "mais rápido".
+
+`npm run build`, `npm run lint` e `npm test` (227/227, sem teste novo — a lógica nova é CRUD +
+storage seguindo padrão já testado no resto do projeto, sem cálculo/regra de negócio própria
+que justifique um teste unitário dedicado, mesmo critério já aplicado a `recipe_ingredients`) passam.
+
+**Comunidade — permanece ADIADA.** Não implementado, nenhuma migration escrita. Retomar exige,
+no mínimo: anonimização automática de caso clínico compartilhado (validada antes de qualquer
+publicação) e moderação/denúncia — sem isso, compartilhar é incidente de LGPD e passivo legal em
+potencial. `visibilidade` já preparada (ver acima) pra essa retomada ser aditiva.
+
+### Critérios de aceite (biblioteca pessoal)
+- [x] Material criado escrevendo ou enviando arquivo, nunca as duas formas ao mesmo tempo
+      (garantido por CHECK no banco, não só validação de formulário).
+- [x] Listagem com busca por título, filtro por tipo e por tag, paginação — mesmo padrão de
+      `/receitas`.
+- [x] Material reutilizável: mesmo material enviado a mais de um paciente sem recriar nada.
+- [x] Atalho no perfil do paciente abre direto a busca de material, sem precisar marcar o
+      checkbox manualmente.
+- [x] Não duplica receitas/alimentos — biblioteca é só orientação/educação (nenhuma coluna de
+      macro/nutrição na tabela).
+- [x] Isolado por profissional via RLS (`user_id = auth.uid()`, mesmo padrão de `recipes`) —
+      sem script de isolamento ao vivo dedicado desta vez (mesmo critério já usado em
+      `recipe_ingredients`/`meal_templates`: risco equivalente ao de outras tabelas já cobertas
+      pelo padrão RLS geral, não um caso novo de alto risco como fotos/exames).
+
+### Riscos (mitigado)
+Reabrir compartilhamento/comunidade sem base de usuários ativa seria esforço sem retorno e
+risco de LGPD prematuro — por isso o escopo desta rodada ficou só na biblioteca pessoal,
+mantendo `visibilidade` pronta para a extensão futura ser aditiva.
 
 ---
 
@@ -1193,7 +1268,8 @@ de abrir uma fase nova (mesmo espírito do gate que fechou o MVP na Fase 4).
 ```
 1 → 2 → 3 → 4 → [MVP · validar com usuários reais]
      → 5 → 6 → 7 → [V1 · concluído em 19/09/2026]
-     → 9 → [V2 · Fase 9 concluída em 20/09/2026] → 10
+     → 9 → [V2 · Fase 9 concluída em 20/09/2026]
+     → 10 (biblioteca pessoal concluída em 21/09/2026; comunidade segue adiada)
 8 adiada (ver DECISIONS.md D2) — não bloqueia 9/10, retomar só se/quando fizer sentido reabrir.
 11 permeia todas.
 ```

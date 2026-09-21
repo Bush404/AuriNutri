@@ -25,6 +25,7 @@ export interface MensagemCombinadaInput {
   impressos: { titulo: string; link: string }[];
   consulta: { dataFormatada: string; horaFormatada: string } | null;
   recibo: { descricao: string; link: string } | null;
+  material: { titulo: string; link: string } | null;
   mensagemLivre: string;
 }
 
@@ -50,6 +51,10 @@ export function buildMensagemCombinada(input: MensagemCombinadaInput): string {
 
   if (input.recibo) {
     partes.push(`Segue o recibo de "${input.recibo.descricao}": ${input.recibo.link}`);
+  }
+
+  if (input.material) {
+    partes.push(`Segue "${input.material.titulo}": ${input.material.link}`);
   }
 
   if (input.mensagemLivre.trim()) {

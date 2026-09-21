@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { generateAntropometriaPdf } from "@/lib/pdf/generate-antropometria-pdf";
 import { generateReceitaPdf } from "@/lib/pdf/generate-receita-pdf";
 import { generateReciboPdf } from "@/lib/pdf/generate-recibo-pdf";
+import { generateMaterialPdf } from "@/lib/pdf/generate-material-pdf";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { DocumentShareTipo, DocumentShareToken } from "@/lib/types/database.types";
 
@@ -237,6 +238,58 @@ export async function createReciboShareLink(paymentId: string, patientId: string
     tipo: "recibo",
     referenciaId: paymentId,
     titulo: generated.filename.replace(/\.pdf$/, ""),
+    storagePath,
+    signedUrl: signedUrlData.signedUrl,
+  });
+}
+
+/**
+ * PDF de um material da biblioteca pessoal ("Material da biblioteca" na
+ * Central de Envio) — o material é reutilizável (escrito ou enviado uma
+ * única vez), então o mesmo link é reaproveitado independente de para qual
+ * paciente foi gerado antes, mesmo espírito de createReceitaShareLink.
+ */
+export async function createMaterialShareLink(materialId: string, patientId: string): Promise<CreateDocumentShareLinkResult> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, message: "Sessão expirada. Faça login novamente." };
+  }
+
+  const existente = await findActiveToken(supabase, "material", materialId);
+  if (existente) return tokenToResult(existente);
+
+  const generated = await generateMaterialPdf(supabase, user, materialId);
+  if (!generated) {
+    return { success: false, message: "Material não encontrado." };
+  }
+
+  const storagePath = `${user.id}/materiais/${materialId}.pdf`;
+
+  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(storagePath, generated.buffer, {
+    contentType: "application/pdf",
+    upsert: true,
+  });
+  if (uploadError) {
+    return { success: false, message: uploadError.message };
+  }
+
+  const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+    .from(BUCKET)
+    .createSignedUrl(storagePath, EXPIRES_IN_SECONDS);
+  if (signedUrlError || !signedUrlData) {
+    return { success: false, message: signedUrlError?.message ?? "Falha ao gerar o link do arquivo." };
+  }
+
+  return insertToken(supabase, {
+    userId: user.id,
+    patientId,
+    tipo: "material",
+    referenciaId: materialId,
+    titulo: generated.titulo,
     storagePath,
     signedUrl: signedUrlData.signedUrl,
   });

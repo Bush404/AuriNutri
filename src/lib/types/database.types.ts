@@ -310,6 +310,31 @@ export interface Recipe {
   deleted_at: string | null;
 }
 
+export type LibraryMaterialTipo = "orientacao" | "material_educativo" | "protocolo" | "checklist" | "outro";
+
+export interface LibraryMaterial {
+  id: string;
+  user_id: string;
+  titulo: string;
+  descricao: string | null;
+  tipo: LibraryMaterialTipo;
+  /** Escrito direto no sistema — mutuamente exclusivo com arquivo_path. */
+  conteudo: string | null;
+  /** Título da seção dentro do conteúdo escrito (opcional) — só relevante quando conteudo não é null. */
+  secao_titulo: string | null;
+  /** Subtítulo da seção dentro do conteúdo escrito (opcional) — só relevante quando conteudo não é null. */
+  secao_subtitulo: string | null;
+  /** Path no bucket privado 'profissional' (Fase 2), pasta "<user_id>/biblioteca/...". Mutuamente exclusivo com conteudo. */
+  arquivo_path: string | null;
+  tags: string[];
+  /** Só 'privado' por ora — compartilhamento entre profissionais é Fase 10 futura. */
+  visibilidade: "privado";
+  created_at: string;
+  updated_at: string;
+  /** Soft delete: não-nulo = excluído (invisível via RLS). */
+  deleted_at: string | null;
+}
+
 export interface RecipeIngredient {
   id: string;
   recipe_id: string;
@@ -389,7 +414,7 @@ export interface PlanShareToken {
   created_at: string;
 }
 
-export type DocumentShareTipo = "antropometria" | "receita" | "arquivo" | "recibo";
+export type DocumentShareTipo = "antropometria" | "receita" | "arquivo" | "recibo" | "material";
 
 export interface DocumentShareToken {
   id: string;
