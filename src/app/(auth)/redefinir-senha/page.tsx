@@ -58,7 +58,7 @@ export default function ResetPasswordPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
         <div className="space-y-2">
           <Label htmlFor="password">Nova senha</Label>
-          <Input id="password" type="password" placeholder="Mínimo 6 caracteres" {...register("password")} />
+          <Input id="password" type="password" placeholder="Mínimo 8 caracteres" {...register("password")} />
           {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
 

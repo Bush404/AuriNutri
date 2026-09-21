@@ -11,6 +11,7 @@ import {
 import type { ActionResult } from "@/lib/actions/patients";
 import type { PatientPhoto } from "@/lib/types/database.types";
 import { hasActiveConsent } from "@/lib/actions/patient-consents";
+import { rateLimitOrError } from "@/lib/rate-limit";
 
 const BUCKET = "fotos-evolucao";
 // Mais curta que exames (1h) — foto corporal é mais sensível.
@@ -54,6 +55,9 @@ export async function uploadPatientPhoto(
   if (!user) {
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
+
+  const limited = await rateLimitOrError(supabase, "enviar_arquivo");
+  if (limited) return limited;
 
   const consentido = await hasActiveConsent(patientId, "fotos");
   if (!consentido) {

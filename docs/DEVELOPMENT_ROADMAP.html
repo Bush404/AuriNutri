@@ -453,18 +453,22 @@
   <summary class="ph-head">
     <span class="mark">11</span>
     <span class="ph-title"><span class="n">PHASE 11 · CONTÍNUA</span><div class="t">Polimento, acessibilidade e QA</div></span>
-    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-done">Bloco A: Done</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
-    <p class="obj"><b>Objetivo:</b> permeia todas as fases; auditoria formal antes de cada release.</p>
+    <p class="obj"><b>Objetivo:</b> permeia todas as fases; auditoria formal antes de cada release. <b>Bloco A (segurança) não adiciona funcionalidade — tenta quebrar o que já existe.</b></p>
     <ul class="tasks">
+      <li class="ok">Bloco A — Teste de isolamento entre profissionais (28 tabelas com RLS + 5 buckets de Storage)</li>
+      <li class="ok">Bloco A — Rate limiting nas operações caras (gerar PDF/link, enviar arquivo)</li>
+      <li class="ok">Bloco A — Política de senha forte (mínimo 8 + bloqueio de senha comum)</li>
       <li>Contraste WCAG AA e navegação por teclado</li>
       <li>Alternativa textual para o gráfico de evolução</li>
       <li>Responsividade da tabela de plano no mobile</li>
       <li>E2E dos fluxos críticos (Playwright)</li>
-      <li>Teste de isolamento entre profissionais</li>
-      <li>Observabilidade, rate limiting, política de senha forte</li>
+      <li>Observabilidade (Sentry)</li>
     </ul>
+    <div class="accept"><b>Bloco A concluído — 21/09/2026</b>
+      <code>scripts/test-security-isolation-full.mjs</code>: suíte única cobrindo as 28 tabelas com RLS do projeto e os 5 buckets de Storage — cria 2 contas descartáveis e tenta, como uma, ler/alterar/excluir o que é da outra. Executado contra o projeto real: <b>87/87 verificações passaram, nenhum vazamento encontrado</b>. Rate limiting decidido com o usuário antes de implementar: contador guardado no Postgres via função <code>security definer</code> (migration 0034), não num serviço externo — zero infraestrutura nova, mesmo princípio já usado no projeto para RLS/audit_log/soft delete; resolve o problema de "sem estado em memória entre invocações" das Netlify Functions porque o <code>INSERT ... ON CONFLICT</code> é atômico no Postgres. Aplicado em toda operação de gerar PDF/link e enviar arquivo, com falha aberta deliberada (se a checagem falhar, a ação segue — o limitador nunca derruba o produto sozinho). Verificado com <code>scripts/test-rate-limit.mjs</code> (6/6 passaram). Senha mínima subiu de 6 para 8 caracteres + bloqueio de senhas triviais conhecidas — só a camada de UX no formulário; a autoridade de verdade é a configuração de Auth no painel do Supabase, ajustada manualmente. <code>npm test</code> (243/243), <code>npm run lint</code> e <code>npm run build</code> passam.</div>
   </div>
 </details>
 

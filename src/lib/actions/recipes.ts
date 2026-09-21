@@ -16,6 +16,7 @@ import {
   type ValoresSobrescritosInput,
 } from "@/lib/validations/recipe";
 import { buildFoodSnapshotWithMicros } from "@/lib/nutrition";
+import { rateLimitOrError } from "@/lib/rate-limit";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { Food, Recipe } from "@/lib/types/database.types";
 
@@ -354,6 +355,9 @@ export async function uploadRecipeImage(formData: FormData): Promise<UploadRecip
   if (!user) {
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
+
+  const limited = await rateLimitOrError(supabase, "enviar_arquivo");
+  if (limited) return limited;
 
   const extension = EXTENSION_BY_MIME_TYPE[file.type];
   const path = `${user.id}/${crypto.randomUUID()}.${extension}`;

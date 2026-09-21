@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { labExamSchema, type LabExamInput, LAB_EXAM_FILE_ACCEPTED_TYPES, LAB_EXAM_FILE_MAX_BYTES } from "@/lib/validations/lab-exam";
 import type { ActionResult } from "@/lib/actions/patients";
 import { hasActiveConsent } from "@/lib/actions/patient-consents";
+import { rateLimitOrError } from "@/lib/rate-limit";
 
 const BUCKET = "profissional";
 const SIGNED_URL_EXPIRES_IN_SECONDS = 60 * 60; // 1 hora, nunca permanente.
@@ -121,6 +122,9 @@ export async function uploadLabExamFile(
   if (!user) {
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
+
+  const limited = await rateLimitOrError(supabase, "enviar_arquivo");
+  if (limited) return limited;
 
   const consentido = await hasActiveConsent(patientId, "exames");
   if (!consentido) {

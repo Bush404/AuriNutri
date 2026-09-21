@@ -8,6 +8,7 @@ import {
   PROFILE_FILE_ACCEPTED_TYPES,
   PROFILE_FILE_MAX_BYTES,
 } from "@/lib/validations/profile";
+import { rateLimitOrError } from "@/lib/rate-limit";
 import type { ActionResult } from "@/lib/actions/patients";
 
 const BUCKET = "profissional";
@@ -96,6 +97,9 @@ export async function uploadProfileFile(
   if (!user) {
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
+
+  const limited = await rateLimitOrError(supabase, "enviar_arquivo");
+  if (limited) return limited;
 
   // Extensão vem do MIME type validado acima, nunca do nome do arquivo
   // enviado pelo cliente (que é livre e não confiável).

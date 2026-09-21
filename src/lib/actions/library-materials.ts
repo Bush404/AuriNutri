@@ -13,6 +13,7 @@ import {
 } from "@/lib/validations/library-material";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { LibraryMaterial } from "@/lib/types/database.types";
+import { rateLimitOrError } from "@/lib/rate-limit";
 
 // Bucket privado 'profissional', criado na Fase 2 (migration 0004) — reaproveitado
 // aqui na pasta "<user_id>/biblioteca/...", mesmo padrão já usado para exames
@@ -172,6 +173,9 @@ export async function createLibraryMaterialComArquivo(formData: FormData): Promi
   if (!user) {
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
+
+  const limited = await rateLimitOrError(supabase, "enviar_arquivo");
+  if (limited) return limited;
 
   const extension = EXTENSION_BY_MIME_TYPE[file.type];
   const path = `${user.id}/biblioteca/${crypto.randomUUID()}.${extension}`;

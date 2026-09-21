@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { generatePlanPdf } from "@/lib/pdf/generate-plan-pdf";
+import { withinRateLimit } from "@/lib/rate-limit";
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -12,6 +13,10 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
   if (!user) {
     return new NextResponse("Não autorizado.", { status: 401 });
+  }
+
+  if (!(await withinRateLimit(supabase, "gerar_pdf"))) {
+    return new NextResponse("Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.", { status: 429 });
   }
 
   const result = await generatePlanPdf(supabase, user, params.id);

@@ -6,6 +6,7 @@ import { generateAntropometriaPdf } from "@/lib/pdf/generate-antropometria-pdf";
 import { generateReceitaPdf } from "@/lib/pdf/generate-receita-pdf";
 import { generateReciboPdf } from "@/lib/pdf/generate-recibo-pdf";
 import { generateMaterialPdf } from "@/lib/pdf/generate-material-pdf";
+import { rateLimitOrError } from "@/lib/rate-limit";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { DocumentShareTipo, DocumentShareToken } from "@/lib/types/database.types";
 
@@ -103,6 +104,9 @@ export async function createAntropometriaShareLink(
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
 
+  const limited = await rateLimitOrError(supabase, "gerar_pdf");
+  if (limited) return limited;
+
   const existente = await findActiveToken(supabase, "antropometria", assessmentId);
   if (existente) return tokenToResult(existente);
 
@@ -154,6 +158,9 @@ export async function createReceitaShareLink(recipeId: string, patientId: string
   if (!user) {
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
+
+  const limited = await rateLimitOrError(supabase, "gerar_pdf");
+  if (limited) return limited;
 
   const existente = await findActiveToken(supabase, "receita", recipeId);
   if (existente) return tokenToResult(existente);
@@ -207,6 +214,9 @@ export async function createReciboShareLink(paymentId: string, patientId: string
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
 
+  const limited = await rateLimitOrError(supabase, "gerar_pdf");
+  if (limited) return limited;
+
   const existente = await findActiveToken(supabase, "recibo", paymentId);
   if (existente) return tokenToResult(existente);
 
@@ -259,6 +269,9 @@ export async function createMaterialShareLink(materialId: string, patientId: str
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
 
+  const limited = await rateLimitOrError(supabase, "gerar_pdf");
+  if (limited) return limited;
+
   const existente = await findActiveToken(supabase, "material", materialId);
   if (existente) return tokenToResult(existente);
 
@@ -310,6 +323,9 @@ export async function createArquivoShareLink(patientId: string, formData: FormDa
   if (!user) {
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
+
+  const limited = await rateLimitOrError(supabase, "enviar_arquivo");
+  if (limited) return limited;
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {

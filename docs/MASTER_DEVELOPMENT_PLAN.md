@@ -1297,21 +1297,97 @@ mantendo `visibilidade` pronta para a extensão futura ser aditiva.
 
 ---
 
-## PHASE 11 — Polimento, acessibilidade e QA · `TODO` · `HIGH`
+## PHASE 11 — Polimento, acessibilidade e QA · `IN_PROGRESS` · `HIGH`
 
 **Contínua, com auditoria formal antes de cada release.**
 
+### Bloco A — segurança · `DONE` (2026-09-21)
+
+**Objetivo:** não adicionar funcionalidade — tentar quebrar o que já existe.
+
 ```
+[x] Teste de isolamento entre profissionais (TODAS as tabelas com RLS + Storage)
+[x] Rate limiting nas operações caras (gerar PDF/link, enviar arquivo)
+[x] Política de senha forte (mínimo 8 + bloqueio de senha comum)
 [ ] Auditoria de contraste (WCAG AA)
 [ ] Navegação completa por teclado
 [ ] Alternativa textual para o gráfico de evolução
 [ ] Revisão de responsividade (tabela de plano no mobile)
 [ ] Testes E2E dos fluxos críticos (Playwright)
-[ ] Teste de isolamento entre profissionais
 [ ] Observabilidade (Sentry)
-[ ] Rate limiting nas Server Actions
-[ ] Política de senha forte
 ```
+
+**1. Teste de isolamento — `scripts/test-security-isolation-full.mjs`.** Suíte única cobrindo
+as **28 tabelas com RLS do projeto** (patients, anamnesis, anthropometric_assessments, foods,
+recipes, recipe_ingredients, meal_plans, meals, meal_items, appointments, tasks,
+patient_consents, lab_exams, lab_markers, patient_photos, expenses, expense_occurrences,
+patient_billings, payments, library_materials, feedback, document_share_tokens,
+plan_share_tokens, profiles, audit_log) e os **5 buckets de Storage**
+(profissional/receitas/planos/documentos/fotos-evolucao). Cria 2 contas descartáveis (A e B) e,
+para cada tabela/bucket, tenta como B — com o JWT real de B, nunca a service role — ler, alterar
+e excluir o que é de A. Mesma regra de execução já usada desde a Fase 2 (`test-storage-isolation.mjs`):
+qualquer sucesso numa tentativa que deveria falhar para o script imediatamente com o detalhe
+exato do vazamento. Ordem de teste pensada pra segurança da própria suíte: tabelas-filha antes
+das mães, e `patients` (pai transitivo de quase tudo) por último — assim um vazamento real numa
+tabela cedo no teste não apagaria em cascata a evidência das tabelas ainda não testadas.
+
+Ficaram fora desta rodada (mesmo padrão RLS `auth.uid() = user_id` já comprovado correto em mais
+de vinte outras tabelas — risco residual baixo, não um caso novo): `meal_templates`,
+`meal_template_items`, `meal_item_substitutions`, customização pessoal de
+`lab_reference_ranges`.
+
+**Executado em 2026-09-21 contra o projeto Supabase real — 87/87 verificações passaram, nenhum
+vazamento encontrado.** Contas de teste descartáveis, criadas e removidas automaticamente ao
+final (`npm run test:security-isolation-full`, exige `SUPABASE_SERVICE_ROLE_KEY` temporário no
+`.env.local`, removido logo depois de rodar).
+
+**2. Rate limiting — decisão registrada com o usuário antes de implementar.** Netlify Functions
+são serverless (sem estado em memória entre invocações) — um contador em variável de módulo não
+funcionaria. Duas opções foram avaliadas: (a) contador no Postgres via função `security definer`,
+zero infraestrutura/dependência nova; (b) Upstash Redis + `@upstash/ratelimit`, mais "de
+livro-texto" mas exige serviço externo novo. **Escolhida a opção (a)** — mesmo princípio de
+sempre no projeto (RLS, audit_log, soft delete: tudo mora no Postgres, nada bolt-on). Escopo
+final das operações protegidas, também acordado com o usuário: **gerar PDF/link de
+compartilhamento** e **enviar arquivo** — as duas categorias de operação cara que de fato
+existem hoje no produto ("convite" e "importação" citados no pedido original não correspondem a
+nenhuma tela real: convite não existe no sistema, e a única importação é um script de admin que
+o nutricionista nunca aciona).
+
+Migration `0034`: tabela `rate_limit_counters` (user_id, ação, início da janela, contagem) sem
+NENHUMA policy de select/insert/update/delete para `authenticated` — só a função
+`check_rate_limit` (security definer) toca nela, sempre usando `auth.uid()` internamente (nunca
+recebe um user_id do chamador, pra um usuário nunca poder incrementar/checar em nome de outro).
+Janela **fixa** (não deslizante) — mais simples que sliding window, suficiente pra conter abuso.
+`INSERT ... ON CONFLICT DO UPDATE SET contagem = contagem + 1` é atômico no Postgres, o que
+resolve exatamente o problema de "sem estado compartilhado entre invocações" apontado no pedido.
+
+`src/lib/rate-limit.ts` centraliza os limites (`RATE_LIMITS`, hoje 30 tentativas/hora pra cada
+categoria) e falha **aberta** de propósito: se a própria checagem der erro, a operação segue
+normalmente — o rate limiter nunca deve virar um jeito de derrubar o produto sozinho. Aplicado
+no início de cada Server Action que gera PDF/link (as 5 funções de `document-share.ts` +
+`createPlanShareLink`) ou recebe arquivo (`uploadProfileFile`, `uploadRecipeImage`,
+`uploadLabExamFile`, `uploadPatientPhoto`, `createLibraryMaterialComArquivo`), e nos dois Route
+Handlers de PDF (`/planos/[id]/pdf`, `/biblioteca/[id]/pdf`, que retornam HTTP 429 quando
+estourado). Verificado com `scripts/test-rate-limit.mjs` (`npm run test:rate-limit`): libera até
+o limite, bloqueia na tentativa seguinte, contador é isolado por usuário E por ação — 6/6
+passaram contra o projeto real.
+
+**3. Política de senha.** Mínimo subiu de 6 para **8 caracteres** em `registerSchema`/
+`resetPasswordSchema` (`src/lib/validations/auth.ts`), mais bloqueio de ~45 senhas triviais
+conhecidas (`src/lib/validations/common-passwords.ts`, ex.: "123456", "senha123", "qwerty123").
+7 testes novos em `auth.test.ts`. **Isso é só a camada de UX no formulário** — cadastro e reset
+de senha chamam `supabase.auth.signUp()`/`updateUser()` direto do navegador, sem passar pelo
+nosso servidor, então a autoridade de verdade é a configuração de Auth no painel do Supabase
+(comprimento mínimo + "Leaked password protection", que checa contra vazamentos reais via
+HaveIBeenPwned) — ajustada manualmente pelo usuário, não dá pra configurar por código.
+
+`npm test` (243/243), `npm run lint` e `npm run build` passam.
+
+### Riscos (mitigado)
+Rate limiting mal implementado pode virar um jeito de derrubar o próprio produto (se travar
+usuário legítimo, ou se a checagem em si cair o sistema todo). Mitigado com falha aberta
+deliberada e limites generosos (30/hora) — pensado pra conter abuso, não pra ser um obstáculo no
+uso normal.
 
 ---
 

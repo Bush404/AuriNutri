@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { generateMaterialPdf } from "@/lib/pdf/generate-material-pdf";
+import { withinRateLimit } from "@/lib/rate-limit";
 
 /**
  * PDF de um material da biblioteca — usado pelo "Visualizar" da listagem
@@ -20,6 +21,10 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
   if (!user) {
     return new NextResponse("Não autorizado.", { status: 401 });
+  }
+
+  if (!(await withinRateLimit(supabase, "gerar_pdf"))) {
+    return new NextResponse("Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.", { status: 429 });
   }
 
   const result = await generateMaterialPdf(supabase, user, params.id);

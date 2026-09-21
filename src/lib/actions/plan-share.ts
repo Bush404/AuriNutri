@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { generatePlanPdf } from "@/lib/pdf/generate-plan-pdf";
+import { rateLimitOrError } from "@/lib/rate-limit";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { PlanShareToken } from "@/lib/types/database.types";
 
@@ -31,6 +32,9 @@ export async function createPlanShareLink(planId: string): Promise<CreatePlanSha
   if (!user) {
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
+
+  const limited = await rateLimitOrError(supabase, "gerar_pdf");
+  if (limited) return limited;
 
   const generated = await generatePlanPdf(supabase, user, planId);
   if (!generated) {
