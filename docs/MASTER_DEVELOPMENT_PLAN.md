@@ -737,7 +737,12 @@ plano de contas.
     gratuito), criando/atualizando patient_billings/payments por baixo (pós-fechamento);
     campo obrigatório, e travado quando a consulta já pertence a um pacote
 [x] Bloco E — "Novo pacote" na Agenda: agenda N consultas de uma vez (datas/horários
-    individuais), com uma cobrança de pacote em comum (1 parcela por consulta)
+    individuais), com uma cobrança de pacote em comum (1 cobrança única, exceto "pagou
+    sinal" que gera sinal + restante)
+[x] Correções pós-uso (21/09/2026) — excluir consulta cancela a cobrança pendente ligada
+    a ela (avulsa ou pacote), sempre perguntando antes se há valor já pago; cancelamento
+    parcial de pacote oferece cobrar só a parte realizada ou excluir tudo; cobranças
+    pendentes editáveis/excluíveis na aba Financeiro do paciente
 ```
 
 **Bloco A (2026-09-20) — backend:** migration `0025_finance.sql`. Três tabelas, mesmo
@@ -1051,23 +1056,17 @@ consulta" que abre um formulário para agendar **N consultas de uma vez**, com u
 de pacote em comum. Diferente do formulário de consulta avulsa: em vez de uma Data/Início/
 Término únicos, uma lista dinâmica (uma linha por consulta, que cresce/encolhe com o campo
 "Número de consultas") com Data + Início + Término individuais de cada uma. Status
-financeiro adaptado pro pacote — **decisões tomadas com o usuário antes de implementar**:
-"não pago" e "pagou integral" sempre dividem o valor total em uma parcela por consulta
-(pendente ou já paga, respectivamente — nunca um lançamento único pro pacote inteiro), e
-"pagou sinal" gera o sinal como UM lançamento à parte (pago, valor+data+forma) mais o
-restante (valor total − sinal) dividido em uma parcela pendente por consulta, vencendo na
-data de cada uma — pedido explícito do usuário ("o vencimento do restante deve corresponder
-a cada data de consulta").
+financeiro adaptado pro pacote, na primeira versão: "não pago" e "pagou integral" sempre
+dividiam o valor total em uma parcela por consulta, e "pagou sinal" dividia o restante pelas
+datas das consultas. **Revertido no mesmo dia**, ver "Correções pós-uso" abaixo — pacote
+passou a gerar uma cobrança única.
 
 Decisão de arquitetura: nenhuma tabela nova, de novo. `patient_billings.appointment_id`
 (Bloco D, migration 0029) é 1:1 — serve só pra consulta avulsa. Um pacote é o oposto (N
 consultas : 1 cobrança), então a FK precisou ir no sentido inverso:
 `appointments.patient_billing_id` (nova, migration `0030`), muitas consultas apontando pra
-uma cobrança só. `buildPackageInstallments` (função pura nova em `finance.ts`, reaproveita
-`splitInstallments`) monta as parcelas — sem `pago`, todas nascem pendentes; com `pago`,
-todas nascem pagas na mesma data/forma. `subtractCurrency` (nova, mesmo cuidado de centavos
-de sempre) calcula o restante do sinal. `setPackageBillingStatus` (nova Server Action) cria
-a cobrança + as N (ou N+1, com sinal) parcelas, e liga as N consultas a ela.
+uma cobrança só. `setPackageBillingStatus` (nova Server Action) cria a cobrança + os
+`payments` e liga as N consultas a ela.
 
 A criação das N consultas reaproveita `createAppointment` chamado N vezes em sequência, uma
 por linha — herda de graça a checagem de conflito de horário que já existia lá, sem
@@ -1085,6 +1084,64 @@ criaria uma cobrança avulsa conflitante, duplicada, por cima da cobrança do pa
 exceção.
 
 6 testes novos (`buildPackageInstallments`, `subtractCurrency`). 231 testes no total.
+`npm test`, `npm run build` e `npm run lint` passam.
+
+**Correções pós-uso (21/09/2026) — cascata de cancelamento entre Agenda e Financeiro.**
+Depois de usar os Blocos D e E de verdade, o usuário achou várias inconsistências entre
+excluir uma consulta na Agenda e o que ficava (ou sumia) no Financeiro. Sequência de ajustes,
+todos no mesmo dia:
+
+1. **Excluir uma consulta cancela a cobrança pendente ligada a ela.** Antes, `deleteAppointment`
+   só apagava a consulta — a `patient_billing`/`payments` ficavam órfãs, aparecendo em
+   Pendente/Recebido sem nenhuma consulta por trás. Nova função `cancelAppointmentBilling`
+   (`finance.ts`), chamada por `deleteAppointment` depois do soft delete: avulsa (1:1) cancela
+   sempre; pacote (N:1) só cancela quando a ÚLTIMA consulta ligada a ele é excluída (as
+   demais continuam agendadas normalmente).
+2. **Pacote agora gera uma cobrança única, não uma parcela por consulta.** Revertendo a
+   decisão original do Bloco E: na prática, quase todo pacote é pago de uma vez (à vista/
+   cartão no ato de agendar), então dividir em N parcelas só gerava ruído em Pendentes.
+   `buildPackageInstallments` foi removido (dead code); "não pago"/"pagou integral" geram 1
+   `payment`; "pagou sinal" continua com 2 (sinal pago + restante), mas o vencimento do
+   restante agora é uma única data digitada (`vencimentoFalta`), não mais uma por consulta.
+3. **Excluir a última cobrança de um pacote pergunta antes de mexer nas consultas.** Diálogo
+   "Deseja também cancelar as consultas deste pacote?" na aba Financeiro do paciente, com o
+   mesmo cuidado da avulsa.
+4. **Cancelamento parcial de pacote nunca decide sozinho o que fazer com o dinheiro.** Se
+   pelo menos 1 consulta do pacote já foi realizada (ou faltou/foi cancelada) e sobram outras
+   ainda agendadas, excluir a cobrança abre "Cancelamento parcial do pacote" com duas opções
+   — **"Cobrar apenas a consulta realizada"** (cancela as consultas restantes e abre a edição
+   do valor pra reduzir a cobrança) ou **"Excluir cobrança inteira"** (reembolso total) —
+   nunca um "manter sem editar" (removido por ser inútil na prática, feedback do usuário).
+   A edição do valor só cancela as consultas DEPOIS de salvar (`onSaved` no
+   `EditPatientPaymentDialog`), nunca antes — bug corrigido no mesmo dia (cancelava ao abrir
+   o formulário, mesmo se o usuário desistisse sem salvar).
+5. **Cobranças pendentes viraram editáveis e excluíveis na aba Financeiro do paciente.**
+   `updatePayment`/`deletePayment` já existiam desde o Bloco A mas nunca tinham sido ligadas a
+   uma tela — agora cada linha pendente tem lápis (editar valor/vencimento/observações) e
+   lixeira. Pacotes ganharam uma descrição clicável que abre um diálogo com as consultas
+   vinculadas (data/horário/status) — segunda embed do Supabase com hint explícito de FK
+   (`appointments!patient_billings_appointment_id_fkey` vs.
+   `appointments!appointments_patient_billing_id_fkey`), necessário porque há duas relações
+   distintas entre as tabelas.
+6. **Excluir uma consulta já paga pergunta antes de apagar o pagamento.** Faltava o caso
+   inverso do item 1: excluir uma consulta com valor JÁ RECEBIDO (avulsa "pagou sinal"/
+   "pagou integral", ou a última consulta de um pacote com pagamento registrado) também
+   cascateava e apagava o pagamento. Novo diálogo "Excluir consulta já paga" no formulário de
+   edição da Agenda, com **"Manter o pagamento e excluir só a consulta"** ou **"Excluir
+   consulta e pagamento juntos"**. `deleteAppointment` ganhou a opção `{ keepBilling: true }`
+   pra pular a cascata; nova Server Action `getPackageDeletionImpact` verifica de antemão (via
+   `useEffect` no diálogo) se a consulta é a última do pacote e se há algo pago, pra decidir
+   se pergunta ou não. Testado manualmente ponta a ponta (paciente Rick Palopoli, pacote de 3
+   consultas): desfazer pagamento → cancelamento parcial mantendo R$200 da consulta realizada
+   → marcar como recebido de novo → excluir a consulta na Agenda mantendo o pagamento →
+   R$200 continua em "Recebido no mês".
+
+Layout: o diálogo de decisão (3 botões em cenário parcial, 2 no de consulta já paga) tinha o
+mesmo bug em ambos os lugares — texto/botões cortados no `max-w-md` padrão do `AlertDialog`.
+Corrigido igual nos dois: `sm:max-w-lg` + botões empilhados verticalmente em vez do
+`AlertDialogFooter` padrão (que só funciona bem com 1-2 botões).
+
+227 testes no total (net: -4 depois de remover os testes de `buildPackageInstallments`).
 `npm test`, `npm run build` e `npm run lint` passam.
 
 ### Próximo passo
