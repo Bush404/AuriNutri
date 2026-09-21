@@ -5,6 +5,7 @@ import {
   averageMonthlyAppointments,
   buildInstallmentPayments,
   costPerAppointment,
+  deriveAppointmentBillingState,
   firstOccurrenceOnOrAfter,
   formatCurrencyBRL,
   latestOccurrencePerExpense,
@@ -14,6 +15,7 @@ import {
   normalizeToMonthly,
   occurrenceDateInMonth,
   splitInstallments,
+  subtractCurrency,
   sumCurrency,
 } from "./finance";
 
@@ -445,3 +447,66 @@ describe("buildInstallmentPayments", () => {
     expect(parcelas.map((p) => p.data_vencimento)).toEqual(["2026-12-10", "2027-01-10"]);
   });
 });
+
+describe("deriveAppointmentBillingState", () => {
+  it("sem payments e sem status 'gratuito' → null (nunca definido)", () => {
+    expect(deriveAppointmentBillingState(null, [])).toEqual({ status: null });
+  });
+
+  it("sem payments mas status 'gratuito' → gratuito", () => {
+    expect(deriveAppointmentBillingState("gratuito", [])).toEqual({ status: "gratuito" });
+  });
+
+  it("1 payment pendente → não pago", () => {
+    const state = deriveAppointmentBillingState("nao_pago", [
+      { valor: 150, data_vencimento: "2026-09-25", data_pagamento: null, forma_pagamento: null },
+    ]);
+    expect(state).toEqual({ status: "nao_pago", naoPagoValor: 150, naoPagoVencimento: "2026-09-25" });
+  });
+
+  it("1 payment pago → pagou integral", () => {
+    const state = deriveAppointmentBillingState("pagou_integral", [
+      { valor: 150, data_vencimento: "2026-09-25", data_pagamento: "2026-09-25", forma_pagamento: "pix" },
+    ]);
+    expect(state).toEqual({
+      status: "pagou_integral",
+      integralValor: 150,
+      integralData: "2026-09-25",
+      integralForma: "pix",
+    });
+  });
+
+  it("2 payments (1 pago + 1 pendente) → pagou sinal", () => {
+    const state = deriveAppointmentBillingState("pagou_sinal", [
+      { valor: 50, data_vencimento: "2026-09-20", data_pagamento: "2026-09-20", forma_pagamento: "pix" },
+      { valor: 100, data_vencimento: "2026-09-25", data_pagamento: null, forma_pagamento: null },
+    ]);
+    expect(state).toEqual({
+      status: "pagou_sinal",
+      sinalValor: 50,
+      sinalData: "2026-09-20",
+      sinalForma: "pix",
+      faltaValor: 100,
+      faltaVencimento: "2026-09-25",
+    });
+  });
+
+  it("formato inesperado (ex.: 2 pagos, ou 3+ payments) não quebra — retorna status null", () => {
+    const doisPagos = deriveAppointmentBillingState("pagou_sinal", [
+      { valor: 50, data_vencimento: "2026-09-20", data_pagamento: "2026-09-20", forma_pagamento: "pix" },
+      { valor: 100, data_vencimento: "2026-09-25", data_pagamento: "2026-09-25", forma_pagamento: "dinheiro" },
+    ]);
+    expect(doisPagos.status).toBeNull();
+  });
+});
+
+describe("subtractCurrency", () => {
+  it("subtrai exatamente, sem erro de ponto flutuante", () => {
+    expect(subtractCurrency(1, 0.9)).toBe(0.1);
+  });
+
+  it("resultado negativo é permitido (a validação de 'sinal < total' é responsabilidade de quem chama)", () => {
+    expect(subtractCurrency(50, 100)).toBe(-50);
+  });
+});
+

@@ -11,6 +11,7 @@ import { zonedWallTimeToUtc, utcInstantToZonedDateTime, DEFAULT_TIME_ZONE } from
 import { rangesOverlap } from "@/lib/agenda";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { AppointmentStatus } from "@/lib/types/database.types";
+import { cancelAppointmentBilling } from "@/lib/actions/finance";
 
 /** Busca o fuso do profissional para interpretar o horário de parede digitado. Nunca usa o fuso do servidor. */
 async function getProfessionalTimeZone(
@@ -79,7 +80,12 @@ function isOverlapConstraintError(error: { code?: string } | null): boolean {
   return error?.code === "23P01";
 }
 
-export async function createAppointment(input: AppointmentInput): Promise<ActionResult> {
+export interface CreateAppointmentResult extends ActionResult {
+  /** Id da consulta recém-criada — usado pelo diálogo pra ligar o Status financeiro a ela logo em seguida. */
+  id?: string;
+}
+
+export async function createAppointment(input: AppointmentInput): Promise<CreateAppointmentResult> {
   const parsed = appointmentSchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
@@ -104,16 +110,20 @@ export async function createAppointment(input: AppointmentInput): Promise<Action
     return { success: false, message: conflictMessage(conflict, timeZone) };
   }
 
-  const { error } = await supabase.from("appointments").insert({
-    patient_id: parsed.data.patient_id,
-    user_id: user.id,
-    data_hora: dataHoraIso,
-    data_fim: fimIso,
-    duracao_min: parsed.data.duracao_min,
-    tipo: parsed.data.tipo,
-    status: parsed.data.status ?? "agendado",
-    observacoes: parsed.data.observacoes || null,
-  });
+  const { data, error } = await supabase
+    .from("appointments")
+    .insert({
+      patient_id: parsed.data.patient_id,
+      user_id: user.id,
+      data_hora: dataHoraIso,
+      data_fim: fimIso,
+      duracao_min: parsed.data.duracao_min,
+      tipo: parsed.data.tipo,
+      status: parsed.data.status ?? "agendado",
+      observacoes: parsed.data.observacoes || null,
+    })
+    .select("id")
+    .single<{ id: string }>();
 
   if (error) {
     return {
@@ -124,7 +134,7 @@ export async function createAppointment(input: AppointmentInput): Promise<Action
 
   revalidatePath("/agenda");
   revalidatePath(`/pacientes/${parsed.data.patient_id}`);
-  return { success: true, message: "Consulta agendada com sucesso." };
+  return { success: true, message: "Consulta agendada com sucesso.", id: data.id };
 }
 
 export async function updateAppointment(
@@ -262,9 +272,26 @@ export async function rescheduleAppointment(
   return { success: true, message: "Consulta remarcada." };
 }
 
-/** Soft delete via função `security definer` (migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
-export async function deleteAppointment(appointmentId: string): Promise<ActionResult> {
+/**
+ * Soft delete via função `security definer` (migration 0017) — ver comentário em deleteRecipe
+ * (recipes.ts). Também cancela a cobrança financeira ligada à consulta (avulsa sempre, pacote
+ * só quando a última consulta dele é excluída) — ver cancelAppointmentBilling (finance.ts).
+ *
+ * `keepBilling: true` pula essa cascata — usado quando a consulta já foi paga e o profissional
+ * escolheu explicitamente manter o pagamento registrado ao excluir só a consulta da Agenda (não
+ * faz sentido apagar dinheiro já recebido só porque a consulta some do calendário).
+ */
+export async function deleteAppointment(
+  appointmentId: string,
+  options?: { keepBilling?: boolean }
+): Promise<ActionResult> {
   const supabase = createClient();
+
+  const { data: appointment } = await supabase
+    .from("appointments")
+    .select("patient_id, patient_billing_id")
+    .eq("id", appointmentId)
+    .single<{ patient_id: string; patient_billing_id: string | null }>();
 
   const { data, error } = await supabase.rpc("soft_delete_appointment", { appointment_id: appointmentId });
 
@@ -275,6 +302,15 @@ export async function deleteAppointment(appointmentId: string): Promise<ActionRe
     return { success: false, message: "Agendamento não encontrado." };
   }
 
+  if (!options?.keepBilling) {
+    await cancelAppointmentBilling(appointmentId, appointment?.patient_billing_id ?? null);
+  }
+
   revalidatePath("/agenda");
+  revalidatePath("/financeiro");
+  revalidatePath("/dashboard");
+  if (appointment?.patient_id) {
+    revalidatePath(`/pacientes/${appointment.patient_id}`);
+  }
   return { success: true };
 }

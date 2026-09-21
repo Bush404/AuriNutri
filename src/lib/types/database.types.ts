@@ -408,6 +408,8 @@ export interface DocumentShareToken {
 
 export type AppointmentTipo = "primeira_consulta" | "retorno" | "avaliacao" | "outro";
 export type AppointmentStatus = "agendado" | "confirmado" | "realizado" | "faltou" | "cancelado";
+/** Fase 9, Bloco D. O valor de verdade (quanto, quando, como) fica em patient_billings/payments via appointment_id — esta coluna só distingue "gratuito" de "nunca definido". */
+export type AppointmentFinancialStatus = "nao_pago" | "pagou_sinal" | "pagou_integral" | "gratuito";
 
 export interface Appointment {
   id: string;
@@ -421,6 +423,9 @@ export interface Appointment {
   tipo: AppointmentTipo;
   status: AppointmentStatus;
   observacoes: string | null;
+  status_financeiro: AppointmentFinancialStatus | null;
+  /** Presente quando faz parte de um pacote (N:1) — diferente do link 1:1 usado por consulta avulsa (patient_billings.appointment_id). */
+  patient_billing_id: string | null;
   created_at: string;
   updated_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */
@@ -527,6 +532,8 @@ export interface PatientBilling {
   /** Só para tipo = 'pacote'. */
   numero_consultas: number | null;
   data_inicio: string;
+  /** Presente quando esta cobrança nasceu do Status financeiro de um agendamento — nulo quando criada direto na aba Financeiro do paciente. */
+  appointment_id: string | null;
   created_at: string;
   updated_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */

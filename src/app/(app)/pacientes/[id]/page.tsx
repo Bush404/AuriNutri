@@ -83,7 +83,9 @@ export default async function PacienteDetalhePage({ params }: { params: { id: st
     getSendCenterContext(params.id),
     supabase
       .from("patient_billings")
-      .select("*, payments(*)")
+      .select(
+        "*, payments(*), appointments!patient_billings_appointment_id_fkey(id, status, data_hora), pacote_consultas:appointments!appointments_patient_billing_id_fkey(id, status, data_hora, duracao_min)"
+      )
       .eq("patient_id", params.id)
       .order("created_at", { ascending: false })
       .order("data_vencimento", { foreignTable: "payments", ascending: true })

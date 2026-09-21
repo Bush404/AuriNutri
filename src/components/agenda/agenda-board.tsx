@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { MonthView } from "@/components/agenda/month-view";
 import { WeekView } from "@/components/agenda/week-view";
 import { AppointmentFormDialog } from "@/components/agenda/appointment-form-dialog";
+import { PackageFormDialog } from "@/components/agenda/package-form-dialog";
 import { RescheduleDialog } from "@/components/agenda/reschedule-dialog";
 import { DayDetailDialog } from "@/components/agenda/day-detail-dialog";
 
@@ -39,6 +40,7 @@ export function AgendaBoard({
   patientFilter,
 }: AgendaBoardProps) {
   const [formDialog, setFormDialog] = useState<FormDialogState>({ open: false });
+  const [packageDialogOpen, setPackageDialogOpen] = useState(false);
   const [rescheduleTarget, setRescheduleTarget] = useState<AppointmentWithPatient | null>(null);
   const [dayDetailDate, setDayDetailDate] = useState<string | null>(null);
 
@@ -52,10 +54,14 @@ export function AgendaBoard({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
         <Button size="sm" onClick={() => openCreate(todayStr)}>
           <Plus className="h-4 w-4" />
           Nova consulta
+        </Button>
+        <Button size="sm" onClick={() => setPackageDialogOpen(true)}>
+          <Plus className="h-4 w-4" />
+          Novo pacote
         </Button>
       </div>
 
@@ -89,6 +95,14 @@ export function AgendaBoard({
         appointment={formDialog.open ? formDialog.appointment : undefined}
         defaultDateStr={formDialog.open ? formDialog.defaultDateStr : undefined}
         defaultTimeStr={formDialog.open ? formDialog.defaultTimeStr : undefined}
+        defaultPatient={patientFilter}
+      />
+
+      <PackageFormDialog
+        open={packageDialogOpen}
+        onOpenChange={setPackageDialogOpen}
+        timeZone={timeZone}
+        defaultDateStr={todayStr}
         defaultPatient={patientFilter}
       />
 

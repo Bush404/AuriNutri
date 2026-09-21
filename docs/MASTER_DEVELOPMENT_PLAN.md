@@ -731,6 +731,13 @@ plano de contas.
 [x] Bloco C — Recibo em PDF com identidade profissional (reaproveita @react-pdf/renderer, Fase 4)
 [x] Bloco C — envio do recibo pela Central de Envio (WhatsApp)
 [x] Bloco C — dashboard: recebido no mês, pendente, ticket médio, despesas a vencer
+[x] Bloco C — página Financeiro: painéis "Pendente por paciente" e "Recebido no mês por
+    paciente" (pós-uso, 20/09/2026), abaixo da lista de despesas, com scroll próprio
+[x] Bloco D — Status financeiro no agendamento (não pago/pagou sinal/pagou integral/
+    gratuito), criando/atualizando patient_billings/payments por baixo (pós-fechamento);
+    campo obrigatório, e travado quando a consulta já pertence a um pacote
+[x] Bloco E — "Novo pacote" na Agenda: agenda N consultas de uma vez (datas/horários
+    individuais), com uma cobrança de pacote em comum (1 parcela por consulta)
 ```
 
 **Bloco A (2026-09-20) — backend:** migration `0025_finance.sql`. Três tabelas, mesmo
@@ -981,6 +988,11 @@ soma exata está no `npm test` abaixo, não recontada manualmente aqui). `npm te
       pendente, despesas a vencer) já estão no dashboard, mas não há uma tela dedicada de
       fechamento mensal. Não foi pedida explicitamente no Bloco C; registrada aqui como
       lacuna conhecida caso vire pedido futuro.
+- [x] Status financeiro do agendamento (Bloco D) reflete corretamente em Pendente/Recebido
+      em todos os lugares (aba do paciente, dashboard, página Financeiro), sem lógica
+      duplicada — só cria/substitui `patient_billings`/`payments` já existentes.
+- [x] "Gratuito" e "nunca definido" são distinguíveis ao reabrir um agendamento pra editar
+      (`appointments.status_financeiro`), mesmo nenhum dos dois gerando `payment` nenhum.
 
 ### Riscos (mitigado)
 Cálculo monetário incorreto é o pior tipo de bug num módulo financeiro — silencioso e só
@@ -991,12 +1003,96 @@ bug real encontrado no Bloco C (`Date.setMonth()` quebrando parcelas com início
 função pura e testável — outro motivo pra nunca deixar cálculo de data/dinheiro solto dentro
 de uma Server Action sem teste.
 
+**Bloco D (2026-09-20, pós-fechamento) — Status financeiro no agendamento.** Pedido do
+usuário depois de já ter fechado a fase: ao agendar/editar uma consulta na Agenda, um campo
+"Status financeiro" (inicialmente opcional, depois tornado **obrigatório** a pedido do
+usuário — ver ajuste de UX abaixo) com 4 opções — **não pago** (digita o valor da consulta,
+vira pendente), **pagou sinal** (digita valor + data + forma do sinal recebido, e quanto
+falta + vencimento do restante — dois lançamentos, um pago e um pendente), **pagou
+integral** (digita valor + data + forma de pagamento) e **gratuito** (nenhum lançamento).
+
+Decisão de arquitetura: nenhuma tabela nova. Por baixo, isso cria/substitui uma
+`patient_billings` avulsa (nova coluna `appointment_id`, migration `0029`) com seus
+`payments` — as MESMAS tabelas que a aba Financeiro do paciente, o dashboard e a página
+Financeiro já leem. É por isso que um agendamento marcado "não pago" já aparece certo em
+Pendente em todo lugar, sem nenhuma lógica nova nesses três lugares. Trocar o status depois
+(reabrir o agendamento e mudar de "pagou sinal" pra "não pago", por exemplo) sempre
+**substitui** a cobrança anterior (soft delete da antiga + criação de uma nova) em vez de
+tentar reconciliar formatos diferentes — mais simples e robusto, dado que são no máximo 2
+linhas.
+
+`appointments.status_financeiro` (mesma migration) existe só por um motivo: como não dá pra
+gravar um `payment` de valor R$0 (constraint `valor > 0` desde a 0025), "gratuito" não deixa
+nenhum rastro em `payments` — sem essa coluna, "gratuito" e "nunca definido" seriam
+indistinguíveis ao reabrir o agendamento pra editar. Para os outros 3 status, essa coluna é
+só um espelho de conveniência; o valor de verdade mora nos `payments`.
+
+Função pura nova `deriveAppointmentBillingState` (`finance.ts`) reconstrói o que mostrar no
+formulário a partir dos payments já salvos — 5 testes cobrindo os 3 formatos válidos e o
+caso "formato inesperado não quebra, só retorna não-definido". `createAppointment` passou a
+devolver o `id` da consulta criada (precisava disso pra já ligar o status financeiro numa
+consulta nova, não só ao editar uma existente). Centralizado `FORMA_PAGAMENTO_LABELS` em
+`validations/finance.ts` (estava duplicado em 3 componentes; virou 1).
+
+225 testes no total. `npm test`, `npm run build` e `npm run lint` passam.
+
+**Ajustes de UX no Bloco D (mesmo dia):** (1) removido o painel de contexto clínico
+(última consulta/avaliação/plano/pendências) que ficava entre "Paciente" e "Data" no
+formulário de agendamento — o `context` continua sendo buscado (o botão "Lembrete
+WhatsApp" ainda precisa do telefone do paciente), só parou de ser exibido; (2) formulário
+alargado (`sm:max-w-2xl`) e reorganizado em duas colunas — esquerda com Data/Início-
+Término/Tipo/Status, direita com o Status financeiro inteiro, separadas por uma linha
+vertical — em vez de tudo empilhado numa coluna só; (3) "Status financeiro" virou
+**obrigatório** (rótulo trocou de "(opcional)" pra `*`, e `handleSubmit` barra o envio sem
+uma escolha) — pedido explícito do usuário, não uma decisão técnica.
+
+**Bloco E (2026-09-20, mesmo dia) — "Novo pacote" na Agenda.** Botão ao lado de "Nova
+consulta" que abre um formulário para agendar **N consultas de uma vez**, com uma cobrança
+de pacote em comum. Diferente do formulário de consulta avulsa: em vez de uma Data/Início/
+Término únicos, uma lista dinâmica (uma linha por consulta, que cresce/encolhe com o campo
+"Número de consultas") com Data + Início + Término individuais de cada uma. Status
+financeiro adaptado pro pacote — **decisões tomadas com o usuário antes de implementar**:
+"não pago" e "pagou integral" sempre dividem o valor total em uma parcela por consulta
+(pendente ou já paga, respectivamente — nunca um lançamento único pro pacote inteiro), e
+"pagou sinal" gera o sinal como UM lançamento à parte (pago, valor+data+forma) mais o
+restante (valor total − sinal) dividido em uma parcela pendente por consulta, vencendo na
+data de cada uma — pedido explícito do usuário ("o vencimento do restante deve corresponder
+a cada data de consulta").
+
+Decisão de arquitetura: nenhuma tabela nova, de novo. `patient_billings.appointment_id`
+(Bloco D, migration 0029) é 1:1 — serve só pra consulta avulsa. Um pacote é o oposto (N
+consultas : 1 cobrança), então a FK precisou ir no sentido inverso:
+`appointments.patient_billing_id` (nova, migration `0030`), muitas consultas apontando pra
+uma cobrança só. `buildPackageInstallments` (função pura nova em `finance.ts`, reaproveita
+`splitInstallments`) monta as parcelas — sem `pago`, todas nascem pendentes; com `pago`,
+todas nascem pagas na mesma data/forma. `subtractCurrency` (nova, mesmo cuidado de centavos
+de sempre) calcula o restante do sinal. `setPackageBillingStatus` (nova Server Action) cria
+a cobrança + as N (ou N+1, com sinal) parcelas, e liga as N consultas a ela.
+
+A criação das N consultas reaproveita `createAppointment` chamado N vezes em sequência, uma
+por linha — herda de graça a checagem de conflito de horário que já existia lá, sem
+duplicar lógica. Se qualquer consulta falhar no meio do caminho (ex.: conflito de horário),
+ou se salvar o status financeiro falhar depois, tudo que já tinha sido criado é desfeito
+(soft delete) — nunca fica um pacote pela metade.
+
+**Decisão tomada com o usuário sobre o formulário normal de editar consulta:** se uma
+consulta que já pertence a um pacote for aberta ali (não pelo fluxo de "Novo pacote" — ex.:
+só remarcar uma sessão), o campo Status financeiro fica **travado**, com um aviso ("Faz
+parte de um pacote — use a aba Financeiro do paciente pra mexer no pagamento") em vez de
+pedir uma escolha nova. Sem isso, editar uma consulta avulsa dentro de um pacote já pago
+criaria uma cobrança avulsa conflitante, duplicada, por cima da cobrança do pacote — o
+"Status financeiro obrigatório" do Bloco D exigiria isso a cada edição se não fosse essa
+exceção.
+
+6 testes novos (`buildPackageInstallments`, `subtractCurrency`). 231 testes no total.
+`npm test`, `npm run build` e `npm run lint` passam.
+
 ### Próximo passo
-Fase 9 fecha aqui. Próxima da lista (`Ordem recomendada`, abaixo): **Fase 10 — Biblioteca e
-comunidade**, mas essa tem dependência explícita de "base de usuários ativa" — vale
-confirmar com o usuário se já faz sentido começar, ou se é hora de uma pausa pra validar o
-financeiro com nutricionistas reais antes de abrir uma fase nova (mesmo espírito do gate que
-fechou o MVP na Fase 4).
+Fase 9 fecha aqui (com os Blocos D e E incorporados). Próxima da lista (`Ordem
+recomendada`, abaixo): **Fase 10 — Biblioteca e comunidade**, mas essa tem dependência
+explícita de "base de usuários ativa" — vale confirmar com o usuário se já faz sentido
+começar, ou se é hora de uma pausa pra validar o financeiro com nutricionistas reais antes
+de abrir uma fase nova (mesmo espírito do gate que fechou o MVP na Fase 4).
 
 ---
 

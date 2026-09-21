@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   registerExpenseOccurrenceSchema,
   FORMAS_PAGAMENTO,
+  FORMA_PAGAMENTO_LABELS,
   type RegisterExpenseOccurrenceInput,
 } from "@/lib/validations/finance";
 import { registerExpenseOccurrencePayment } from "@/lib/actions/finance";
@@ -26,14 +27,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-const FORMA_PAGAMENTO_LABELS: Record<(typeof FORMAS_PAGAMENTO)[number], string> = {
-  pix: "Pix",
-  dinheiro: "Dinheiro",
-  cartao: "Cartão",
-  transferencia: "Transferência",
-  outro: "Outro",
-};
 
 interface RegisterExpenseOccurrenceDialogProps {
   occurrenceId: string;

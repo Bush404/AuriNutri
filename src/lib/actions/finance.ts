@@ -5,8 +5,13 @@ import { createClient } from "@/lib/supabase/server";
 import {
   advanceOneOccurrence,
   buildInstallmentPayments,
+  deriveAppointmentBillingState,
   firstOccurrenceOnOrAfter,
   latestOccurrencePerExpense,
+  subtractCurrency,
+  sumCurrency,
+  type AppointmentBillingPaymentLike,
+  type AppointmentBillingState,
 } from "@/lib/finance";
 import {
   expenseSchema,
@@ -14,12 +19,16 @@ import {
   paymentSchema,
   registerPaymentSchema,
   registerExpenseOccurrenceSchema,
+  appointmentBillingSchema,
+  packageBillingSchema,
   EXPENSE_RECORRENCIAS_COM_MES,
   type ExpenseInput,
   type PatientBillingInput,
   type PaymentInput,
   type RegisterPaymentInput,
   type RegisterExpenseOccurrenceInput,
+  type AppointmentBillingInput,
+  type PackageBillingInput,
 } from "@/lib/validations/finance";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { Expense } from "@/lib/types/database.types";
@@ -514,4 +523,425 @@ export async function deletePayment(paymentId: string): Promise<ActionResult> {
 
   revalidatePath("/financeiro");
   return { success: true };
+}
+
+// ----------------------------------------------------------------------------
+// APPOINTMENT FINANCIAL STATUS (Fase 9, Bloco D) — "Status financeiro" no
+// agendamento. Nunca cria uma tabela nova: por baixo, cria/substitui uma
+// patient_billing avulsa (ligada via appointment_id) e seus payments, as
+// MESMAS tabelas que a aba Financeiro do paciente usa — é por isso que já
+// aparece certo em Pendente/Recebido sem nenhuma lógica extra ali.
+// ----------------------------------------------------------------------------
+
+/** Lê o status financeiro atual de um agendamento, pra pré-preencher o formulário ao editar. */
+export async function getAppointmentBillingStatus(appointmentId: string): Promise<AppointmentBillingState> {
+  const supabase = createClient();
+
+  const { data: appointment } = await supabase
+    .from("appointments")
+    .select("status_financeiro")
+    .eq("id", appointmentId)
+    .single<{ status_financeiro: AppointmentBillingState["status"] }>();
+
+  const { data: billing } = await supabase
+    .from("patient_billings")
+    .select("id, payments(valor, data_vencimento, data_pagamento, forma_pagamento)")
+    .eq("appointment_id", appointmentId)
+    .maybeSingle<{ id: string; payments: AppointmentBillingPaymentLike[] }>();
+
+  return deriveAppointmentBillingState(appointment?.status_financeiro ?? null, billing?.payments ?? []);
+}
+
+/**
+ * Grava o status financeiro de um agendamento. Sempre substitui qualquer
+ * cobrança já ligada a ele (soft delete da antiga + criação de uma nova) em
+ * vez de tentar reconciliar formatos diferentes — trocar de "pagou sinal"
+ * (2 payments) pra "não pago" (1 payment) não dá pra fazer com um UPDATE
+ * simples, e "substituir" é simples, robusto, e barato (são no máximo 2
+ * linhas). 'gratuito' não cria payment nenhum (não dá pra gravar valor 0 —
+ * ver comentário na migration 0029).
+ */
+export async function setAppointmentBillingStatus(
+  appointmentId: string,
+  patientId: string,
+  input: AppointmentBillingInput
+): Promise<ActionResult> {
+  const parsed = appointmentBillingSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: "Dados inválidos. Verifique o status financeiro." };
+  }
+
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { success: false, message: "Sessão expirada. Faça login novamente." };
+  }
+
+  const { data: existente } = await supabase
+    .from("patient_billings")
+    .select("id, payments(id)")
+    .eq("appointment_id", appointmentId)
+    .maybeSingle<{ id: string; payments: { id: string }[] }>();
+
+  if (existente) {
+    for (const payment of existente.payments) {
+      await supabase.rpc("soft_delete_payment", { payment_id: payment.id });
+    }
+    await supabase.rpc("soft_delete_patient_billing", { billing_id: existente.id });
+  }
+
+  const { error: statusError } = await supabase
+    .from("appointments")
+    .update({ status_financeiro: parsed.data.status })
+    .eq("id", appointmentId);
+  if (statusError) {
+    return { success: false, message: statusError.message };
+  }
+
+  const paths = () => {
+    revalidatePath("/agenda");
+    revalidatePath(`/pacientes/${patientId}`);
+    revalidatePath("/financeiro");
+    revalidatePath("/dashboard");
+  };
+
+  if (parsed.data.status === "gratuito") {
+    paths();
+    return { success: true, message: "Consulta marcada como gratuita." };
+  }
+
+  let valorTotal: number;
+  let dataInicio: string;
+  let paymentsToInsert: {
+    billing_id: string;
+    user_id: string;
+    valor: number;
+    data_vencimento: string;
+    data_pagamento?: string;
+    forma_pagamento?: string;
+  }[];
+
+  switch (parsed.data.status) {
+    case "nao_pago":
+      valorTotal = parsed.data.valor;
+      dataInicio = parsed.data.vencimento;
+      break;
+    case "pagou_integral":
+      valorTotal = parsed.data.valor;
+      dataInicio = parsed.data.data;
+      break;
+    case "pagou_sinal":
+      valorTotal = sumCurrency([parsed.data.valorSinal, parsed.data.valorFalta]);
+      dataInicio = parsed.data.dataSinal;
+      break;
+  }
+
+  const { data: billing, error: billingError } = await supabase
+    .from("patient_billings")
+    .insert({
+      patient_id: patientId,
+      user_id: user.id,
+      appointment_id: appointmentId,
+      tipo: "avulso",
+      descricao: "Consulta",
+      valor_total: valorTotal,
+      data_inicio: dataInicio,
+    })
+    .select("id")
+    .single<{ id: string }>();
+
+  if (billingError || !billing) {
+    return { success: false, message: billingError?.message ?? "Não foi possível salvar o status financeiro." };
+  }
+
+  switch (parsed.data.status) {
+    case "nao_pago":
+      paymentsToInsert = [
+        {
+          billing_id: billing.id,
+          user_id: user.id,
+          valor: parsed.data.valor,
+          data_vencimento: parsed.data.vencimento,
+        },
+      ];
+      break;
+    case "pagou_integral":
+      paymentsToInsert = [
+        {
+          billing_id: billing.id,
+          user_id: user.id,
+          valor: parsed.data.valor,
+          data_vencimento: parsed.data.data,
+          data_pagamento: parsed.data.data,
+          forma_pagamento: parsed.data.forma_pagamento,
+        },
+      ];
+      break;
+    case "pagou_sinal":
+      paymentsToInsert = [
+        {
+          billing_id: billing.id,
+          user_id: user.id,
+          valor: parsed.data.valorSinal,
+          data_vencimento: parsed.data.dataSinal,
+          data_pagamento: parsed.data.dataSinal,
+          forma_pagamento: parsed.data.formaSinal,
+        },
+        {
+          billing_id: billing.id,
+          user_id: user.id,
+          valor: parsed.data.valorFalta,
+          data_vencimento: parsed.data.vencimentoFalta,
+        },
+      ];
+      break;
+  }
+
+  const { error: paymentsError } = await supabase.from("payments").insert(paymentsToInsert);
+
+  if (paymentsError) {
+    // Não deixa uma cobrança "fantasma" sem nenhum pagamento gerado.
+    await supabase.rpc("soft_delete_patient_billing", { billing_id: billing.id });
+    return { success: false, message: `Não foi possível registrar o pagamento: ${paymentsError.message}` };
+  }
+
+  paths();
+  return { success: true, message: "Status financeiro salvo." };
+}
+
+// ----------------------------------------------------------------------------
+// PACKAGE FINANCIAL STATUS (Fase 9, Bloco E) — "Novo pacote" na Agenda. Cria
+// UMA patient_billing (tipo 'pacote') compartilhada por várias consultas já
+// criadas (o chamador cria as N consultas via createAppointment ANTES de
+// chamar isto, uma por uma — reaproveita a checagem de conflito de horário
+// que já existe lá, sem duplicar). `appointments.patient_billing_id` liga
+// cada uma de volta pra esta cobrança (N:1 — o oposto do link 1:1 de
+// setAppointmentBillingStatus).
+// ----------------------------------------------------------------------------
+
+export async function setPackageBillingStatus(
+  appointmentIds: string[],
+  consultaDatas: string[],
+  patientId: string,
+  input: PackageBillingInput
+): Promise<ActionResult> {
+  if (appointmentIds.length === 0 || appointmentIds.length !== consultaDatas.length) {
+    return { success: false, message: "Lista de consultas do pacote inválida." };
+  }
+
+  const parsed = packageBillingSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: "Dados inválidos. Verifique o status financeiro do pacote." };
+  }
+
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { success: false, message: "Sessão expirada. Faça login novamente." };
+  }
+
+  const paths = () => {
+    revalidatePath("/agenda");
+    revalidatePath(`/pacientes/${patientId}`);
+    revalidatePath("/financeiro");
+    revalidatePath("/dashboard");
+  };
+
+  if (parsed.data.status === "gratuito") {
+    const { error: statusError } = await supabase
+      .from("appointments")
+      .update({ status_financeiro: "gratuito" })
+      .in("id", appointmentIds);
+    if (statusError) {
+      return { success: false, message: statusError.message };
+    }
+    paths();
+    return { success: true, message: "Pacote marcado como gratuito." };
+  }
+
+  const { data: billing, error: billingError } = await supabase
+    .from("patient_billings")
+    .insert({
+      patient_id: patientId,
+      user_id: user.id,
+      tipo: "pacote",
+      descricao: `Pacote de ${appointmentIds.length} consultas`,
+      valor_total: parsed.data.valorTotal,
+      numero_consultas: appointmentIds.length,
+      data_inicio: consultaDatas[0],
+    })
+    .select("id")
+    .single<{ id: string }>();
+
+  if (billingError || !billing) {
+    return { success: false, message: billingError?.message ?? "Não foi possível criar a cobrança do pacote." };
+  }
+
+  let paymentsToInsert: {
+    billing_id: string;
+    user_id: string;
+    valor: number;
+    data_vencimento: string;
+    data_pagamento?: string;
+    forma_pagamento?: string;
+  }[];
+
+  switch (parsed.data.status) {
+    case "nao_pago":
+      paymentsToInsert = [
+        {
+          billing_id: billing.id,
+          user_id: user.id,
+          valor: parsed.data.valorTotal,
+          data_vencimento: consultaDatas[0],
+        },
+      ];
+      break;
+    case "pagou_integral":
+      paymentsToInsert = [
+        {
+          billing_id: billing.id,
+          user_id: user.id,
+          valor: parsed.data.valorTotal,
+          data_vencimento: parsed.data.data,
+          data_pagamento: parsed.data.data,
+          forma_pagamento: parsed.data.forma_pagamento,
+        },
+      ];
+      break;
+    case "pagou_sinal":
+      paymentsToInsert = [
+        {
+          billing_id: billing.id,
+          user_id: user.id,
+          valor: parsed.data.valorSinal,
+          data_vencimento: parsed.data.dataSinal,
+          data_pagamento: parsed.data.dataSinal,
+          forma_pagamento: parsed.data.formaSinal,
+        },
+        {
+          billing_id: billing.id,
+          user_id: user.id,
+          valor: subtractCurrency(parsed.data.valorTotal, parsed.data.valorSinal),
+          data_vencimento: parsed.data.vencimentoFalta,
+        },
+      ];
+      break;
+  }
+
+  const { error: paymentsError } = await supabase.from("payments").insert(paymentsToInsert);
+  if (paymentsError) {
+    // Não deixa uma cobrança "fantasma" sem nenhum pagamento gerado.
+    await supabase.rpc("soft_delete_patient_billing", { billing_id: billing.id });
+    return { success: false, message: `Não foi possível registrar os pagamentos: ${paymentsError.message}` };
+  }
+
+  const { error: linkError } = await supabase
+    .from("appointments")
+    .update({ patient_billing_id: billing.id, status_financeiro: parsed.data.status })
+    .in("id", appointmentIds);
+
+  if (linkError) {
+    await supabase.rpc("soft_delete_patient_billing", { billing_id: billing.id });
+    return { success: false, message: `Não foi possível ligar as consultas ao pacote: ${linkError.message}` };
+  }
+
+  paths();
+  return { success: true, message: "Pacote agendado e status financeiro salvo." };
+}
+
+/**
+ * Cancela a cobrança financeira ligada a uma consulta que acabou de ser
+ * excluída (chamado por `deleteAppointment` DEPOIS do soft delete). Sem
+ * isso, excluir a(s) consulta(s) deixava a cobrança e os pagamentos
+ * "fantasmas" — apareciam em Pendente/Recebido mesmo sem nenhuma consulta
+ * por trás.
+ *
+ * - Avulso (`patient_billings.appointment_id`, 1:1): a cobrança existe só
+ *   pra esta consulta — cancela sempre junto.
+ * - Pacote (`appointments.patient_billing_id`, N:1): várias consultas
+ *   compartilham a cobrança — só cancela quando NENHUMA consulta do pacote
+ *   sobrar (as demais podem continuar agendadas normalmente).
+ */
+export async function cancelAppointmentBilling(
+  appointmentId: string,
+  packageBillingId: string | null
+): Promise<void> {
+  const supabase = createClient();
+
+  const { data: avulso } = await supabase
+    .from("patient_billings")
+    .select("id, payments(id)")
+    .eq("appointment_id", appointmentId)
+    .maybeSingle<{ id: string; payments: { id: string }[] }>();
+
+  if (avulso) {
+    for (const payment of avulso.payments) {
+      await supabase.rpc("soft_delete_payment", { payment_id: payment.id });
+    }
+    await supabase.rpc("soft_delete_patient_billing", { billing_id: avulso.id });
+  }
+
+  if (!packageBillingId) return;
+
+  const { count } = await supabase
+    .from("appointments")
+    .select("id", { count: "exact", head: true })
+    .eq("patient_billing_id", packageBillingId);
+
+  if (count && count > 0) return;
+
+  const { data: pacote } = await supabase
+    .from("patient_billings")
+    .select("id, payments(id)")
+    .eq("id", packageBillingId)
+    .maybeSingle<{ id: string; payments: { id: string }[] }>();
+
+  if (!pacote) return;
+
+  for (const payment of pacote.payments) {
+    await supabase.rpc("soft_delete_payment", { payment_id: payment.id });
+  }
+  await supabase.rpc("soft_delete_patient_billing", { billing_id: pacote.id });
+}
+
+/**
+ * Checagem prévia (ANTES de excluir) usada pelo diálogo de consulta avulsa/pacote na Agenda: se
+ * esta for a ÚLTIMA consulta ainda ligada a um pacote, excluí-la vai disparar o mesmo cascade de
+ * `cancelAppointmentBilling` que apaga TODOS os pagamentos do pacote — inclusive os já pagos. O
+ * diálogo usa isto pra saber se deve perguntar "manter o pagamento?" antes de excluir, em vez de
+ * descobrir depois que apagou dinheiro já recebido.
+ */
+export async function getPackageDeletionImpact(
+  appointmentId: string,
+  packageBillingId: string
+): Promise<{ isLastAppointment: boolean; paidValue: number | null }> {
+  const supabase = createClient();
+
+  const { count } = await supabase
+    .from("appointments")
+    .select("id", { count: "exact", head: true })
+    .eq("patient_billing_id", packageBillingId)
+    .neq("id", appointmentId);
+
+  const isLastAppointment = !count || count === 0;
+  if (!isLastAppointment) {
+    return { isLastAppointment: false, paidValue: null };
+  }
+
+  const { data: pagos } = await supabase
+    .from("payments")
+    .select("valor")
+    .eq("billing_id", packageBillingId)
+    .not("data_pagamento", "is", null)
+    .returns<{ valor: number }[]>();
+
+  return {
+    isLastAppointment: true,
+    paidValue: pagos && pagos.length > 0 ? sumCurrency(pagos.map((p) => p.valor)) : null,
+  };
 }

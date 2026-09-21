@@ -17,6 +17,14 @@ export const EXPENSE_RECORRENCIAS_COM_MES: ReadonlyArray<(typeof EXPENSE_RECORRE
 export const EXPENSE_PARCELAMENTOS = ["avista", "parcelado"] as const;
 export const PATIENT_BILLING_TIPOS = ["avulso", "pacote"] as const;
 export const FORMAS_PAGAMENTO = ["pix", "dinheiro", "cartao", "transferencia", "outro"] as const;
+/** Centralizado aqui pra não reescrever em cada dialog que tem um Select de forma de pagamento. */
+export const FORMA_PAGAMENTO_LABELS: Record<(typeof FORMAS_PAGAMENTO)[number], string> = {
+  pix: "Pix",
+  dinheiro: "Dinheiro",
+  cartao: "Cartão",
+  transferencia: "Transferência",
+  outro: "Outro",
+};
 
 function precisaDeMesVencimento(recorrencia: (typeof EXPENSE_RECORRENCIAS)[number]): boolean {
   return EXPENSE_RECORRENCIAS_COM_MES.includes(recorrencia);
@@ -96,3 +104,83 @@ export type RegisterPaymentInput = z.infer<typeof registerPaymentSchema>;
 /** Baixa de uma ocorrência de despesa (expense_occurrences) — mesma forma de registerPaymentSchema. */
 export const registerExpenseOccurrenceSchema = registerPaymentSchema;
 export type RegisterExpenseOccurrenceInput = RegisterPaymentInput;
+
+/**
+ * Status financeiro definido ao agendar/editar uma consulta (Fase 9, Bloco
+ * D). Union discriminada por `status` porque cada opção pede campos
+ * diferentes — "pagou sinal" precisa dos dois lançamentos (o sinal já pago
+ * e o restante pendente) porque o valor do sinal entra em "Recebido" e o
+ * restante em "Pendente", nos mesmos totais que a aba Financeiro já usa.
+ */
+export const appointmentBillingSchema = z.discriminatedUnion("status", [
+  z.object({ status: z.literal("gratuito") }),
+  z.object({
+    status: z.literal("nao_pago"),
+    valor: z.coerce.number({ invalid_type_error: "Informe o valor" }).positive("Valor deve ser maior que zero"),
+    vencimento: z.string().min(1, "Informe o vencimento"),
+  }),
+  z.object({
+    status: z.literal("pagou_integral"),
+    valor: z.coerce.number({ invalid_type_error: "Informe o valor" }).positive("Valor deve ser maior que zero"),
+    data: z.string().min(1, "Informe a data do pagamento"),
+    forma_pagamento: z.enum(FORMAS_PAGAMENTO, { errorMap: () => ({ message: "Selecione a forma de pagamento" }) }),
+  }),
+  z.object({
+    status: z.literal("pagou_sinal"),
+    valorSinal: z.coerce.number({ invalid_type_error: "Informe o valor do sinal" }).positive("Valor deve ser maior que zero"),
+    dataSinal: z.string().min(1, "Informe a data do sinal"),
+    formaSinal: z.enum(FORMAS_PAGAMENTO, { errorMap: () => ({ message: "Selecione a forma de pagamento" }) }),
+    valorFalta: z.coerce.number({ invalid_type_error: "Informe quanto falta" }).positive("Valor deve ser maior que zero"),
+    vencimentoFalta: z.string().min(1, "Informe o vencimento do restante"),
+  }),
+]);
+export type AppointmentBillingInput = z.infer<typeof appointmentBillingSchema>;
+
+/**
+ * Status financeiro de um PACOTE (Fase 9, Bloco E — "Novo pacote" na
+ * Agenda). Ajustado depois do primeiro uso real: pacote normalmente é pago
+ * de uma vez (à vista/cartão no ato de agendar), então NÃO divide o valor
+ * em uma parcela por consulta como na primeira versão — gera UMA cobrança
+ * para o pacote inteiro, não uma por consulta (menos ruído em Pendentes na
+ * aba Financeiro). "não pago" vence na data da primeira consulta; "pagou
+ * integral" nasce paga na data informada; só "pagou sinal" continua com
+ * dois lançamentos (sinal já pago + restante pendente), e o vencimento do
+ * restante agora é UMA data só, digitada, não mais amarrada às consultas.
+ */
+const packageBillingUnion = z.discriminatedUnion("status", [
+  z.object({ status: z.literal("gratuito") }),
+  z.object({
+    status: z.literal("nao_pago"),
+    valorTotal: z.coerce
+      .number({ invalid_type_error: "Informe o valor total do pacote" })
+      .positive("Valor deve ser maior que zero"),
+  }),
+  z.object({
+    status: z.literal("pagou_integral"),
+    valorTotal: z.coerce
+      .number({ invalid_type_error: "Informe o valor total do pacote" })
+      .positive("Valor deve ser maior que zero"),
+    data: z.string().min(1, "Informe a data do pagamento"),
+    forma_pagamento: z.enum(FORMAS_PAGAMENTO, { errorMap: () => ({ message: "Selecione a forma de pagamento" }) }),
+  }),
+  z.object({
+    status: z.literal("pagou_sinal"),
+    valorTotal: z.coerce
+      .number({ invalid_type_error: "Informe o valor total do pacote" })
+      .positive("Valor deve ser maior que zero"),
+    valorSinal: z.coerce
+      .number({ invalid_type_error: "Informe o valor do sinal" })
+      .positive("Valor deve ser maior que zero"),
+    dataSinal: z.string().min(1, "Informe a data do sinal"),
+    formaSinal: z.enum(FORMAS_PAGAMENTO, { errorMap: () => ({ message: "Selecione a forma de pagamento" }) }),
+    vencimentoFalta: z.string().min(1, "Informe o vencimento do restante"),
+  }),
+]);
+
+// .refine() no topo, não dentro de uma opção da union — z.discriminatedUnion exige que cada
+// opção seja um ZodObject puro, sem wrapping de ZodEffects.
+export const packageBillingSchema = packageBillingUnion.refine(
+  (data) => data.status !== "pagou_sinal" || data.valorSinal < data.valorTotal,
+  { message: "O sinal deve ser menor que o valor total do pacote", path: ["valorSinal"] }
+);
+export type PackageBillingInput = z.infer<typeof packageBillingUnion>;

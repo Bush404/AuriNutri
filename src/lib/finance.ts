@@ -1,4 +1,4 @@
-import type { Expense } from "@/lib/types/database.types";
+import type { AppointmentFinancialStatus, Expense, FormaPagamento } from "@/lib/types/database.types";
 
 /**
  * Todo cálculo monetário aqui opera em CENTAVOS (inteiros) internamente,
@@ -330,3 +330,93 @@ export function buildInstallmentPayments(
     return { valor, data_vencimento: `${year}-${pad2(month0 + 1)}-${pad2(day)}` };
   });
 }
+
+// ----------------------------------------------------------------------------
+// Fase 9, Bloco D — Status financeiro do agendamento. O dinheiro em si
+// (valores/datas/forma de pagamento) mora em patient_billings/payments, as
+// mesmas tabelas que a aba Financeiro do paciente já usa — nunca duplicado
+// aqui. `deriveAppointmentBillingState` só faz o caminho de volta: a partir
+// dos payments já salvos (e do status_financeiro gravado no appointment,
+// necessário só pra distinguir "gratuito" de "nunca definido" — os dois
+// casos sem nenhum payment), reconstrói o que mostrar no formulário ao
+// reabrir um agendamento pra editar.
+// ----------------------------------------------------------------------------
+
+export interface AppointmentBillingPaymentLike {
+  valor: number;
+  data_vencimento: string;
+  data_pagamento: string | null;
+  forma_pagamento: FormaPagamento | null;
+}
+
+export interface AppointmentBillingState {
+  status: AppointmentFinancialStatus | null;
+  naoPagoValor?: number;
+  naoPagoVencimento?: string;
+  integralValor?: number;
+  integralData?: string;
+  integralForma?: FormaPagamento;
+  sinalValor?: number;
+  sinalData?: string;
+  sinalForma?: FormaPagamento;
+  faltaValor?: number;
+  faltaVencimento?: string;
+}
+
+/**
+ * Reconstrói o status financeiro de um agendamento a partir dos payments já
+ * ligados a ele (via patient_billings.appointment_id). O formato de cada
+ * status é sempre o que `setAppointmentBillingStatus` gera: 1 pendente
+ * (não pago), 1 pago (pagou integral), ou 1 pago + 1 pendente (pagou sinal).
+ * Um formato diferente disso (editado manualmente fora deste fluxo) não é
+ * um erro — só não tenta adivinhar, e devolve `status: null` (a tela mostra
+ * "não definido"; os valores continuam corretos em Pendente/Recebido de
+ * qualquer forma, já que aqueles somam direto de `payments`).
+ */
+export function deriveAppointmentBillingState(
+  statusFinanceiro: AppointmentFinancialStatus | null,
+  payments: AppointmentBillingPaymentLike[]
+): AppointmentBillingState {
+  if (payments.length === 0) {
+    return { status: statusFinanceiro === "gratuito" ? "gratuito" : null };
+  }
+
+  const pagos = payments.filter((p) => p.data_pagamento !== null);
+  const pendentes = payments.filter((p) => p.data_pagamento === null);
+
+  if (payments.length === 1 && pendentes.length === 1) {
+    const [pendente] = pendentes;
+    return { status: "nao_pago", naoPagoValor: pendente.valor, naoPagoVencimento: pendente.data_vencimento };
+  }
+
+  if (payments.length === 1 && pagos.length === 1) {
+    const [pago] = pagos;
+    return {
+      status: "pagou_integral",
+      integralValor: pago.valor,
+      integralData: pago.data_pagamento ?? undefined,
+      integralForma: pago.forma_pagamento ?? undefined,
+    };
+  }
+
+  if (payments.length === 2 && pagos.length === 1 && pendentes.length === 1) {
+    const [sinal] = pagos;
+    const [falta] = pendentes;
+    return {
+      status: "pagou_sinal",
+      sinalValor: sinal.valor,
+      sinalData: sinal.data_pagamento ?? undefined,
+      sinalForma: sinal.forma_pagamento ?? undefined,
+      faltaValor: falta.valor,
+      faltaVencimento: falta.data_vencimento,
+    };
+  }
+
+  return { status: null };
+}
+
+/** Subtrai valores monetários em centavos, evitando erro de ponto flutuante — mesmo cuidado do resto do módulo. */
+export function subtractCurrency(minuendo: number, subtraendo: number): number {
+  return centavosParaReais(reaisParaCentavos(minuendo) - reaisParaCentavos(subtraendo));
+}
+

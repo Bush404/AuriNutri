@@ -6,7 +6,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleDollarSign, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { registerPaymentSchema, FORMAS_PAGAMENTO, type RegisterPaymentInput } from "@/lib/validations/finance";
+import {
+  registerPaymentSchema,
+  FORMAS_PAGAMENTO,
+  FORMA_PAGAMENTO_LABELS,
+  type RegisterPaymentInput,
+} from "@/lib/validations/finance";
 import { registerPayment } from "@/lib/actions/finance";
 
 import { Button } from "@/components/ui/button";
@@ -22,14 +27,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-const FORMA_PAGAMENTO_LABELS: Record<(typeof FORMAS_PAGAMENTO)[number], string> = {
-  pix: "Pix",
-  dinheiro: "Dinheiro",
-  cartao: "Cartão",
-  transferencia: "Transferência",
-  outro: "Outro",
-};
 
 interface RegisterPatientPaymentDialogProps {
   paymentId: string;
