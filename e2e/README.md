@@ -21,7 +21,7 @@ os caminhos que, se quebrarem, o produto para:
    `npm run import:taco` e `npm run test:security-isolation-full`).
 2. `npm run test:e2e` (sobe o `next dev` na porta 3100 sozinho, se ele não estiver rodando) — ou
    `npm run test:e2e:prod` para rodar os mesmos testes contra o site publicado
-   (`https://aurinutri-app.netlify.app`), sem subir servidor local.
+   (`https://app.aurinutri.com`), sem subir servidor local.
 3. Remova a service role key do `.env.local` depois.
 
 Uma conta descartável (`teste-e2e-...@aurinutri.invalid`, e-mail já confirmado) é criada no

@@ -8,7 +8,7 @@ import { defineConfig, devices } from "@playwright/test";
 // Por padrão sobe o `next dev` local. Com E2E_BASE_URL (ex.: o site publicado),
 // roda contra esse endereço e não sobe servidor nenhum — ver `npm run test:e2e:prod`.
 const PORT = 3100;
-const PRODUCAO = "https://aurinutri-app.netlify.app";
+const PRODUCAO = "https://app.aurinutri.com";
 // `npm run test:e2e:prod` aponta para o site publicado (npm expõe o nome do script).
 if (!process.env.E2E_BASE_URL && process.env.npm_lifecycle_event === "test:e2e:prod") process.env.E2E_BASE_URL = PRODUCAO;
 const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
