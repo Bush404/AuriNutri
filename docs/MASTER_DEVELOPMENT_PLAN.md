@@ -1628,6 +1628,35 @@ relançado para log — Server Actions devolvem `{ success, message }` para a te
 ganhou `no-console: error`, conferido com um arquivo de prova.
 
 `npm test` (255/255), `npm run lint`, `npm run build` e `npm run test:e2e` (10/10) passam.
+
+### Migração para a conta Netlify do AuriNutri · `DONE` (2026-09-22)
+
+O site saiu de uma conta pessoal do usuário (sem créditos) para uma conta nova, criada com o
+e-mail do AuriNutri: **`https://aurinutri-app.netlify.app`**. Mesmo repositório do GitHub;
+5 variáveis de ambiente (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN` — só este marcado como
+secreto; marcar o DSN como secreto faz o *secrets scanning* do Netlify falhar o build, porque ele
+precisa estar no bundle). Supabase → Authentication → URL Configuration apontado para o novo
+endereço. `netlify.toml` passou para Node 22 (exigido pelo `@netlify/plugin-nextjs`).
+
+Verificado em produção: login, redirecionamento com `redirectTo` (o middleware corrigido
+funcionando de fato), link público `/compartilhado`, envio de source maps (release criada pelo
+build) e evento chegando no Sentry pelo túnel `/monitoring` (AURINUTRI-3, `environment:production`).
+
+**Bug de produção encontrado no primeiro uso — fontes do PDF fora do pacote da função.** A ficha
+do paciente, a página do plano e as rotas de PDF derrubavam a função inteira ("This function has
+crashed"; no log: `Cannot find module .../pdfkit/js/standard-fonts/Helvetica.cjs`). O `pdfkit`
+(dependência do `@react-pdf/renderer`) monta o caminho da fonte em tempo de execução via
+`exports` do `package.json`, e o rastreamento de arquivos do Next não o enxerga. Corrigido com
+`experimental.outputFileTracingIncludes: { "/**/*": ["./node_modules/pdfkit/js/**/*"] }` no
+`next.config.mjs`, conferido nos `.nft.json` do build e testado pelo usuário em produção (ficha,
+plano e PDF). O Sentry não registrou essa queda porque ela derruba o processo antes do envio — esse
+tipo de falha só aparece no log de funções do Netlify (Cloud compute → Functions → Next.js Server
+Handler).
+
+**Pendente:** remover o endereço antigo das Redirect URLs do Supabase e excluir o site da conta
+Netlify antiga.
+
 - ~~Linhas de "adicionar item" sem `<Label>`~~ — resolvido em 2026-09-22: `aria-label` +
   `aria-required` nos campos de busca (`FoodCombobox`/`RecipeCombobox`, o que cobre todos os
   usos) e nos 4 campos de quantidade (item de refeição por alimento e por receita, ingrediente
