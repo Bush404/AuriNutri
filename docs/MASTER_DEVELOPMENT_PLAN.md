@@ -1691,8 +1691,29 @@ ponta. `e2e/senha.e2e.ts` cobre o fluxo simulando o filtro abrindo o link antes 
 próxima execução com a service role key). `/auth/callback` mantido por compatibilidade.
 
 Lixo eletrônico: esperado para domínio recém-criado (reputação zero) — mitigado com modelos em
-português; o domínio próprio no site (`app.aurinutri.com`, planejado) também ajuda, por alinhar o
-domínio do link com o do remetente.
+português e com o domínio próprio no site (abaixo), que alinha o domínio do link com o do remetente.
+
+### Domínio próprio no site: `app.aurinutri.com` · `DONE` (2026-09-22)
+
+Decisão com o usuário: o sistema em **`app.aurinutri.com`**, deixando `aurinutri.com` livre para
+uma futura página de apresentação/vendas (padrão de SaaS; `pt.` à la WebDiet não se aplica — o
+AuriNutri é monolíngue). Hostinger: `CNAME app → aurinutri-app.netlify.app`, `A @ → 75.2.60.5`,
+`CNAME www → aurinutri-app.netlify.app` e um TXT `subdomain-owner-verification` exigido pelo
+Netlify (domínio registrado fora dele). Certificados Let's Encrypt emitidos para os três nomes
+(o erro "certificate parameter is required when updating an existing certificate" que o painel
+mostrou é só da interface — o certificado saiu mesmo assim). `NEXT_PUBLIC_SITE_URL` e o Site URL do
+Supabase apontam para o domínio novo (os links dos e-mails usam `{{ .SiteURL }}` e mudaram sozinhos).
+
+`netlify.toml` redireciona com 301, preservando o caminho: `aurinutri-app.netlify.app/*`,
+`aurinutri.com/*` e `www.aurinutri.com/*` → `app.aurinutri.com/:splat` — links de PDF já enviados a
+pacientes continuam abrindo. Detalhe: no Netlify as Edge Functions (o `middleware.ts`) rodam antes
+das regras de redirect, então uma rota protegida acessada pelo domínio antigo sem sessão faz dois
+saltos (`/login?redirectTo=` no domínio antigo → 301 para o novo) — termina no lugar certo.
+Cookies de sessão são por domínio: quem estava logado no `netlify.app` entra de novo uma vez.
+`npm run test:e2e:prod` aponta para o domínio novo.
+
+**Pendente (baixa prioridade):** remover `aurinutri-app.netlify.app/**` das Redirect URLs do Supabase
+depois que os e-mails enviados com o endereço antigo expirarem (links de e-mail valem ~1 dia).
 
 - ~~Linhas de "adicionar item" sem `<Label>`~~ — resolvido em 2026-09-22: `aria-label` +
   `aria-required` nos campos de busca (`FoodCombobox`/`RecipeCombobox`, o que cobre todos os
