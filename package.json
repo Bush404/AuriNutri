@@ -25,7 +25,8 @@
     "test:finance-patient-isolation": "node scripts/test-finance-patient-isolation.mjs",
     "test:security-isolation-full": "node scripts/test-security-isolation-full.mjs",
     "test:rate-limit": "node scripts/test-rate-limit.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "delete-account": "node scripts/delete-account.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
