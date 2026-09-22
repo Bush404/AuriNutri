@@ -6,6 +6,14 @@ const nextConfig = {
   experimental: {
     // Necessário no Next.js 14 para carregar instrumentation.ts (Sentry no servidor).
     instrumentationHook: true,
+    // O pdfkit (usado pelo @react-pdf) carrega as fontes padrão (Helvetica etc.)
+    // por um caminho montado em tempo de execução, que o rastreamento de
+    // arquivos do Next não enxerga — sem isto, as fontes ficam fora da função
+    // do Netlify e toda página/rota que gera PDF derruba a função
+    // ("Cannot find module .../pdfkit/js/standard-fonts/Helvetica.cjs").
+    outputFileTracingIncludes: {
+      "/**/*": ["./node_modules/pdfkit/js/**/*"],
+    },
   },
 };
 
