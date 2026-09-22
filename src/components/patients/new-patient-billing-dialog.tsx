@@ -114,7 +114,11 @@ export function NewPatientBillingDialog({ patientId }: { patientId: string }) {
               name="tipo"
               render={({ field }) => (
                 <Tabs value={field.value} onValueChange={field.onChange}>
-                  <TabsList className="grid w-full grid-cols-2" aria-labelledby={tipoLabelId}>
+                  <TabsList
+                    className="grid w-full grid-cols-2"
+                    aria-labelledby={tipoLabelId}
+                    aria-required="true"
+                  >
                     {PATIENT_BILLING_TIPOS.map((valor) => (
                       <TabsTrigger key={valor} value={valor}>
                         {TIPO_LABELS[valor]}
@@ -131,6 +135,7 @@ export function NewPatientBillingDialog({ patientId }: { patientId: string }) {
             <Input
               id="descricao"
               placeholder={isPacote ? "Ex: Pacote 3 meses" : "Ex: Consulta"}
+              aria-required="true"
               {...register("descricao")}
             />
             {errors.descricao && <p className="text-xs text-destructive" role="alert">{errors.descricao.message}</p>}
@@ -143,7 +148,7 @@ export function NewPatientBillingDialog({ patientId }: { patientId: string }) {
                 control={control}
                 name="valor_total"
                 render={({ field }) => (
-                  <CurrencyInput id="valor_total" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
+                  <CurrencyInput id="valor_total" value={field.value} onChange={field.onChange} onBlur={field.onBlur} ariaRequired />
                 )}
               />
               {errors.valor_total && <p className="text-xs text-destructive" role="alert">{errors.valor_total.message}</p>}
@@ -151,7 +156,7 @@ export function NewPatientBillingDialog({ patientId }: { patientId: string }) {
 
             <div className="space-y-2">
               <Label htmlFor="data_inicio">{isPacote ? "Data da 1ª parcela" : "Vencimento"} *</Label>
-              <Input id="data_inicio" type="date" {...register("data_inicio")} />
+              <Input id="data_inicio" type="date" aria-required="true" {...register("data_inicio")} />
               {errors.data_inicio && <p className="text-xs text-destructive" role="alert">{errors.data_inicio.message}</p>}
             </div>
           </div>

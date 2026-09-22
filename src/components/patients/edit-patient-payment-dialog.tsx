@@ -114,7 +114,7 @@ export function EditPatientPaymentDialog({
               control={control}
               name="valor"
               render={({ field }) => (
-                <CurrencyInput id="valor" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
+                <CurrencyInput id="valor" value={field.value} onChange={field.onChange} onBlur={field.onBlur} ariaRequired />
               )}
             />
             {errors.valor && <p className="text-xs text-destructive" role="alert">{errors.valor.message}</p>}
@@ -122,7 +122,7 @@ export function EditPatientPaymentDialog({
 
           <div className="space-y-2">
             <Label htmlFor="data_vencimento">Vencimento *</Label>
-            <Input id="data_vencimento" type="date" {...register("data_vencimento")} />
+            <Input id="data_vencimento" type="date" aria-required="true" {...register("data_vencimento")} />
             {errors.data_vencimento && (
               <p className="text-xs text-destructive" role="alert">{errors.data_vencimento.message}</p>
             )}

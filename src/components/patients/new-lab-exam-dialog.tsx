@@ -67,7 +67,7 @@ export function NewLabExamDialog({ patientId }: { patientId: string }) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="data_coleta">Data da coleta *</Label>
-            <Input id="data_coleta" type="date" {...register("data_coleta")} />
+            <Input id="data_coleta" type="date" aria-required="true" {...register("data_coleta")} />
             {errors.data_coleta && <p className="text-xs text-destructive" role="alert">{errors.data_coleta.message}</p>}
           </div>
 

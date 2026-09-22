@@ -77,7 +77,7 @@ export function NewMealDialog({ planId, nextOrdem }: { planId: string; nextOrdem
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="nome">Nome da refeição *</Label>
-            <Input id="nome" placeholder="Ex: Café da manhã" {...register("nome")} />
+            <Input id="nome" placeholder="Ex: Café da manhã" aria-required="true" {...register("nome")} />
             {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
           </div>
 

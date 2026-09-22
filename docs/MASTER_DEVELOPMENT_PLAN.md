@@ -1392,6 +1392,7 @@ uso normal.
 [x] Auditoria de contraste (WCAG AA) — 2 ajustes aplicados
 [x] Tabela de plano alimentar no celular — layout em cartões
 [x] Revisão de responsividade (375px) — 6 piores problemas corrigidos
+[x] Marcação semântica `aria-required` nos campos obrigatórios (além do "*" visual)
 [ ] Testes E2E dos fluxos críticos (Playwright)
 [ ] Observabilidade (Sentry)
 ```
@@ -1428,10 +1429,18 @@ todas ganharam `role="alert"`; (b) ~30 campos usavam `<Select>`/`<Tabs>`/botão 
 `aria-labelledby` no controle real (ou, pra `<Tabs>` de seção como "Recorrência"/"Como será
 pago?", no `TabsList`). Um caso (`"Consultas do pacote *"` em `package-form-dialog.tsx`) não é
 label de um único controle — virou um cabeçalho de seção comum, já que cada input da lista abaixo
-tem seu próprio `Label`/`htmlFor`. **Marcação semântica de campo obrigatório (`aria-required`)
-além do "*" no texto ficou de fora desta rodada** — exigiria mapear individualmente quais campos
-são de fato obrigatórios em cada schema Zod, um levantamento maior que não coube neste bloco;
-registrado como pendência.
+tem seu próprio `Label`/`htmlFor`.
+
+Numa rodada seguinte, adicionado também `aria-required="true"` no controle real de todo campo
+unicamente obrigatório — mapeado schema por schema em `src/lib/validations/*.ts`, cobrindo
+`Input`/`Textarea`/`SelectTrigger`/`TabsList` conforme o tipo de controle. Ficaram de fora, de
+propósito: campos condicionalmente obrigatórios só via `.refine()` cruzando campos (ex.: CRN+UF
+do perfil, dia/mês/data de vencimento da despesa conforme a recorrência) e campos de
+`z.discriminatedUnion` cujo conjunto obrigatório muda por branch (status financeiro de consulta e
+de pacote) — mesma exclusão já aplicada ao cabeçalho "Consultas do pacote *" acima. Também ficaram
+de fora as linhas de "adicionar item" de ingrediente de receita e item de refeição
+(`FoodCombobox`/quantidade), que hoje não têm nenhum `<Label>` associado — gap de acessibilidade
+distinto, não coberto por este item.
 
 **4. Contraste (WCAG AA).** Auditoria encontrou 2 problemas reais (o laranja de destaque, suspeito
 inicial do usuário, na verdade nunca é usado como texto sozinho — só em botão/selo com contraste
@@ -1461,8 +1470,22 @@ recorrência da despesa (`grid-cols-5`) — "Trimestral"/"Semestral" não cabiam
 `h-auto` adicionado; (4) tabela de consentimentos — 6 colunas sem nenhuma escondida — Forma/
 Revogado em/Observações agora escondem em `sm:`/`md:`; (5) tabela de despesas — Categoria/
 Recorrência agora escondem em `sm:`/`md:`; (6) "Novo pacote" na Agenda — grade de Data/Início/
-Término 3 colunas fixas — vira `grid-cols-1 sm:grid-cols-3`. Lista completa de achados menores
-(não corrigidos nesta rodada) fica registrada na auditoria, disponível se quiser revisitar.
+Término 3 colunas fixas — vira `grid-cols-1 sm:grid-cols-3`.
+
+**Rodada de acompanhamento (2026-09-22)** revisitou os achados menores não corrigidos na
+primeira rodada e fechou os dois que se confirmaram reais: (a) a tabela "Pagos" da aba
+Financeiro do paciente (`patient-finance-panel.tsx`) tinha 4 colunas sempre visíveis
+(Descrição/Valor/Recebido em/Forma) sem nenhuma escondida, mesma classe de problema do item (1)
+— "Recebido em" agora esconde em `md:`, "Forma" em `sm:`; (b) o `DialogContent`/
+`AlertDialogContent` compartilhados (`src/components/ui/dialog.tsx`,
+`src/components/ui/alert-dialog.tsx`) usavam `w-full` sem margem — em 375px o modal encostava
+nas duas bordas da tela com 0px de respiro; trocado para `w-[calc(100%-2rem)]`, dando 1rem de
+margem lateral consistente em todos os diálogos do app (correção de alto alcance por afetar o
+componente base usado por dezenas de telas). Outros candidatos revisados e descartados por não
+serem bugs reais: `Table` já embrulha em `overflow-auto` (degrada com scroll horizontal, não
+quebra layout), a grade de 7 colunas do calendário mensal (`month-view.tsx`) usa frações
+flexíveis sem largura mínima fixa, e a `WeekView` da Agenda já tem `overflow-x-auto` proposital
+(visão semanal larga é um scroll horizontal aceitável, não uma redesign pendente).
 
 `npm test` (243/243), `npm run lint` e `npm run build` passam.
 
@@ -1473,12 +1496,11 @@ luminosidade, preservando matiz/saturação — a mudança é imperceptível a o
 contraste.
 
 ### Pendências conhecidas (não bloqueiam o fechamento do bloco)
-- Marcação semântica `aria-required` nos campos obrigatórios (além do "*" visual) — exigiria
-  mapear cada campo obrigatório por formulário, escopo maior que não coube nesta rodada.
 - Testes E2E (Playwright) e observabilidade (Sentry) — itens finais da Fase 11, ainda não
   iniciados.
-- Achados menores da auditoria de 375px não corrigidos (itens além dos 6 priorizados) — lista
-  completa disponível se o usuário quiser revisitar.
+- Linhas de "adicionar item" sem `<Label>` (ingrediente de receita, item de refeição) — não
+  ganharam `aria-required` junto com o resto do formulário porque não têm associação de label
+  nenhuma hoje; ficou de fora do escopo do item de `aria-required` acima.
 
 ---
 

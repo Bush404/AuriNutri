@@ -102,7 +102,7 @@ export function NewPatientPhotoDialog({ patientId }: { patientId: string }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="data_registro_foto">Data *</Label>
-              <Input id="data_registro_foto" type="date" {...register("data_registro")} />
+              <Input id="data_registro_foto" type="date" aria-required="true" {...register("data_registro")} />
               {errors.data_registro && <p className="text-xs text-destructive" role="alert">{errors.data_registro.message}</p>}
             </div>
             <div className="space-y-2">
@@ -112,7 +112,7 @@ export function NewPatientPhotoDialog({ patientId }: { patientId: string }) {
                 name="tipo"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger aria-labelledby={anguloLabelId}>
+                    <SelectTrigger aria-labelledby={anguloLabelId} aria-required="true">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -136,6 +136,7 @@ export function NewPatientPhotoDialog({ patientId }: { patientId: string }) {
               disabled={loading}
               onClick={() => inputRef.current?.click()}
               aria-labelledby={`${fotoLabelId} ${fotoButtonTextId}`}
+              aria-required="true"
             >
               <Camera className="h-4 w-4" />
               <span id={fotoButtonTextId}>{arquivoNome ?? "Selecionar foto"}</span>

@@ -288,6 +288,7 @@ export function PackageFormDialog({
               }}
               ariaLabelledBy={pacienteLabelId}
               disabled={isPending}
+              ariaRequired
             />
             {patientError && <p className="text-xs text-destructive" role="alert">{patientError}</p>}
           </div>
@@ -298,7 +299,7 @@ export function PackageFormDialog({
               <div className="space-y-2">
                 <Label htmlFor="tipo">Tipo *</Label>
                 <Select value={tipo} onValueChange={(v) => setTipo(v as AppointmentTipo)} disabled={isPending}>
-                  <SelectTrigger id="tipo">
+                  <SelectTrigger id="tipo" aria-required="true">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>

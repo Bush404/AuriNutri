@@ -414,6 +414,7 @@ export function AppointmentFormDialog({
               }}
               disabled={isPending}
               ariaLabelledBy={pacienteLabelId}
+              ariaRequired
             />
             {patientError && <p className="text-xs text-destructive" role="alert">{patientError}</p>}
           </div>
@@ -497,7 +498,7 @@ export function AppointmentFormDialog({
                   onValueChange={(v) => setForm((f) => ({ ...f, tipo: v as AppointmentTipo }))}
                   disabled={isPending}
                 >
-                  <SelectTrigger id="tipo">
+                  <SelectTrigger id="tipo" aria-required="true">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>

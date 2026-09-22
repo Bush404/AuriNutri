@@ -208,6 +208,7 @@ export function LabMarkerForm({ patientId, examId }: LabMarkerFormProps) {
             onKeyDown={onKeyDown}
             placeholder="Buscar ou digitar um marcador..."
             disabled={isPending}
+            aria-required="true"
             role="combobox"
             aria-expanded={listaAberta}
             aria-controls={listboxId}
@@ -258,6 +259,7 @@ export function LabMarkerForm({ patientId, examId }: LabMarkerFormProps) {
             value={form.valor}
             onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))}
             disabled={isPending}
+            aria-required="true"
           />
         </div>
         <div className="space-y-1">
@@ -267,6 +269,7 @@ export function LabMarkerForm({ patientId, examId }: LabMarkerFormProps) {
             onChange={(e) => setForm((f) => ({ ...f, unidade: e.target.value }))}
             placeholder="mg/dL"
             disabled={isPending}
+            aria-required="true"
           />
         </div>
       </div>

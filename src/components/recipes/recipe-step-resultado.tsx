@@ -62,7 +62,7 @@ export function RecipeStepResultado({ recipeId, recipe, ingredients, onBack }: R
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="rendimento_g">Peso da preparação pronta (g) *</Label>
-          <Input id="rendimento_g" type="number" step="0.1" {...register("rendimento_g")} />
+          <Input id="rendimento_g" type="number" step="0.1" aria-required="true" {...register("rendimento_g")} />
           <p className="text-xs text-muted-foreground">
             Pese a preparação já pronta — o cozimento altera o peso (perda de água ou absorção),
             então não é a soma dos ingredientes crus.
@@ -71,7 +71,7 @@ export function RecipeStepResultado({ recipeId, recipe, ingredients, onBack }: R
         </div>
         <div className="space-y-2">
           <Label htmlFor="numero_porcoes">Número de porções *</Label>
-          <Input id="numero_porcoes" type="number" step="1" {...register("numero_porcoes")} />
+          <Input id="numero_porcoes" type="number" step="1" aria-required="true" {...register("numero_porcoes")} />
           {errors.numero_porcoes && <p className="text-xs text-destructive" role="alert">{errors.numero_porcoes.message}</p>}
         </div>
       </div>

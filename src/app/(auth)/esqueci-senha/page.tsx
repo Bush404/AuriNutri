@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
         <div className="space-y-2">
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" type="email" placeholder="voce@exemplo.com" {...register("email")} />
+          <Input id="email" type="email" placeholder="voce@exemplo.com" aria-required="true" {...register("email")} />
           {errors.email && <p className="text-xs text-destructive" role="alert">{errors.email.message}</p>}
         </div>
 

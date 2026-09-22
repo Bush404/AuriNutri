@@ -177,7 +177,11 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
               name="recorrencia"
               render={({ field }) => (
                 <Tabs value={field.value} onValueChange={field.onChange}>
-                  <TabsList className="grid h-auto w-full grid-cols-3 sm:grid-cols-5" aria-labelledby={recorrenciaLabelId}>
+                  <TabsList
+                    className="grid h-auto w-full grid-cols-3 sm:grid-cols-5"
+                    aria-labelledby={recorrenciaLabelId}
+                    aria-required="true"
+                  >
                     {EXPENSE_RECORRENCIAS.map((valor) => (
                       <TabsTrigger key={valor} value={valor} className="text-xs sm:text-sm">
                         {RECORRENCIA_LABELS[valor]}
@@ -192,7 +196,7 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
 
           <div className="space-y-2">
             <Label htmlFor="descricao">Descrição *</Label>
-            <Input id="descricao" placeholder="Ex: Aluguel da sala" {...register("descricao")} />
+            <Input id="descricao" placeholder="Ex: Aluguel da sala" aria-required="true" {...register("descricao")} />
             {errors.descricao && <p className="text-xs text-destructive" role="alert">{errors.descricao.message}</p>}
           </div>
 
@@ -203,6 +207,7 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
                 id="categoria"
                 list="categorias-sugeridas"
                 placeholder="Ex: Aluguel"
+                aria-required="true"
                 {...register("categoria")}
               />
               <datalist id="categorias-sugeridas">
@@ -219,7 +224,7 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
                 control={control}
                 name="valor"
                 render={({ field }) => (
-                  <CurrencyInput id="valor" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
+                  <CurrencyInput id="valor" value={field.value} onChange={field.onChange} onBlur={field.onBlur} ariaRequired />
                 )}
               />
               {errors.valor && <p className="text-xs text-destructive" role="alert">{errors.valor.message}</p>}

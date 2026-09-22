@@ -108,7 +108,7 @@ export function FeedbackDialog({ trigger }: FeedbackDialogProps) {
               <div className="space-y-2">
                 <Label id={tipoLabelId}>Tipo</Label>
                 <Select value={tipo} onValueChange={(v) => setTipo(v as FeedbackTipo)}>
-                  <SelectTrigger aria-labelledby={tipoLabelId}>
+                  <SelectTrigger aria-labelledby={tipoLabelId} aria-required="true">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -130,6 +130,7 @@ export function FeedbackDialog({ trigger }: FeedbackDialogProps) {
                   value={mensagem}
                   onChange={(e) => setMensagem(e.target.value)}
                   disabled={loading}
+                  aria-required="true"
                 />
               </div>
 

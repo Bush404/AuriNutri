@@ -109,7 +109,7 @@ export function FoodFormDialog({ food, trigger }: FoodFormDialogProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="nome">Nome do alimento *</Label>
-            <Input id="nome" placeholder="Ex: Arroz branco cozido" {...register("nome")} />
+            <Input id="nome" placeholder="Ex: Arroz branco cozido" aria-required="true" {...register("nome")} />
             {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
           </div>
 
@@ -121,7 +121,7 @@ export function FoodFormDialog({ food, trigger }: FoodFormDialogProps) {
                 name="categoria"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger aria-labelledby={categoriaLabelId}>
+                    <SelectTrigger aria-labelledby={categoriaLabelId} aria-required="true">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -150,6 +150,7 @@ export function FoodFormDialog({ food, trigger }: FoodFormDialogProps) {
               type="number"
               step="0.1"
               placeholder="100"
+              aria-required="true"
               {...register("porcao_referencia_g")}
             />
             <p className="text-xs text-muted-foreground">
@@ -163,24 +164,24 @@ export function FoodFormDialog({ food, trigger }: FoodFormDialogProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="calorias_kcal">Calorias (kcal) *</Label>
-              <Input id="calorias_kcal" type="number" step="0.1" {...register("calorias_kcal")} />
+              <Input id="calorias_kcal" type="number" step="0.1" aria-required="true" {...register("calorias_kcal")} />
               {errors.calorias_kcal && <p className="text-xs text-destructive" role="alert">{errors.calorias_kcal.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="proteinas_g">Proteínas (g) *</Label>
-              <Input id="proteinas_g" type="number" step="0.1" {...register("proteinas_g")} />
+              <Input id="proteinas_g" type="number" step="0.1" aria-required="true" {...register("proteinas_g")} />
               {errors.proteinas_g && <p className="text-xs text-destructive" role="alert">{errors.proteinas_g.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="carboidratos_g">Carboidratos (g) *</Label>
-              <Input id="carboidratos_g" type="number" step="0.1" {...register("carboidratos_g")} />
+              <Input id="carboidratos_g" type="number" step="0.1" aria-required="true" {...register("carboidratos_g")} />
               {errors.carboidratos_g && (
                 <p className="text-xs text-destructive" role="alert">{errors.carboidratos_g.message}</p>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="gorduras_g">Gorduras (g) *</Label>
-              <Input id="gorduras_g" type="number" step="0.1" {...register("gorduras_g")} />
+              <Input id="gorduras_g" type="number" step="0.1" aria-required="true" {...register("gorduras_g")} />
               {errors.gorduras_g && <p className="text-xs text-destructive" role="alert">{errors.gorduras_g.message}</p>}
             </div>
             <div className="space-y-2">

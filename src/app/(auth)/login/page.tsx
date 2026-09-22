@@ -73,7 +73,7 @@ function LoginForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
         <div className="space-y-2">
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" type="email" placeholder="voce@exemplo.com" {...register("email")} />
+          <Input id="email" type="email" placeholder="voce@exemplo.com" aria-required="true" {...register("email")} />
           {errors.email && <p className="text-xs text-destructive" role="alert">{errors.email.message}</p>}
         </div>
 
@@ -84,7 +84,7 @@ function LoginForm() {
               Esqueceu a senha?
             </Link>
           </div>
-          <Input id="password" type="password" placeholder="••••••••" {...register("password")} />
+          <Input id="password" type="password" placeholder="••••••••" aria-required="true" {...register("password")} />
           {errors.password && <p className="text-xs text-destructive" role="alert">{errors.password.message}</p>}
         </div>
 

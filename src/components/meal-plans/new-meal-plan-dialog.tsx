@@ -64,13 +64,13 @@ export function NewMealPlanDialog({ patientId, trigger }: { patientId: string; t
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="nome">Nome do plano</Label>
-            <Input id="nome" placeholder="Ex: Plano de emagrecimento" {...register("nome")} />
+            <Input id="nome" placeholder="Ex: Plano de emagrecimento" aria-required="true" {...register("nome")} />
             {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="data_inicio">Data de início</Label>
-            <Input id="data_inicio" type="date" {...register("data_inicio")} />
+            <Input id="data_inicio" type="date" aria-required="true" {...register("data_inicio")} />
             {errors.data_inicio && <p className="text-xs text-destructive" role="alert">{errors.data_inicio.message}</p>}
           </div>
 

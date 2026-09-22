@@ -86,7 +86,7 @@ export function PatientConsentGrantDialog({ patientId, tipo, tipoLabel }: Patien
               name="forma"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger aria-labelledby={comoFoiObtidoLabelId}>
+                  <SelectTrigger aria-labelledby={comoFoiObtidoLabelId} aria-required="true">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>

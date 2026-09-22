@@ -84,7 +84,7 @@ export function RegisterExpenseOccurrenceDialog({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="data_pagamento">Data do pagamento *</Label>
-            <Input id="data_pagamento" type="date" {...register("data_pagamento")} />
+            <Input id="data_pagamento" type="date" aria-required="true" {...register("data_pagamento")} />
             {errors.data_pagamento && (
               <p className="text-xs text-destructive" role="alert">{errors.data_pagamento.message}</p>
             )}
@@ -97,7 +97,7 @@ export function RegisterExpenseOccurrenceDialog({
               name="forma_pagamento"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger aria-labelledby={formaPagamentoLabelId}>
+                  <SelectTrigger aria-labelledby={formaPagamentoLabelId} aria-required="true">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>

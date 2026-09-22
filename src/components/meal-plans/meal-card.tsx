@@ -126,7 +126,7 @@ export function MealCard({ planId, meal }: { planId: string; meal: MealWithItems
               <form onSubmit={templateForm.handleSubmit(onTemplateSubmit)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="template_nome">Nome do template</Label>
-                  <Input id="template_nome" {...templateForm.register("nome")} />
+                  <Input id="template_nome" aria-required="true" {...templateForm.register("nome")} />
                   {templateForm.formState.errors.nome && (
                     <p className="text-xs text-destructive" role="alert">{templateForm.formState.errors.nome.message}</p>
                   )}
@@ -159,7 +159,7 @@ export function MealCard({ planId, meal }: { planId: string; meal: MealWithItems
               <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="edit_nome">Nome</Label>
-                  <Input id="edit_nome" {...editForm.register("nome")} />
+                  <Input id="edit_nome" aria-required="true" {...editForm.register("nome")} />
                   {editForm.formState.errors.nome && (
                     <p className="text-xs text-destructive" role="alert">{editForm.formState.errors.nome.message}</p>
                   )}

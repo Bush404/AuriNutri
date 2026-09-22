@@ -178,12 +178,12 @@ export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="nome">Nome do plano</Label>
-                  <Input id="nome" {...register("nome")} />
+                  <Input id="nome" aria-required="true" {...register("nome")} />
                   {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="data_inicio">Data de início</Label>
-                  <Input id="data_inicio" type="date" {...register("data_inicio")} />
+                  <Input id="data_inicio" type="date" aria-required="true" {...register("data_inicio")} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="observacoes">Observações</Label>

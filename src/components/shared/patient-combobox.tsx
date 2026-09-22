@@ -16,6 +16,8 @@ interface PatientComboboxProps {
   disabled?: boolean;
   /** Id do <Label> associado (via aria-labelledby) — necessário porque este campo não é um <input> simples com htmlFor. */
   ariaLabelledBy?: string;
+  /** true quando o campo é obrigatório no schema Zod do formulário que usa este combobox. */
+  ariaRequired?: boolean;
 }
 
 /**
@@ -23,7 +25,14 @@ interface PatientComboboxProps {
  * servidor, respeitando RLS) — inclusive a navegação por teclado (Fase 11,
  * Bloco B): setas cima/baixo, Enter seleciona, Escape fecha.
  */
-export function PatientCombobox({ value, onChange, placeholder, disabled, ariaLabelledBy }: PatientComboboxProps) {
+export function PatientCombobox({
+  value,
+  onChange,
+  placeholder,
+  disabled,
+  ariaLabelledBy,
+  ariaRequired,
+}: PatientComboboxProps) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [results, setResults] = useState<PatientPickerResult[]>([]);
@@ -84,6 +93,7 @@ export function PatientCombobox({ value, onChange, placeholder, disabled, ariaLa
       <div
         className="flex h-10 items-center justify-between rounded-md border border-input bg-muted/40 px-3 text-sm"
         aria-labelledby={ariaLabelledBy}
+        aria-required={ariaRequired}
       >
         <span className="truncate font-medium text-foreground">{value.nome}</span>
         {!disabled && (
@@ -113,6 +123,7 @@ export function PatientCombobox({ value, onChange, placeholder, disabled, ariaLa
           className="pl-9"
           disabled={disabled}
           aria-labelledby={ariaLabelledBy}
+          aria-required={ariaRequired}
           role="combobox"
           aria-expanded={open}
           aria-controls={listboxId}

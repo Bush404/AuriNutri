@@ -88,25 +88,25 @@ export default function RegisterPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
         <div className="space-y-2">
           <Label htmlFor="nome">Nome completo</Label>
-          <Input id="nome" placeholder="Seu nome" {...register("nome")} />
+          <Input id="nome" placeholder="Seu nome" aria-required="true" {...register("nome")} />
           {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" type="email" placeholder="voce@exemplo.com" {...register("email")} />
+          <Input id="email" type="email" placeholder="voce@exemplo.com" aria-required="true" {...register("email")} />
           {errors.email && <p className="text-xs text-destructive" role="alert">{errors.email.message}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="password">Senha</Label>
-          <Input id="password" type="password" placeholder="Mínimo 8 caracteres" {...register("password")} />
+          <Input id="password" type="password" placeholder="Mínimo 8 caracteres" aria-required="true" {...register("password")} />
           {errors.password && <p className="text-xs text-destructive" role="alert">{errors.password.message}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="confirmPassword">Confirmar senha</Label>
-          <Input id="confirmPassword" type="password" placeholder="••••••••" {...register("confirmPassword")} />
+          <Input id="confirmPassword" type="password" placeholder="••••••••" aria-required="true" {...register("confirmPassword")} />
           {errors.confirmPassword && (
             <p className="text-xs text-destructive" role="alert">{errors.confirmPassword.message}</p>
           )}

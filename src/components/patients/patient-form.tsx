@@ -78,7 +78,7 @@ export function PatientForm({ patient }: PatientFormProps) {
         <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="nome">Nome completo *</Label>
-            <Input id="nome" placeholder="Nome do paciente" {...register("nome")} />
+            <Input id="nome" placeholder="Nome do paciente" aria-required="true" {...register("nome")} />
             {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
           </div>
 

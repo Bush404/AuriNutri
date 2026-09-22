@@ -114,7 +114,7 @@ export function NewAssessmentDialog({ patientId, assessment }: NewAssessmentDial
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 col-span-2">
               <Label htmlFor="data_avaliacao">Data da avaliação *</Label>
-              <Input id="data_avaliacao" type="date" {...register("data_avaliacao")} />
+              <Input id="data_avaliacao" type="date" aria-required="true" {...register("data_avaliacao")} />
               {errors.data_avaliacao && (
                 <p className="text-xs text-destructive" role="alert">{errors.data_avaliacao.message}</p>
               )}
@@ -122,13 +122,13 @@ export function NewAssessmentDialog({ patientId, assessment }: NewAssessmentDial
 
             <div className="space-y-2">
               <Label htmlFor="peso_kg">Peso (kg) *</Label>
-              <Input id="peso_kg" type="number" step="0.1" placeholder="70.5" {...register("peso_kg")} />
+              <Input id="peso_kg" type="number" step="0.1" placeholder="70.5" aria-required="true" {...register("peso_kg")} />
               {errors.peso_kg && <p className="text-xs text-destructive" role="alert">{errors.peso_kg.message}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="altura_cm">Altura (cm) *</Label>
-              <Input id="altura_cm" type="number" step="0.1" placeholder="170" {...register("altura_cm")} />
+              <Input id="altura_cm" type="number" step="0.1" placeholder="170" aria-required="true" {...register("altura_cm")} />
               {errors.altura_cm && <p className="text-xs text-destructive" role="alert">{errors.altura_cm.message}</p>}
             </div>
 

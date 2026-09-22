@@ -321,8 +321,8 @@ export function PatientFinancePanel({
                       <TableRow>
                         <TableHead>Descrição</TableHead>
                         <TableHead>Valor</TableHead>
-                        <TableHead>Recebido em</TableHead>
-                        <TableHead>Forma</TableHead>
+                        <TableHead className="hidden md:table-cell">Recebido em</TableHead>
+                        <TableHead className="hidden sm:table-cell">Forma</TableHead>
                         <TableHead className="w-[110px]" />
                       </TableRow>
                     </TableHeader>
@@ -333,10 +333,10 @@ export function PatientFinancePanel({
                             <DescricaoCell p={p} onShowPackage={setPackageDetailsFor} />
                           </TableCell>
                           <TableCell className="text-sm text-foreground">{formatCurrencyBRL(p.valor)}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
+                          <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                             {formatDate(p.data_pagamento)}
                           </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
+                          <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
                             {p.forma_pagamento ? FORMA_PAGAMENTO_LABELS[p.forma_pagamento] : "—"}
                           </TableCell>
                           <TableCell>

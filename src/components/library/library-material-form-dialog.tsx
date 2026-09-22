@@ -221,6 +221,7 @@ export function LibraryMaterialFormDialog({ material, trigger }: LibraryMaterial
               value={form.titulo}
               onChange={(e) => setField("titulo", e.target.value)}
               disabled={loading}
+              aria-required="true"
             />
           </div>
 
@@ -228,7 +229,7 @@ export function LibraryMaterialFormDialog({ material, trigger }: LibraryMaterial
             <div className="space-y-2">
               <Label id={tipoLabelId}>Tipo *</Label>
               <Select value={form.tipo} onValueChange={(v) => setField("tipo", v as LibraryMaterialTipo)}>
-                <SelectTrigger aria-labelledby={tipoLabelId}>
+                <SelectTrigger aria-labelledby={tipoLabelId} aria-required="true">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -248,6 +249,7 @@ export function LibraryMaterialFormDialog({ material, trigger }: LibraryMaterial
                 value={form.tagsTexto}
                 onChange={(e) => setField("tagsTexto", e.target.value)}
                 disabled={loading}
+                aria-required="true"
               />
             </div>
           </div>
@@ -297,6 +299,7 @@ export function LibraryMaterialFormDialog({ material, trigger }: LibraryMaterial
                   value={form.conteudo}
                   onChange={(e) => setField("conteudo", e.target.value)}
                   disabled={loading}
+                  aria-required="true"
                 />
                 <p className="text-xs text-muted-foreground">
                   Única formatação disponível: <code>**texto**</code> vira negrito. O PDF enviado ao paciente já sai
@@ -316,6 +319,7 @@ export function LibraryMaterialFormDialog({ material, trigger }: LibraryMaterial
                 disabled={loading}
                 onClick={() => fileInputRef.current?.click()}
                 aria-labelledby={`${arquivoLabelId} ${arquivoButtonTextId}`}
+                aria-required="true"
               >
                 <Paperclip className="h-4 w-4" />
                 <span id={arquivoButtonTextId}>{arquivoNome ?? "Selecionar arquivo"}</span>

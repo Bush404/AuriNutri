@@ -79,7 +79,7 @@ export function ProfileForm({ profile, logoSignedUrl, assinaturaSignedUrl }: Pro
         <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="nome">Nome completo *</Label>
-            <Input id="nome" placeholder="Seu nome" {...register("nome")} />
+            <Input id="nome" placeholder="Seu nome" aria-required="true" {...register("nome")} />
             {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
           </div>
 

@@ -12,6 +12,8 @@ interface CurrencyInputProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  /** true quando o campo é obrigatório no schema Zod do formulário que usa este input. */
+  ariaRequired?: boolean;
 }
 
 /** Converte "1500" ou "1500,9" (o que o usuário digitou) para número — vírgula como separador decimal. */
@@ -30,7 +32,16 @@ function parseTypedValue(raw: string): number | undefined {
  * frágil quando o texto formatado tem sufixo/prefixo) — formata só ao perder
  * o foco, e volta a mostrar o número cru ao focar de novo para edição fácil.
  */
-export function CurrencyInput({ id, value, onChange, onBlur, placeholder, disabled, className }: CurrencyInputProps) {
+export function CurrencyInput({
+  id,
+  value,
+  onChange,
+  onBlur,
+  placeholder,
+  disabled,
+  className,
+  ariaRequired,
+}: CurrencyInputProps) {
   const [editing, setEditing] = useState(false);
   const [rawText, setRawText] = useState("");
 
@@ -47,6 +58,7 @@ export function CurrencyInput({ id, value, onChange, onBlur, placeholder, disabl
       placeholder={placeholder ?? "R$ 0,00"}
       disabled={disabled}
       className={className}
+      aria-required={ariaRequired}
       value={displayValue}
       onFocus={() => {
         setRawText(value !== undefined && value !== null && !Number.isNaN(value) ? String(value).replace(".", ",") : "");

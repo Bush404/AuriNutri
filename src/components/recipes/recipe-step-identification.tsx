@@ -77,7 +77,7 @@ export function RecipeStepIdentification({ recipeId, recipe, imageSignedUrl, onS
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="nome">Nome da receita *</Label>
-        <Input id="nome" placeholder="Ex: Frango grelhado com legumes" {...register("nome")} />
+        <Input id="nome" placeholder="Ex: Frango grelhado com legumes" aria-required="true" {...register("nome")} />
         {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
       </div>
 
