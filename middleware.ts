@@ -11,7 +11,8 @@ export const config = {
      * Aplica o middleware a todas as rotas, exceto:
      * - arquivos estáticos (_next/static, _next/image)
      * - favicon e assets públicos
+     * - /monitoring (túnel do Sentry, ver next.config.mjs)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!monitoring|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
