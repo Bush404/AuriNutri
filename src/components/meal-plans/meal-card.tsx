@@ -11,7 +11,9 @@ import { calculateMealTotals, formatMacro } from "@/lib/nutrition";
 import { deleteMeal, updateMeal } from "@/lib/actions/meals";
 import { saveMealAsTemplate } from "@/lib/actions/meal-templates";
 import { mealSchema, mealTemplateNameSchema, type MealInput, type MealTemplateNameInput } from "@/lib/validations/meal-plan";
-import { MealItemRow, type MealItemWithSubstitutions } from "@/components/meal-plans/meal-item-row";
+import { MealItemRow } from "@/components/meal-plans/meal-item-row";
+import { MealItemCard } from "@/components/meal-plans/meal-item-card";
+import type { MealItemWithSubstitutions } from "@/components/meal-plans/use-meal-item-editor";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -126,7 +128,7 @@ export function MealCard({ planId, meal }: { planId: string; meal: MealWithItems
                   <Label htmlFor="template_nome">Nome do template</Label>
                   <Input id="template_nome" {...templateForm.register("nome")} />
                   {templateForm.formState.errors.nome && (
-                    <p className="text-xs text-destructive">{templateForm.formState.errors.nome.message}</p>
+                    <p className="text-xs text-destructive" role="alert">{templateForm.formState.errors.nome.message}</p>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -159,7 +161,7 @@ export function MealCard({ planId, meal }: { planId: string; meal: MealWithItems
                   <Label htmlFor="edit_nome">Nome</Label>
                   <Input id="edit_nome" {...editForm.register("nome")} />
                   {editForm.formState.errors.nome && (
-                    <p className="text-xs text-destructive">{editForm.formState.errors.nome.message}</p>
+                    <p className="text-xs text-destructive" role="alert">{editForm.formState.errors.nome.message}</p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -212,24 +214,36 @@ export function MealCard({ planId, meal }: { planId: string; meal: MealWithItems
 
       <CardContent className="space-y-4">
         {meal.items.length > 0 && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Alimento</TableHead>
-                <TableHead>Qtd.</TableHead>
-                <TableHead>Kcal</TableHead>
-                <TableHead className="hidden sm:table-cell">Prot.</TableHead>
-                <TableHead className="hidden sm:table-cell">Carb.</TableHead>
-                <TableHead className="hidden sm:table-cell">Gord.</TableHead>
-                <TableHead className="w-20" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <>
+            {/* Celular (< sm): cartões empilhados, sem esconder nenhum macro — ver MealItemCard. */}
+            <div className="space-y-2 sm:hidden">
               {meal.items.map((item) => (
-                <MealItemRow key={item.id} planId={planId} item={item} />
+                <MealItemCard key={item.id} planId={planId} item={item} />
               ))}
-            </TableBody>
-          </Table>
+            </div>
+
+            {/* sm e acima: tabela, igual sempre foi. */}
+            <div className="hidden sm:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Alimento</TableHead>
+                    <TableHead>Qtd.</TableHead>
+                    <TableHead>Kcal</TableHead>
+                    <TableHead>Prot.</TableHead>
+                    <TableHead>Carb.</TableHead>
+                    <TableHead>Gord.</TableHead>
+                    <TableHead className="w-20" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {meal.items.map((item) => (
+                    <MealItemRow key={item.id} planId={planId} item={item} />
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
 
         <AddMealItemForm planId={planId} mealId={meal.id} nextOrdem={nextOrdem} />

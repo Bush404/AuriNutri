@@ -169,7 +169,7 @@ function PhotoViewButton({ photoId, label }: { photoId: string; label: string })
           // eslint-disable-next-line @next/next/no-img-element -- URL assinada temporária (15min), não faz sentido pelo pipeline de otimização de imagens do Next.
           <img src={url} alt={label} className="w-full rounded-md" />
         )}
-        {!loading && !url && <p className="py-8 text-center text-sm text-destructive">Não foi possível carregar a foto.</p>}
+        {!loading && !url && <p className="py-8 text-center text-sm text-destructive" role="alert">Não foi possível carregar a foto.</p>}
       </DialogContent>
     </Dialog>
   );
@@ -282,7 +282,7 @@ function PhotoComparison({ photos }: { photos: PatientPhoto[] }) {
               // eslint-disable-next-line @next/next/no-img-element -- URL assinada temporária.
               <img src={urls.a} alt="Foto A" className="w-full rounded-md border border-border" />
             ) : (
-              <p className="text-sm text-destructive">Não foi possível carregar.</p>
+              <p className="text-sm text-destructive" role="alert">Não foi possível carregar.</p>
             )}
           </div>
           <div>
@@ -291,7 +291,7 @@ function PhotoComparison({ photos }: { photos: PatientPhoto[] }) {
               // eslint-disable-next-line @next/next/no-img-element -- URL assinada temporária.
               <img src={urls.b} alt="Foto B" className="w-full rounded-md border border-border" />
             ) : (
-              <p className="text-sm text-destructive">Não foi possível carregar.</p>
+              <p className="text-sm text-destructive" role="alert">Não foi possível carregar.</p>
             )}
           </div>
         </div>

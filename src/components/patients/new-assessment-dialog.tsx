@@ -116,20 +116,20 @@ export function NewAssessmentDialog({ patientId, assessment }: NewAssessmentDial
               <Label htmlFor="data_avaliacao">Data da avaliação *</Label>
               <Input id="data_avaliacao" type="date" {...register("data_avaliacao")} />
               {errors.data_avaliacao && (
-                <p className="text-xs text-destructive">{errors.data_avaliacao.message}</p>
+                <p className="text-xs text-destructive" role="alert">{errors.data_avaliacao.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="peso_kg">Peso (kg) *</Label>
               <Input id="peso_kg" type="number" step="0.1" placeholder="70.5" {...register("peso_kg")} />
-              {errors.peso_kg && <p className="text-xs text-destructive">{errors.peso_kg.message}</p>}
+              {errors.peso_kg && <p className="text-xs text-destructive" role="alert">{errors.peso_kg.message}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="altura_cm">Altura (cm) *</Label>
               <Input id="altura_cm" type="number" step="0.1" placeholder="170" {...register("altura_cm")} />
-              {errors.altura_cm && <p className="text-xs text-destructive">{errors.altura_cm.message}</p>}
+              {errors.altura_cm && <p className="text-xs text-destructive" role="alert">{errors.altura_cm.message}</p>}
             </div>
 
             <div className="space-y-2">

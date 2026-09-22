@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus } from "lucide-react";
@@ -45,6 +45,8 @@ export function NewPatientBillingDialog({ patientId }: { patientId: string }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formaPagamento, setFormaPagamento] = useState<FormaPagamentoPacote>("avista");
+  const tipoLabelId = useId();
+  const comoSeraPagoLabelId = useId();
 
   const {
     register,
@@ -106,13 +108,13 @@ export function NewPatientBillingDialog({ patientId }: { patientId: string }) {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label>Tipo *</Label>
+            <Label id={tipoLabelId}>Tipo *</Label>
             <Controller
               control={control}
               name="tipo"
               render={({ field }) => (
                 <Tabs value={field.value} onValueChange={field.onChange}>
-                  <TabsList className="grid w-full grid-cols-2">
+                  <TabsList className="grid w-full grid-cols-2" aria-labelledby={tipoLabelId}>
                     {PATIENT_BILLING_TIPOS.map((valor) => (
                       <TabsTrigger key={valor} value={valor}>
                         {TIPO_LABELS[valor]}
@@ -131,7 +133,7 @@ export function NewPatientBillingDialog({ patientId }: { patientId: string }) {
               placeholder={isPacote ? "Ex: Pacote 3 meses" : "Ex: Consulta"}
               {...register("descricao")}
             />
-            {errors.descricao && <p className="text-xs text-destructive">{errors.descricao.message}</p>}
+            {errors.descricao && <p className="text-xs text-destructive" role="alert">{errors.descricao.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -144,13 +146,13 @@ export function NewPatientBillingDialog({ patientId }: { patientId: string }) {
                   <CurrencyInput id="valor_total" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
                 )}
               />
-              {errors.valor_total && <p className="text-xs text-destructive">{errors.valor_total.message}</p>}
+              {errors.valor_total && <p className="text-xs text-destructive" role="alert">{errors.valor_total.message}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="data_inicio">{isPacote ? "Data da 1ª parcela" : "Vencimento"} *</Label>
               <Input id="data_inicio" type="date" {...register("data_inicio")} />
-              {errors.data_inicio && <p className="text-xs text-destructive">{errors.data_inicio.message}</p>}
+              {errors.data_inicio && <p className="text-xs text-destructive" role="alert">{errors.data_inicio.message}</p>}
             </div>
           </div>
 
@@ -160,14 +162,14 @@ export function NewPatientBillingDialog({ patientId }: { patientId: string }) {
                 <Label htmlFor="numero_consultas">Número de consultas do pacote *</Label>
                 <Input id="numero_consultas" type="number" min="1" {...register("numero_consultas")} />
                 {errors.numero_consultas && (
-                  <p className="text-xs text-destructive">{errors.numero_consultas.message}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.numero_consultas.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label>Como será pago? *</Label>
+                <Label id={comoSeraPagoLabelId}>Como será pago? *</Label>
                 <Tabs value={formaPagamento} onValueChange={(v) => setFormaPagamento(v as FormaPagamentoPacote)}>
-                  <TabsList className="grid w-full grid-cols-2">
+                  <TabsList className="grid w-full grid-cols-2" aria-labelledby={comoSeraPagoLabelId}>
                     <TabsTrigger value="avista">À vista</TabsTrigger>
                     <TabsTrigger value="parcelado">Parcelado</TabsTrigger>
                   </TabsList>
@@ -179,7 +181,7 @@ export function NewPatientBillingDialog({ patientId }: { patientId: string }) {
                   <Label htmlFor="numero_parcelas">Em quantas parcelas?</Label>
                   <Input id="numero_parcelas" type="number" min="2" {...register("numero_parcelas")} />
                   {errors.numero_parcelas && (
-                    <p className="text-xs text-destructive">{errors.numero_parcelas.message}</p>
+                    <p className="text-xs text-destructive" role="alert">{errors.numero_parcelas.message}</p>
                   )}
                   <p className="text-xs text-muted-foreground">
                     Cada parcela vence um mês após a anterior, a partir da data acima.

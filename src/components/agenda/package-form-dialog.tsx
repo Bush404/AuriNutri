@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useId, useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -105,6 +105,10 @@ export function PackageFormDialog({
   defaultPatient,
 }: PackageFormDialogProps) {
   const baseDate = defaultDateStr ?? new Date().toISOString().slice(0, 10);
+  const pacienteLabelId = useId();
+  const formaPagamentoIntegralLabelId = useId();
+  const formaPagamentoSinalLabelId = useId();
+  const consultasDoPacoteLabelId = useId();
 
   const [selectedPatient, setSelectedPatient] = useState<PatientPickerResult | null>(defaultPatient ?? null);
   const [patientError, setPatientError] = useState<string | null>(null);
@@ -275,16 +279,17 @@ export function PackageFormDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Paciente *</Label>
+            <Label id={pacienteLabelId}>Paciente *</Label>
             <PatientCombobox
               value={selectedPatient}
               onChange={(patient) => {
                 setSelectedPatient(patient);
                 setPatientError(null);
               }}
+              ariaLabelledBy={pacienteLabelId}
               disabled={isPending}
             />
-            {patientError && <p className="text-xs text-destructive">{patientError}</p>}
+            {patientError && <p className="text-xs text-destructive" role="alert">{patientError}</p>}
           </div>
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -401,13 +406,13 @@ export function PackageFormDialog({
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Forma de pagamento</Label>
+                        <Label id={formaPagamentoIntegralLabelId}>Forma de pagamento</Label>
                         <Select
                           value={billing.integralForma}
                           onValueChange={(v) => setBilling((b) => ({ ...b, integralForma: v as FormaPagamento }))}
                           disabled={isPending}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger aria-labelledby={formaPagamentoIntegralLabelId}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -453,13 +458,13 @@ export function PackageFormDialog({
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Forma de pagamento do sinal</Label>
+                        <Label id={formaPagamentoSinalLabelId}>Forma de pagamento do sinal</Label>
                         <Select
                           value={billing.sinalForma}
                           onValueChange={(v) => setBilling((b) => ({ ...b, sinalForma: v as FormaPagamento }))}
                           disabled={isPending}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger aria-labelledby={formaPagamentoSinalLabelId}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -493,14 +498,15 @@ export function PackageFormDialog({
           </div>
 
           <div className="space-y-3">
-            <Label>Consultas do pacote *</Label>
+            {/* Cabeçalho de seção, não label de um único controle — cada input da lista abaixo já tem seu próprio Label/htmlFor. */}
+            <p className="text-sm font-medium leading-none text-foreground">Consultas do pacote *</p>
             <div className="space-y-3">
               {rows.map((row, index) => (
                 <div key={index} className="rounded-md border border-border p-3">
                   <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     Consulta {index + 1}
                   </p>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <div className="space-y-1">
                       <Label htmlFor={`data_${index}`} className="text-xs">
                         Data
@@ -540,7 +546,7 @@ export function PackageFormDialog({
                       />
                     </div>
                   </div>
-                  {rowErrors[index] && <p className="mt-1 text-xs text-destructive">{rowErrors[index]}</p>}
+                  {rowErrors[index] && <p className="mt-1 text-xs text-destructive" role="alert">{rowErrors[index]}</p>}
                 </div>
               ))}
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, ShieldCheck } from "lucide-react";
@@ -32,6 +32,7 @@ interface PatientConsentGrantDialogProps {
 
 export function PatientConsentGrantDialog({ patientId, tipo, tipoLabel }: PatientConsentGrantDialogProps) {
   const [open, setOpen] = useState(false);
+  const comoFoiObtidoLabelId = useId();
   const [loading, setLoading] = useState(false);
 
   const {
@@ -79,13 +80,13 @@ export function PatientConsentGrantDialog({ patientId, tipo, tipoLabel }: Patien
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label>Como foi obtido *</Label>
+            <Label id={comoFoiObtidoLabelId}>Como foi obtido *</Label>
             <Controller
               control={control}
               name="forma"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-labelledby={comoFoiObtidoLabelId}>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -96,7 +97,7 @@ export function PatientConsentGrantDialog({ patientId, tipo, tipoLabel }: Patien
                 </Select>
               )}
             />
-            {errors.forma && <p className="text-xs text-destructive">{errors.forma.message}</p>}
+            {errors.forma && <p className="text-xs text-destructive" role="alert">{errors.forma.message}</p>}
           </div>
 
           <div className="space-y-2">

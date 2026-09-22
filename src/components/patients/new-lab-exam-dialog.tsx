@@ -68,7 +68,7 @@ export function NewLabExamDialog({ patientId }: { patientId: string }) {
           <div className="space-y-2">
             <Label htmlFor="data_coleta">Data da coleta *</Label>
             <Input id="data_coleta" type="date" {...register("data_coleta")} />
-            {errors.data_coleta && <p className="text-xs text-destructive">{errors.data_coleta.message}</p>}
+            {errors.data_coleta && <p className="text-xs text-destructive" role="alert">{errors.data_coleta.message}</p>}
           </div>
 
           <div className="space-y-2">

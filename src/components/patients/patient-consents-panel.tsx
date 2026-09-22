@@ -85,10 +85,10 @@ export function PatientConsentsPanel({ patientId, consents }: { patientId: strin
                 <TableRow>
                   <TableHead>Tipo</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Forma</TableHead>
+                  <TableHead className="hidden sm:table-cell">Forma</TableHead>
                   <TableHead>Concedido em</TableHead>
-                  <TableHead>Revogado em</TableHead>
-                  <TableHead>Observações</TableHead>
+                  <TableHead className="hidden md:table-cell">Revogado em</TableHead>
+                  <TableHead className="hidden md:table-cell">Observações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -100,14 +100,19 @@ export function PatientConsentsPanel({ patientId, consents }: { patientId: strin
                         {isAtivo(consent) ? "Ativo" : "Revogado"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{FORMA_LABELS[consent.forma]}</TableCell>
+                    <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
+                      {FORMA_LABELS[consent.forma]}
+                    </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDateTime(consent.data_consentimento)}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                       {formatDateTime(consent.data_revogacao)}
                     </TableCell>
-                    <TableCell className="max-w-xs truncate text-sm text-muted-foreground" title={consent.observacoes ?? undefined}>
+                    <TableCell
+                      className="hidden max-w-xs truncate text-sm text-muted-foreground md:table-cell"
+                      title={consent.observacoes ?? undefined}
+                    >
                       {consent.observacoes ?? "—"}
                     </TableCell>
                   </TableRow>

@@ -1309,12 +1309,6 @@ mantendo `visibilidade` pronta para a extensão futura ser aditiva.
 [x] Teste de isolamento entre profissionais (TODAS as tabelas com RLS + Storage)
 [x] Rate limiting nas operações caras (gerar PDF/link, enviar arquivo)
 [x] Política de senha forte (mínimo 8 + bloqueio de senha comum)
-[ ] Auditoria de contraste (WCAG AA)
-[ ] Navegação completa por teclado
-[ ] Alternativa textual para o gráfico de evolução
-[ ] Revisão de responsividade (tabela de plano no mobile)
-[ ] Testes E2E dos fluxos críticos (Playwright)
-[ ] Observabilidade (Sentry)
 ```
 
 **1. Teste de isolamento — `scripts/test-security-isolation-full.mjs`.** Suíte única cobrindo
@@ -1388,6 +1382,103 @@ Rate limiting mal implementado pode virar um jeito de derrubar o próprio produt
 usuário legítimo, ou se a checagem em si cair o sistema todo). Mitigado com falha aberta
 deliberada e limites generosos (30/hora) — pensado pra conter abuso, não pra ser um obstáculo no
 uso normal.
+
+### Bloco B — acessibilidade e responsividade · `DONE` (2026-09-22)
+
+```
+[x] Navegação completa por teclado nos componentes customizados (comboboxes)
+[x] Alternativa textual para os gráficos SVG (evolução de peso/IMC e de marcador laboratorial)
+[x] Formulários: label associado a todo campo, erros anunciados por leitor de tela
+[x] Auditoria de contraste (WCAG AA) — 2 ajustes aplicados
+[x] Tabela de plano alimentar no celular — layout em cartões
+[x] Revisão de responsividade (375px) — 6 piores problemas corrigidos
+[ ] Testes E2E dos fluxos críticos (Playwright)
+[ ] Observabilidade (Sentry)
+```
+
+**1. Navegação por teclado.** Os campos de busca customizados do projeto (`FoodCombobox`,
+`RecipeCombobox`, `PatientCombobox`, e o combobox de marcador em `LabMarkerForm`) não usam
+nenhum primitivo do Radix por baixo — são um `<Input>` + lista de resultados feitos à mão, então
+não ganhavam de graça o que os Dialogs/Dropdowns do Radix já resolvem. Criado
+`src/lib/use-combobox-keyboard.ts`, um hook único reaproveitado nos quatro: seta cima/baixo
+percorre os resultados, Enter seleciona o destacado, Escape fecha sem selecionar. Padrão ARIA de
+combobox completo (`role="combobox"`, `aria-expanded`, `aria-controls`, `aria-activedescendant`,
+`role="listbox"`/`"option"`) — o foco real nunca sai do campo de texto (`tabIndex={-1}` nos
+botões de resultado), evitando um segundo caminho de navegação confuso. O reordenamento de
+ingredientes da receita (setas cima/baixo, botões reais) e o arrastar-para-remarcar da Agenda (já
+tinha alternativa via botão "Remarcar", decisão da Fase 5) já eram acessíveis — nenhuma mudança
+necessária ali. Foco visível em toda a interface já vinha correto desde o início (todo primitivo
+do kit de UI usa `focus-visible:ring`, nunca `outline-none` sem substituto).
+
+**2. Gráficos SVG.** `EvolutionChart` (peso/IMC) e `MarkerChart` (evolução de marcador
+laboratorial, dentro de `LabMarkerEvolutionSection`) não tinham `role`, `aria-label` nem
+alternativa textual — um leitor de tela não enxergava nada ali. Adicionado `role="img"` +
+`<title>` com a descrição da tendência (ex.: "de 78kg em 10/01 até 74kg em 15/03, ao longo de 5
+avaliações"), mais um botão "Ver dados em tabela" que troca o gráfico por uma tabela acessível
+com os mesmos pontos — não escondida, uma alternativa de verdade, útil também pra quem prefere
+números a gráfico. A barra de proporção por categoria em `CustoConsultorioCard` (financeiro) já
+tinha o valor em texto ao lado — só ganhou `aria-hidden` na barra decorativa, sem precisar de
+tabela (não é um gráfico independente, é reforço visual de um número que já está escrito).
+
+**3. Formulários.** Dois problemas sistêmicos corrigidos em todo o projeto: (a) 74 mensagens de
+erro (`<p className="text-destructive">`) em 32 arquivos não eram anunciadas por leitor de tela —
+todas ganharam `role="alert"`; (b) ~30 campos usavam `<Select>`/`<Tabs>`/botão de arquivo com um
+`<Label>` visualmente ao lado mas sem associação programática (não dá pra usar `htmlFor` num
+`SelectTrigger`, que é um botão, não um input nativo) — cada um ganhou `useId()` +
+`aria-labelledby` no controle real (ou, pra `<Tabs>` de seção como "Recorrência"/"Como será
+pago?", no `TabsList`). Um caso (`"Consultas do pacote *"` em `package-form-dialog.tsx`) não é
+label de um único controle — virou um cabeçalho de seção comum, já que cada input da lista abaixo
+tem seu próprio `Label`/`htmlFor`. **Marcação semântica de campo obrigatório (`aria-required`)
+além do "*" no texto ficou de fora desta rodada** — exigiria mapear individualmente quais campos
+são de fato obrigatórios em cada schema Zod, um levantamento maior que não coube neste bloco;
+registrado como pendência.
+
+**4. Contraste (WCAG AA).** Auditoria encontrou 2 problemas reais (o laranja de destaque, suspeito
+inicial do usuário, na verdade nunca é usado como texto sozinho — só em botão/selo com contraste
+alto, não precisou mudar): `--muted-foreground` (usado em ~96 arquivos) tinha só 4.06-4.41:1,
+abaixo do mínimo de 4.5:1 — escurecido de 45% pra 38% de luminosidade (mesma matiz/saturação,
+mudança imperceptível a olho nu); `--destructive` sobre o próprio fundo do badge (10% de opacidade)
+tinha 4.13:1 — escurecido de 51% pra 47%. Ambos em `src/app/globals.css`, sem tocar em nenhuma
+outra cor da identidade visual — decisão e valores apresentados ao usuário antes de aplicar.
+
+**5. Tabela de plano alimentar no celular.** A tabela escondia Proteína/Carboidrato/Gordura
+abaixo de `sm:` — exatamente o dado que o profissional mais precisa ver rápido. Extraído
+`useMealItemEditor` (`src/components/meal-plans/use-meal-item-editor.ts`) com todo o estado/ações
+de um item (antes só dentro de `MealItemRow`), reaproveitado por `MealItemRow` (tabela, `sm:`+) e
+pelo novo `MealItemCard` (cartão empilhado, < `sm:`) — a mesma lógica de negócio por trás das duas
+apresentações, nunca duplicada. No celular, todos os macros aparecem sempre, sem esconder nada;
+no computador, a tabela continua exatamente como já era. Proposta de layout apresentada e
+aprovada pelo usuário antes de implementar.
+
+**6. Responsividade geral (375px).** Auditoria estática (sem navegador) por todas as rotas e
+componentes de layout complexo. Base do projeto já é sólida (a maioria das telas já usa
+`flex-col sm:flex-row`/`grid-cols-1 sm:grid-cols-N` corretamente); os 6 piores problemas
+corrigidos: (1) aba Financeiro do paciente — coluna de ações com `w-[240px]` fixo espremia
+Descrição/Valor/Vencimento — largura fixa removida, "Vencimento" escondido em `sm:`; (2) tabs de
+recorrência da despesa (`grid-cols-5`) — "Trimestral"/"Semestral" não cabiam — vira
+`grid-cols-3 sm:grid-cols-5` (2 linhas no celular); (3) abas do perfil do paciente
+(`flex-wrap` numa `TabsList` de altura fixa) — linhas extras vazavam do fundo arredondado —
+`h-auto` adicionado; (4) tabela de consentimentos — 6 colunas sem nenhuma escondida — Forma/
+Revogado em/Observações agora escondem em `sm:`/`md:`; (5) tabela de despesas — Categoria/
+Recorrência agora escondem em `sm:`/`md:`; (6) "Novo pacote" na Agenda — grade de Data/Início/
+Término 3 colunas fixas — vira `grid-cols-1 sm:grid-cols-3`. Lista completa de achados menores
+(não corrigidos nesta rodada) fica registrada na auditoria, disponível se quiser revisitar.
+
+`npm test` (243/243), `npm run lint` e `npm run build` passam.
+
+### Riscos (mitigado)
+Mudar cor de texto usada em ~96 arquivos de uma vez poderia introduzir inconsistência visual
+sutil. Mitigado testando a métrica de contraste antes (não só "parece melhor") e mudando só
+luminosidade, preservando matiz/saturação — a mudança é imperceptível a olho nu, mensurável só em
+contraste.
+
+### Pendências conhecidas (não bloqueiam o fechamento do bloco)
+- Marcação semântica `aria-required` nos campos obrigatórios (além do "*" visual) — exigiria
+  mapear cada campo obrigatório por formulário, escopo maior que não coube nesta rodada.
+- Testes E2E (Playwright) e observabilidade (Sentry) — itens finais da Fase 11, ainda não
+  iniciados.
+- Achados menores da auditoria de 375px não corrigidos (itens além dos 6 priorizados) — lista
+  completa disponível se o usuário quiser revisitar.
 
 ---
 

@@ -74,7 +74,7 @@ function LoginForm() {
         <div className="space-y-2">
           <Label htmlFor="email">E-mail</Label>
           <Input id="email" type="email" placeholder="voce@exemplo.com" {...register("email")} />
-          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+          {errors.email && <p className="text-xs text-destructive" role="alert">{errors.email.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -85,7 +85,7 @@ function LoginForm() {
             </Link>
           </div>
           <Input id="password" type="password" placeholder="••••••••" {...register("password")} />
-          {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
+          {errors.password && <p className="text-xs text-destructive" role="alert">{errors.password.message}</p>}
         </div>
 
         <Button type="submit" className="w-full" disabled={loading}>

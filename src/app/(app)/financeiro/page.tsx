@@ -133,7 +133,7 @@ export default async function FinanceiroPage() {
             </CardHeader>
             <CardContent>
               {expensesError && (
-                <p className="text-sm text-destructive">Erro ao carregar despesas: {expensesError.message}</p>
+                <p className="text-sm text-destructive" role="alert">Erro ao carregar despesas: {expensesError.message}</p>
               )}
 
               {!expensesError && expensesComParcela.length > 0 && (

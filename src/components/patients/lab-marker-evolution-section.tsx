@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
+import { Table2, TrendingUp } from "lucide-react";
 import type { LabMarker } from "@/lib/types/database.types";
 import { formatDate } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export interface MarkerHistoryPoint {
   examDataColeta: string;
@@ -64,6 +67,9 @@ export function LabMarkerEvolutionSection({ historico }: { historico: MarkerHist
 }
 
 function MarkerChart({ pontos }: { pontos: MarkerHistoryPoint[] }) {
+  const [modoTabela, setModoTabela] = useState(false);
+  const titleId = useId();
+
   const width = 640;
   const height = 240;
   const padding = { top: 20, right: 20, bottom: 30, left: 44 };
@@ -100,49 +106,97 @@ function MarkerChart({ pontos }: { pontos: MarkerHistoryPoint[] }) {
   const faixaTopo = ultimaFaixa.referencia_max !== null ? yFor(ultimaFaixa.referencia_max) : padding.top;
   const faixaBase = ultimaFaixa.referencia_min !== null ? yFor(ultimaFaixa.referencia_min) : height - padding.bottom;
 
+  const primeiro = pontos[0];
+  const ultimo = pontos[pontos.length - 1];
+  const chartDescription = `Gráfico de linha da evolução de ${primeiro.marker.nome_marcador}, de ${primeiro.marker.valor} ${primeiro.marker.unidade} em ${formatDate(
+    primeiro.examDataColeta
+  )} até ${ultimo.marker.valor} ${ultimo.marker.unidade} em ${formatDate(ultimo.examDataColeta)}, ao longo de ${pontos.length} exames.`;
+
   return (
     <div className="space-y-2">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full">
-        {[0, 0.5, 1].map((t) => (
-          <line
-            key={t}
-            x1={padding.left}
-            x2={width - padding.right}
-            y1={padding.top + t * (height - padding.top - padding.bottom)}
-            y2={padding.top + t * (height - padding.top - padding.bottom)}
-            stroke="hsl(var(--border))"
-            strokeDasharray="4 4"
-          />
-        ))}
+      <div className="flex justify-end">
+        <Button type="button" variant="ghost" size="sm" onClick={() => setModoTabela((v) => !v)}>
+          {modoTabela ? <TrendingUp className="h-4 w-4" /> : <Table2 className="h-4 w-4" />}
+          {modoTabela ? "Ver como gráfico" : "Ver dados em tabela"}
+        </Button>
+      </div>
 
-        {temFaixa && (
-          <rect
-            x={padding.left}
-            y={faixaTopo}
-            width={width - padding.left - padding.right}
-            height={Math.max(faixaBase - faixaTopo, 0)}
-            fill="hsl(var(--primary))"
-            fillOpacity={0.08}
-          />
-        )}
+      {modoTabela ? (
+        <Table aria-label={`Evolução de ${primeiro.marker.nome_marcador} por exame`}>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Data da coleta</TableHead>
+              <TableHead>Valor</TableHead>
+              <TableHead>Faixa de referência</TableHead>
+              <TableHead>Fora da faixa</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pontos.map((p) => (
+              <TableRow key={p.marker.id}>
+                <TableCell>{formatDate(p.examDataColeta)}</TableCell>
+                <TableCell>
+                  {p.marker.valor} {p.marker.unidade}
+                </TableCell>
+                <TableCell>
+                  {p.marker.referencia_min ?? "—"} a {p.marker.referencia_max ?? "—"}
+                </TableCell>
+                <TableCell>{p.marker.fora_da_faixa ? "Sim" : "Não"}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <>
+          <svg viewBox={`0 0 ${width} ${height}`} className="w-full" role="img" aria-labelledby={titleId}>
+            <title id={titleId}>{chartDescription}</title>
+            {[0, 0.5, 1].map((t) => (
+              <line
+                key={t}
+                x1={padding.left}
+                x2={width - padding.right}
+                y1={padding.top + t * (height - padding.top - padding.bottom)}
+                y2={padding.top + t * (height - padding.top - padding.bottom)}
+                stroke="hsl(var(--border))"
+                strokeDasharray="4 4"
+              />
+            ))}
 
-        <path d={pathD} fill="none" stroke="hsl(var(--primary))" strokeWidth={2.5} />
+            {temFaixa && (
+              <rect
+                x={padding.left}
+                y={faixaTopo}
+                width={width - padding.left - padding.right}
+                height={Math.max(faixaBase - faixaTopo, 0)}
+                fill="hsl(var(--primary))"
+                fillOpacity={0.08}
+              />
+            )}
 
-        {pontosXY.map((p, i) => (
-          <g key={i}>
-            <circle cx={p.x} cy={p.y} r={4} fill={p.ponto.marker.fora_da_faixa ? "hsl(var(--accent-foreground))" : "hsl(var(--primary))"} />
-            <text x={p.x} y={height - 8} textAnchor="middle" fontSize={10} fill="hsl(var(--muted-foreground))">
-              {formatDate(p.ponto.examDataColeta)}
-            </text>
-          </g>
-        ))}
-      </svg>
-      {temFaixa && (
-        <p className="text-xs text-muted-foreground">
-          Faixa de referência mais recente: {ultimaFaixa.referencia_min ?? "—"} a {ultimaFaixa.referencia_max ?? "—"}{" "}
-          {ultimaFaixa.unidade} (área sombreada). Pontos fora da área sombreada estão fora da faixa de referência
-          daquele exame.
-        </p>
+            <path d={pathD} fill="none" stroke="hsl(var(--primary))" strokeWidth={2.5} />
+
+            {pontosXY.map((p, i) => (
+              <g key={i}>
+                <circle
+                  cx={p.x}
+                  cy={p.y}
+                  r={4}
+                  fill={p.ponto.marker.fora_da_faixa ? "hsl(var(--accent-foreground))" : "hsl(var(--primary))"}
+                />
+                <text x={p.x} y={height - 8} textAnchor="middle" fontSize={10} fill="hsl(var(--muted-foreground))">
+                  {formatDate(p.ponto.examDataColeta)}
+                </text>
+              </g>
+            ))}
+          </svg>
+          {temFaixa && (
+            <p className="text-xs text-muted-foreground">
+              Faixa de referência mais recente: {ultimaFaixa.referencia_min ?? "—"} a {ultimaFaixa.referencia_max ?? "—"}{" "}
+              {ultimaFaixa.unidade} (área sombreada). Pontos fora da área sombreada estão fora da faixa de referência
+              daquele exame.
+            </p>
+          )}
+        </>
       )}
     </div>
   );

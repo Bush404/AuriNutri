@@ -59,14 +59,14 @@ export default function ResetPasswordPage() {
         <div className="space-y-2">
           <Label htmlFor="password">Nova senha</Label>
           <Input id="password" type="password" placeholder="Mínimo 8 caracteres" {...register("password")} />
-          {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
+          {errors.password && <p className="text-xs text-destructive" role="alert">{errors.password.message}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="confirmPassword">Confirmar nova senha</Label>
           <Input id="confirmPassword" type="password" placeholder="••••••••" {...register("confirmPassword")} />
           {errors.confirmPassword && (
-            <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
+            <p className="text-xs text-destructive" role="alert">{errors.confirmPassword.message}</p>
           )}
         </div>
 

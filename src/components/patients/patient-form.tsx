@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -30,6 +30,7 @@ interface PatientFormProps {
 
 export function PatientForm({ patient }: PatientFormProps) {
   const [loading, setLoading] = useState(false);
+  const sexoLabelId = useId();
   const isEditing = Boolean(patient);
 
   const {
@@ -78,13 +79,13 @@ export function PatientForm({ patient }: PatientFormProps) {
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="nome">Nome completo *</Label>
             <Input id="nome" placeholder="Nome do paciente" {...register("nome")} />
-            {errors.nome && <p className="text-xs text-destructive">{errors.nome.message}</p>}
+            {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
             <Input id="email" type="email" placeholder="paciente@exemplo.com" {...register("email")} />
-            {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+            {errors.email && <p className="text-xs text-destructive" role="alert">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -98,13 +99,13 @@ export function PatientForm({ patient }: PatientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label>Sexo</Label>
+            <Label id={sexoLabelId}>Sexo</Label>
             <Controller
               control={control}
               name="sexo"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-labelledby={sexoLabelId}>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>

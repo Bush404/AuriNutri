@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Loader2, Paperclip, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -88,6 +88,10 @@ export function LibraryMaterialFormDialog({ material, trigger }: LibraryMaterial
   const [form, setForm] = useState<FormState>(material ? buildFormFromMaterial(material) : EMPTY_FORM);
   const [arquivoNome, setArquivoNome] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const comoCriarLabelId = useId();
+  const tipoLabelId = useId();
+  const arquivoLabelId = useId();
+  const arquivoButtonTextId = useId();
 
   useEffect(() => {
     if (!open) return;
@@ -199,9 +203,9 @@ export function LibraryMaterialFormDialog({ material, trigger }: LibraryMaterial
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isEditing && (
             <div className="space-y-2">
-              <Label>Como criar *</Label>
+              <Label id={comoCriarLabelId}>Como criar *</Label>
               <Tabs value={kind} onValueChange={(v) => setKind(v as Kind)}>
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-2" aria-labelledby={comoCriarLabelId}>
                   <TabsTrigger value="arquivo">Enviar arquivo</TabsTrigger>
                   <TabsTrigger value="texto">Escrever</TabsTrigger>
                 </TabsList>
@@ -222,9 +226,9 @@ export function LibraryMaterialFormDialog({ material, trigger }: LibraryMaterial
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Tipo *</Label>
+              <Label id={tipoLabelId}>Tipo *</Label>
               <Select value={form.tipo} onValueChange={(v) => setField("tipo", v as LibraryMaterialTipo)}>
-                <SelectTrigger>
+                <SelectTrigger aria-labelledby={tipoLabelId}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -304,16 +308,17 @@ export function LibraryMaterialFormDialog({ material, trigger }: LibraryMaterial
 
           {!isEditing && kind === "arquivo" && (
             <div className="space-y-2">
-              <Label>Arquivo (PDF/imagem) *</Label>
+              <Label id={arquivoLabelId}>Arquivo (PDF/imagem) *</Label>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 disabled={loading}
                 onClick={() => fileInputRef.current?.click()}
+                aria-labelledby={`${arquivoLabelId} ${arquivoButtonTextId}`}
               >
                 <Paperclip className="h-4 w-4" />
-                {arquivoNome ?? "Selecionar arquivo"}
+                <span id={arquivoButtonTextId}>{arquivoNome ?? "Selecionar arquivo"}</span>
               </Button>
               <input
                 ref={fileInputRef}

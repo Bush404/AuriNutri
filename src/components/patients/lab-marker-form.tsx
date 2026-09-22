@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { Loader2, Plus, Save } from "lucide-react";
 import { toast } from "sonner";
 
@@ -12,6 +12,8 @@ import {
   type MarkerCatalogEntry,
   type ReferenceRangeOption,
 } from "@/lib/actions/lab-markers";
+import { useComboboxKeyboardNav } from "@/lib/use-combobox-keyboard";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +45,7 @@ export function LabMarkerForm({ patientId, examId }: LabMarkerFormProps) {
   const [catalogo, setCatalogo] = useState<MarkerCatalogEntry[]>([]);
   const [listaAberta, setListaAberta] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
 
   useEffect(() => {
     listReferenceMarkerCatalog().then(setCatalogo);
@@ -100,6 +103,18 @@ export function LabMarkerForm({ patientId, examId }: LabMarkerFormProps) {
     setForm((f) => ({ ...f, nome_marcador: entry.nome_marcador }));
     setListaAberta(false);
     buscarFaixaPara(entry.nome_marcador);
+  }
+
+  const { highlightedIndex, setHighlightedIndex, onKeyDown } = useComboboxKeyboardNav(
+    sugestoes,
+    listaAberta,
+    handleSelecionarCatalogo,
+    () => setListaAberta(false)
+  );
+  const highlightedNome = sugestoes[highlightedIndex]?.nome_marcador;
+
+  function optionId(nomeMarcador: string) {
+    return `${listboxId}-option-${nomeMarcador}`;
   }
 
   function handleEscolherSexo(valor: "M" | "F") {
@@ -190,12 +205,22 @@ export function LabMarkerForm({ patientId, examId }: LabMarkerFormProps) {
               setTimeout(() => setListaAberta(false), 150);
               buscarFaixaPara(form.nome_marcador);
             }}
+            onKeyDown={onKeyDown}
             placeholder="Buscar ou digitar um marcador..."
             disabled={isPending}
+            role="combobox"
+            aria-expanded={listaAberta}
+            aria-controls={listboxId}
+            aria-autocomplete="list"
+            aria-activedescendant={listaAberta && highlightedNome ? optionId(highlightedNome) : undefined}
           />
 
           {listaAberta && (
-            <div className="absolute z-30 mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-border bg-popover shadow-md">
+            <div
+              id={listboxId}
+              role="listbox"
+              className="absolute z-30 mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-border bg-popover shadow-md"
+            >
               {sugestoes.length === 0 ? (
                 <p className="px-3 py-2 text-sm text-muted-foreground">
                   Nenhum marcador do catálogo encontrado — pode digitar um nome livre.
@@ -204,10 +229,18 @@ export function LabMarkerForm({ patientId, examId }: LabMarkerFormProps) {
                 sugestoes.map((entry) => (
                   <button
                     key={entry.nome_marcador}
+                    id={optionId(entry.nome_marcador)}
+                    role="option"
+                    aria-selected={entry.nome_marcador === highlightedNome}
                     type="button"
+                    tabIndex={-1}
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleSelecionarCatalogo(entry)}
-                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                    onMouseEnter={() => setHighlightedIndex(sugestoes.findIndex((s) => s.nome_marcador === entry.nome_marcador))}
+                    className={cn(
+                      "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted",
+                      entry.nome_marcador === highlightedNome && "bg-muted"
+                    )}
                   >
                     <span className="truncate">{entry.nome_marcador}</span>
                     <span className="shrink-0 text-xs text-muted-foreground">{entry.unidade}</span>

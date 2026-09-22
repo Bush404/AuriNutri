@@ -57,7 +57,7 @@ export default async function PacientesPage({ searchParams }: PacientesPageProps
             <PatientSearch defaultValue={busca} />
           </div>
 
-          {error && <p className="text-sm text-destructive">Erro ao carregar pacientes: {error.message}</p>}
+          {error && <p className="text-sm text-destructive" role="alert">Erro ao carregar pacientes: {error.message}</p>}
 
           {!error && patients && patients.length > 0 && <PatientTable patients={patients} />}
 

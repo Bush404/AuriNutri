@@ -806,7 +806,7 @@ function ImpressosSection({
                     Gerando...
                   </p>
                 )}
-                {item.status === "erro" && <p className="text-sm text-destructive">{item.erro}</p>}
+                {item.status === "erro" && <p className="text-sm text-destructive" role="alert">{item.erro}</p>}
                 {item.status === "pronto" && (
                   <p className="text-sm text-muted-foreground">✓ Link pronto — incluído na mensagem abaixo.</p>
                 )}

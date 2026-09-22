@@ -78,7 +78,7 @@ export function NewMealDialog({ planId, nextOrdem }: { planId: string; nextOrdem
           <div className="space-y-2">
             <Label htmlFor="nome">Nome da refeição *</Label>
             <Input id="nome" placeholder="Ex: Café da manhã" {...register("nome")} />
-            {errors.nome && <p className="text-xs text-destructive">{errors.nome.message}</p>}
+            {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
           </div>
 
           <div className="space-y-2">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Loader2, Paperclip, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -44,6 +44,8 @@ export function NewLabExamWithFileDialog({ patientId, consentimentoAtivoExames }
   const [observacoes, setObservacoes] = useState("");
   const [arquivoNome, setArquivoNome] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const arquivoLabelId = useId();
+  const arquivoButtonTextId = useId();
 
   function resetTudo() {
     setDataColeta(new Date().toISOString().slice(0, 10));
@@ -166,16 +168,17 @@ export function NewLabExamWithFileDialog({ patientId, consentimentoAtivoExames }
           </div>
 
           <div className="space-y-2">
-            <Label>Arquivo (PDF/imagem) *</Label>
+            <Label id={arquivoLabelId}>Arquivo (PDF/imagem) *</Label>
             <Button
               type="button"
               variant="outline"
               size="sm"
               disabled={loading}
               onClick={() => inputRef.current?.click()}
+              aria-labelledby={`${arquivoLabelId} ${arquivoButtonTextId}`}
             >
               <Paperclip className="h-4 w-4" />
-              {arquivoNome ?? "Selecionar arquivo"}
+              <span id={arquivoButtonTextId}>{arquivoNome ?? "Selecionar arquivo"}</span>
             </Button>
             <input
               ref={inputRef}

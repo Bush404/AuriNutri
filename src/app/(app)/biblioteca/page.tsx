@@ -68,7 +68,7 @@ export default async function BibliotecaPage({ searchParams }: BibliotecaPagePro
         <CardContent className="space-y-4 p-6">
           <LibraryMaterialFilters tags={tags} />
 
-          {error && <p className="text-sm text-destructive">Erro ao carregar a biblioteca: {error.message}</p>}
+          {error && <p className="text-sm text-destructive" role="alert">Erro ao carregar a biblioteca: {error.message}</p>}
 
           {!error && !semResultados && <LibraryMaterialsTable materials={materialsList} />}
 

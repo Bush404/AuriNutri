@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera, Loader2, Plus } from "lucide-react";
@@ -34,6 +34,9 @@ export function NewPatientPhotoDialog({ patientId }: { patientId: string }) {
   const [loading, setLoading] = useState(false);
   const [arquivoNome, setArquivoNome] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const anguloLabelId = useId();
+  const fotoLabelId = useId();
+  const fotoButtonTextId = useId();
 
   const {
     control,
@@ -100,16 +103,16 @@ export function NewPatientPhotoDialog({ patientId }: { patientId: string }) {
             <div className="space-y-2">
               <Label htmlFor="data_registro_foto">Data *</Label>
               <Input id="data_registro_foto" type="date" {...register("data_registro")} />
-              {errors.data_registro && <p className="text-xs text-destructive">{errors.data_registro.message}</p>}
+              {errors.data_registro && <p className="text-xs text-destructive" role="alert">{errors.data_registro.message}</p>}
             </div>
             <div className="space-y-2">
-              <Label>Ângulo *</Label>
+              <Label id={anguloLabelId}>Ângulo *</Label>
               <Controller
                 control={control}
                 name="tipo"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-labelledby={anguloLabelId}>
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -120,15 +123,22 @@ export function NewPatientPhotoDialog({ patientId }: { patientId: string }) {
                   </Select>
                 )}
               />
-              {errors.tipo && <p className="text-xs text-destructive">{errors.tipo.message}</p>}
+              {errors.tipo && <p className="text-xs text-destructive" role="alert">{errors.tipo.message}</p>}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>Foto *</Label>
-            <Button type="button" variant="outline" size="sm" disabled={loading} onClick={() => inputRef.current?.click()}>
+            <Label id={fotoLabelId}>Foto *</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={loading}
+              onClick={() => inputRef.current?.click()}
+              aria-labelledby={`${fotoLabelId} ${fotoButtonTextId}`}
+            >
               <Camera className="h-4 w-4" />
-              {arquivoNome ?? "Selecionar foto"}
+              <span id={fotoButtonTextId}>{arquivoNome ?? "Selecionar foto"}</span>
             </Button>
             <input
               ref={inputRef}

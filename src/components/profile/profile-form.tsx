@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Save } from "lucide-react";
@@ -33,6 +33,7 @@ interface ProfileFormProps {
 
 export function ProfileForm({ profile, logoSignedUrl, assinaturaSignedUrl }: ProfileFormProps) {
   const [loading, setLoading] = useState(false);
+  const crnUfLabelId = useId();
 
   const {
     register,
@@ -79,23 +80,23 @@ export function ProfileForm({ profile, logoSignedUrl, assinaturaSignedUrl }: Pro
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="nome">Nome completo *</Label>
             <Input id="nome" placeholder="Seu nome" {...register("nome")} />
-            {errors.nome && <p className="text-xs text-destructive">{errors.nome.message}</p>}
+            {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="crn">Número do CRN</Label>
             <Input id="crn" placeholder="12345" {...register("crn")} />
-            {errors.crn && <p className="text-xs text-destructive">{errors.crn.message}</p>}
+            {errors.crn && <p className="text-xs text-destructive" role="alert">{errors.crn.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label>UF do CRN</Label>
+            <Label id={crnUfLabelId}>UF do CRN</Label>
             <Controller
               control={control}
               name="crn_uf"
               render={({ field }) => (
                 <Select value={field.value ?? ""} onValueChange={field.onChange}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-labelledby={crnUfLabelId}>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -108,7 +109,7 @@ export function ProfileForm({ profile, logoSignedUrl, assinaturaSignedUrl }: Pro
                 </Select>
               )}
             />
-            {errors.crn_uf && <p className="text-xs text-destructive">{errors.crn_uf.message}</p>}
+            {errors.crn_uf && <p className="text-xs text-destructive" role="alert">{errors.crn_uf.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -129,7 +130,7 @@ export function ProfileForm({ profile, logoSignedUrl, assinaturaSignedUrl }: Pro
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="bio">Bio</Label>
             <Textarea id="bio" rows={4} placeholder="Uma breve apresentação profissional" {...register("bio")} />
-            {errors.bio && <p className="text-xs text-destructive">{errors.bio.message}</p>}
+            {errors.bio && <p className="text-xs text-destructive" role="alert">{errors.bio.message}</p>}
           </div>
         </CardContent>
       </Card>
@@ -157,7 +158,7 @@ export function ProfileForm({ profile, logoSignedUrl, assinaturaSignedUrl }: Pro
               />
               <Input id="cor_marca" placeholder="#2563eb" className="max-w-[140px]" {...register("cor_marca")} />
             </div>
-            {errors.cor_marca && <p className="text-xs text-destructive">{errors.cor_marca.message}</p>}
+            {errors.cor_marca && <p className="text-xs text-destructive" role="alert">{errors.cor_marca.message}</p>}
           </div>
 
           <div className="hidden sm:block" />

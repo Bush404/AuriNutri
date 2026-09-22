@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus } from "lucide-react";
@@ -108,6 +108,9 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const isEditing = Boolean(expense);
+  const recorrenciaLabelId = useId();
+  const mesVencimentoLabelId = useId();
+  const parcelamentoLabelId = useId();
 
   const {
     register,
@@ -168,13 +171,13 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label>Recorrência *</Label>
+            <Label id={recorrenciaLabelId}>Recorrência *</Label>
             <Controller
               control={control}
               name="recorrencia"
               render={({ field }) => (
                 <Tabs value={field.value} onValueChange={field.onChange}>
-                  <TabsList className="grid w-full grid-cols-5">
+                  <TabsList className="grid h-auto w-full grid-cols-3 sm:grid-cols-5" aria-labelledby={recorrenciaLabelId}>
                     {EXPENSE_RECORRENCIAS.map((valor) => (
                       <TabsTrigger key={valor} value={valor} className="text-xs sm:text-sm">
                         {RECORRENCIA_LABELS[valor]}
@@ -184,13 +187,13 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
                 </Tabs>
               )}
             />
-            {errors.recorrencia && <p className="text-xs text-destructive">{errors.recorrencia.message}</p>}
+            {errors.recorrencia && <p className="text-xs text-destructive" role="alert">{errors.recorrencia.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="descricao">Descrição *</Label>
             <Input id="descricao" placeholder="Ex: Aluguel da sala" {...register("descricao")} />
-            {errors.descricao && <p className="text-xs text-destructive">{errors.descricao.message}</p>}
+            {errors.descricao && <p className="text-xs text-destructive" role="alert">{errors.descricao.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -207,7 +210,7 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
                   <option key={categoria} value={categoria} />
                 ))}
               </datalist>
-              {errors.categoria && <p className="text-xs text-destructive">{errors.categoria.message}</p>}
+              {errors.categoria && <p className="text-xs text-destructive" role="alert">{errors.categoria.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -219,7 +222,7 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
                   <CurrencyInput id="valor" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
                 )}
               />
-              {errors.valor && <p className="text-xs text-destructive">{errors.valor.message}</p>}
+              {errors.valor && <p className="text-xs text-destructive" role="alert">{errors.valor.message}</p>}
             </div>
           </div>
 
@@ -228,7 +231,7 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
               <Label htmlFor="data_vencimento">Data de vencimento *</Label>
               <Input id="data_vencimento" type="date" {...register("data_vencimento")} />
               {errors.data_vencimento && (
-                <p className="text-xs text-destructive">{errors.data_vencimento.message}</p>
+                <p className="text-xs text-destructive" role="alert">{errors.data_vencimento.message}</p>
               )}
             </div>
           )}
@@ -237,7 +240,7 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
             <div className="grid grid-cols-2 gap-4">
               {precisaDeMes && (
                 <div className="space-y-2">
-                  <Label>Mês do vencimento *</Label>
+                  <Label id={mesVencimentoLabelId}>Mês do vencimento *</Label>
                   <Controller
                     control={control}
                     name="mes_vencimento"
@@ -246,7 +249,7 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
                         value={field.value ? String(field.value) : undefined}
                         onValueChange={(v) => field.onChange(Number(v))}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-labelledby={mesVencimentoLabelId}>
                           <SelectValue placeholder="Selecione" />
                         </SelectTrigger>
                         <SelectContent>
@@ -260,7 +263,7 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
                     )}
                   />
                   {errors.mes_vencimento && (
-                    <p className="text-xs text-destructive">{errors.mes_vencimento.message}</p>
+                    <p className="text-xs text-destructive" role="alert">{errors.mes_vencimento.message}</p>
                   )}
                 </div>
               )}
@@ -269,7 +272,7 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
                 <Label htmlFor="dia_vencimento">Dia do vencimento *</Label>
                 <Input id="dia_vencimento" type="number" min="1" max="31" {...register("dia_vencimento")} />
                 {errors.dia_vencimento && (
-                  <p className="text-xs text-destructive">{errors.dia_vencimento.message}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.dia_vencimento.message}</p>
                 )}
               </div>
             </div>
@@ -277,13 +280,13 @@ export function ExpenseFormDialog({ expense, trigger }: ExpenseFormDialogProps) 
 
           {precisaDeMes && (
             <div className="space-y-2">
-              <Label>Como você paga essa despesa? (opcional)</Label>
+              <Label id={parcelamentoLabelId}>Como você paga essa despesa? (opcional)</Label>
               <Controller
                 control={control}
                 name="parcelamento"
                 render={({ field }) => (
                   <Select value={field.value ?? ""} onValueChange={field.onChange}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-labelledby={parcelamentoLabelId}>
                       <SelectValue placeholder="Não informado" />
                     </SelectTrigger>
                     <SelectContent>

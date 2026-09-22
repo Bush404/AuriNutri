@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { Loader2, Search, X } from "lucide-react";
 
 import type { Recipe } from "@/lib/types/database.types";
 import { searchRecipesForPicker } from "@/lib/actions/recipes";
+import { useComboboxKeyboardNav } from "@/lib/use-combobox-keyboard";
 import { cn } from "@/lib/utils";
 
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,9 @@ interface RecipeComboboxProps {
 /**
  * Campo de busca de receitas para o construtor de plano alimentar — mesmo
  * padrão de FoodCombobox, mas só um grupo (receitas finalizadas do próprio
- * profissional; searchRecipesForPicker já filtra rascunhos).
+ * profissional; searchRecipesForPicker já filtra rascunhos). Inclusive a
+ * navegação por teclado (Fase 11, Bloco B): setas cima/baixo, Enter
+ * seleciona, Escape fecha.
  */
 export function RecipeCombobox({ value, onChange, disabled }: RecipeComboboxProps) {
   const [query, setQuery] = useState("");
@@ -27,6 +30,7 @@ export function RecipeCombobox({ value, onChange, disabled }: RecipeComboboxProp
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const listboxId = useId();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -68,6 +72,15 @@ export function RecipeCombobox({ value, onChange, disabled }: RecipeComboboxProp
     setQuery("");
   }
 
+  const { highlightedIndex, setHighlightedIndex, onKeyDown } = useComboboxKeyboardNav(results, open, handleSelect, () =>
+    setOpen(false)
+  );
+  const highlightedId = results[highlightedIndex]?.id;
+
+  function optionId(recipeId: string) {
+    return `${listboxId}-option-${recipeId}`;
+  }
+
   if (value) {
     return (
       <div className="flex h-10 items-center justify-between rounded-md border border-input bg-muted/40 px-3 text-sm">
@@ -94,14 +107,24 @@ export function RecipeCombobox({ value, onChange, disabled }: RecipeComboboxProp
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={handleFocus}
+          onKeyDown={onKeyDown}
           placeholder="Buscar receita..."
           className="pl-9"
           disabled={disabled}
+          role="combobox"
+          aria-expanded={open}
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-activedescendant={open && highlightedId ? optionId(highlightedId) : undefined}
         />
       </div>
 
       {open && (
-        <div className="absolute z-30 mt-1 max-h-72 w-full overflow-y-auto rounded-md border border-border bg-popover shadow-md">
+        <div
+          id={listboxId}
+          role="listbox"
+          className="absolute z-30 mt-1 max-h-72 w-full overflow-y-auto rounded-md border border-border bg-popover shadow-md"
+        >
           {isPending && (
             <div className="flex items-center gap-2 px-3 py-3 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -120,10 +143,16 @@ export function RecipeCombobox({ value, onChange, disabled }: RecipeComboboxProp
               {results.map((recipe) => (
                 <button
                   key={recipe.id}
+                  id={optionId(recipe.id)}
+                  role="option"
+                  aria-selected={recipe.id === highlightedId}
                   type="button"
+                  tabIndex={-1}
                   onClick={() => handleSelect(recipe)}
+                  onMouseEnter={() => setHighlightedIndex(results.findIndex((r) => r.id === recipe.id))}
                   className={cn(
-                    "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                    "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted",
+                    recipe.id === highlightedId && "bg-muted"
                   )}
                 >
                   <span className="truncate">{recipe.nome}</span>

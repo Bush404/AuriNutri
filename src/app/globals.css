@@ -23,13 +23,21 @@
     --secondary-foreground: 158 62% 18%;
 
     --muted: 150 15% 96%;
-    --muted-foreground: 158 8% 45%;
+    /* Fase 11, Bloco B: 45% de luminosidade não passava em contraste AA (4.06:1
+       sobre --muted, 4.41:1 sobre branco — precisa de 4.5:1). Escurecido pra
+       38%, mesma matiz/saturação — resultado ~5.3-5.7:1, imperceptível a olho
+       nu na tela, mas legível de verdade por quem enxerga menos contraste. */
+    --muted-foreground: 158 8% 38%;
 
     /* Laranja suave - apenas para destaques pontuais */
     --accent: 28 90% 62%;
     --accent-foreground: 24 45% 15%;
 
-    --destructive: 0 72% 51%;
+    /* Fase 11, Bloco B: 51% de luminosidade não passava em contraste AA sobre
+       o próprio fundo do badge destructive (bg-destructive/10 ~4.13:1).
+       Escurecido pra 47%, mesma matiz/saturação — ~4.67:1 nesse caso e
+       melhora também o texto puro sobre branco (4.80:1 → 5.42:1). */
+    --destructive: 0 72% 47%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 150 15% 90%;

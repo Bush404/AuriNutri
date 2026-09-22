@@ -55,7 +55,7 @@ export function PatientTabs({
 
   return (
     <Tabs defaultValue="informacoes">
-      <TabsList className="flex-wrap">
+      <TabsList className="h-auto flex-wrap">
         <TabsTrigger value="informacoes">Informações gerais</TabsTrigger>
         <TabsTrigger value="anamnese">Anamnese</TabsTrigger>
         <TabsTrigger value="avaliacoes">Antropometria Geral</TabsTrigger>

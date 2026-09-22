@@ -53,7 +53,7 @@ export function CustoConsultorioCard({ custoMensal, breakdown, sugestaoAtendimen
                     <span className="text-foreground">{item.categoria}</span>
                     <span className="text-muted-foreground">{formatCurrencyBRL(item.custoMensal)}</span>
                   </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted" aria-hidden="true">
                     <div
                       className="h-full rounded-full bg-primary-500"
                       style={{

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleDollarSign, Loader2 } from "lucide-react";
@@ -36,6 +36,7 @@ interface RegisterPatientPaymentDialogProps {
 export function RegisterPatientPaymentDialog({ paymentId, descricaoCobranca }: RegisterPatientPaymentDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const formaPagamentoLabelId = useId();
 
   const {
     register,
@@ -81,17 +82,17 @@ export function RegisterPatientPaymentDialog({ paymentId, descricaoCobranca }: R
           <div className="space-y-2">
             <Label htmlFor="data_pagamento">Data do recebimento *</Label>
             <Input id="data_pagamento" type="date" {...register("data_pagamento")} />
-            {errors.data_pagamento && <p className="text-xs text-destructive">{errors.data_pagamento.message}</p>}
+            {errors.data_pagamento && <p className="text-xs text-destructive" role="alert">{errors.data_pagamento.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label>Forma de pagamento *</Label>
+            <Label id={formaPagamentoLabelId}>Forma de pagamento *</Label>
             <Controller
               control={control}
               name="forma_pagamento"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-labelledby={formaPagamentoLabelId}>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -104,7 +105,7 @@ export function RegisterPatientPaymentDialog({ paymentId, descricaoCobranca }: R
                 </Select>
               )}
             />
-            {errors.forma_pagamento && <p className="text-xs text-destructive">{errors.forma_pagamento.message}</p>}
+            {errors.forma_pagamento && <p className="text-xs text-destructive" role="alert">{errors.forma_pagamento.message}</p>}
           </div>
 
           <DialogFooter>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useId, useState, useTransition } from "react";
 import { CheckCircle2, Loader2, MessageCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -149,6 +149,9 @@ export function AppointmentFormDialog({
   const isEditing = Boolean(appointment);
   /** Consulta criada por "Novo pacote" — o financeiro é gerenciado pelo pacote, não aqui (ver comentário na tela). */
   const belongsToPackage = Boolean(appointment?.patient_billing_id);
+  const pacienteLabelId = useId();
+  const formaPagamentoIntegralLabelId = useId();
+  const formaPagamentoSinalLabelId = useId();
   const [selectedPatient, setSelectedPatient] = useState<PatientPickerResult | null>(
     appointment ? { id: appointment.patient_id, nome: appointment.patients?.nome ?? "Paciente" } : defaultPatient ?? null
   );
@@ -402,7 +405,7 @@ export function AppointmentFormDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Paciente *</Label>
+            <Label id={pacienteLabelId}>Paciente *</Label>
             <PatientCombobox
               value={selectedPatient}
               onChange={(patient) => {
@@ -410,8 +413,9 @@ export function AppointmentFormDialog({
                 setPatientError(null);
               }}
               disabled={isPending}
+              ariaLabelledBy={pacienteLabelId}
             />
-            {patientError && <p className="text-xs text-destructive">{patientError}</p>}
+            {patientError && <p className="text-xs text-destructive" role="alert">{patientError}</p>}
           </div>
 
           {isEditing && appointment && (
@@ -484,7 +488,7 @@ export function AppointmentFormDialog({
                   />
                 </div>
               </div>
-              {horarioError && <p className="text-xs text-destructive">{horarioError}</p>}
+              {horarioError && <p className="text-xs text-destructive" role="alert">{horarioError}</p>}
 
               <div className="space-y-2">
                 <Label htmlFor="tipo">Tipo *</Label>
@@ -611,13 +615,13 @@ export function AppointmentFormDialog({
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Forma de pagamento</Label>
+                        <Label id={formaPagamentoIntegralLabelId}>Forma de pagamento</Label>
                         <Select
                           value={billing.integralForma}
                           onValueChange={(v) => setBilling((b) => ({ ...b, integralForma: v as FormaPagamento }))}
                           disabled={isPending}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger aria-labelledby={formaPagamentoIntegralLabelId}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -655,13 +659,13 @@ export function AppointmentFormDialog({
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Forma de pagamento do sinal</Label>
+                          <Label id={formaPagamentoSinalLabelId}>Forma de pagamento do sinal</Label>
                           <Select
                             value={billing.sinalForma}
                             onValueChange={(v) => setBilling((b) => ({ ...b, sinalForma: v as FormaPagamento }))}
                             disabled={isPending}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger aria-labelledby={formaPagamentoSinalLabelId}>
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>

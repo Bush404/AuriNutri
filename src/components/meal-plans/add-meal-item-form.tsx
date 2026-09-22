@@ -95,7 +95,7 @@ function AddFoodItemForm({ planId, mealId, nextOrdem }: AddMealItemFormProps) {
           Adicionar
         </Button>
       </div>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-xs text-destructive" role="alert">{error}</p>}
     </form>
   );
 }
@@ -159,7 +159,7 @@ function AddRecipeItemForm({ planId, mealId, nextOrdem }: AddMealItemFormProps) 
           Adicionar
         </Button>
       </div>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-xs text-destructive" role="alert">{error}</p>}
     </form>
   );
 }

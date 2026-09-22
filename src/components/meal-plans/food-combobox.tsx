@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { Loader2, Search, X } from "lucide-react";
 
 import type { Food } from "@/lib/types/database.types";
 import { searchFoodsForPicker } from "@/lib/actions/foods";
+import { useComboboxKeyboardNav } from "@/lib/use-combobox-keyboard";
 import { cn } from "@/lib/utils";
 
 import { Input } from "@/components/ui/input";
@@ -16,10 +17,20 @@ interface FoodComboboxProps {
   disabled?: boolean;
 }
 
+function optionId(listboxId: string, foodId: string) {
+  return `${listboxId}-option-${foodId}`;
+}
+
 /**
  * Campo de busca de alimentos para o construtor de plano alimentar.
  * Busca no servidor (respeitando RLS) e agrupa os resultados em
  * "Meus alimentos" e "Base TACO", conforme a origem de cada alimento.
+ *
+ * Navegação por teclado (Fase 11, Bloco B): setas cima/baixo percorrem os
+ * resultados achatados (os dois grupos juntos, na ordem em que aparecem na
+ * tela), Enter seleciona o destacado, Escape fecha sem selecionar. Papel
+ * ARIA de combobox completo (aria-expanded/aria-controls/aria-activedescendant)
+ * porque isto não usa nenhum primitivo do Radix por baixo.
  */
 export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
   const [query, setQuery] = useState("");
@@ -28,6 +39,9 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const listboxId = useId();
+
+  const flatResults = [...results.meus, ...results.taco];
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -69,6 +83,14 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
     setQuery("");
   }
 
+  const { highlightedIndex, setHighlightedIndex, onKeyDown } = useComboboxKeyboardNav(
+    flatResults,
+    open,
+    handleSelect,
+    () => setOpen(false)
+  );
+  const highlightedFoodId = flatResults[highlightedIndex]?.id;
+
   if (value) {
     return (
       <div className="flex h-10 items-center justify-between rounded-md border border-input bg-muted/40 px-3 text-sm">
@@ -100,14 +122,24 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={handleFocus}
+          onKeyDown={onKeyDown}
           placeholder="Buscar alimento (TACO ou seus)..."
           className="pl-9"
           disabled={disabled}
+          role="combobox"
+          aria-expanded={open}
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-activedescendant={open && highlightedFoodId ? optionId(listboxId, highlightedFoodId) : undefined}
         />
       </div>
 
       {open && (
-        <div className="absolute z-30 mt-1 max-h-72 w-full overflow-y-auto rounded-md border border-border bg-popover shadow-md">
+        <div
+          id={listboxId}
+          role="listbox"
+          className="absolute z-30 mt-1 max-h-72 w-full overflow-y-auto rounded-md border border-border bg-popover shadow-md"
+        >
           {isPending && (
             <div className="flex items-center gap-2 px-3 py-3 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -122,10 +154,24 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
           )}
 
           {!isPending && results.meus.length > 0 && (
-            <FoodGroup label="Meus alimentos" foods={results.meus} onSelect={handleSelect} />
+            <FoodGroup
+              label="Meus alimentos"
+              foods={results.meus}
+              listboxId={listboxId}
+              highlightedFoodId={highlightedFoodId}
+              onSelect={handleSelect}
+              onHover={(foodId) => setHighlightedIndex(flatResults.findIndex((f) => f.id === foodId))}
+            />
           )}
           {!isPending && results.taco.length > 0 && (
-            <FoodGroup label="Base TACO" foods={results.taco} onSelect={handleSelect} />
+            <FoodGroup
+              label="Base TACO"
+              foods={results.taco}
+              listboxId={listboxId}
+              highlightedFoodId={highlightedFoodId}
+              onSelect={handleSelect}
+              onHover={(foodId) => setHighlightedIndex(flatResults.findIndex((f) => f.id === foodId))}
+            />
           )}
         </div>
       )}
@@ -136,11 +182,17 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
 function FoodGroup({
   label,
   foods,
+  listboxId,
+  highlightedFoodId,
   onSelect,
+  onHover,
 }: {
   label: string;
   foods: Food[];
+  listboxId: string;
+  highlightedFoodId: string | undefined;
   onSelect: (food: Food) => void;
+  onHover: (foodId: string) => void;
 }) {
   return (
     <div className="py-1">
@@ -150,10 +202,16 @@ function FoodGroup({
       {foods.map((food) => (
         <button
           key={food.id}
+          id={optionId(listboxId, food.id)}
+          role="option"
+          aria-selected={food.id === highlightedFoodId}
           type="button"
+          tabIndex={-1}
           onClick={() => onSelect(food)}
+          onMouseEnter={() => onHover(food.id)}
           className={cn(
-            "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+            "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted",
+            food.id === highlightedFoodId && "bg-muted"
           )}
         >
           <span className="truncate">

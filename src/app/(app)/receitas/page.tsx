@@ -70,7 +70,7 @@ export default async function ReceitasPage({ searchParams }: ReceitasPageProps) 
         <CardContent className="space-y-4 p-6">
           <RecipeFilters tags={tags} />
 
-          {error && <p className="text-sm text-destructive">Erro ao carregar receitas: {error.message}</p>}
+          {error && <p className="text-sm text-destructive" role="alert">Erro ao carregar receitas: {error.message}</p>}
 
           {!error && !semResultados && <RecipesTable recipes={recipesList} />}
 

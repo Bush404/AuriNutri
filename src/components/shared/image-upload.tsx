@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import Image from "next/image";
 import { ImageOff, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
@@ -41,6 +41,8 @@ export function ImageUpload({
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(initialPreviewUrl);
   const [uploading, setUploading] = useState(false);
+  const labelId = useId();
+  const buttonTextId = useId();
 
   function validate(file: File): string | null {
     if (!acceptedTypes.includes(file.type)) {
@@ -82,7 +84,7 @@ export function ImageUpload({
 
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
+      <Label id={labelId}>{label}</Label>
       <div className="flex items-center gap-4">
         <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md border border-dashed border-input bg-muted">
           {preview ? (
@@ -93,9 +95,16 @@ export function ImageUpload({
         </div>
 
         <div className="space-y-1">
-          <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => inputRef.current?.click()}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={uploading}
+            onClick={() => inputRef.current?.click()}
+            aria-labelledby={`${labelId} ${buttonTextId}`}
+          >
             {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-            {preview ? "Trocar imagem" : "Enviar imagem"}
+            <span id={buttonTextId}>{preview ? "Trocar imagem" : "Enviar imagem"}</span>
           </Button>
           <p className="text-xs text-muted-foreground">{helperText}</p>
         </div>

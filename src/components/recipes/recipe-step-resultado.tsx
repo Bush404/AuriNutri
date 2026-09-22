@@ -67,12 +67,12 @@ export function RecipeStepResultado({ recipeId, recipe, ingredients, onBack }: R
             Pese a preparação já pronta — o cozimento altera o peso (perda de água ou absorção),
             então não é a soma dos ingredientes crus.
           </p>
-          {errors.rendimento_g && <p className="text-xs text-destructive">{errors.rendimento_g.message}</p>}
+          {errors.rendimento_g && <p className="text-xs text-destructive" role="alert">{errors.rendimento_g.message}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="numero_porcoes">Número de porções *</Label>
           <Input id="numero_porcoes" type="number" step="1" {...register("numero_porcoes")} />
-          {errors.numero_porcoes && <p className="text-xs text-destructive">{errors.numero_porcoes.message}</p>}
+          {errors.numero_porcoes && <p className="text-xs text-destructive" role="alert">{errors.numero_porcoes.message}</p>}
         </div>
       </div>
 

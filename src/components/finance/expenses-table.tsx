@@ -83,8 +83,8 @@ export function ExpensesTable({ expenses }: { expenses: ExpenseRow[] }) {
         <TableHeader>
           <TableRow>
             <TableHead>Descrição</TableHead>
-            <TableHead>Categoria</TableHead>
-            <TableHead>Recorrência</TableHead>
+            <TableHead className="hidden sm:table-cell">Categoria</TableHead>
+            <TableHead className="hidden md:table-cell">Recorrência</TableHead>
             <TableHead>Valor</TableHead>
             <TableHead>Próxima parcela</TableHead>
             <TableHead className="w-[50px]" />
@@ -99,8 +99,10 @@ export function ExpensesTable({ expenses }: { expenses: ExpenseRow[] }) {
                 <TableCell>
                   <span className="text-sm font-medium text-foreground">{expense.descricao}</span>
                 </TableCell>
-                <TableCell className="text-sm text-muted-foreground">{expense.categoria}</TableCell>
-                <TableCell>
+                <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
+                  {expense.categoria}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
                   <div className="flex flex-wrap gap-1">
                     <Badge variant="secondary">{RECORRENCIA_LABELS[expense.recorrencia]}</Badge>
                     {expense.parcelamento && (

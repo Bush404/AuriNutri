@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -48,6 +48,7 @@ export function NewCatalogMarkerDialog() {
   const [variaPorSexo, setVariaPorSexo] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [isPending, startTransition] = useTransition();
+  const variaPorSexoLabelId = useId();
 
   function set<K extends keyof typeof EMPTY>(campo: K, valor: string) {
     setForm((f) => ({ ...f, [campo]: valor }));
@@ -157,7 +158,7 @@ export function NewCatalogMarkerDialog() {
           </div>
 
           <div className="space-y-2 rounded-md border border-border p-3">
-            <Label>Esse marcador varia por sexo?</Label>
+            <Label id={variaPorSexoLabelId}>Esse marcador varia por sexo?</Label>
             <p className="text-xs text-muted-foreground">
               Ex.: HDL, ferritina, hemoglobina — a faixa é diferente para masculino e feminino.
             </p>
@@ -166,7 +167,7 @@ export function NewCatalogMarkerDialog() {
               onValueChange={(v) => setVariaPorSexo(v === "sim")}
               disabled={isPending}
             >
-              <SelectTrigger className="max-w-[280px]">
+              <SelectTrigger className="max-w-[280px]" aria-labelledby={variaPorSexoLabelId}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

@@ -273,8 +273,8 @@ export function PatientFinancePanel({
                       <TableRow>
                         <TableHead>Descrição</TableHead>
                         <TableHead>Valor</TableHead>
-                        <TableHead>Vencimento</TableHead>
-                        <TableHead className="w-[240px]" />
+                        <TableHead className="hidden sm:table-cell">Vencimento</TableHead>
+                        <TableHead />
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -284,7 +284,9 @@ export function PatientFinancePanel({
                             <DescricaoCell p={p} onShowPackage={setPackageDetailsFor} />
                           </TableCell>
                           <TableCell className="text-sm text-foreground">{formatCurrencyBRL(p.valor)}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{formatDate(p.data_vencimento)}</TableCell>
+                          <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
+                            {formatDate(p.data_vencimento)}
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center justify-end gap-1">
                               <RegisterPatientPaymentDialog paymentId={p.id} descricaoCobranca={p.billingDescricao} />

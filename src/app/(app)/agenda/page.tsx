@@ -138,7 +138,7 @@ export default async function AgendaPage({ searchParams }: AgendaPageProps) {
             <PatientFilter selected={patientFilter} />
           </div>
 
-          {error && <p className="text-sm text-destructive">Erro ao carregar a agenda: {error.message}</p>}
+          {error && <p className="text-sm text-destructive" role="alert">Erro ao carregar a agenda: {error.message}</p>}
 
           {!error && (
             <AgendaBoard

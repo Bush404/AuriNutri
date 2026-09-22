@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { usePathname } from "next/navigation";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -45,6 +45,7 @@ export function FeedbackDialog({ trigger }: FeedbackDialogProps) {
   const [enviado, setEnviado] = useState(false);
   const [tipo, setTipo] = useState<FeedbackTipo>("sugestao");
   const [mensagem, setMensagem] = useState("");
+  const tipoLabelId = useId();
 
   function resetTudo() {
     setTipo("sugestao");
@@ -105,9 +106,9 @@ export function FeedbackDialog({ trigger }: FeedbackDialogProps) {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label>Tipo</Label>
+                <Label id={tipoLabelId}>Tipo</Label>
                 <Select value={tipo} onValueChange={(v) => setTipo(v as FeedbackTipo)}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-labelledby={tipoLabelId}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

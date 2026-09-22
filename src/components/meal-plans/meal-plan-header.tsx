@@ -179,7 +179,7 @@ export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, 
                 <div className="space-y-2">
                   <Label htmlFor="nome">Nome do plano</Label>
                   <Input id="nome" {...register("nome")} />
-                  {errors.nome && <p className="text-xs text-destructive">{errors.nome.message}</p>}
+                  {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="data_inicio">Data de início</Label>

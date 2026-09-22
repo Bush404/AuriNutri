@@ -117,14 +117,14 @@ export function EditPatientPaymentDialog({
                 <CurrencyInput id="valor" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
               )}
             />
-            {errors.valor && <p className="text-xs text-destructive">{errors.valor.message}</p>}
+            {errors.valor && <p className="text-xs text-destructive" role="alert">{errors.valor.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="data_vencimento">Vencimento *</Label>
             <Input id="data_vencimento" type="date" {...register("data_vencimento")} />
             {errors.data_vencimento && (
-              <p className="text-xs text-destructive">{errors.data_vencimento.message}</p>
+              <p className="text-xs text-destructive" role="alert">{errors.data_vencimento.message}</p>
             )}
           </div>
 

@@ -78,7 +78,7 @@ export function RecipeStepIdentification({ recipeId, recipe, imageSignedUrl, onS
       <div className="space-y-2">
         <Label htmlFor="nome">Nome da receita *</Label>
         <Input id="nome" placeholder="Ex: Frango grelhado com legumes" {...register("nome")} />
-        {errors.nome && <p className="text-xs text-destructive">{errors.nome.message}</p>}
+        {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
       </div>
 
       <div className="space-y-2">
@@ -95,7 +95,7 @@ export function RecipeStepIdentification({ recipeId, recipe, imageSignedUrl, onS
           <Label htmlFor="tempo_preparo_min">Tempo de preparo (min)</Label>
           <Input id="tempo_preparo_min" type="number" step="1" {...register("tempo_preparo_min")} />
           {errors.tempo_preparo_min && (
-            <p className="text-xs text-destructive">{errors.tempo_preparo_min.message}</p>
+            <p className="text-xs text-destructive" role="alert">{errors.tempo_preparo_min.message}</p>
           )}
         </div>
       </div>
