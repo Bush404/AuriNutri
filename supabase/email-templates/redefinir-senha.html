@@ -1,0 +1,38 @@
+<!--
+  Supabase → Authentication → Emails → Templates → "Reset Password"
+  Assunto: Redefinição de senha do AuriNutri
+  Colar este HTML no corpo. {{ .ConfirmationURL }} é preenchido pelo Supabase.
+-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7faf9;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #e2eae6;border-radius:12px;">
+        <tr>
+          <td style="padding:28px 32px 8px;">
+            <p style="margin:0;font-size:20px;font-weight:bold;color:#124532;">AuriNutri</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px 32px 0;color:#16211c;font-size:15px;line-height:1.6;">
+            <p style="margin:0 0 12px;font-size:18px;font-weight:bold;">Redefinição de senha</p>
+            <p style="margin:0 0 12px;">Olá! Recebemos um pedido para redefinir a senha da sua conta no AuriNutri.</p>
+            <p style="margin:0 0 20px;">Para criar uma nova senha, clique no botão abaixo:</p>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:0 32px 24px;">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#124532;color:#ffffff;text-decoration:none;font-size:15px;font-weight:bold;padding:12px 28px;border-radius:8px;">Criar nova senha</a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 32px 28px;color:#5f6f68;font-size:13px;line-height:1.6;">
+            <p style="margin:0 0 8px;">Se o botão não funcionar, copie e cole este endereço no navegador:</p>
+            <p style="margin:0 0 16px;word-break:break-all;"><a href="{{ .ConfirmationURL }}" style="color:#1f6d4f;">{{ .ConfirmationURL }}</a></p>
+            <p style="margin:0;">Se você não pediu a redefinição, pode ignorar este e-mail — sua senha atual continua valendo.</p>
+          </td>
+        </tr>
+      </table>
+      <p style="margin:16px 0 0;color:#5f6f68;font-size:12px;">AuriNutri · aurinutri.com</p>
+    </td>
+  </tr>
+</table>
