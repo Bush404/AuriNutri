@@ -1549,6 +1549,71 @@ Conferido depois da correção: links públicos `/compartilhado/...` continuam a
 ### Pendências conhecidas (não bloqueiam o fechamento do bloco)
 - Nenhuma dos itens do Bloco B. Pendente fora do código: Sentry em produção (variáveis no
   Netlify), ver seção "Observabilidade (Sentry)".
+
+### Bloco C — QA dos fluxos críticos e observabilidade com privacidade · `DONE` (2026-09-22)
+
+A Fase 11 é contínua: os itens abaixo estão feitos, mas a fase segue aberta.
+
+```
+[x] Playwright nos fluxos críticos (cadastro, avaliação/IMC, alimento→macros→PDF, receita→plano,
+    agenda→realizada→cobrança, Central de Envio)
+[x] Observabilidade com scrubbing LGPD configurado ANTES de ligar o envio
+[x] Nenhum console.log em produção imprimindo dado de paciente (e lint impedindo novos)
+[ ] Sentry em produção — aguarda revisão do scrubbing pelo usuário + créditos do Netlify
+[ ] Aplicar migration 0035 no Supabase (manual, SQL Editor)
+```
+
+**1. Playwright — `npm run test:e2e`, 10 testes, todos passando (~1,5 min).** Tabela de fluxos em
+`e2e/README.md`. Reaproveita a base da seção "Testes E2E" acima (conta descartável, sessão
+salva); helpers em `e2e/helpers.ts`. Asserções que valem por si: IMC 22,86 para 70 kg/175 cm
+(coluna gerada no banco); macros exatos para 150 g de um alimento próprio de 200 kcal/10 P/20 C/5 G
+por 100 g (300 kcal / 15,0 / 30,0 / 7,5); a rota do PDF devolve `application/pdf` começando com
+`%PDF`; na Central de Envio, os dois links da mensagem (plano + material) abrem o PDF num contexto
+**sem sessão**, como o paciente abriria. O cadastro testa a tela real e confirma o e-mail pelo admin
+(não há caixa de entrada para `.invalid`).
+
+**Bug real encontrado pela limpeza dos testes — migration `0035`.** Apagar uma conta que tenha
+pacientes falhava ("Database error deleting user"): a cascata apaga os pacientes, cada DELETE
+dispara `log_audit_event()`, que grava `audit_log.user_id` = a conta que está sendo apagada, e a FK
+recusa. Na prática, uma nutricionista pedindo exclusão da conta (LGPD) não poderia ser atendida
+pelo painel do Supabase. A 0035 faz o gatilho não auditar quando o autor já não existe em
+`auth.users` (não cria cópias órfãs de dados de paciente de uma conta excluída). A limpeza dos
+testes apaga os pacientes antes da conta, então funciona com ou sem a 0035. 5 contas de teste
+órfãs dessa falha (4 de hoje + 1 de 17/09) foram removidas.
+
+**Questão em aberto para decisão do usuário (não bloqueia):** registros de `audit_log` já
+existentes guardam `dados_anteriores` (cópia completa do registro, inclusive de paciente) e, com a
+FK `on delete set null`, **sobrevivem à exclusão da conta** com `user_id` nulo. Se a política for
+"excluir a conta apaga todos os dados", falta apagar também o `audit_log` daquela conta.
+
+**2. Sentry — `src/lib/sentry-scrub.ts`, allowlist, testado (12 testes) e verificado com evento
+real.** Ligado nos 3 runtimes via `beforeSend`, `beforeSendTransaction`, `beforeSendSpan` e
+`beforeBreadcrumb`, mais `sendDefaultPii: false`.
+- Sai: tipo e mensagem do erro (e-mail, CPF, telefone, `R$`, JWT e UUIDs mascarados), pilha de
+  chamadas, método + URL sem query string/fragmento e sem ids (`/pacientes/:id`,
+  `/compartilhado/:token`), SO/navegador/runtime.
+- Não sai: usuário/IP, corpo, cookies, headers (exceto user-agent), `extra`, contextos
+  customizados (`Sentry.setContext` com dado de paciente é descartado), variáveis locais, saída do
+  console (breadcrumb descartado inteiro), atributos de elemento clicado.
+- Limite conhecido: um nome próprio solto numa mensagem de erro não é detectável por padrão — por
+  isso as fontes de texto livre são descartadas inteiras, não filtradas.
+- **Verificação real (AURINUTRI-2):** rota temporária lançou um erro com e-mail, CPF, telefone,
+  valor e id de paciente fictícia na mensagem, `console.log` e `setContext`/`setExtra` com
+  nome/diagnóstico, e fetch ao Supabase com `nome=ilike.*Maria*` na URL. Chegou no Sentry só:
+  `Falha ao salvar anamnese de [email] (CPF [cpf], tel [telefone]), cobrança R$ [valor], paciente :id`,
+  URL `/sentry-teste/pacientes/:id`, um breadcrumb http com a URL do Supabase sem query, e spans só
+  com nomes de rota. **Única coisa que escapou:** `user.geo` (cidade) — o Sentry deduz pelo IP da
+  conexão no servidor dele, não vem do código; exige ligar *Settings → Security & Privacy →
+  Prevent Storing of IP Addresses* no painel (não há API para isso via MCP).
+- Envio **desligado** no `.env.local` (DSN comentada) até o usuário revisar. Em produção nunca foi
+  ligado.
+
+**3. console.log.** Zero chamadas `console.*` em `src/` (as 3 últimas, `console.error(error)` nos
+boundaries de erro, viraram `Sentry.captureException` no início do dia). Nenhum erro do banco é
+relançado para log — Server Actions devolvem `{ success, message }` para a tela. `.eslintrc.json`
+ganhou `no-console: error`, conferido com um arquivo de prova.
+
+`npm test` (255/255), `npm run lint`, `npm run build` e `npm run test:e2e` (10/10) passam.
 - ~~Linhas de "adicionar item" sem `<Label>`~~ — resolvido em 2026-09-22: `aria-label` +
   `aria-required` nos campos de busca (`FoodCombobox`/`RecipeCombobox`, o que cobre todos os
   usos) e nos 4 campos de quantidade (item de refeição por alimento e por receita, ingrediente
