@@ -26,6 +26,7 @@ npm run build
 npm run start
 npm run lint
 npm run test:e2e        # Playwright E2E (needs SUPABASE_SERVICE_ROLE_KEY, see e2e/README.md)
+npm run test:e2e:prod   # same suite against the live site (aurinutri-app.netlify.app)
 npm run import:taco     # imports TACO food data — needs SUPABASE_SERVICE_ROLE_KEY (see below)
 ```
 

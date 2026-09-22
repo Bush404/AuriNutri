@@ -1657,6 +1657,15 @@ Handler).
 **Concluído (2026-09-22):** endereço antigo removido das Redirect URLs do Supabase e site da conta
 Netlify antiga excluído pelo usuário.
 
+**Tudo o que ficou sem ir ao ar (créditos acabaram em 2026-09-16, Fases 2–11) conferido em
+produção:** `npm run test:e2e:prod` roda a suíte E2E contra `aurinutri-app.netlify.app` — **11/11
+passaram**: os 10 fluxos críticos + o novo `e2e/arquivos.e2e.ts` (consentimento → foto de evolução
+e exame em PDF enviados ao Storage; a foto é aberta pelo botão "ver", que gera URL assinada e é
+auditado). De quebra: os botões só-ícone de ver/excluir foto não tinham nome acessível — ganharam
+`aria-label`. Configuração de senha no Supabase (mínimo 8 + *leaked password protection*,
+pendente desde o Bloco A): confirmada feita pelo usuário. Domínio próprio: comprado pelo usuário —
+próximo passo é tirar o SMTP (Resend) do modo sandbox.
+
 - ~~Linhas de "adicionar item" sem `<Label>`~~ — resolvido em 2026-09-22: `aria-label` +
   `aria-required` nos campos de busca (`FoodCombobox`/`RecipeCombobox`, o que cobre todos os
   usos) e nos 4 campos de quantidade (item de refeição por alimento e por receita, ingrediente

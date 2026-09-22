@@ -111,7 +111,7 @@ function PhotoRow({ patientId, photo }: { patientId: string; photo: PatientPhoto
         <PhotoViewButton photoId={photo.id} label={`${TIPO_LABELS[photo.tipo]} — ${formatDate(photo.data_registro)}`} />
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" disabled={isPending}>
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" disabled={isPending} aria-label="Excluir foto">
               {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </Button>
           </AlertDialogTrigger>
@@ -153,7 +153,7 @@ function PhotoViewButton({ photoId, label }: { photoId: string; label: string })
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <Button variant="ghost" size="icon" onClick={() => handleOpenChange(true)}>
+      <Button variant="ghost" size="icon" onClick={() => handleOpenChange(true)} aria-label={`Ver foto: ${label}`}>
         <Eye className="h-4 w-4" />
       </Button>
       <DialogContent className="max-w-xl">
