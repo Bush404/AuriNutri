@@ -1,13 +1,12 @@
 import * as Sentry from "@sentry/nextjs";
 
-// Servidor (Node). Sem includeLocalVariables e sem corpo de requisição/dados do
-// usuário, para não levar dados de pacientes junto com o erro (LGPD).
+import { sentryPrivacyOptions } from "./src/lib/sentry-scrub";
+
+// Servidor (Node). Todo evento passa pelo filtro de privacidade (LGPD) de
+// src/lib/sentry-scrub.ts antes de sair. Sem includeLocalVariables.
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   environment: process.env.NODE_ENV,
-  dataCollection: {
-    userInfo: false,
-    httpBodies: [],
-  },
+  ...sentryPrivacyOptions,
   tracesSampleRate: process.env.NODE_ENV === "development" ? 1.0 : 0.1,
 });
