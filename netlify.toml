@@ -18,3 +18,18 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Domínio principal leva ao sistema. O sistema mora em app.aurinutri.com;
+# aurinutri.com fica reservado para uma futura página de apresentação/vendas —
+# quando ela existir, é só remover estas duas regras.
+[[redirects]]
+  from = "https://aurinutri.com/*"
+  to = "https://app.aurinutri.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.aurinutri.com/*"
+  to = "https://app.aurinutri.com/:splat"
+  status = 301
+  force = true
