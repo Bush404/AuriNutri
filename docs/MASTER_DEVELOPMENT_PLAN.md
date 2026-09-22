@@ -1393,7 +1393,7 @@ uso normal.
 [x] Tabela de plano alimentar no celular — layout em cartões
 [x] Revisão de responsividade (375px) — 6 piores problemas corrigidos
 [x] Marcação semântica `aria-required` nos campos obrigatórios (além do "*" visual)
-[ ] Testes E2E dos fluxos críticos (Playwright)
+[x] Testes E2E dos fluxos críticos (Playwright) — ver seção "Testes E2E (Playwright)" abaixo
 [x] Observabilidade (Sentry) — ver seção "Observabilidade (Sentry)" abaixo
 ```
 
@@ -1521,9 +1521,34 @@ Commit `4190cf1`. Organização/projeto Sentry `aurinutri` (Next.js, região US)
 `SENTRY_AUTH_TOKEN` nas variáveis de ambiente do Netlify, publicar e confirmar um erro de
 produção. Opcional: ativar "Prevent storing IP addresses" no projeto Sentry.
 
+### Testes E2E (Playwright) · `DONE` (2026-09-22)
+
+`npm run test:e2e` — 4 testes, todos passando (~40s). Detalhes de execução em `e2e/README.md`.
+
+- `e2e/auth.e2e.ts`: rota protegida sem login → `/login?redirectTo=...`; senha errada recusada;
+  login correto leva ao destino pedido.
+- `e2e/plano-alimentar.e2e.ts`: fluxo central do produto — cadastrar paciente → criar plano →
+  adicionar refeição → buscar alimento TACO e adicioná-lo.
+- Mesma estratégia dos scripts de isolamento: `global-setup` cria uma conta descartável
+  (`teste-e2e-...@aurinutri.invalid`, e-mail já confirmado via service role, sem depender do
+  SMTP), faz login pela tela real uma vez e salva a sessão; `global-teardown` apaga a conta e,
+  em cascata, tudo o que o teste criou. Exige `SUPABASE_SERVICE_ROLE_KEY` temporário no
+  `.env.local`. Arquivos `*.e2e.ts` para o Vitest (`npm test`) não os executar.
+
+**Bug real encontrado pelo primeiro teste — o `middleware.ts` nunca rodou, desde o primeiro
+commit.** Ficava na raiz do projeto, mas com pasta `src/` o Next.js só reconhece
+`src/middleware.ts`; na raiz ele é ignorado sem nenhum aviso (`middleware-manifest.json` vazio,
+nenhuma linha "Middleware" no build). Na prática: (1) a sessão do Supabase não era renovada a cada
+requisição como o CLAUDE.md descreve; (2) o `?redirectTo=` nunca era preservado; (3) usuário logado
+não era desviado de `/login`/`/cadastro`. **Não era uma brecha de segurança:** as páginas logadas
+continuavam protegidas pelo `redirect("/login")` do `(app)/layout.tsx`, e os dados pelo RLS.
+Corrigido movendo para `src/middleware.ts` (mesma armadilha do `instrumentation.ts` do Sentry).
+Conferido depois da correção: links públicos `/compartilhado/...` continuam abertos sem login,
+`/auth/callback` intacto, e o build agora lista o Middleware.
+
 ### Pendências conhecidas (não bloqueiam o fechamento do bloco)
-- Testes E2E (Playwright) — item final da Fase 11. (Sentry concluído em 2026-09-22, ver seção
-  acima.)
+- Nenhuma dos itens do Bloco B. Pendente fora do código: Sentry em produção (variáveis no
+  Netlify), ver seção "Observabilidade (Sentry)".
 - ~~Linhas de "adicionar item" sem `<Label>`~~ — resolvido em 2026-09-22: `aria-label` +
   `aria-required` nos campos de busca (`FoodCombobox`/`RecipeCombobox`, o que cobre todos os
   usos) e nos 4 campos de quantidade (item de refeição por alimento e por receita, ingrediente

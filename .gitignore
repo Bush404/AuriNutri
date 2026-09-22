@@ -26,3 +26,8 @@ supabase/.temp/
 # substituí-lo pelo arquivo completo de ~597 itens (ver README do script),
 # considere ignorá-lo caso prefira não versionar um arquivo de dados maior:
 # scripts/import-taco/data/taco-4a-edicao.csv
+
+# Playwright
+/e2e/.auth/
+/test-results/
+/playwright-report/

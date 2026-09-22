@@ -25,10 +25,11 @@ npm run dev            # http://localhost:3000, redirects to /login
 npm run build
 npm run start
 npm run lint
+npm run test:e2e        # Playwright E2E (needs SUPABASE_SERVICE_ROLE_KEY, see e2e/README.md)
 npm run import:taco     # imports TACO food data — needs SUPABASE_SERVICE_ROLE_KEY (see below)
 ```
 
-There is no test suite configured in this repo.
+`npm test` runs the Vitest unit tests; `npm run test:e2e` runs the Playwright E2E suite in `e2e/`.
 
 ### Environment
 
@@ -56,7 +57,7 @@ There is no Supabase CLI/migration-runner wired up — migrations are applied by
 - `src/lib/supabase/client.ts` — browser client for Client Components.
 - `src/lib/supabase/server.ts` — server client for Server Components/Actions/Route Handlers;
   reads/writes the session via `next/headers` cookies.
-- `src/lib/supabase/middleware.ts` — used by `middleware.ts` to refresh the session on every
+- `src/lib/supabase/middleware.ts` — used by `src/middleware.ts` (must live in `src/`, not the repo root — Next.js silently ignores a root one when `src/app` is used; same for `src/instrumentation.ts`) to refresh the session on every
   request and enforce route protection: unauthenticated users get redirected to `/login`
   (preserving `?redirectTo=`), authenticated users get bounced off `/login`/`/cadastro`.
   Public routes are hardcoded in `PUBLIC_ROUTES`.
@@ -117,7 +118,7 @@ same function is meant to back a future PDF export.
 - `src/app/(app)/` — the logged-in area: dashboard, pacientes, alimentos, planos, fontes.
 - `src/app/auth/callback/` — exchanges the email-link code for a session.
 
-Both route groups are protected/redirected centrally by `middleware.ts`, not per-page.
+Both route groups are protected/redirected centrally by `src/middleware.ts`; `(app)/layout.tsx` also redirects to `/login` as a second line of defense.
 
 ## Deployment
 
