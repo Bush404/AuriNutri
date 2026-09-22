@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { confirmarLinkDeEmail } from "@/lib/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 import { CONFIRMACOES, type ConfirmacaoTipo } from "@/lib/auth-confirm";
 import { Button } from "@/components/ui/button";
 
@@ -19,12 +19,14 @@ export function ConfirmarLink({ tokenHash, tipo }: { tokenHash: string; tipo: Co
     if (!tipo) return;
     setErro(null);
     startTransition(async () => {
-      const result = await confirmarLinkDeEmail(tokenHash, tipo);
-      if (!result.success || !result.destino) {
-        setErro(result.message ?? "Este link é inválido ou já expirou.");
+      // Confirmado no navegador: a sessão nasce direto nos cookies que a próxima
+      // tela (ex.: /redefinir-senha, que usa o cliente do navegador) vai ler.
+      const { error } = await createClient().auth.verifyOtp({ token_hash: tokenHash, type: tipo });
+      if (error) {
+        setErro("Este link é inválido ou já expirou.");
         return;
       }
-      router.push(result.destino);
+      router.push(info.destino);
       router.refresh();
     });
   }

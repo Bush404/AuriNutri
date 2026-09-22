@@ -1,7 +1,8 @@
 /**
  * Links de e-mail do Supabase (confirmação de cadastro e redefinição de senha)
  * no formato `token_hash`: o link abre /confirmar e só é "gasto" quando a
- * pessoa clica em Continuar (verifyOtp num Server Action, via POST).
+ * pessoa clica em Continuar (verifyOtp no navegador, com o cliente do Supabase do
+ * browser — assim a sessão já nasce nos cookies que /redefinir-senha lê).
  *
  * Por quê: no formato antigo (/auth/callback?code=...), o link era consumido
  * na primeira abertura — e filtros de e-mail (Outlook/Hotmail "Safe Links")
