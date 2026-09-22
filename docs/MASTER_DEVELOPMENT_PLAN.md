@@ -1394,7 +1394,7 @@ uso normal.
 [x] Revisão de responsividade (375px) — 6 piores problemas corrigidos
 [x] Marcação semântica `aria-required` nos campos obrigatórios (além do "*" visual)
 [ ] Testes E2E dos fluxos críticos (Playwright)
-[ ] Observabilidade (Sentry)
+[x] Observabilidade (Sentry) — ver seção "Observabilidade (Sentry)" abaixo
 ```
 
 **1. Navegação por teclado.** Os campos de busca customizados do projeto (`FoodCombobox`,
@@ -1495,9 +1495,35 @@ sutil. Mitigado testando a métrica de contraste antes (não só "parece melhor"
 luminosidade, preservando matiz/saturação — a mudança é imperceptível a olho nu, mensurável só em
 contraste.
 
+### Observabilidade (Sentry) · `DONE` localmente (2026-09-22) — produção pendente
+
+Commit `4190cf1`. Organização/projeto Sentry `aurinutri` (Next.js, região US).
+
+- `@sentry/nextjs` nos três runtimes: `sentry.client.config.ts`, `sentry.server.config.ts`,
+  `sentry.edge.config.ts` + `src/instrumentation.ts`. **O `instrumentation.ts` precisa ficar
+  dentro de `src/`** (o projeto usa pasta `src/`); na raiz o Next.js simplesmente não o executa,
+  sem nenhum aviso — foi a causa da primeira tentativa de verificação falhar.
+- `next.config.mjs` envolvido com `withSentryConfig` (import de `@sentry/nextjs/config`),
+  `experimental.instrumentationHook: true` (ainda necessário no Next.js 14.2), envio de source
+  maps via `SENTRY_AUTH_TOKEN` no build, e túnel `/monitoring` (contorna bloqueador de anúncio)
+  excluído do matcher do `middleware.ts` — senão o middleware redirecionaria o túnel para /login.
+- `error.tsx` dos dois grupos de rota e `global-error.tsx` chamam `Sentry.captureException`
+  (esses boundaries capturam o erro antes do Sentry, então sem isso ele se perderia).
+- Mantido `sentry.client.config.ts` em vez de `instrumentation-client.ts` (este exige Next.js
+  15.3+). O aviso de "deprecation" no build pode ser ignorado enquanto estivermos no 14.
+- **Decisão de privacidade (LGPD), acordada com o usuário:** sem Session Replay, sem dados do
+  usuário nem corpo de requisição (`dataCollection: { userInfo: false, httpBodies: [] }`), sem
+  `includeLocalVariables`. Só erro técnico + tracing (amostra de 10% em produção).
+- Verificado de ponta a ponta: erro real disparado no app rodando chegou como `AURINUTRI-1`,
+  com o frame apontando para o arquivo/linha de origem. `npm run build` passa.
+
+**Pendente (depende dos créditos do Netlify):** cadastrar `NEXT_PUBLIC_SENTRY_DSN` e
+`SENTRY_AUTH_TOKEN` nas variáveis de ambiente do Netlify, publicar e confirmar um erro de
+produção. Opcional: ativar "Prevent storing IP addresses" no projeto Sentry.
+
 ### Pendências conhecidas (não bloqueiam o fechamento do bloco)
-- Testes E2E (Playwright) e observabilidade (Sentry) — itens finais da Fase 11, ainda não
-  iniciados.
+- Testes E2E (Playwright) — item final da Fase 11. (Sentry concluído em 2026-09-22, ver seção
+  acima.)
 - Linhas de "adicionar item" sem `<Label>` (ingrediente de receita, item de refeição) — não
   ganharam `aria-required` junto com o resto do formulário porque não têm associação de label
   nenhuma hoje; ficou de fora do escopo do item de `aria-required` acima.
