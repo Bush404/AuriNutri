@@ -1,43 +1,55 @@
 import { expect, test } from "@playwright/test";
 
 import { STORAGE_STATE } from "./env";
+import { adicionarAlimentoNaRefeicao, adicionarRefeicao, criarPaciente, criarPlano, unico } from "./helpers";
 
 test.use({ storageState: STORAGE_STATE });
 
-// Fluxo central do produto, do cadastro do paciente ao cálculo de macros.
+// Fluxo central do produto, do cadastro do paciente ao alimento da TACO.
 test("cadastrar paciente, criar plano, adicionar refeição e alimento TACO", async ({ page }) => {
-  const nomePaciente = `Paciente E2E ${Date.now()}`;
+  const paciente = await criarPaciente(page);
+  await expect(page.getByText(paciente.nome).first()).toBeVisible();
+  await criarPlano(page, paciente.id);
+  await adicionarRefeicao(page);
+  await adicionarAlimentoNaRefeicao(page, "arroz", /arroz/i, 100);
+});
 
-  await page.goto("/pacientes/novo");
-  await page.getByLabel("Nome completo").fill(nomePaciente);
-  await page.getByRole("button", { name: "Cadastrar paciente" }).click();
-  await expect(page).toHaveURL(/\/pacientes\/[0-9a-f-]{36}$/);
-  await expect(page.getByText(nomePaciente).first()).toBeVisible();
+test("criar alimento próprio, montar plano, conferir macros e gerar PDF", async ({ page }) => {
+  const nomeAlimento = unico("Alimento E2E");
 
-  await page.getByRole("tab", { name: "Planos alimentares" }).click();
-  await page.getByRole("button", { name: "Criar plano alimentar" }).click();
-  await page.getByLabel("Nome do plano").fill("Plano E2E");
-  await page.getByRole("button", { name: "Criar e montar refeições" }).click();
-  await expect(page).toHaveURL(/\/planos\/[0-9a-f-]{36}$/);
-
-  await page.getByRole("button", { name: "Adicionar refeição" }).click();
+  await page.goto("/alimentos");
+  await page.getByRole("button", { name: "Novo alimento" }).click();
   const dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Nome da refeição").fill("Café da manhã");
-  await dialog.locator('button[type="submit"]').click();
+  await dialog.getByLabel("Nome do alimento").fill(nomeAlimento);
+  await dialog.getByRole("combobox", { name: /Categoria/ }).click();
+  await page.getByRole("option").first().click();
+  await dialog.getByLabel("Porção de referência (g)").fill("100");
+  await dialog.getByLabel("Calorias (kcal)").fill("200");
+  await dialog.getByLabel("Proteínas (g)").fill("10");
+  await dialog.getByLabel("Carboidratos (g)").fill("20");
+  await dialog.getByLabel("Gorduras (g)").fill("5");
+  await dialog.getByRole("button", { name: "Cadastrar alimento" }).click();
   await expect(dialog).toBeHidden();
-  await expect(page.getByText("Café da manhã").first()).toBeVisible();
 
-  await page.getByRole("combobox", { name: "Alimento" }).fill("arroz");
-  // Espera o resultado da busca (ao focar, a lista mostra sugestões antes de filtrar).
-  const opcao = page.getByRole("option").filter({ hasText: /arroz/i }).first();
-  await expect(opcao).toBeVisible();
-  const nomeAlimento = (await opcao.innerText()).split("\n")[0].trim();
-  await opcao.click();
-  await page.getByLabel("Quantidade em gramas").fill("100");
-  await page.getByRole("button", { name: "Adicionar", exact: true }).click();
+  const paciente = await criarPaciente(page);
+  const planId = await criarPlano(page, paciente.id);
+  await adicionarRefeicao(page);
+  // 150 g de um alimento com 200 kcal / 10 P / 20 C / 5 G por 100 g.
+  await adicionarAlimentoNaRefeicao(page, nomeAlimento, nomeAlimento, 150);
 
-  // O item entra na refeição e o formulário é limpo para o próximo. (A refeição
-  // renderiza tabela e cartões de celular; só um dos dois fica visível.)
-  await expect(page.getByLabel("Quantidade em gramas")).toHaveValue("");
-  await expect(page.getByText(nomeAlimento, { exact: true }).filter({ visible: true }).first()).toBeVisible();
+  const totais = page
+    .locator("div", { has: page.getByText("Total diário do plano") })
+    .filter({ hasText: "Carboidratos" })
+    .last();
+  await expect(totais).toContainText("Calorias300kcal");
+  await expect(totais).toContainText("Proteínas15.0g");
+  await expect(totais).toContainText("Carboidratos30.0g");
+  await expect(totais).toContainText("Gorduras7.5g");
+
+  // O botão "Baixar PDF" aponta para esta rota; conferimos que ela devolve um PDF de verdade.
+  await expect(page.getByRole("link", { name: "Baixar PDF" })).toHaveAttribute("href", `/planos/${planId}/pdf`);
+  const resposta = await page.request.get(`/planos/${planId}/pdf`);
+  expect(resposta.status()).toBe(200);
+  expect(resposta.headers()["content-type"]).toContain("application/pdf");
+  expect((await resposta.body()).subarray(0, 4).toString()).toBe("%PDF");
 });
