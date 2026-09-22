@@ -122,7 +122,7 @@ Both route groups are protected/redirected centrally by `src/middleware.ts`; `(a
 
 ## Deployment
 
-Deploys to Netlify via `@netlify/plugin-nextjs` (`netlify.toml`); Server Components, Server
+Deploys to Netlify (`https://aurinutri-app.netlify.app`, AuriNutri's own Netlify account) via `@netlify/plugin-nextjs` (`netlify.toml`, Node 22); `next.config.mjs` force-includes `pdfkit/js/**` in the function bundle via `outputFileTracingIncludes` — without it every PDF-generating page crashes the function in production; Server Components, Server
 Actions, Route Handlers, and `middleware.ts` are converted to Netlify Functions/Edge Functions
 automatically. Migrations and `npm run import:taco` are never run as part of deploy — they're
 manual, local/Supabase-SQL-Editor-only steps.

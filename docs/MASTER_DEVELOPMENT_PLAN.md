@@ -1547,7 +1547,7 @@ Conferido depois da correção: links públicos `/compartilhado/...` continuam a
 `/auth/callback` intacto, e o build agora lista o Middleware.
 
 ### Pendências conhecidas (não bloqueiam o fechamento do bloco)
-- Nenhuma dos itens do Bloco B. Pendente fora do código: Sentry em produção (variáveis no
+- Nenhuma dos itens do Bloco B. (Sentry em produção: feito em 2026-09-22, ver Bloco C.) Antes: Sentry em produção (variáveis no
   Netlify), ver seção "Observabilidade (Sentry)".
 
 ### Bloco C — QA dos fluxos críticos e observabilidade com privacidade · `DONE` (2026-09-22)
@@ -1562,7 +1562,7 @@ A Fase 11 é contínua: os itens abaixo estão feitos, mas a fase segue aberta.
 [x] Scrubbing revisado e aprovado pelo usuário (2026-09-22) — envio religado localmente;
     "Prevent Storing of IP Addresses" ligado no painel do Sentry
 [x] Migrations 0035 e 0036 aplicadas no Supabase (exclusão completa de conta)
-[ ] Sentry em produção — aguarda só os créditos do Netlify (variáveis de ambiente + deploy)
+[x] Sentry em produção (2026-09-22) — novo Netlify, ver "Migração para a conta Netlify do AuriNutri" abaixo
 ```
 
 **Exclusão de conta — decisão do usuário (2026-09-22): conta excluída não deixa nada guardado.**
