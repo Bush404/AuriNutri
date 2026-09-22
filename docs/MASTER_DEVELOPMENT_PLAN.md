@@ -1654,8 +1654,8 @@ plano e PDF). O Sentry não registrou essa queda porque ela derruba o processo a
 tipo de falha só aparece no log de funções do Netlify (Cloud compute → Functions → Next.js Server
 Handler).
 
-**Pendente:** remover o endereço antigo das Redirect URLs do Supabase e excluir o site da conta
-Netlify antiga.
+**Concluído (2026-09-22):** endereço antigo removido das Redirect URLs do Supabase e site da conta
+Netlify antiga excluído pelo usuário.
 
 - ~~Linhas de "adicionar item" sem `<Label>`~~ — resolvido em 2026-09-22: `aria-label` +
   `aria-required` nos campos de busca (`FoodCombobox`/`RecipeCombobox`, o que cobre todos os
