@@ -1,7 +1,8 @@
 <!--
   Supabase → Authentication → Emails → Templates → "Reset Password"
   Assunto: Redefinição de senha do AuriNutri
-  Colar este HTML no corpo. {{ .ConfirmationURL }} é preenchido pelo Supabase.
+  Colar este HTML no corpo. {{ .SiteURL }} e {{ .TokenHash }} são preenchidos pelo Supabase; o link abre
+  /confirmar, que só consome o token quando a pessoa clica em Continuar (ver src/lib/auth-confirm.ts).
 -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7faf9;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
   <tr>
@@ -21,13 +22,13 @@
         </tr>
         <tr>
           <td align="center" style="padding:0 32px 24px;">
-            <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#124532;color:#ffffff;text-decoration:none;font-size:15px;font-weight:bold;padding:12px 28px;border-radius:8px;">Criar nova senha</a>
+            <a href="{{ .SiteURL }}/confirmar?token_hash={{ .TokenHash }}&type=recovery" style="display:inline-block;background:#124532;color:#ffffff;text-decoration:none;font-size:15px;font-weight:bold;padding:12px 28px;border-radius:8px;">Criar nova senha</a>
           </td>
         </tr>
         <tr>
           <td style="padding:0 32px 28px;color:#5f6f68;font-size:13px;line-height:1.6;">
             <p style="margin:0 0 8px;">Se o botão não funcionar, copie e cole este endereço no navegador:</p>
-            <p style="margin:0 0 16px;word-break:break-all;"><a href="{{ .ConfirmationURL }}" style="color:#1f6d4f;">{{ .ConfirmationURL }}</a></p>
+            <p style="margin:0 0 16px;word-break:break-all;"><a href="{{ .SiteURL }}/confirmar?token_hash={{ .TokenHash }}&type=recovery" style="color:#1f6d4f;">{{ .SiteURL }}/confirmar?token_hash={{ .TokenHash }}&type=recovery</a></p>
             <p style="margin:0;">Se você não pediu a redefinição, pode ignorar este e-mail — sua senha atual continua valendo.</p>
           </td>
         </tr>

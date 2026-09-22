@@ -28,6 +28,8 @@ const PUBLIC_ROUTES = [
   "/esqueci-senha",
   "/redefinir-senha",
   "/auth/callback",
+  // Destino dos links dos e-mails de cadastro/redefinição de senha (token_hash).
+  "/confirmar",
   // Link de compartilhamento do PDF do plano — aberto pelo paciente, que
   // nunca tem sessão (D2: paciente não é usuário autenticado). O acesso é
   // controlado pelo token em si (ver migration 0010), não por login.
