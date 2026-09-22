@@ -1712,8 +1712,8 @@ saltos (`/login?redirectTo=` no domínio antigo → 301 para o novo) — termina
 Cookies de sessão são por domínio: quem estava logado no `netlify.app` entra de novo uma vez.
 `npm run test:e2e:prod` aponta para o domínio novo.
 
-**Pendente (baixa prioridade):** remover `aurinutri-app.netlify.app/**` das Redirect URLs do Supabase
-depois que os e-mails enviados com o endereço antigo expirarem (links de e-mail valem ~1 dia).
+**Concluído:** `aurinutri-app.netlify.app/**` removido das Redirect URLs do Supabase e conta antiga do
+Resend excluída pelo usuário (2026-09-22).
 
 - ~~Linhas de "adicionar item" sem `<Label>`~~ — resolvido em 2026-09-22: `aria-label` +
   `aria-required` nos campos de busca (`FoodCombobox`/`RecipeCombobox`, o que cobre todos os
