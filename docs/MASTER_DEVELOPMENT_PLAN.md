@@ -1559,9 +1559,23 @@ A Fase 11 é contínua: os itens abaixo estão feitos, mas a fase segue aberta.
     agenda→realizada→cobrança, Central de Envio)
 [x] Observabilidade com scrubbing LGPD configurado ANTES de ligar o envio
 [x] Nenhum console.log em produção imprimindo dado de paciente (e lint impedindo novos)
-[ ] Sentry em produção — aguarda revisão do scrubbing pelo usuário + créditos do Netlify
-[ ] Aplicar migration 0035 no Supabase (manual, SQL Editor)
+[x] Scrubbing revisado e aprovado pelo usuário (2026-09-22) — envio religado localmente;
+    "Prevent Storing of IP Addresses" ligado no painel do Sentry
+[x] Migrations 0035 e 0036 aplicadas no Supabase (exclusão completa de conta)
+[ ] Sentry em produção — aguarda só os créditos do Netlify (variáveis de ambiente + deploy)
 ```
+
+**Exclusão de conta — decisão do usuário (2026-09-22): conta excluída não deixa nada guardado.**
+Migration `0036` põe `audit_log.user_id` em `on delete cascade` (e apaga linhas órfãs antigas);
+`npm run delete-account -- email [--confirmar]` (`scripts/delete-account.mjs`) apaga os arquivos
+da conta nos 5 buckets, exclui a conta e confere que sobrou 0 linha e 0 arquivo — simulação por
+padrão. Testado numa conta descartável com paciente, histórico e 2 arquivos: tudo apagado.
+**Botão de autoexclusão no app: adiado de propósito.** Sugerido pelo usuário (aviso "todo o conteúdo
+será excluído"), mas fica para quando existir a cobrança/assinatura do software (quem não renova
+perde acesso) — o fluxo de conta será desenhado junto. Até lá, exclusão é pedida e executada pelo
+script. Nota técnica para quando for feito: o app publicado não usa service role, então precisa
+de função `security definer` que só apaga `auth.uid()` + remoção dos arquivos com a sessão da
+própria nutricionista.
 
 **1. Playwright — `npm run test:e2e`, 10 testes, todos passando (~1,5 min).** Tabela de fluxos em
 `e2e/README.md`. Reaproveita a base da seção "Testes E2E" acima (conta descartável, sessão

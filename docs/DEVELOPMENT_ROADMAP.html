@@ -471,8 +471,10 @@
       <li class="ok">Bloco C — E2E dos 6 fluxos críticos (Playwright), 10 testes</li>
       <li class="ok">Bloco C — Observabilidade (Sentry) com scrubbing de privacidade (LGPD) antes de qualquer envio</li>
       <li class="ok">Bloco C — Nenhum <code>console.*</code> no código do app; lint impede novos</li>
-      <li>Sentry em produção (variáveis no Netlify) — aguarda revisão do scrubbing pelo usuário e créditos do Netlify</li>
-      <li>Aplicar migration 0035 no Supabase (exclusão de conta com pacientes)</li>
+      <li class="ok">Bloco C — Scrubbing revisado e aprovado pelo usuário; IP bloqueado no painel do Sentry</li>
+      <li class="ok">Bloco C — Exclusão completa de conta (migrations 0035/0036 + <code>npm run delete-account</code>), sem sobrar dado nem arquivo</li>
+      <li>Sentry em produção (variáveis no Netlify) — aguarda créditos do Netlify</li>
+      <li>Botão "Excluir minha conta" no app — adiado para junto da assinatura/cobrança do software</li>
     </ul>
     <div class="accept"><b>Bloco A concluído — 21/09/2026</b>
       <code>scripts/test-security-isolation-full.mjs</code>: suíte única cobrindo as 28 tabelas com RLS do projeto e os 5 buckets de Storage — cria 2 contas descartáveis e tenta, como uma, ler/alterar/excluir o que é da outra. Executado contra o projeto real: <b>87/87 verificações passaram, nenhum vazamento encontrado</b>. Rate limiting decidido com o usuário antes de implementar: contador guardado no Postgres via função <code>security definer</code> (migration 0034), não num serviço externo — zero infraestrutura nova, mesmo princípio já usado no projeto para RLS/audit_log/soft delete; resolve o problema de "sem estado em memória entre invocações" das Netlify Functions porque o <code>INSERT ... ON CONFLICT</code> é atômico no Postgres. Aplicado em toda operação de gerar PDF/link e enviar arquivo, com falha aberta deliberada (se a checagem falhar, a ação segue — o limitador nunca derruba o produto sozinho). Verificado com <code>scripts/test-rate-limit.mjs</code> (6/6 passaram). Senha mínima subiu de 6 para 8 caracteres + bloqueio de senhas triviais conhecidas — só a camada de UX no formulário; a autoridade de verdade é a configuração de Auth no painel do Supabase, ajustada manualmente.</div>
