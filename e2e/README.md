@@ -13,6 +13,7 @@ os caminhos que, se quebrarem, o produto para:
 | `agenda.e2e.ts` | agendar consulta com cobrança "Não pago" → marcar como realizada → cobrança em aberto no financeiro |
 | `central-envio.e2e.ts` | material da biblioteca + plano pela Central de Envio → os dois links abrem o PDF sem login |
 | `arquivos.e2e.ts` | consentimento → foto de evolução e exame em PDF enviados ao Storage (foto exibida via URL assinada) |
+| `senha.e2e.ts` | "esqueci a senha": link do e-mail (token_hash) aberto antes pelo "filtro" → Continuar → nova senha → login com ela; link não vale duas vezes |
 
 ## Como rodar
 

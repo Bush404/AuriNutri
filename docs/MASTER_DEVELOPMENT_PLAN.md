@@ -1666,6 +1666,34 @@ auditado). De quebra: os botões só-ícone de ver/excluir foto não tinham nome
 pendente desde o Bloco A): confirmada feita pelo usuário. Domínio próprio: comprado pelo usuário —
 próximo passo é tirar o SMTP (Resend) do modo sandbox.
 
+### E-mails de autenticação para qualquer pessoa · `DONE` (2026-09-22)
+
+**Fim do bloqueio de cadastro de testadoras** (pendente desde a Fase 1: Resend em sandbox só
+entregava ao dono da conta). Domínio `aurinutri.com` (Hostinger) verificado numa conta Resend nova,
+no e-mail do AuriNutri — registros DKIM, MX/SPF em `send.` e DMARC (`p=none`). Supabase SMTP:
+`nao-responda@aurinutri.com` via `smtp.resend.com:465`. Testado: redefinição de senha entregue a
+um endereço que não é o dono da conta Resend.
+
+**Modelos em português** versionados em `supabase/email-templates/` (confirmação de cadastro e
+redefinição de senha — os dois únicos e-mails que o app dispara), colados à mão no painel do
+Supabase, como as migrations.
+
+**Bug real encontrado no primeiro e-mail — link chegava gasto (`otp_expired`).** O e-mail caiu no
+lixo eletrônico do Outlook, cujo filtro abre os links sozinhos para checar e consumia o link de uso
+único antes da pessoa. Correção: os modelos apontam para `/confirmar?token_hash=…&type=…` (rota
+pública nova), e o token só é consumido quando a pessoa clica em **Continuar** (`verifyOtp` no
+navegador). De quebra, o link passa a funcionar em outro aparelho/navegador (o fluxo antigo por
+`code`/PKCE exigia o mesmo navegador do pedido). Destino decidido pelo tipo em
+`src/lib/auth-confirm.ts`, nunca por parâmetro da URL. Uma primeira versão fazia o `verifyOtp` num
+Server Action e a sessão não chegava ao cliente do navegador usado por `/redefinir-senha`
+("Auth session missing") — trocado para o navegador; testado pelo usuário em produção de ponta a
+ponta. `e2e/senha.e2e.ts` cobre o fluxo simulando o filtro abrindo o link antes do clique (roda na
+próxima execução com a service role key). `/auth/callback` mantido por compatibilidade.
+
+Lixo eletrônico: esperado para domínio recém-criado (reputação zero) — mitigado com modelos em
+português; o domínio próprio no site (`app.aurinutri.com`, planejado) também ajuda, por alinhar o
+domínio do link com o do remetente.
+
 - ~~Linhas de "adicionar item" sem `<Label>`~~ — resolvido em 2026-09-22: `aria-label` +
   `aria-required` nos campos de busca (`FoodCombobox`/`RecipeCombobox`, o que cobre todos os
   usos) e nos 4 campos de quantidade (item de refeição por alimento e por receita, ingrediente
