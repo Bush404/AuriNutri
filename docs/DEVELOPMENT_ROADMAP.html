@@ -134,7 +134,7 @@
     <span><b>1</b> em andamento (Fase 11, contínua)</span>
     <span><b>0</b> planejadas</span>
     <span><b>1</b> adiada</span>
-    <span><b>2</b> decisões pendentes</span>
+    <span><b>1</b> decisão pendente (não bloqueia nada)</span>
   </div>
 </section>
 
@@ -486,17 +486,17 @@
 </details>
 
 <section class="decisions">
-  <h2 class="section" style="margin-bottom:10px">Decisões pendentes — bloqueiam fases futuras</h2>
+  <h2 class="section" style="margin-bottom:10px">Decisões pendentes</h2>
   <p style="font-size:12.5px;color:var(--muted);margin-bottom:10px">
     D1 e D2 já foram decididas (2026-09-12, Fase 1) — individual sem clínica/equipe;
+    D4 (biblioteca de PDF) foi resolvida na Fase 4 (17/09/2026) com <code>@react-pdf/renderer</code>;
     paciente não autenticado. Texto completo em <code>DECISIONS.md</code>; removidas
     daqui por não bloquearem mais nada.
   </p>
   <table>
     <thead><tr><th>#</th><th>Decisão</th><th>Bloqueia</th><th>Prazo</th></tr></thead>
     <tbody>
-      <tr><td><b>D3</b></td><td>Licenciamento de TBCA e Tucunduva <em>(exige parecer jurídico)</em></td><td>Fase 4</td><td>Antes de importar</td></tr>
-      <tr><td><b>D4</b></td><td>Biblioteca de geração de PDF</td><td>Fase 4</td><td>Fase 4</td></tr>
+      <tr><td><b>D3</b></td><td>Licenciamento de TBCA e Tucunduva <em>(exige parecer jurídico)</em></td><td>Nada hoje — o app usa só a TACO</td><td>Só antes de importar TBCA/Tucunduva</td></tr>
     </tbody>
   </table>
 </section>

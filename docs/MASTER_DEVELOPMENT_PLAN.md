@@ -1658,7 +1658,8 @@ completo com justificativa continua em `DECISIONS.md`, não sobrescrito.
 
 | # | Decisão | Bloqueia | Prazo |
 |---|---|---|---|
-| D3 | Licenciamento de TBCA e Tucunduva | Fase 4 | Antes de importar |
-| D4 | Biblioteca de PDF | Fase 4 | Fase 4 |
+| D3 | Licenciamento de TBCA e Tucunduva | Nada hoje (o app usa só a TACO) | Só antes de importar TBCA/Tucunduva |
 
-**Sobre D3:** a TACO autoriza reprodução com citação de fonte. **TBCA e Tucunduva não foram verificados.** A Tucunduva é obra comercial protegida — redistribuir seus dados num SaaS pago é provavelmente inviável sem licença. Isso exige parecer jurídico, não decisão de engenharia.
+**D4 (biblioteca de PDF) resolvida na Fase 4 (2026-09-17): `@react-pdf/renderer`, ver Bloco C da Fase 4 — removida da tabela.** (Obs.: estes D3/D4 são ids desta tabela do plano; o `DECISIONS.md` tem numeração própria, onde D3 é outra decisão.)
+
+**Sobre D3 (revisto em 2026-09-22):** não bloqueia nada hoje — nenhum dado de TBCA/Tucunduva foi importado e o app usa só a TACO. A TACO autoriza reprodução com citação de fonte. **TBCA e Tucunduva não foram verificados.** A Tucunduva é obra comercial protegida — redistribuir seus dados num SaaS pago é provavelmente inviável sem licença. Isso exige parecer jurídico, não decisão de engenharia.
