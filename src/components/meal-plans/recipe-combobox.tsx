@@ -109,6 +109,8 @@ export function RecipeCombobox({ value, onChange, disabled }: RecipeComboboxProp
           onFocus={handleFocus}
           onKeyDown={onKeyDown}
           placeholder="Buscar receita..."
+          aria-label="Receita"
+          aria-required="true"
           className="pl-9"
           disabled={disabled}
           role="combobox"

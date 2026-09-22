@@ -124,6 +124,8 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
           onFocus={handleFocus}
           onKeyDown={onKeyDown}
           placeholder="Buscar alimento (TACO ou seus)..."
+          aria-label="Alimento"
+          aria-required="true"
           className="pl-9"
           disabled={disabled}
           role="combobox"

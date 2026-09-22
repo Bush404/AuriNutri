@@ -1524,9 +1524,11 @@ produção. Opcional: ativar "Prevent storing IP addresses" no projeto Sentry.
 ### Pendências conhecidas (não bloqueiam o fechamento do bloco)
 - Testes E2E (Playwright) — item final da Fase 11. (Sentry concluído em 2026-09-22, ver seção
   acima.)
-- Linhas de "adicionar item" sem `<Label>` (ingrediente de receita, item de refeição) — não
-  ganharam `aria-required` junto com o resto do formulário porque não têm associação de label
-  nenhuma hoje; ficou de fora do escopo do item de `aria-required` acima.
+- ~~Linhas de "adicionar item" sem `<Label>`~~ — resolvido em 2026-09-22: `aria-label` +
+  `aria-required` nos campos de busca (`FoodCombobox`/`RecipeCombobox`, o que cobre todos os
+  usos) e nos 4 campos de quantidade (item de refeição por alimento e por receita, ingrediente
+  de receita, equivalente no diálogo de substituições). Nome acessível sem label visível, para
+  não mudar o layout compacto dessas linhas.
 
 ---
 

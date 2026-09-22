@@ -84,6 +84,8 @@ function AddFoodItemForm({ planId, mealId, nextOrdem }: AddMealItemFormProps) {
             type="number"
             step="0.1"
             placeholder="Qtd. (g)"
+            aria-label="Quantidade em gramas"
+            aria-required="true"
             value={quantidade}
             onChange={(e) => setQuantidade(e.target.value)}
             disabled={isPending}
@@ -148,6 +150,8 @@ function AddRecipeItemForm({ planId, mealId, nextOrdem }: AddMealItemFormProps) 
             type="number"
             step="0.5"
             placeholder="Qtd. (porções)"
+            aria-label="Quantidade de porções"
+            aria-required="true"
             value={porcoes}
             onChange={(e) => setPorcoes(e.target.value)}
             disabled={isPending}

@@ -100,6 +100,8 @@ export function RecipeStepIngredients({ recipeId, ingredients, onNext, onBack }:
             type="number"
             step="0.1"
             placeholder="Qtd. (g)"
+            aria-label="Quantidade em gramas"
+            aria-required="true"
             value={quantidade}
             onChange={(e) => setQuantidade(e.target.value)}
             disabled={isPending}
