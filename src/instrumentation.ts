@@ -10,6 +10,5 @@ export async function register() {
   }
 }
 
-// Usado pelo Next.js 15+; ignorado no 14 (lá o withSentryConfig já instrumenta
-// Server Components, Route Handlers e o middleware).
+// Erros de Server Components, Route Handlers e do middleware (Next.js 15+).
 export const onRequestError = Sentry.captureRequestError;
