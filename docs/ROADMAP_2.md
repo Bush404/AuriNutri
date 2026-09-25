@@ -48,11 +48,29 @@ lentidão agora custa menos do que depois de dobrar o número de telas.
 
 ### Bloco A — segurança
 ```
-[ ] Atualizar Next.js 14.2.13 → último patch da linha 14.2.x (sem troca de versão maior)
-[ ] Rodar npm audit de novo e registrar o que sobrar (o resto só se resolve na troca para Next 15/16)
+[x] Atualizar Next.js 14.2.13 → 14.2.35 (publicado, commit 6bad00f)
+[x] Troca de versão maior: Next.js 16.3.6 + React 19 (antecipada para esta fase, ver nota abaixo)
+[x] npm audit de novo: nenhuma falha no Next.js; restam 3 moderadas só em ferramentas de
+    desenvolvimento (vitest, csv-parse), que não vão para o site
 [ ] Verificar se o projeto Supabase tem backup automático e como restaurar (dados de saúde)
 [ ] Checklist de contas administrativas: 2FA em Supabase, Netlify, GitHub, Resend, Sentry, registro do domínio
-[ ] Registrar em DECISIONS.md quando migrar para Next 15/16 (troca de versão maior, fase própria)
+```
+
+**Troca para Next 16 (25/09/2026), decidida com a responsável pelo produto:** a linha 14 do Next.js
+não recebe mais correções, então as falhas publicadas depois do fim do suporte só foram corrigidas
+nas versões 15/16. A troca foi antecipada para antes das Fases 15–17 porque fica mais cara a cada
+tela nova. O que mudou:
+- `cookies()`, `params` e `searchParams` ficaram assíncronos: `createClient()` do servidor virou
+  `async` (133 chamadas com `await`).
+- `next lint` saiu do Next 16: ESLint 9 com `eslint.config.mjs`. As regras novas do
+  `eslint-plugin-react-hooks` pensadas para o React Compiler (`purity`, `refs`,
+  `set-state-in-effect`, `use-memo`) ficam como **aviso**, porque não apontam bugs. Limpeza pendente
+  abaixo.
+- `middleware.ts` **não** foi renomeado para `proxy.ts`: o `proxy` só roda no runtime Node, e o
+  `middleware` mantém o Edge runtime que o Netlify usa hoje.
+
+```
+[ ] Limpar os 21 avisos do lint (regras do React Compiler + eslint-disable sem uso)
 ```
 **Achado (25/09/2026):** o `npm audit` aponta a versão do Next.js como crítica. Entre as falhas
 conhecidas está a de **pular o middleware** (GHSA-f82v-jwr5-mffw), corrigida na 14.2.25. O impacto
