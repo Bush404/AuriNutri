@@ -4,10 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current phase — read before any task
 
-Before doing any task, read `docs/PROJECT_AUDIT.md` and `docs/MASTER_DEVELOPMENT_PLAN.md`.
-We are executing **PHASE 1**. Do not implement functionality from other phases — check the
-plan's phase breakdown before adding anything that looks like a new feature, and confirm it
-belongs to Phase 1 first.
+Roadmap 1 (`docs/MASTER_DEVELOPMENT_PLAN.md`, Phases 0–11) is done. We are now executing
+**Roadmap 2** — before doing any task, read `docs/ROADMAP_2.md` (Phases 12–19, order, and
+pending decisions). Work one phase at a time, in the order the roadmap sets. Do not implement
+functionality from a later phase — check the roadmap before adding anything that looks like a
+new feature, and confirm it belongs to the current phase first. `docs/MASTER_DEVELOPMENT_PLAN.md`
+and `docs/DECISIONS.md` remain the record of how earlier phases were built and why.
 
 ## What this is
 

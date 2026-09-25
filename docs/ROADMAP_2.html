@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AuriNutri — Roadmap 2</title>
+<style>
+  :root{
+    --green-900:#0d3527; --green-800:#124532; --green-700:#17573f;
+    --green-600:#1f6d4f; --green-500:#2e8a64; --green-300:#75c1a1;
+    --green-100:#c9e6d9; --green-50:#eaf5f0;
+    --accent:#f2994a; --accent-soft:#fdf1e5;
+    --ink:#16211c; --muted:#5f6f68; --line:#e2eae6; --bg:#f7faf9;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55;
+    padding:32px 20px 64px;
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+
+  header{margin-bottom:28px}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .dot{width:26px;height:26px;border-radius:50%;background:var(--green-800);
+       display:grid;place-items:center;color:var(--accent);font-size:14px}
+  h1{font-size:22px;font-weight:650;letter-spacing:-.02em}
+  h1 span{color:var(--green-600)}
+  .sub{color:var(--muted);font-size:14px}
+
+  .overall{background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+           padding:22px;margin-bottom:24px}
+  .overall-top{display:flex;justify-content:space-between;align-items:baseline;
+               flex-wrap:wrap;gap:8px;margin-bottom:14px}
+  .overall-top h2{font-size:14px;font-weight:600;text-transform:uppercase;
+                  letter-spacing:.06em;color:var(--muted)}
+  .pct{font-size:26px;font-weight:680;color:var(--green-700)}
+  .bar{height:9px;background:var(--green-50);border-radius:99px;overflow:hidden}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--green-600),var(--green-400,#4aa87f));border-radius:99px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;
+          font-size:12.5px;color:var(--muted)}
+  .legend b{color:var(--ink);font-weight:600}
+
+  .milestones{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+              gap:12px;margin-bottom:28px}
+  .ms{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .ms .tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--green-600)}
+  .ms .t{font-size:13.5px;font-weight:600;margin:4px 0 2px}
+  .ms .d{font-size:12.5px;color:var(--muted)}
+  .ms.now{border-color:var(--green-300);background:var(--green-50)}
+
+  h2.section{font-size:13px;text-transform:uppercase;letter-spacing:.07em;
+             color:var(--muted);margin:0 0 12px;font-weight:600}
+
+  .phase{background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+         margin-bottom:10px;overflow:hidden}
+  .phase.active{border-color:var(--green-300);box-shadow:0 0 0 3px var(--green-50)}
+  .ph-head{display:flex;align-items:center;gap:14px;padding:15px 18px;cursor:pointer;
+           user-select:none}
+  .ph-head:hover{background:#fcfdfd}
+  .mark{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:grid;
+        place-items:center;font-size:12px;font-weight:700;
+        border:2px solid var(--line);color:var(--muted);background:#fff}
+  .mark.done{background:var(--green-600);border-color:var(--green-600);color:#fff}
+  .mark.prog{border-color:var(--accent);color:var(--accent)}
+  .ph-title{flex:1;min-width:0}
+  .ph-title .n{font-size:11px;letter-spacing:.07em;color:var(--muted);font-weight:600}
+  .ph-title .t{font-size:15px;font-weight:600;letter-spacing:-.01em}
+  .ph-meta{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+  .chip{font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:3px 8px;
+        border-radius:99px;text-transform:uppercase}
+  .c-critical{background:#fdeceb;color:#a8332a}
+  .c-high{background:var(--accent-soft);color:#a35a15}
+  .c-medium{background:var(--green-50);color:var(--green-700)}
+  .c-low{background:#eef1f0;color:var(--muted)}
+  .c-done{background:var(--green-100);color:var(--green-800)}
+  .c-todo{background:#eef1f0;color:var(--muted)}
+
+  .caret{color:var(--muted);font-size:11px;transition:transform .15s}
+  .phase[open] .caret{transform:rotate(90deg)}
+
+  .ph-body{padding:0 18px 18px 54px;border-top:1px solid var(--line);padding-top:14px}
+  .obj{font-size:13.5px;color:var(--muted);margin-bottom:12px}
+  .obj b{color:var(--ink);font-weight:600}
+  ul.tasks{list-style:none;display:grid;gap:5px}
+  ul.tasks li{font-size:13px;display:flex;gap:9px;align-items:flex-start;color:#33413b}
+  ul.tasks li::before{content:"";width:13px;height:13px;border:1.5px solid var(--line);
+    border-radius:3px;flex-shrink:0;margin-top:4px}
+  ul.tasks li.ok{color:var(--muted)}
+  ul.tasks li.ok::before{content:"✓";border-color:var(--green-600);background:var(--green-600);
+    color:#fff;font-size:9px;display:grid;place-items:center;line-height:1}
+  .accept{margin-top:12px;padding:11px 13px;background:var(--green-50);
+          border-radius:8px;font-size:12.5px;color:var(--green-800)}
+  .accept b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+            margin-bottom:3px;color:var(--green-700)}
+  .risk{margin-top:8px;padding:11px 13px;background:var(--accent-soft);
+        border-radius:8px;font-size:12.5px;color:#7a4a15}
+  .risk b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+          margin-bottom:3px;color:#a35a15}
+
+  .decisions{background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+             padding:18px;margin-top:28px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+     color:var(--muted);padding:6px 10px 6px 0;border-bottom:1px solid var(--line);font-weight:600}
+  td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+
+  footer{margin-top:28px;font-size:12px;color:var(--muted);text-align:center}
+  @media(max-width:640px){.ph-body{padding-left:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <div class="dot">◆</div>
+    <h1>Auri<span>Nutri</span> — Roadmap 2</h1>
+  </div>
+  <p class="sub">Do uso no próprio consultório às testadoras · criado em 25/09/2026 a partir de uma semana de uso real · continua o Roadmap 1 (<code>DEVELOPMENT_ROADMAP.html</code>, Fases 0–11)</p>
+</header>
+
+<section class="overall">
+  <div class="overall-top">
+    <h2>Progresso do Roadmap 2</h2>
+    <div class="pct">0%</div>
+  </div>
+  <div class="bar"><i style="width:0%"></i></div>
+  <div class="legend">
+    <span><b>0</b> fases concluídas</span>
+    <span><b>0</b> em andamento</span>
+    <span><b>7</b> planejadas</span>
+    <span><b>1</b> bloqueada (licenças)</span>
+    <span><b>3</b> decisões pendentes</span>
+  </div>
+</section>
+
+<div class="milestones">
+  <div class="ms now">
+    <div class="tag">ROADMAP 2</div>
+    <div class="t">Fases 12 → 19</div>
+    <div class="d">Pronto para ser o único software do seu consultório, no nível do mercado em antropometria, cálculo energético e plano alimentar.</div>
+  </div>
+  <div class="ms">
+    <div class="tag">TESTADORAS</div>
+    <div class="t">Depois da Fase 19</div>
+    <div class="d">Convidar outras nutricionistas para testar de graça.</div>
+  </div>
+  <div class="ms">
+    <div class="tag">JURÍDICO + ASSINATURA</div>
+    <div class="t">Depois dos testes</div>
+    <div class="d">Política de privacidade, termos de uso, papéis na LGPD e cobrança da assinatura.</div>
+  </div>
+  <div class="ms">
+    <div class="tag">LANÇAMENTO</div>
+    <div class="t">Oficial</div>
+    <div class="d">Abertura para o público.</div>
+  </div>
+</div>
+
+<h2 class="section">Fases</h2>
+
+<details class="phase active" open>
+  <summary class="ph-head">
+    <span class="mark">12</span>
+    <span class="ph-title"><span class="n">PHASE 12 · PRÓXIMA</span><div class="t">Segurança e velocidade</div></span>
+    <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> vem primeiro porque afeta todas as telas atuais e todas as que vão ser criadas. Corrigir agora custa menos.</p>
+    <ul class="tasks">
+      <li>Atualizar o Next.js 14.2.13 (com falhas de segurança conhecidas) para o último patch da linha 14.2.x</li>
+      <li>Confirmar backup automático do banco e escrever como restaurar</li>
+      <li>Verificação em duas etapas em Supabase, Netlify, GitHub, Resend, Sentry e no registro do domínio</li>
+      <li>Registrar quando migrar para Next 15/16 (troca de versão maior, fase própria)</li>
+      <li>Medir o tempo das páginas principais antes de mexer</li>
+      <li>Conferir se o servidor do site e o banco estão em regiões distantes</li>
+      <li>Consultas ao banco em paralelo, e não uma depois da outra</li>
+      <li>Telas de carregamento onde ainda faltam</li>
+      <li>Medir de novo e registrar o antes/depois em números</li>
+    </ul>
+    <div class="accept"><b>Aceite</b>
+      Next.js no último patch 14.2.x com build, testes e E2E passando. Tempo das páginas medido antes e depois. Backup confirmado, com procedimento de restauração escrito.</div>
+    <div class="risk"><b>Risco</b>
+      Uma das falhas do Next.js permitiria pular o middleware. O impacto real é baixo porque o layout também redireciona e a RLS do banco foi testada com 87/87 checagens. Mesmo assim, é a correção mais barata do roadmap.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">13</span>
+    <span class="ph-title"><span class="n">PHASE 13</span><div class="t">Ajustes rápidos do dia a dia</div></span>
+    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> melhorar telas que já existem, sem modelo de dados novo. As tarefas e os botões dos planos já funcionam por trás; falta só a interface.</p>
+    <ul class="tasks">
+      <li>Dashboard: "Ticket médio" vira "Balanço dos últimos 30 dias" (recebido − despesas)</li>
+      <li>Dashboard: parte de baixo em duas colunas. À esquerda, calendário dos próximos 7 dias (só visualização) com "Ver agenda completa"; à direita, "Próximos compromissos (7 dias)"</li>
+      <li>Tarefas: criar pela agenda (título, data, horário e paciente opcionais), visual próprio no calendário, concluir/reabrir/excluir</li>
+      <li>Tarefas entram em "Próximos compromissos" no dashboard</li>
+      <li>Anamnese: "Adicionar nova anamnese" no topo e anteriores fechadas abaixo (nome, data, visualizar/editar, excluir)</li>
+      <li>Planos: botões Editar, Excluir e Ativar/Desativar na lista</li>
+      <li>Busca: "Buscar alimento (TACO ou seus)" vira "Buscar alimentos"</li>
+    </ul>
+    <div class="accept"><b>Aceite</b>
+      Balanço de 30 dias confere com cálculo feito à mão. Tarefa de uma conta não aparece para outra. Anamnese excluída some da tela, mas fica no histórico de auditoria.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">14</span>
+    <span class="ph-title"><span class="n">PHASE 14</span><div class="t">Anamnese em texto livre e modelos</div></span>
+    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> as caixas separadas por tema viram uma página em branco, estilo Word.</p>
+    <ul class="tasks">
+      <li>Editor de texto com negrito, listas, títulos e tabela simples</li>
+      <li>Colar texto do Word mantendo a formatação básica</li>
+      <li>"Meus modelos": cada nutricionista cria, edita e exclui os seus</li>
+      <li>Modelos prontos do AuriNutri (adulto, esportivo, gestante, infantil…): usar direto ou copiar e editar</li>
+      <li>Conteúdo dos modelos prontos revisado pela nutricionista antes de publicar</li>
+      <li>Nova anamnese: "Em branco" ou um modelo</li>
+      <li>Anamneses antigas convertidas em texto, sem apagar nada</li>
+    </ul>
+    <div class="risk"><b>Risco alto</b>
+      Nenhuma anamnese antiga pode se perder. A conversão é testada numa cópia antes, e as colunas originais continuam no banco. O texto rico é limpo antes de exibir, para que conteúdo colado não carregue código malicioso.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">15</span>
+    <span class="ph-title"><span class="n">PHASE 15</span><div class="t">Antropometria profissional</div></span>
+    <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> maior fase do roadmap. Ao clicar em "Nova avaliação", o profissional escolhe entre três tipos. Alimenta as Fases 16 e 17.</p>
+    <ul class="tasks">
+      <li>Adultos e idosos: peso, altura, IMC com classificação</li>
+      <li>Circunferências completas (pescoço, tórax, cintura, abdome, quadril, braço, antebraço, punho, coxa, panturrilha)</li>
+      <li>Dobras cutâneas (tríceps, bíceps, subescapular, peitoral, axilar média, suprailíaca, abdominal, coxa, panturrilha)</li>
+      <li>Protocolos de % de gordura à escolha, com massa gorda e massa magra</li>
+      <li>Diâmetros ósseos, bioimpedância digitada, relação cintura-quadril e cintura-estatura</li>
+      <li>Idosos: altura estimada pela altura do joelho, circunferência da panturrilha</li>
+      <li>Crianças e adolescentes: peso/idade, altura/idade, IMC/idade, peso/altura em percentil e escore-z, curvas da OMS</li>
+      <li>Anexar relatório externo (PDF/imagem: bioimpedância, DEXA, laudo), com números opcionais para a evolução</li>
+      <li>Gráfico de evolução em cada avaliação, com até 5 indicadores escolhidos</li>
+      <li>PDF "Evolução física" de qualquer data, com os 5 gráficos escolhidos</li>
+    </ul>
+    <div class="accept"><b>Aceite</b>
+      Cada fórmula tem teste com valor calculado à mão. Percentis conferem com as tabelas oficiais da OMS. Nenhuma avaliação antiga some ou muda de valor.</div>
+    <div class="risk"><b>Risco alto</b>
+      Fórmula errada gera laudo errado. Cada protocolo cita a fonte, tem teste e é revisado pela nutricionista antes de fechar. A fase é entregue em blocos separados.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">16</span>
+    <span class="ph-title"><span class="n">PHASE 16</span><div class="t">Cálculo energético</div></span>
+    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> nova aba no paciente, ao lado de Antropometria.</p>
+    <ul class="tasks">
+      <li>Escolher a avaliação de origem, com peso, altura, idade, sexo e massa magra já preenchidos</li>
+      <li>Fórmula, fator de atividade e, quando se aplicar, fator injúria/térmico</li>
+      <li>Adultos: Harris-Benedict, Mifflin-St Jeor, FAO/OMS, Schofield, Henry, Cunningham, Katch-McArdle, IOM/DRI, Tinsley</li>
+      <li>Crianças e adolescentes: IOM/DRI, Schofield, FAO/OMS</li>
+      <li>Gestantes e lactantes: adicional energético (a confirmar)</li>
+      <li>Comparar fórmulas lado a lado</li>
+      <li>Salvar o cálculo com data, para o plano alimentar importar</li>
+    </ul>
+    <div class="accept"><b>Aceite</b>
+      Cada fórmula tem teste com valor de referência. Lista final aprovada pela nutricionista antes de implementar.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">17</span>
+    <span class="ph-title"><span class="n">PHASE 17</span><div class="t">Plano alimentar 2.0</div></span>
+    <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> montar o plano vendo sempre o planejado × o prescrito, com medidas caseiras e substitutos comparáveis.</p>
+    <ul class="tasks">
+      <li>"Adicionar um planejamento" no lugar de "Calculadora de gasto energético": importar um cálculo da Fase 16 pela data</li>
+      <li>Peso atual, GET, proteínas, lipídios e carboidratos editáveis; distribuição por % do GET ou g/kg</li>
+      <li>Painel fixo à direita no computador e barra no rodapé no celular, com planejado × prescrito</li>
+      <li>Botão "Gráfico de nutrientes" do cardápio inteiro</li>
+      <li>"Quantidade" + "Medida" (gramas, ml, unidade, fatia, colheres, xícara, copo, concha…), com equivalência em gramas ajustável</li>
+      <li>PDF mostra, por exemplo, "2 fatias (50 g)"</li>
+      <li>Substitutos com comparação lado a lado e critério de equivalência (kcal, carboidrato ou proteína)</li>
+      <li>Busca com filtros: Todos, Favoritos, Receitas, Meus alimentos, TACO (+ TBCA 7.3 e Tucunduva quando liberadas)</li>
+      <li>Favoritar alimentos; receitas na mesma busca</li>
+    </ul>
+    <div class="accept"><b>Aceite</b>
+      Totais do painel, da tela e do PDF idênticos (testado). Planos antigos, só em gramas, continuam abrindo e calculando igual.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">18</span>
+    <span class="ph-title"><span class="n">PHASE 18 · BLOQUEADA</span><div class="t">Tabelas de alimentos (TBCA 7.3, Tucunduva)</div></span>
+    <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-low">Blocked</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> completar a base de alimentos. Parada até as licenças serem resolvidas; entra em qualquer ponto depois da Fase 17.</p>
+    <ul class="tasks">
+      <li>Obter os dados em arquivo oficial ou autorizado (nunca copiando do site)</li>
+      <li>Importar no mesmo padrão da TACO, com a citação exigida por cada tabela nos PDFs</li>
+      <li>Importar as medidas caseiras das tabelas, quando existirem</li>
+      <li>Novas fontes entram no filtro da busca (pronto na Fase 17)</li>
+    </ul>
+    <div class="risk"><b>Bloqueio jurídico</b>
+      A TACO autoriza reprodução com citação. A Tucunduva é um livro comercial e provavelmente exige licença. Os termos da TBCA 7.3 ainda não foram verificados.</div>
+  </div>
+</details>
+
+<details class="phase">
+  <summary class="ph-head">
+    <span class="mark">19</span>
+    <span class="ph-title"><span class="n">PHASE 19 · FIM DO ROADMAP 2</span><div class="t">Identidade visual e design</div></span>
+    <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+  </summary>
+  <div class="ph-body">
+    <p class="obj"><b>Objetivo:</b> fica no fim porque as telas principais vão ser refeitas nas Fases 15–17. Fecha antes das testadoras, porque a primeira impressão conta.</p>
+    <ul class="tasks">
+      <li>Carimbo personalizável: escolher o que aparece (nome, CRN/UF, especialidade, assinatura, contato), disposição e estilo, com pré-visualização</li>
+      <li>Carimbo nos PDFs de plano, recibo e evolução</li>
+      <li>Revisão visual do sistema inteiro: letras, espaçamentos, cores, ícones, estados vazios</li>
+      <li>Mesma identidade aplicada nos PDFs</li>
+    </ul>
+  </div>
+</details>
+
+<section class="decisions">
+  <h2 class="section" style="margin-bottom:10px">Decisões</h2>
+  <p style="font-size:12.5px;color:var(--muted);margin-bottom:10px">
+    Decididas em 25/09/2026: TBCA só na versão 7.3; modelos de anamnese criados por cada nutricionista + modelos prontos editáveis;
+    logo já atende e o carimbo passa a ser personalizável; painel do plano à direita no computador e no rodapé no celular.
+  </p>
+  <table>
+    <thead><tr><th>#</th><th>Decisão pendente</th><th>Bloqueia</th><th>Quem decide</th></tr></thead>
+    <tbody>
+      <tr><td><b>R1</b></td><td>Licença da TBCA 7.3 e da Tucunduva <em>(exige parecer jurídico)</em></td><td>Fase 18</td><td>Nutricionista / jurídico</td></tr>
+      <tr><td><b>R4</b></td><td>Lista final de protocolos de % gordura e classificações de idosos</td><td>Fase 15</td><td>Nutricionista</td></tr>
+      <tr><td><b>R5</b></td><td>Lista final de fórmulas de gasto energético (incluindo gestantes)</td><td>Fase 16</td><td>Nutricionista</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  Documento estático · manter sincronizado com <code>ROADMAP_2.md</code> ao fim de cada fase.
+</footer>
+
+</div>
+</body>
+</html>
