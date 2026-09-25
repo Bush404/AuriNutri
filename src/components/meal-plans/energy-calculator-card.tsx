@@ -82,7 +82,7 @@ export function EnergyCalculatorCard({ planId, patientId, sexo, idade, pesoKg, a
         {faltaAntropometria && !modoManual && (
           <p className="text-sm text-muted-foreground">
             Registre peso e altura em uma avaliação antropométrica (aba{" "}
-            <Link href={`/pacientes/${patientId}`} className="underline">
+            <Link href={`/pacientes/${patientId}?aba=avaliacoes`} className="underline">
               avaliações do paciente
             </Link>
             ) para calcular automaticamente — ou informe o GET manualmente abaixo.

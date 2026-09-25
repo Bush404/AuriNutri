@@ -189,6 +189,16 @@ tarefas em aberto. "Editar" na lista de planos abre o plano; Ativar/Desativar e 
 própria lista. E2E novo `tarefas.e2e.ts` (criar → dashboard → concluir → excluir), 13/13 passando.
 Tudo **guardado localmente** até os créditos do Netlify renovarem (ver Fase 12).
 
+**Ajustes pós-uso (25/09/2026), pedidos da responsável depois de testar localmente:**
+- Ações de anamnese e de plano agrupadas num menu de três pontinhos.
+- O card inteiro abre o registro (anamnese abre o formulário, plano abre o plano).
+- A aba do paciente fica na URL (`?aba=planos`, `src/lib/url-state.ts`, History API sem ida ao
+  servidor). "Voltar para <paciente>" no plano e o voltar do navegador caem na mesma aba. A
+  anamnese aberta também fica na URL (`?anamnese=<id>|nova`), então o voltar do navegador fecha o
+  registro e continua na aba.
+- O calendário de 7 dias do dashboard deixou de ser clicável: só "Ver agenda completa" leva à agenda.
+- E2E novo `navegacao-abas.e2e.ts`; 14/14 passando.
+
 ---
 
 ## PHASE 14 — Anamnese em texto livre e modelos · `TODO` · `HIGH`

@@ -1,8 +1,9 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { ClipboardList, Loader2, Pencil, Plus, Power, PowerOff, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ClipboardList, Loader2, MoreHorizontal, Pencil, Plus, Power, PowerOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import type { MealPlan } from "@/lib/types/database.types";
@@ -21,8 +22,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { EmptyState } from "@/components/shared/empty-state";
 import { NewMealPlanDialog } from "@/components/meal-plans/new-meal-plan-dialog";
 
@@ -74,7 +80,10 @@ export function MealPlanList({ patientId, mealPlans }: { patientId: string; meal
 }
 
 function MealPlanRow({ patientId, plan }: { patientId: string; plan: MealPlan }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const href = `/planos/${plan.id}`;
 
   function handleToggle() {
     startTransition(async () => {
@@ -94,14 +103,20 @@ function MealPlanRow({ patientId, plan }: { patientId: string; plan: MealPlan })
         toast.error("Não foi possível excluir o plano", { description: result.message });
         return;
       }
+      setConfirmOpen(false);
       toast.success("Plano excluído.");
     });
   }
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <Link href={`/planos/${plan.id}`} className="min-w-0 rounded-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+    // O card todo abre o plano com o mouse; o link do nome é o caminho pelo teclado.
+    <Card className="cursor-pointer transition-shadow hover:shadow-card" onClick={() => router.push(href)}>
+      <CardContent className="flex items-center justify-between gap-3 p-4">
+        <Link
+          href={href}
+          onClick={(e) => e.stopPropagation()}
+          className="min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
           <div className="flex items-center gap-2">
             <p className="truncate font-medium text-foreground">{plan.nome}</p>
             <Badge variant={plan.ativo ? "success" : "outline"}>{plan.ativo ? "Ativo" : "Inativo"}</Badge>
@@ -109,36 +124,30 @@ function MealPlanRow({ patientId, plan }: { patientId: string; plan: MealPlan })
           <p className="mt-0.5 text-sm text-muted-foreground">Início em {formatDate(plan.data_inicio)}</p>
         </Link>
 
-        <div className="flex shrink-0 flex-wrap gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href={`/planos/${plan.id}`}>
-              <Pencil className="h-4 w-4" />
-              Editar
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleToggle} disabled={isPending}>
-            {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : plan.ativo ? (
-              <PowerOff className="h-4 w-4" />
-            ) : (
-              <Power className="h-4 w-4" />
-            )}
-            {plan.ativo ? "Desativar" : "Ativar"}
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-                disabled={isPending}
-                aria-label={`Excluir ${plan.nome}`}
-              >
+        <div onClick={(e) => e.stopPropagation()}>
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" disabled={isPending} aria-label={`Ações de ${plan.nome}`}>
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => router.push(href)}>
+                <Pencil className="h-4 w-4" />
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={handleToggle}>
+                {plan.ativo ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}
+                {plan.ativo ? "Desativar" : "Ativar"}
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setConfirmOpen(true)}>
                 <Trash2 className="h-4 w-4" />
                 Excluir
-              </Button>
-            </AlertDialogTrigger>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Excluir plano alimentar</AlertDialogTitle>
@@ -149,7 +158,13 @@ function MealPlanRow({ patientId, plan }: { patientId: string; plan: MealPlan })
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+                <AlertDialogAction
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDelete();
+                  }}
+                  disabled={isPending}
+                >
                   Excluir
                 </AlertDialogAction>
               </AlertDialogFooter>

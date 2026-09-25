@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { ClipboardList } from "lucide-react";
 
 import type {
@@ -11,6 +12,7 @@ import type {
   PatientPhoto,
 } from "@/lib/types/database.types";
 import { calculateAge, formatDate } from "@/lib/utils";
+import { updateSearchParams } from "@/lib/url-state";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +27,17 @@ import { LabExamsPanel } from "@/components/patients/lab-exams-panel";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
 import { PatientPhotosPanel } from "@/components/patients/patient-photos-panel";
 import { PatientFinancePanel, type PatientBillingWithPayments } from "@/components/patients/patient-finance-panel";
+
+const ABAS = [
+  "informacoes",
+  "anamnese",
+  "avaliacoes",
+  "evolucao-fotografica",
+  "planos",
+  "exames",
+  "financeiro",
+  "consentimentos",
+] as const;
 
 interface PatientTabsProps {
   patient: Patient;
@@ -52,9 +65,13 @@ export function PatientTabs({
   billings,
 }: PatientTabsProps) {
   const age = calculateAge(patient.data_nascimento);
+  // A aba aberta fica na URL (?aba=planos): voltar de um plano, ou pelo
+  // navegador, cai na mesma aba em vez de "Informações gerais".
+  const abaNaUrl = useSearchParams().get("aba");
+  const aba = ABAS.find((a) => a === abaNaUrl) ?? "informacoes";
 
   return (
-    <Tabs defaultValue="informacoes">
+    <Tabs value={aba} onValueChange={(value) => updateSearchParams({ aba: value, anamnese: null })}>
       <TabsList className="h-auto flex-wrap">
         <TabsTrigger value="informacoes">Informações gerais</TabsTrigger>
         <TabsTrigger value="anamnese">Anamnese</TabsTrigger>

@@ -100,7 +100,7 @@ export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, 
         return;
       }
       toast.success("Plano excluído.");
-      router.push(`/pacientes/${patientId}`);
+      router.push(`/pacientes/${patientId}?aba=planos`);
     });
   }
 
@@ -118,7 +118,7 @@ export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, 
   return (
     <div className="space-y-4">
       <Button variant="ghost" size="sm" asChild className="-ml-3">
-        <Link href={`/pacientes/${patientId}`}>
+        <Link href={`/pacientes/${patientId}?aba=planos`}>
           <ArrowLeft className="h-4 w-4" />
           Voltar para {patientName}
         </Link>

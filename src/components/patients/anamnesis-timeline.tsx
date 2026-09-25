@@ -1,16 +1,24 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { ClipboardList, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { useRef, useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
+import { ClipboardList, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import type { Anamnesis } from "@/lib/types/database.types";
 import { deleteAnamnesis } from "@/lib/actions/clinical";
+import { updateSearchParams } from "@/lib/url-state";
 import { formatDate } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +28,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { AnamnesisForm } from "@/components/patients/anamnesis-form";
@@ -31,18 +38,42 @@ interface AnamnesisTimelineProps {
   anamneses: Anamnesis[];
 }
 
+/** Valor de `?anamnese=` para o formulário de uma anamnese nova. */
+const NOVA = "nova";
+
 function anamnesisName(anamnese: Anamnesis): string {
   return anamnese.titulo?.trim() || "Registro de anamnese";
 }
 
 /**
  * Aba Anamnese: nunca abre um registro sozinha. Mostra "Adicionar nova
- * anamnese" no topo e, abaixo, os registros fechados (nome + data), cada um
- * com "Visualizar/editar" e "Excluir".
+ * anamnese" no topo e, abaixo, os registros fechados (nome + data). Clicar
+ * no card abre o registro; as ações ficam no menu de três pontinhos.
+ *
+ * O registro aberto fica na URL (?anamnese=<id> ou ?anamnese=nova): o
+ * "voltar" do navegador fecha o registro e continua nesta aba.
  */
 export function AnamnesisTimeline({ patientId, anamneses }: AnamnesisTimelineProps) {
-  const [creating, setCreating] = useState(false);
-  const [openId, setOpenId] = useState<string | null>(null);
+  const aberta = useSearchParams().get("anamnese");
+  const creating = aberta === NOVA;
+  const openId = aberta && aberta !== NOVA ? aberta : null;
+  // Se fomos nós que abrimos (pushState), fechar = voltar no histórico, para
+  // o "voltar" do navegador não precisar de dois cliques depois.
+  const abertaPorAqui = useRef(false);
+
+  function abrir(valor: string) {
+    abertaPorAqui.current = true;
+    updateSearchParams({ aba: "anamnese", anamnese: valor }, "push");
+  }
+
+  function fechar() {
+    if (abertaPorAqui.current) {
+      abertaPorAqui.current = false;
+      window.history.back();
+    } else {
+      updateSearchParams({ anamnese: null });
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -54,22 +85,14 @@ export function AnamnesisTimeline({ patientId, anamneses }: AnamnesisTimelinePro
           </p>
         </div>
         {!creating && (
-          <Button
-            size="sm"
-            onClick={() => {
-              setOpenId(null);
-              setCreating(true);
-            }}
-          >
+          <Button size="sm" onClick={() => abrir(NOVA)}>
             <Plus className="h-4 w-4" />
             Adicionar nova anamnese
           </Button>
         )}
       </div>
 
-      {creating && (
-        <AnamnesisForm patientId={patientId} onSaved={() => setCreating(false)} onCancel={() => setCreating(false)} />
-      )}
+      {creating && <AnamnesisForm patientId={patientId} onSaved={fechar} onCancel={fechar} />}
 
       {anamneses.length === 0 && !creating && (
         <Card>
@@ -85,29 +108,15 @@ export function AnamnesisTimeline({ patientId, anamneses }: AnamnesisTimelinePro
 
       {anamneses.length > 0 && (
         <ul className="space-y-2" aria-label="Anamneses registradas">
-          {anamneses.map((anamnese) =>
-            openId === anamnese.id ? (
-              <li key={anamnese.id}>
-                <AnamnesisForm
-                  patientId={patientId}
-                  anamnesis={anamnese}
-                  onSaved={() => setOpenId(null)}
-                  onCancel={() => setOpenId(null)}
-                />
-              </li>
-            ) : (
-              <li key={anamnese.id}>
-                <AnamnesisRow
-                  patientId={patientId}
-                  anamnese={anamnese}
-                  onOpen={() => {
-                    setCreating(false);
-                    setOpenId(anamnese.id);
-                  }}
-                />
-              </li>
-            )
-          )}
+          {anamneses.map((anamnese) => (
+            <li key={anamnese.id}>
+              {openId === anamnese.id ? (
+                <AnamnesisForm patientId={patientId} anamnesis={anamnese} onSaved={fechar} onCancel={fechar} />
+              ) : (
+                <AnamnesisRow patientId={patientId} anamnese={anamnese} onOpen={() => abrir(anamnese.id)} />
+              )}
+            </li>
+          ))}
         </ul>
       )}
     </div>
@@ -124,7 +133,9 @@ function AnamnesisRow({
   onOpen: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const name = anamnesisName(anamnese);
+  const data = formatDate(anamnese.data_registro);
 
   function handleDelete() {
     startTransition(async () => {
@@ -133,48 +144,67 @@ function AnamnesisRow({
         toast.error("Não foi possível excluir a anamnese", { description: result.message });
         return;
       }
+      setConfirmOpen(false);
       toast.success(result.message ?? "Anamnese excluída.");
     });
   }
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 items-center gap-3">
+    <Card className="cursor-pointer transition-shadow hover:shadow-card" onClick={onOpen}>
+      <CardContent className="flex items-center justify-between gap-3 p-4">
+        {/* O card todo abre o registro com o mouse; este botão é o caminho pelo teclado/leitor de tela. */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpen();
+          }}
+          className="flex min-w-0 items-center gap-3 rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={`Abrir ${name} de ${data}`}
+        >
           <Badge variant="secondary" className="shrink-0">
-            {formatDate(anamnese.data_registro)}
+            {data}
           </Badge>
-          <p className="truncate font-medium text-foreground">{name}</p>
-        </div>
-        <div className="flex shrink-0 gap-2">
-          <Button variant="outline" size="sm" onClick={onOpen} disabled={isPending}>
-            <Pencil className="h-4 w-4" />
-            Visualizar/editar
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-                disabled={isPending}
-                aria-label={`Excluir ${name} de ${formatDate(anamnese.data_registro)}`}
-              >
-                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                Excluir
+          <span className="truncate font-medium text-foreground">{name}</span>
+        </button>
+
+        <div onClick={(e) => e.stopPropagation()}>
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" disabled={isPending} aria-label={`Ações de ${name} de ${data}`}>
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
               </Button>
-            </AlertDialogTrigger>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={onOpen}>
+                <Pencil className="h-4 w-4" />
+                Visualizar/editar
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setConfirmOpen(true)}>
+                <Trash2 className="h-4 w-4" />
+                Excluir
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Excluir anamnese</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Tem certeza que deseja excluir <strong>{name}</strong> de {formatDate(anamnese.data_registro)}? Ela
-                  deixa de aparecer no histórico do paciente.
+                  Tem certeza que deseja excluir <strong>{name}</strong> de {data}? Ela deixa de aparecer no histórico
+                  do paciente.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+                <AlertDialogAction
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDelete();
+                  }}
+                  disabled={isPending}
+                >
                   Excluir
                 </AlertDialogAction>
               </AlertDialogFooter>

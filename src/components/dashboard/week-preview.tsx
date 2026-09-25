@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { CheckSquare } from "lucide-react";
 
 import { WEEKDAY_LABELS, formatDayShort, weekdayOf } from "@/lib/agenda";
@@ -18,8 +17,9 @@ export interface WeekPreviewItem {
 const MAX_ITEMS_PER_DAY = 3;
 
 /**
- * Calendário só de visualização dos próximos 7 dias, no dashboard. Clicar num
- * dia abre a semana daquele dia na agenda. No celular vira uma lista por dia.
+ * Calendário só de visualização dos próximos 7 dias, no dashboard. Não é
+ * clicável (pedido da responsável pelo produto): a agenda abre só pelo botão
+ * "Ver agenda completa". No celular vira uma lista por dia.
  */
 export function WeekPreview({ days, todayStr, items }: { days: string[]; todayStr: string; items: WeekPreviewItem[] }) {
   const byDay = new Map<string, WeekPreviewItem[]>();
@@ -38,11 +38,11 @@ export function WeekPreview({ days, todayStr, items }: { days: string[]; todaySt
         const isToday = dateStr === todayStr;
 
         return (
-          <Link
+          <div
             key={dateStr}
-            href={`/agenda?visao=semana&data=${dateStr}`}
+            role="group"
             className={cn(
-              "flex gap-2 rounded-md border border-border p-2 transition-colors hover:bg-muted/40 sm:min-h-[132px] sm:flex-col sm:gap-1",
+              "flex gap-2 rounded-md border border-border p-2 sm:min-h-[132px] sm:flex-col sm:gap-1",
               isToday && "border-primary-300 bg-primary-50/50"
             )}
             aria-label={`${WEEKDAY_LABELS[weekdayOf(dateStr)]} ${formatDayShort(dateStr)}: ${
@@ -78,7 +78,7 @@ export function WeekPreview({ days, todayStr, items }: { days: string[]; todaySt
               ))}
               {overflow > 0 && <span className="text-[11px] text-muted-foreground">+{overflow} mais</span>}
             </div>
-          </Link>
+          </div>
         );
       })}
     </div>
