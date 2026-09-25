@@ -40,17 +40,7 @@ interface UpcomingAppointmentRow {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("nome, fuso_horario")
-    .eq("id", user!.id)
-    .single<{ nome: string; fuso_horario: string | null }>();
-
-  const timeZone = profile?.fuso_horario || DEFAULT_TIME_ZONE;
   const startIso = new Date().toISOString();
   const endIso = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -61,7 +51,10 @@ export default async function DashboardPage() {
   const inicioDoProximoMesData = `${inicioDoProximoMesUtc.getUTCFullYear()}-${pad2(inicioDoProximoMesUtc.getUTCMonth() + 1)}-01`;
   const em30DiasData = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
+  // Uma ida só ao banco para tudo (cada busca em fila soma ~0,2 s — ver
+  // docs/ROADMAP_2.md, Fase 12).
   const [
+    { data: profile },
     { count: totalPacientes },
     { count: totalAlimentos },
     { count: totalPlanos },
@@ -72,6 +65,12 @@ export default async function DashboardPage() {
     { count: consultasRealizadasNoMes },
     { data: despesasAVencer },
   ] = await Promise.all([
+    // Sem getUser() antes: a RLS de profiles (auth.uid() = id) já devolve só
+    // o perfil de quem está logado, e o layout redireciona quem não está.
+    supabase
+      .from("profiles")
+      .select("nome, fuso_horario")
+      .single<{ nome: string; fuso_horario: string | null }>(),
     supabase.from("patients").select("*", { count: "exact", head: true }),
     supabase.from("foods").select("*", { count: "exact", head: true }).eq("is_global", false),
     supabase.from("meal_plans").select("*", { count: "exact", head: true }),
@@ -110,6 +109,7 @@ export default async function DashboardPage() {
       .returns<{ id: string; valor: number; data_vencimento: string }[]>(),
   ]);
 
+  const timeZone = profile?.fuso_horario || DEFAULT_TIME_ZONE;
   const recebidoNoMes = sumCurrency((pagamentosDoMes ?? []).map((p) => p.valor));
   const totalPendente = sumCurrency((pagamentosPendentes ?? []).map((p) => p.valor));
   /**

@@ -12,6 +12,11 @@
 [build]
   command = "npm run build"
   publish = ".next"
+  # Não gasta créditos do Netlify publicando quando o commit só mexe em
+  # documentação (docs/ e arquivos .md): o site seria idêntico. Sair com 0
+  # = pular a publicação. Os créditos do plano gratuito acabaram em 25/09/2026
+  # depois de várias publicações no mesmo dia (ver docs/ROADMAP_2.md, Fase 12).
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':(exclude)docs' ':(exclude)*.md'"
 
 [build.environment]
   NODE_VERSION = "22"

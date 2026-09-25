@@ -25,17 +25,34 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
   const params = await props.params;
   const supabase = await createClient();
 
-  const { data: plan } = await supabase
-    .from("meal_plans")
-    .select("*, patients(id, nome, telefone, sexo, data_nascimento)")
-    .eq("id", params.id)
-    .single<PlanWithPatient>();
+  // Os itens de refeição já trazem seu próprio snapshot nutricional
+  // (nome, fonte e macros no momento em que foram adicionados), então não
+  // é mais necessário (nem correto) fazer join "ao vivo" com `foods` aqui.
+  // As substituições (meal_item_substitutions) também são snapshot próprio.
+  type MealRow = Meal & { meal_items: MealItemWithSubstitutions[] };
+
+  // Tudo que depende só do id do plano vai junto, numa ida ao banco: o site
+  // roda longe do banco (ver docs/ROADMAP_2.md, Fase 12), e cada busca em fila
+  // soma ~0,2 s. Sem acesso ao plano, a RLS devolve as outras buscas vazias.
+  const [{ data: plan }, { data: meals }, templates, shareLinks] = await Promise.all([
+    supabase
+      .from("meal_plans")
+      .select("*, patients(id, nome, telefone, sexo, data_nascimento)")
+      .eq("id", params.id)
+      .single<PlanWithPatient>(),
+    supabase
+      .from("meals")
+      .select("*, meal_items(*, meal_item_substitutions(*))")
+      .eq("meal_plan_id", params.id)
+      .order("ordem", { ascending: true })
+      .returns<MealRow[]>(),
+    listMealTemplates(),
+    listPlanShareLinks(params.id),
+  ]);
 
   if (!plan) {
     notFound();
   }
-
-  const shareLinks = await listPlanShareLinks(plan.id);
 
   const { data: latestAssessment } = await supabase
     .from("anthropometric_assessments")
@@ -44,22 +61,6 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
     .order("data_avaliacao", { ascending: false })
     .limit(1)
     .maybeSingle<{ peso_kg: number; altura_cm: number }>();
-
-  // Os itens de refeição já trazem seu próprio snapshot nutricional
-  // (nome, fonte e macros no momento em que foram adicionados), então não
-  // é mais necessário (nem correto) fazer join "ao vivo" com `foods` aqui.
-  // As substituições (meal_item_substitutions) também são snapshot próprio.
-  type MealRow = Meal & { meal_items: MealItemWithSubstitutions[] };
-
-  const [{ data: meals }, templates] = await Promise.all([
-    supabase
-      .from("meals")
-      .select("*, meal_items(*, meal_item_substitutions(*))")
-      .eq("meal_plan_id", params.id)
-      .order("ordem", { ascending: true })
-      .returns<MealRow[]>(),
-    listMealTemplates(),
-  ]);
 
   const mealsWithItems: MealWithItemsAndSubstitutions[] = (meals ?? []).map((meal) => ({
     ...meal,

@@ -30,14 +30,12 @@ function buildHref(params: { visao: string; data: string; status?: string; pacie
 export default async function AgendaPage(props: AgendaPageProps) {
   const searchParams = await props.searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
+  // Sem getUser() antes: a RLS de profiles (auth.uid() = id) já devolve só o
+  // perfil de quem está logado, e o layout redireciona quem não está.
   const { data: profile } = await supabase
     .from("profiles")
     .select("fuso_horario")
-    .eq("id", user!.id)
     .single<{ fuso_horario: string | null }>();
   const timeZone = profile?.fuso_horario || DEFAULT_TIME_ZONE;
 
@@ -65,17 +63,18 @@ export default async function AgendaPage(props: AgendaPageProps) {
   if (status) query = query.eq("status", status);
   if (searchParams.paciente) query = query.eq("patient_id", searchParams.paciente);
 
-  const { data: appointments, error } = await query.returns<AppointmentWithPatient[]>();
-
-  let patientFilter: PatientPickerResult | null = null;
-  if (searchParams.paciente) {
-    const { data: patientRow } = await supabase
-      .from("patients")
-      .select("id, nome")
-      .eq("id", searchParams.paciente)
-      .single<PatientPickerResult>();
-    patientFilter = patientRow ?? null;
-  }
+  // O paciente do filtro vem junto com as consultas, não depois.
+  const [{ data: appointments, error }, patientFilter] = await Promise.all([
+    query.returns<AppointmentWithPatient[]>(),
+    searchParams.paciente
+      ? supabase
+          .from("patients")
+          .select("id, nome")
+          .eq("id", searchParams.paciente)
+          .single<PatientPickerResult>()
+          .then(({ data }) => data ?? null)
+      : Promise.resolve<PatientPickerResult | null>(null),
+  ]);
 
   const prevHref =
     view === "mes"

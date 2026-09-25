@@ -90,14 +90,36 @@ cadastrar pacientes. Conferir o preço atual no site do Supabase antes de contra
 
 ### Bloco B — velocidade
 ```
-[ ] Medir antes de mexer: tempo de cada página principal (dashboard, paciente, plano, agenda) em produção
-[ ] Conferir a região das Netlify Functions vs. a região do banco Supabase (se estiverem em continentes
-    diferentes, cada consulta ao banco atravessa o oceano, e uma página faz várias)
-[ ] Rodar em paralelo (Promise.all) as consultas independentes de cada página, hoje feitas em sequência
-[ ] Revisar o custo do middleware (valida a sessão no Supabase a cada navegação)
-[ ] loading.tsx / esqueletos nas rotas que ainda não têm
-[ ] Medir de novo e registrar antes/depois neste arquivo
+[x] Medir antes de mexer (Sentry, 7 dias de uso real): cada consulta ao banco leva ~160–260 ms
+    (mediana) a partir do servidor; no navegador, /login ~2 s (pior caso ~7 s) e dashboard,
+    pacientes e financeiro ~1 s
+[x] Regiões conferidas: Supabase em sa-east-1 (São Paulo), Netlify Functions em us-east-2 (Ohio).
+    Cada consulta atravessa o continente. **Esta é a causa principal.**
+[x] Buscas independentes juntas (Promise.all): layout (todas as telas), dashboard, agenda e plano
+    alimentar (de 4 buscas em fila para 2). Perfil buscado sem getUser() antes, porque a RLS de
+    profiles já limita ao próprio usuário
+[ ] Medir de novo em produção depois de publicar
 ```
+
+**Decisão (25/09/2026): Netlify Pro + Supabase Pro juntos, quando entrarem os primeiros clientes.**
+Mudar a região das Functions para São Paulo exige o plano pago do Netlify. Mover o banco para os EUA
+foi descartado (dados de saúde fora do Brasil, mais cuidados de LGPD). Até lá, só as melhorias de
+código acima.
+
+**Créditos do Netlify esgotados (25/09/2026):** o plano gratuito cobra créditos por publicação, e
+um dia com muitos commits enviados (inclusive só de documentação) esgotou o mês. As publicações
+seguintes foram puladas ("Skipped"), entre elas a correção do Sentry no navegador (e1cf895). O site
+seguiu no ar na última versão publicada. Medidas: `ignore` no `netlify.toml` pula commits só de
+`docs/`/`.md`, e os commits passam a ser **acumulados localmente e enviados juntos**, uma
+publicação por entrega.
+
+```
+[ ] Publicar juntos, quando os créditos renovarem: Sentry no navegador + melhorias de velocidade
+[ ] Depois de publicar: confirmar o Sentry no navegador e medir de novo (registrar antes/depois aqui)
+[ ] loading.tsx / esqueletos nas rotas que ainda não têm
+```
+Custo do middleware revisado: a validação de sessão dele leva ~30 ms (mediana), porque roda no
+Edge, perto do usuário. Não é gargalo.
 
 ### Critérios de aceite
 - Next.js no último patch 14.2.x, build e E2E passando.
