@@ -52,7 +52,10 @@ lentidão agora custa menos do que depois de dobrar o número de telas.
 [x] Troca de versão maior: Next.js 16.3.6 + React 19 (antecipada para esta fase, ver nota abaixo)
 [x] npm audit de novo: nenhuma falha no Next.js; restam 3 moderadas só em ferramentas de
     desenvolvimento (vitest, csv-parse), que não vão para o site
-[ ] Verificar se o projeto Supabase tem backup automático e como restaurar (dados de saúde)
+[x] Backup: verificado — o plano gratuito do Supabase não deixa baixar nem restaurar backup
+[x] `npm run backup:db` refeito: todas as 29 tabelas (antes 8), contas de login e os arquivos dos
+    5 buckets; busca em páginas (antes parava em 1.000 linhas por tabela sem avisar) e tenta de
+    novo quando o Storage responde Gateway Timeout. Testado: 949 linhas, 4 contas, 45 arquivos
 [ ] Checklist de contas administrativas: 2FA em Supabase, Netlify, GitHub, Resend, Sentry, registro do domínio
 ```
 
@@ -77,6 +80,13 @@ conhecidas está a de **pular o middleware** (GHSA-f82v-jwr5-mffw), corrigida na
 real no AuriNutri é baixo porque há duas outras barreiras: `(app)/layout.tsx` também redireciona
 quem não tem sessão, e a RLS do Postgres nega dados de outra conta (87/87 checagens na Fase 11).
 Mesmo assim, é a correção mais barata do roadmap e deve ser feita primeiro.
+
+**Condição fixa (decidida em 25/09/2026): plano pago do Supabase antes do primeiro paciente real.**
+O backup manual serve só enquanto há dados de teste. Ele depende de alguém lembrar de rodar e grava
+dados de saúde num computador pessoal (risco de LGPD). O plano pago tem backup diário automático
+com restauração e não pausa projetos parados. Ele precisa estar ativo **antes do que acontecer
+primeiro**: a responsável pelo produto começar a atender pelo AuriNutri, ou a primeira testadora
+cadastrar pacientes. Conferir o preço atual no site do Supabase antes de contratar.
 
 ### Bloco B — velocidade
 ```
