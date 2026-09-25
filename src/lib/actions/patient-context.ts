@@ -23,7 +23,7 @@ export async function getPatientAgendaContext(
   timeZone: string,
   options: GetPatientAgendaContextOptions = {}
 ): Promise<PatientAgendaContext | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let ultimaConsultaQuery = supabase
     .from("appointments")

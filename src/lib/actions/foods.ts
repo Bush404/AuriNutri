@@ -54,7 +54,7 @@ export async function createFood(input: FoodInput): Promise<ActionResult> {
     return { success: false, message: "Verifique os valores informados." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -94,7 +94,7 @@ async function getOwnedEditableFood(foodId: string): Promise<
   | { ok: true; food: Pick<Food, "id" | "user_id" | "is_global"> }
   | { ok: false; message: string }
 > {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -134,7 +134,7 @@ export async function updateFood(foodId: string, input: FoodInput): Promise<Acti
     return { success: false, message: ownership.message };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("foods")
     .update({
@@ -164,7 +164,7 @@ export async function deleteFood(foodId: string): Promise<ActionResult> {
     return { success: false, message: ownership.message };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("foods").delete().eq("id", foodId);
 
   if (error) {
@@ -189,7 +189,7 @@ export interface FoodPickerGroup {
  * depois a base TACO), respeitando RLS automaticamente.
  */
 export async function searchFoodsForPicker(query: string): Promise<FoodPickerGroup> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const termo = query.trim();
 
   let meusQuery = supabase.from("foods").select("*").eq("is_global", false).order("nome").limit(8);

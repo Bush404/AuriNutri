@@ -38,7 +38,7 @@ export function PatientCombobox({
   const [results, setResults] = useState<PatientPickerResult[]>([]);
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const listboxId = useId();
 
   useEffect(() => {

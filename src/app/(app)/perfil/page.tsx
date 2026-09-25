@@ -6,7 +6,7 @@ import type { Profile } from "@/lib/types/database.types";
 import { ProfileForm } from "@/components/profile/profile-form";
 
 export default async function PerfilPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

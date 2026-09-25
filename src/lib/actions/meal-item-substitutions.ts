@@ -23,7 +23,7 @@ export async function addMealItemSubstitution(
     return { success: false, message: "Selecione um alimento e informe a quantidade." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -60,7 +60,7 @@ export async function addMealItemSubstitution(
 }
 
 export async function deleteMealItemSubstitution(planId: string, substitutionId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("meal_item_substitutions").delete().eq("id", substitutionId);
 
   if (error) {

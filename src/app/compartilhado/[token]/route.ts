@@ -13,8 +13,9 @@ import { createClient } from "@/lib/supabase/server";
  * mais antigo e mais usado) e cai pra genérica de documentos (Evolução
  * Física, receita avulsa, arquivo) se não achar.
  */
-export async function GET(_request: Request, { params }: { params: { token: string } }) {
-  const supabase = createClient();
+export async function GET(_request: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
+  const supabase = await createClient();
 
   const { data: planoData } = await supabase
     .rpc("get_shared_plan_pdf", { p_token: params.token })

@@ -18,7 +18,7 @@ export async function addMealItem(
     return { success: false, message: "Selecione um alimento e informe a quantidade." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -80,7 +80,7 @@ export async function addMealItemRecipe(
     return { success: false, message: "Selecione uma receita e informe a quantidade em porções." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -138,7 +138,7 @@ export async function updateMealItemQuantity(
     return { success: false, message: "A quantidade deve ser maior que zero." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("meal_items").update({ quantidade_g }).eq("id", itemId);
 
   if (error) {
@@ -166,7 +166,7 @@ export async function updateMealItemPortions(
     return { success: false, message: "A quantidade deve ser maior que zero." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("meal_items")
     .update({ quantidade_porcoes, quantidade_g: quantidade_porcoes * porcaoReferenciaG })
@@ -182,7 +182,7 @@ export async function updateMealItemPortions(
 
 /** Soft delete via função `security definer` (migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
 export async function deleteMealItem(planId: string, itemId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.rpc("soft_delete_meal_item", { item_id: itemId });
 
   if (error) {

@@ -47,7 +47,7 @@ export async function uploadPatientPhoto(
     return { success: false, message: "Selecione a data e o ângulo da foto." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -114,7 +114,7 @@ export async function uploadPatientPhoto(
  * o evento de "alguém vai ver esta foto agora".
  */
 export async function getPatientPhotoSignedUrl(photoId: string): Promise<string | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -147,7 +147,7 @@ export async function getPatientPhotoSignedUrl(photoId: string): Promise<string 
  * em vez do sistema mentir que a foto sumiu enquanto o arquivo ainda existe).
  */
 export async function deletePatientPhoto(patientId: string, photoId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: photo, error: fetchError } = await supabase
     .from("patient_photos")

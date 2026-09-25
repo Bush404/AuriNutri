@@ -23,7 +23,7 @@ export async function createAnamnesis(patientId: string, input: AnamnesisInput):
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -57,7 +57,7 @@ export async function updateAnamnesis(
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("anamnesis")
     .update(emptyToNull(parsed.data))
@@ -78,7 +78,7 @@ export async function createAssessment(patientId: string, input: AssessmentInput
     return { success: false, message: "Verifique os valores informados." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -121,7 +121,7 @@ export async function updateAssessment(
     return { success: false, message: "Verifique os valores informados." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("anthropometric_assessments")
     .update({
@@ -149,7 +149,7 @@ export async function updateAssessment(
 
 /** Soft delete via função `security definer` (migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
 export async function deleteAssessment(patientId: string, assessmentId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase.rpc("soft_delete_assessment", { assessment_id: assessmentId });
 

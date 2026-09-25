@@ -24,8 +24,9 @@ import { PatientTabs } from "@/components/patients/patient-tabs";
 import { ExportPatientButton } from "@/components/patients/export-patient-button";
 import { PatientSendDialog } from "@/components/patients/patient-send-dialog";
 
-export default async function PacienteDetalhePage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+export default async function PacienteDetalhePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const supabase = await createClient();
 
   const [
     { data: patient },

@@ -11,7 +11,7 @@ export function PatientSearch({ defaultValue }: { defaultValue: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   function navigate(next: string) {
     const params = new URLSearchParams(searchParams.toString());

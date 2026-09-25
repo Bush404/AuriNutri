@@ -11,11 +11,12 @@ import { Pagination } from "@/components/shared/pagination";
 const PAGE_SIZE = 20;
 
 interface PlanosPageProps {
-  searchParams: { pagina?: string };
+  searchParams: Promise<{ pagina?: string }>;
 }
 
-export default async function PlanosPage({ searchParams }: PlanosPageProps) {
-  const supabase = createClient();
+export default async function PlanosPage(props: PlanosPageProps) {
+  const searchParams = await props.searchParams;
+  const supabase = await createClient();
   const page = Math.max(1, Number(searchParams.pagina) || 1);
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;

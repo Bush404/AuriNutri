@@ -12,8 +12,9 @@ import { withinRateLimit } from "@/lib/rate-limit";
  * de /compartilhado/[token]. Mesmo gerador da Central de Envio
  * (generateMaterialPdf) — nunca duas versões diferentes do mesmo PDF.
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
-  const supabase = createClient();
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const supabase = await createClient();
 
   const {
     data: { user },

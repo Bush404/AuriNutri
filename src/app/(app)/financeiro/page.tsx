@@ -40,7 +40,7 @@ function groupByPatient(rows: PatientPaymentRow[]): PatientAmount[] {
 }
 
 export default async function FinanceiroPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

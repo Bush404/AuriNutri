@@ -40,7 +40,7 @@ export interface SendCenterContext {
  * data_inicio) — não um critério novo.
  */
 export async function getSendCenterContext(patientId: string): Promise<SendCenterContext | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -12,11 +12,12 @@ import { PatientTable } from "@/components/patients/patient-table";
 const PAGE_SIZE = 20;
 
 interface PacientesPageProps {
-  searchParams: { busca?: string; pagina?: string };
+  searchParams: Promise<{ busca?: string; pagina?: string }>;
 }
 
-export default async function PacientesPage({ searchParams }: PacientesPageProps) {
-  const supabase = createClient();
+export default async function PacientesPage(props: PacientesPageProps) {
+  const searchParams = await props.searchParams;
+  const supabase = await createClient();
   const busca = searchParams.busca?.trim() ?? "";
   const page = Math.max(1, Number(searchParams.pagina) || 1);
   const from = (page - 1) * PAGE_SIZE;

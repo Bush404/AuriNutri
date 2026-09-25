@@ -16,7 +16,7 @@ export async function sendFeedback(input: FeedbackInput): Promise<ActionResult> 
     return { success: false, message: parsed.error.issues[0]?.message ?? "Verifique a mensagem." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

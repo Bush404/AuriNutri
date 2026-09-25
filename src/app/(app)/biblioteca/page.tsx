@@ -12,11 +12,12 @@ import { LibraryMaterialFormDialog } from "@/components/library/library-material
 const PAGE_SIZE = 20;
 
 interface BibliotecaPageProps {
-  searchParams: { busca?: string; tipo?: string; tag?: string; pagina?: string };
+  searchParams: Promise<{ busca?: string; tipo?: string; tag?: string; pagina?: string }>;
 }
 
-export default async function BibliotecaPage({ searchParams }: BibliotecaPageProps) {
-  const supabase = createClient();
+export default async function BibliotecaPage(props: BibliotecaPageProps) {
+  const searchParams = await props.searchParams;
+  const supabase = await createClient();
   const busca = searchParams.busca?.trim();
   const tipo = searchParams.tipo;
   const tag = searchParams.tag;

@@ -25,7 +25,7 @@ export const RATE_LIMITS = {
 export type RateLimitAction = keyof typeof RATE_LIMITS;
 
 /** true = dentro do limite (pode seguir); false = estourou o limite. Fail-open em caso de erro na própria checagem. */
-export async function withinRateLimit(supabase: ReturnType<typeof createClient>, acao: RateLimitAction): Promise<boolean> {
+export async function withinRateLimit(supabase: Awaited<ReturnType<typeof createClient>>, acao: RateLimitAction): Promise<boolean> {
   const { maxTentativas, janelaSegundos } = RATE_LIMITS[acao];
 
   const { data, error } = await supabase.rpc("check_rate_limit", {
@@ -40,7 +40,7 @@ export async function withinRateLimit(supabase: ReturnType<typeof createClient>,
 
 /** Uso em Server Actions que retornam ActionResult: `const limited = await rateLimitOrError(...); if (limited) return limited;` */
 export async function rateLimitOrError(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   acao: RateLimitAction
 ): Promise<ActionResult | null> {
   const ok = await withinRateLimit(supabase, acao);

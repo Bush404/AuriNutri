@@ -15,7 +15,7 @@ import { cancelAppointmentBilling } from "@/lib/actions/finance";
 
 /** Busca o fuso do profissional para interpretar o horário de parede digitado. Nunca usa o fuso do servidor. */
 async function getProfessionalTimeZone(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string
 ): Promise<string> {
   const { data } = await supabase
@@ -34,7 +34,7 @@ async function getProfessionalTimeZone(
  * não cobriria).
  */
 async function findConflictingAppointment(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   newStartIso: string,
   newEndIso: string,
   excludeId?: string
@@ -91,7 +91,7 @@ export async function createAppointment(input: AppointmentInput): Promise<Create
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -146,7 +146,7 @@ export async function updateAppointment(
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -198,7 +198,7 @@ export async function updateAppointmentStatus(
     return { success: false, message: "Status inválido." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("appointments")
     .update({ status })
@@ -227,7 +227,7 @@ export async function rescheduleAppointment(
     return { success: false, message: "Horário inválido — use intervalos de 15 minutos." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -285,7 +285,7 @@ export async function deleteAppointment(
   appointmentId: string,
   options?: { keepBilling?: boolean }
 ): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: appointment } = await supabase
     .from("appointments")

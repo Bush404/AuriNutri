@@ -27,7 +27,7 @@ export async function createLabExam(patientId: string, input: LabExamInput): Pro
     return { success: false, message: "Informe a data da coleta." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -62,7 +62,7 @@ export async function updateLabExam(patientId: string, examId: string, input: La
     return { success: false, message: "Informe a data da coleta." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("lab_exams")
     .update({
@@ -82,7 +82,7 @@ export async function updateLabExam(patientId: string, examId: string, input: La
 
 /** Soft delete via função `security definer` (mesmo padrão da migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
 export async function deleteLabExam(patientId: string, examId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.rpc("soft_delete_lab_exam", { exam_id: examId });
 
   if (error) {
@@ -114,7 +114,7 @@ export async function uploadLabExamFile(
   examId: string,
   formData: FormData
 ): Promise<UploadLabExamFileResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -176,7 +176,7 @@ export async function uploadLabExamFile(
 export async function getLabExamFileSignedUrl(path: string | null | undefined): Promise<string | null> {
   if (!path) return null;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

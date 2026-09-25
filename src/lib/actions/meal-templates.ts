@@ -12,7 +12,7 @@ export interface MealTemplateWithCount extends MealTemplate {
 
 /** Lista os templates do profissional autenticado (RLS já restringe a auth.uid() = user_id). */
 export async function listMealTemplates(): Promise<MealTemplateWithCount[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: templates } = await supabase
     .from("meal_templates")
@@ -51,7 +51,7 @@ export async function saveMealAsTemplate(mealId: string, input: MealTemplateName
     return { success: false, message: "Informe um nome para o template." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -105,7 +105,7 @@ export async function saveMealAsTemplate(mealId: string, input: MealTemplateName
 }
 
 export async function deleteMealTemplate(templateId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("meal_templates").delete().eq("id", templateId);
 
   if (error) {

@@ -28,7 +28,7 @@ export interface GenerateReciboPdfResult {
  * recebido, nunca pra uma cobrança em aberto.
  */
 export async function generateReciboPdf(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   user: { id: string; email?: string | null },
   paymentId: string
 ): Promise<GenerateReciboPdfResult | null> {

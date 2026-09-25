@@ -7,8 +7,9 @@ import type { Patient } from "@/lib/types/database.types";
 import { Button } from "@/components/ui/button";
 import { PatientForm } from "@/components/patients/patient-form";
 
-export default async function EditarPacientePage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+export default async function EditarPacientePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const supabase = await createClient();
   const { data: patient } = await supabase.from("patients").select("*").eq("id", params.id).single<Patient>();
 
   if (!patient) {

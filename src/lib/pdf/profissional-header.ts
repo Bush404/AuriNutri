@@ -20,7 +20,7 @@ export interface ProfissionalPdfHeaderData {
  * física, receita), pra nunca duplicar essa busca em cada arquivo.
  */
 export async function buildProfissionalPdfHeaderData(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   user: { id: string; email?: string | null }
 ): Promise<ProfissionalPdfHeaderData> {
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single<Profile>();

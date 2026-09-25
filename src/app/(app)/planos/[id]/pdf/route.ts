@@ -4,8 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { generatePlanPdf } from "@/lib/pdf/generate-plan-pdf";
 import { withinRateLimit } from "@/lib/rate-limit";
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
-  const supabase = createClient();
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const supabase = await createClient();
 
   const {
     data: { user },

@@ -34,7 +34,7 @@ export interface GeneratePlanPdfResult {
  * (a query já é implicitamente restrita pela RLS de meal_plans).
  */
 export async function generatePlanPdf(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   user: { id: string; email?: string | null },
   planId: string
 ): Promise<GeneratePlanPdfResult | null> {

@@ -13,14 +13,15 @@ import { FoodFormDialog } from "@/components/foods/food-form-dialog";
 const PAGE_SIZE = 20;
 
 interface AlimentosPageProps {
-  searchParams: { busca?: string; categoria?: string; ordenar?: string; pagina?: string };
+  searchParams: Promise<{ busca?: string; categoria?: string; ordenar?: string; pagina?: string }>;
 }
 
 // "Meus Alimentos" mostra exclusivamente os alimentos cadastrados pelo
 // próprio nutricionista. Os alimentos da base TACO não aparecem aqui — eles
 // ficam disponíveis apenas na busca do construtor de plano alimentar.
-export default async function AlimentosPage({ searchParams }: AlimentosPageProps) {
-  const supabase = createClient();
+export default async function AlimentosPage(props: AlimentosPageProps) {
+  const searchParams = await props.searchParams;
+  const supabase = await createClient();
   const busca = searchParams.busca?.trim();
   const categoria = searchParams.categoria;
   const ordenar = searchParams.ordenar ?? "nome";

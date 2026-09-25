@@ -30,7 +30,7 @@ export interface GenerateMaterialPdfResult {
  * Retorna null se o material não existe/não pertence ao usuário (RLS).
  */
 export async function generateMaterialPdf(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   user: { id: string; email?: string | null },
   materialId: string
 ): Promise<GenerateMaterialPdfResult | null> {

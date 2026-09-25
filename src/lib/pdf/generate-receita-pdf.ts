@@ -22,7 +22,7 @@ export interface GenerateReceitaPdfResult {
  * usuário (RLS) ou ainda é um rascunho (sem rendimento_g/numero_porcoes).
  */
 export async function generateReceitaPdf(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   user: { id: string; email?: string | null },
   recipeId: string
 ): Promise<GenerateReceitaPdfResult | null> {

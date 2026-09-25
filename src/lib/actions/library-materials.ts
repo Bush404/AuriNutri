@@ -41,7 +41,7 @@ export async function createLibraryMaterialTexto(
     return { success: false, message: "Verifique os dados informados." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -84,7 +84,7 @@ export async function updateLibraryMaterialTexto(
     return { success: false, message: "Verifique os dados informados." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("library_materials")
     .update({
@@ -117,7 +117,7 @@ export async function updateLibraryMaterialMeta(
     return { success: false, message: "Verifique os dados informados." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("library_materials")
     .update({
@@ -165,7 +165,7 @@ export async function createLibraryMaterialComArquivo(formData: FormData): Promi
     return { success: false, message: "Arquivo muito grande. O limite é 10MB." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -217,7 +217,7 @@ export async function createLibraryMaterialComArquivo(formData: FormData): Promi
  * excluída.
  */
 export async function deleteLibraryMaterial(materialId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: material } = await supabase
     .from("library_materials")
@@ -246,7 +246,7 @@ export async function deleteLibraryMaterial(materialId: string): Promise<ActionR
 export async function getLibraryMaterialFileSignedUrl(path: string | null | undefined): Promise<string | null> {
   if (!path) return null;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -271,7 +271,7 @@ export async function getLibraryMaterialFileSignedUrl(path: string | null | unde
  * não tem um nome fácil de lembrar, mas está bem taggeado).
  */
 export async function searchLibraryMaterialsForPicker(query: string, tag?: string): Promise<LibraryMaterial[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const termo = query.trim();
 
   let materialsQuery = supabase.from("library_materials").select("*").order("titulo").limit(8);
@@ -289,7 +289,7 @@ export async function searchLibraryMaterialsForPicker(query: string, tag?: strin
 
 /** Tags distintas em uso na biblioteca — popula o filtro por tag do seletor da Central de Envio. */
 export async function listLibraryMaterialTags(): Promise<string[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase.from("library_materials").select("tags").returns<{ tags: string[] }[]>();
 
   return Array.from(new Set((data ?? []).flatMap((m) => m.tags))).sort((a, b) => a.localeCompare(b, "pt-BR"));

@@ -53,7 +53,7 @@ export async function createExpense(input: ExpenseInput): Promise<ActionResult> 
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -105,7 +105,7 @@ export async function updateExpense(expenseId: string, input: ExpenseInput): Pro
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("expenses")
@@ -147,7 +147,7 @@ export async function updateExpense(expenseId: string, input: ExpenseInput): Pro
  * associadas (expense_occurrences) somem junto via `on delete cascade`.
  */
 export async function deleteExpense(expenseId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase.from("expenses").delete().eq("id", expenseId);
 
@@ -186,7 +186,7 @@ export async function deleteExpense(expenseId: string): Promise<ActionResult> {
  * nunca avança.
  */
 export async function ensureNextExpenseOccurrences(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
   referencia: Date = new Date()
 ): Promise<void> {
@@ -240,7 +240,7 @@ export async function registerExpenseOccurrencePayment(
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("expense_occurrences")
@@ -257,7 +257,7 @@ export async function registerExpenseOccurrencePayment(
 
 /** Desfaz uma baixa registrada por engano — volta a ocorrência para pendente. */
 export async function unregisterExpenseOccurrencePayment(occurrenceId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: occurrence, error: fetchError } = await supabase
     .from("expense_occurrences")
@@ -307,7 +307,7 @@ export async function createPatientBilling(input: PatientBillingInput): Promise<
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -373,7 +373,7 @@ export async function updatePatientBilling(
     return { success: false, message: "Informe a data de início." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("patient_billings")
@@ -390,7 +390,7 @@ export async function updatePatientBilling(
 
 /** Soft delete via função `security definer` (migration 0025). Não apaga as parcelas já geradas — ver comentário na migration sobre esse limite conhecido. */
 export async function deletePatientBilling(billingId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase.rpc("soft_delete_patient_billing", { billing_id: billingId });
 
@@ -419,7 +419,7 @@ export async function createPayment(billingId: string, input: PaymentInput): Pro
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -450,7 +450,7 @@ export async function updatePayment(paymentId: string, input: PaymentInput): Pro
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("payments")
@@ -476,7 +476,7 @@ export async function registerPayment(paymentId: string, input: RegisterPaymentI
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("payments")
@@ -493,7 +493,7 @@ export async function registerPayment(paymentId: string, input: RegisterPaymentI
 
 /** Desfaz uma baixa registrada por engano — volta a parcela para pendente. */
 export async function unregisterPayment(paymentId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("payments")
@@ -510,7 +510,7 @@ export async function unregisterPayment(paymentId: string): Promise<ActionResult
 
 /** Soft delete via função `security definer` (migration 0025). */
 export async function deletePayment(paymentId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase.rpc("soft_delete_payment", { payment_id: paymentId });
 
@@ -535,7 +535,7 @@ export async function deletePayment(paymentId: string): Promise<ActionResult> {
 
 /** Lê o status financeiro atual de um agendamento, pra pré-preencher o formulário ao editar. */
 export async function getAppointmentBillingStatus(appointmentId: string): Promise<AppointmentBillingState> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: appointment } = await supabase
     .from("appointments")
@@ -571,7 +571,7 @@ export async function setAppointmentBillingStatus(
     return { success: false, message: "Dados inválidos. Verifique o status financeiro." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -736,7 +736,7 @@ export async function setPackageBillingStatus(
     return { success: false, message: "Dados inválidos. Verifique o status financeiro do pacote." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -871,7 +871,7 @@ export async function cancelAppointmentBilling(
   appointmentId: string,
   packageBillingId: string | null
 ): Promise<void> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: avulso } = await supabase
     .from("patient_billings")
@@ -920,7 +920,7 @@ export async function getPackageDeletionImpact(
   appointmentId: string,
   packageBillingId: string
 ): Promise<{ isLastAppointment: boolean; paidValue: number | null }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { count } = await supabase
     .from("appointments")

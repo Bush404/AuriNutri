@@ -29,7 +29,7 @@ export function RecipeCombobox({ value, onChange, disabled }: RecipeComboboxProp
   const [results, setResults] = useState<Recipe[]>([]);
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const listboxId = useId();
 
   useEffect(() => {

@@ -21,7 +21,7 @@ export interface CreateDocumentShareLinkResult extends ActionResult {
 }
 
 async function findActiveToken(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   tipo: DocumentShareTipo,
   referenciaId: string
 ): Promise<DocumentShareToken | null> {
@@ -40,7 +40,7 @@ async function findActiveToken(
 }
 
 async function insertToken(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   input: {
     userId: string;
     patientId: string;
@@ -95,7 +95,7 @@ export async function createAntropometriaShareLink(
   patientId: string,
   assessmentId: string
 ): Promise<CreateDocumentShareLinkResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -150,7 +150,7 @@ export async function createAntropometriaShareLink(
  * é reaproveitado independente de para qual paciente foi gerado antes.
  */
 export async function createReceitaShareLink(recipeId: string, patientId: string): Promise<CreateDocumentShareLinkResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -205,7 +205,7 @@ export async function createReceitaShareLink(recipeId: string, patientId: string
  * createAntropometriaShareLink.
  */
 export async function createReciboShareLink(paymentId: string, patientId: string): Promise<CreateDocumentShareLinkResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -260,7 +260,7 @@ export async function createReciboShareLink(paymentId: string, patientId: string
  * paciente foi gerado antes, mesmo espírito de createReceitaShareLink.
  */
 export async function createMaterialShareLink(materialId: string, patientId: string): Promise<CreateDocumentShareLinkResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -315,7 +315,7 @@ export async function createMaterialShareLink(materialId: string, patientId: str
  * reaproveitar).
  */
 export async function createArquivoShareLink(patientId: string, formData: FormData): Promise<CreateDocumentShareLinkResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

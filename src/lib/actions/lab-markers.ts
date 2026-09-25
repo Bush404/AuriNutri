@@ -16,7 +16,7 @@ export async function addLabMarker(patientId: string, examId: string, input: Lab
     return { success: false, message: "Informe o marcador, o valor e a unidade." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -46,7 +46,7 @@ export async function addLabMarker(patientId: string, examId: string, input: Lab
 
 /** Sem deleted_at própria (mesmo padrão de recipe_ingredients) — remover um marcador é exclusão real da linha. */
 export async function deleteLabMarker(patientId: string, markerId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("lab_markers").delete().eq("id", markerId);
 
   if (error) {
@@ -71,7 +71,7 @@ export interface ReferenceRangeSuggestion {
 
 /** Busca candidatos no banco (nome_marcador + sexo compatível) e delega a escolha a resolveReferenceRange (função pura, testada em lab-reference.test.ts). */
 async function resolverParaSexo(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
   nomeMarcador: string,
   sexoBucket: "M" | "F",
@@ -103,7 +103,7 @@ export async function getReferenceRangeSuggestion(
   patientId: string,
   nomeMarcador: string
 ): Promise<ReferenceRangeSuggestion> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -167,7 +167,7 @@ export interface SaveReferenceRangeInput {
  * Não afeta lab_markers já registrados (snapshot, nunca FK).
  */
 export async function saveMyReferenceRange(input: SaveReferenceRangeInput): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -221,7 +221,7 @@ export interface MarkerCatalogEntry {
  * aqui aparece só uma vez.
  */
 export async function listReferenceMarkerCatalog(): Promise<MarkerCatalogEntry[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("lab_reference_ranges")
     .select("nome_marcador, unidade")

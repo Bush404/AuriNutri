@@ -13,7 +13,7 @@ export async function createMealPlan(patientId: string, input: MealPlanInput): P
     return { success: false, message: "Verifique os dados do plano." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -53,7 +53,7 @@ export async function updateMealPlan(planId: string, input: MealPlanInput): Prom
     return { success: false, message: "Verifique os dados do plano." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("meal_plans")
     .update({
@@ -82,7 +82,7 @@ export async function setMealPlanCalorieGoal(planId: string, metaKcal: number): 
     return { success: false, message: "Meta calórica inválida." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("meal_plans").update({ meta_kcal: metaKcal }).eq("id", planId);
 
   if (error) {
@@ -94,7 +94,7 @@ export async function setMealPlanCalorieGoal(planId: string, metaKcal: number): 
 }
 
 export async function toggleMealPlanStatus(planId: string, ativo: boolean): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("meal_plans").update({ ativo }).eq("id", planId);
 
   if (error) {
@@ -113,7 +113,7 @@ export async function toggleMealPlanStatus(planId: string, ativo: boolean): Prom
  * depois o que quiser na cópia, sem afetar o plano original.
  */
 export async function duplicateMealPlan(planId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -225,7 +225,7 @@ export async function duplicateMealPlan(planId: string): Promise<ActionResult> {
 
 /** Soft delete via função `security definer` (migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
 export async function deleteMealPlan(planId: string, patientId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.rpc("soft_delete_meal_plan", { plan_id: planId });
 
   if (error) {

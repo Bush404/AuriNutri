@@ -13,11 +13,12 @@ import { RecipesTable } from "@/components/recipes/recipes-table";
 const PAGE_SIZE = 20;
 
 interface ReceitasPageProps {
-  searchParams: { busca?: string; tag?: string; pagina?: string };
+  searchParams: Promise<{ busca?: string; tag?: string; pagina?: string }>;
 }
 
-export default async function ReceitasPage({ searchParams }: ReceitasPageProps) {
-  const supabase = createClient();
+export default async function ReceitasPage(props: ReceitasPageProps) {
+  const searchParams = await props.searchParams;
+  const supabase = await createClient();
   const busca = searchParams.busca?.trim();
   const tag = searchParams.tag;
   const page = Math.max(1, Number(searchParams.pagina) || 1);

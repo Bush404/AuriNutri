@@ -13,7 +13,7 @@ export async function createMeal(planId: string, input: MealInput, ordem: number
     return { success: false, message: "Informe o nome da refeição." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -45,7 +45,7 @@ export async function updateMeal(planId: string, mealId: string, input: MealInpu
     return { success: false, message: "Informe o nome da refeição." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("meals")
     .update({
@@ -80,7 +80,7 @@ export async function createMealFromTemplate(
     return { success: false, message: "Informe o nome da refeição." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -144,7 +144,7 @@ export async function createMealFromTemplate(
 
 /** Soft delete via função `security definer` (migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
 export async function deleteMeal(planId: string, mealId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.rpc("soft_delete_meal", { meal_id: mealId });
 
   if (error) {

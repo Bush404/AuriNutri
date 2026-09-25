@@ -29,8 +29,8 @@ function requiredEnv(name: string, value: string | undefined) {
  * NOTA: o generic `Database` é intencionalmente omitido — ver comentário
  * equivalente em `client.ts` e `docs/DECISIONS.md` (D3).
  */
-export function createClient() {
-  const cookieStore = cookies();
+export async function createClient() {
+  const cookieStore = await cookies();
 
   return createServerClient(
     requiredEnv("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL),

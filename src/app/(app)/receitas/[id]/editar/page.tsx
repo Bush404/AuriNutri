@@ -6,12 +6,14 @@ import type { Recipe, RecipeIngredient } from "@/lib/types/database.types";
 import { RecipeWizard } from "@/components/recipes/recipe-wizard";
 
 interface EditarReceitaPageProps {
-  params: { id: string };
-  searchParams: { etapa?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ etapa?: string }>;
 }
 
-export default async function EditarReceitaPage({ params, searchParams }: EditarReceitaPageProps) {
-  const supabase = createClient();
+export default async function EditarReceitaPage(props: EditarReceitaPageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
+  const supabase = await createClient();
 
   const [{ data: recipe }, { data: ingredients }] = await Promise.all([
     supabase.from("recipes").select("*").eq("id", params.id).maybeSingle<Recipe>(),

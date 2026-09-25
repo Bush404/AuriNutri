@@ -21,8 +21,9 @@ type PlanWithPatient = MealPlan & {
   patients: { id: string; nome: string; telefone: string | null; sexo: Sexo | null; data_nascimento: string | null };
 };
 
-export default async function PlanoDetalhePage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+export default async function PlanoDetalhePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const supabase = await createClient();
 
   const { data: plan } = await supabase
     .from("meal_plans")

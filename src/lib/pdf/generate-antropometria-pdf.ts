@@ -20,7 +20,7 @@ export interface GenerateAntropometriaPdfResult {
  * existem/não pertencem ao usuário (RLS).
  */
 export async function generateAntropometriaPdf(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   user: { id: string; email?: string | null },
   patientId: string,
   assessmentId: string

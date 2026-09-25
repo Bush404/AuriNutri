@@ -35,7 +35,7 @@ export async function createRecipeDraft(input: RecipeIdentificationInput): Promi
     return { success: false, message: "Verifique os dados informados." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -75,7 +75,7 @@ export async function updateRecipeIdentification(
     return { success: false, message: "Verifique os dados informados." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("recipes")
     .update({
@@ -106,7 +106,7 @@ export async function updateRecipeModoPreparo(
     return { success: false, message: "Verifique o modo de preparo." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("recipes")
     .update({ modo_preparo: parsed.data.modo_preparo || null })
@@ -127,7 +127,7 @@ export async function updateRecipeResultado(recipeId: string, input: RecipeResul
     return { success: false, message: "Informe o rendimento e o número de porções corretamente." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("recipes")
     .update({
@@ -160,7 +160,7 @@ export async function setRecipeValorSobrescrito(
     return { success: false, message: "Valor inválido." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: current } = await supabase
     .from("recipes")
     .select("valores_sobrescritos")
@@ -181,7 +181,7 @@ export async function setRecipeValorSobrescrito(
 
 /** Remove um valor sobrescrito, voltando a aceitar o calculado para aquele campo. */
 export async function clearRecipeValorSobrescrito(recipeId: string, campo: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: current } = await supabase
     .from("recipes")
     .select("valores_sobrescritos")
@@ -209,7 +209,7 @@ export async function clearRecipeValorSobrescrito(recipeId: string, campo: strin
  * security policy"), mesmo a policy de UPDATE permitindo a operação.
  */
 export async function deleteRecipe(recipeId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.rpc("soft_delete_recipe", { recipe_id: recipeId });
 
   if (error) {
@@ -237,7 +237,7 @@ export async function addRecipeIngredient(
     return { success: false, message: "Selecione um alimento e informe a quantidade." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -278,7 +278,7 @@ export async function addRecipeIngredient(
 
 /** Exclusão real — sem soft delete nesta tabela (ver comentário na migration 0013). */
 export async function removeRecipeIngredient(recipeId: string, ingredientId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("recipe_ingredients").delete().eq("id", ingredientId);
 
   if (error) {
@@ -291,7 +291,7 @@ export async function removeRecipeIngredient(recipeId: string, ingredientId: str
 
 /** Reordena a lista inteira, gravando `ordem` = posição no array recebido. */
 export async function reorderRecipeIngredients(recipeId: string, orderedIds: string[]): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const results = await Promise.all(
     orderedIds.map((id, index) => supabase.from("recipe_ingredients").update({ ordem: index }).eq("id", id))
@@ -347,7 +347,7 @@ export async function uploadRecipeImage(formData: FormData): Promise<UploadRecip
     return { success: false, message: "Arquivo muito grande. O limite é 4MB." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -377,7 +377,7 @@ export async function uploadRecipeImage(formData: FormData): Promise<UploadRecip
 export async function getRecipeImageSignedUrl(path: string | null | undefined): Promise<string | null> {
   if (!path) return null;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -402,7 +402,7 @@ export async function getRecipeImageSignedUrl(path: string | null | undefined): 
  * têm os dados necessários para virar um item de refeição.
  */
 export async function searchRecipesForPicker(query: string): Promise<Recipe[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const termo = query.trim();
 
   let recipesQuery = supabase

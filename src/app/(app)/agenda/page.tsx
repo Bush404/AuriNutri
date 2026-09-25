@@ -15,7 +15,7 @@ import { PatientFilter } from "@/components/agenda/patient-filter";
 import { AgendaBoard } from "@/components/agenda/agenda-board";
 
 interface AgendaPageProps {
-  searchParams: { visao?: string; data?: string; status?: string; paciente?: string };
+  searchParams: Promise<{ visao?: string; data?: string; status?: string; paciente?: string }>;
 }
 
 function buildHref(params: { visao: string; data: string; status?: string; paciente?: string }) {
@@ -27,8 +27,9 @@ function buildHref(params: { visao: string; data: string; status?: string; pacie
   return `/agenda?${search.toString()}`;
 }
 
-export default async function AgendaPage({ searchParams }: AgendaPageProps) {
-  const supabase = createClient();
+export default async function AgendaPage(props: AgendaPageProps) {
+  const searchParams = await props.searchParams;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -11,7 +11,7 @@ export async function createTask(input: TaskInput): Promise<ActionResult> {
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -47,7 +47,7 @@ export async function updateTask(taskId: string, input: TaskInput): Promise<Acti
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("tasks")
     .update({
@@ -72,7 +72,7 @@ export async function updateTask(taskId: string, input: TaskInput): Promise<Acti
 }
 
 export async function toggleTaskConcluida(taskId: string, concluida: boolean): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("tasks").update({ concluida }).eq("id", taskId);
 
   if (error) {
@@ -85,7 +85,7 @@ export async function toggleTaskConcluida(taskId: string, concluida: boolean): P
 
 /** Soft delete via função `security definer` (migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
 export async function deleteTask(taskId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase.rpc("soft_delete_task", { task_id: taskId });
 

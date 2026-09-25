@@ -35,7 +35,7 @@ export async function updateProfile(input: ProfileInput): Promise<ActionResult> 
     return { success: false, message: "Dados inválidos. Verifique o formulário." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -89,7 +89,7 @@ export async function uploadProfileFile(
     return { success: false, message: "Arquivo muito grande. O limite é 2MB." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -128,7 +128,7 @@ export async function uploadProfileFile(
 export async function getProfileFileSignedUrl(path: string | null | undefined): Promise<string | null> {
   if (!path) return null;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

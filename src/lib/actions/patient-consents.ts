@@ -25,7 +25,7 @@ export async function grantPatientConsent(patientId: string, input: PatientConse
     return { success: false, message: "Selecione o tipo de dado e como o consentimento foi obtido." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -69,7 +69,7 @@ export async function grantPatientConsent(patientId: string, input: PatientConse
  * ser implementada à parte, não um efeito colateral automático daqui.
  */
 export async function revokePatientConsent(patientId: string, consentId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("patient_consents")
@@ -97,7 +97,7 @@ export async function revokePatientConsent(patientId: string, consentId: string)
  * consentimento de paciente de outro profissional.
  */
 export async function hasActiveConsent(patientId: string, tipo: TipoConsentimento): Promise<boolean> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase.rpc("has_active_patient_consent", { p_patient_id: patientId, p_tipo: tipo });
   return data === true;
 }

@@ -24,7 +24,7 @@ export interface CreatePlanShareLinkResult extends ActionResult {
  * produção e por que a revogação funciona de verdade).
  */
 export async function createPlanShareLink(planId: string): Promise<CreatePlanShareLinkResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -84,7 +84,7 @@ export async function createPlanShareLink(planId: string): Promise<CreatePlanSha
 }
 
 export async function listPlanShareLinks(planId: string): Promise<PlanShareToken[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data } = await supabase
     .from("plan_share_tokens")
@@ -97,7 +97,7 @@ export async function listPlanShareLinks(planId: string): Promise<PlanShareToken
 }
 
 export async function revokePlanShareLink(tokenId: string, planId: string): Promise<ActionResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("plan_share_tokens")

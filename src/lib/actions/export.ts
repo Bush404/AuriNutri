@@ -20,7 +20,7 @@ export type ExportPatientDataResult = { success: true; data: PatientExport } | {
  * profissional nunca consegue exportar dados de paciente de outro.
  */
 export async function exportPatientData(patientId: string): Promise<ExportPatientDataResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: patient, error: patientError } = await supabase
     .from("patients")

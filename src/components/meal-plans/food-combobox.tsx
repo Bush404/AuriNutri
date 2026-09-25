@@ -38,7 +38,7 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
   const [results, setResults] = useState<{ meus: Food[]; taco: Food[] }>({ meus: [], taco: [] });
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const listboxId = useId();
 
   const flatResults = [...results.meus, ...results.taco];
