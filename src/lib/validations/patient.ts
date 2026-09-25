@@ -37,21 +37,22 @@ export const patientSchema = z.object({
 
 export type PatientInput = z.infer<typeof patientSchema>;
 
+/**
+ * Anamnese em texto livre (Fase 14). As colunas por tema antigas não são mais
+ * escritas pela aplicação — ficam no banco só para leitura de registros antigos.
+ */
 export const anamnesisSchema = z.object({
   titulo: optionalText(),
-  queixa_principal: optionalText(),
-  historico_saude: optionalText(),
-  historico_familiar: optionalText(),
-  habitos_alimentares: optionalText(),
-  atividade_fisica: optionalText(),
-  qualidade_sono: optionalText(),
-  alergias: optionalText(),
-  intolerancias: optionalText(),
-  medicamentos: optionalText(),
-  suplementos: optionalText(),
-  observacoes: optionalText(),
+  /** HTML do editor; o servidor limpa (sanitizeRichText) antes de gravar. */
+  conteudo: z.string().max(500_000, "Texto grande demais"),
 });
 export type AnamnesisInput = z.infer<typeof anamnesisSchema>;
+
+export const anamnesisTemplateSchema = z.object({
+  nome: z.string().trim().min(1, "Dê um nome ao modelo").max(120, "Nome muito longo"),
+  conteudo: z.string().max(500_000, "Texto grande demais"),
+});
+export type AnamnesisTemplateInput = z.infer<typeof anamnesisTemplateSchema>;
 
 export const assessmentSchema = z.object({
   data_avaliacao: z.string().min(1, "Informe a data da avaliação"),

@@ -56,3 +56,50 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+/* Texto rico da anamnese e dos modelos (editor Tiptap, Fase 14 do Roadmap 2). */
+@layer components {
+  .rich-text {
+    @apply text-sm leading-relaxed text-foreground;
+  }
+  .rich-text > * + * {
+    @apply mt-3;
+  }
+  .rich-text h2 {
+    @apply mt-5 text-lg font-semibold first:mt-0;
+  }
+  .rich-text h3 {
+    @apply mt-4 text-base font-semibold first:mt-0;
+  }
+  .rich-text ul {
+    @apply list-disc pl-6;
+  }
+  .rich-text ol {
+    @apply list-decimal pl-6;
+  }
+  .rich-text li > p {
+    @apply my-0;
+  }
+  .rich-text blockquote {
+    @apply border-l-2 border-border pl-3 text-muted-foreground;
+  }
+  .rich-text a {
+    @apply text-primary-700 underline;
+  }
+  .rich-text hr {
+    @apply border-border;
+  }
+  .rich-text table {
+    @apply w-full border-collapse;
+  }
+  .rich-text th,
+  .rich-text td {
+    @apply border border-border px-2 py-1 align-top;
+  }
+  .rich-text th {
+    @apply bg-muted/50 text-left font-semibold;
+  }
+  .rich-text .selectedCell {
+    @apply bg-primary-50;
+  }
+}

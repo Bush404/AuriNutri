@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getInitials, calculateAge } from "@/lib/utils";
 import type {
   Anamnesis,
+  AnamnesisTemplate,
   AnthropometricAssessment,
   MealPlan,
   Patient,
@@ -40,6 +41,7 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
     consentimentoAtivoFotos,
     sendCenterContext,
     { data: billings },
+    { data: anamnesisTemplates },
   ] = await Promise.all([
     supabase.from("patients").select("*").eq("id", params.id).single<Patient>(),
     supabase
@@ -91,6 +93,11 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
       .order("created_at", { ascending: false })
       .order("data_vencimento", { foreignTable: "payments", ascending: true })
       .returns<PatientBillingWithPayments[]>(),
+    supabase
+      .from("anamnesis_templates")
+      .select("*")
+      .order("nome")
+      .returns<AnamnesisTemplate[]>(),
   ]);
 
   if (!patient) {
@@ -164,6 +171,7 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
         photos={photos ?? []}
         consentimentoAtivoFotos={consentimentoAtivoFotos}
         billings={billings ?? []}
+        anamnesisTemplates={anamnesisTemplates ?? []}
       />
     </div>
   );

@@ -4,23 +4,31 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { anamnesisSchema, assessmentSchema, type AnamnesisInput, type AssessmentInput } from "@/lib/validations/patient";
 import type { ActionResult } from "@/lib/actions/patients";
+import { sanitizeRichText } from "@/lib/rich-text-sanitize";
+import { isRichTextEmpty } from "@/lib/rich-text";
 
-function emptyToNull<T extends Record<string, unknown>>(obj: T) {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(obj)) {
-    result[key] = value === "" || value === undefined ? null : value;
+/** Limpa e valida o texto da anamnese. Devolve `{ error }` se estiver inválido ou vazio. */
+function prepareAnamnesis(input: AnamnesisInput) {
+  const parsed = anamnesisSchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Dados inválidos. Verifique o formulário." } as const;
   }
-  return result;
+  const conteudo = sanitizeRichText(parsed.data.conteudo);
+  if (isRichTextEmpty(conteudo)) {
+    return { error: "Escreva a anamnese antes de salvar." } as const;
+  }
+  return { data: { titulo: parsed.data.titulo ?? null, conteudo } } as const;
 }
 
 /**
  * Cria um NOVO registro de anamnese. anamnesis é 1:N por paciente (histórico
- * clínico) — isto nunca sobrescreve um registro anterior.
+ * clínico) — isto nunca sobrescreve um registro anterior. Texto livre (Fase
+ * 14): só `titulo` e `conteudo`; as colunas por tema antigas não são escritas.
  */
 export async function createAnamnesis(patientId: string, input: AnamnesisInput): Promise<ActionResult> {
-  const parsed = anamnesisSchema.safeParse(input);
-  if (!parsed.success) {
-    return { success: false, message: "Dados inválidos. Verifique o formulário." };
+  const prepared = prepareAnamnesis(input);
+  if ("error" in prepared) {
+    return { success: false, message: prepared.error };
   }
 
   const supabase = await createClient();
@@ -35,7 +43,7 @@ export async function createAnamnesis(patientId: string, input: AnamnesisInput):
   const { error } = await supabase.from("anamnesis").insert({
     patient_id: patientId,
     user_id: user.id,
-    ...emptyToNull(parsed.data),
+    ...prepared.data,
   });
 
   if (error) {
@@ -46,21 +54,25 @@ export async function createAnamnesis(patientId: string, input: AnamnesisInput):
   return { success: true, message: "Anamnese registrada com sucesso." };
 }
 
-/** Corrige um registro de anamnese específico já existente (não cria um novo). */
+/**
+ * Corrige um registro de anamnese específico já existente (não cria um novo).
+ * Num registro antigo, o texto montado das colunas por tema passa a ser o
+ * `conteudo`; as colunas antigas continuam intactas no banco.
+ */
 export async function updateAnamnesis(
   anamnesisId: string,
   patientId: string,
   input: AnamnesisInput
 ): Promise<ActionResult> {
-  const parsed = anamnesisSchema.safeParse(input);
-  if (!parsed.success) {
-    return { success: false, message: "Dados inválidos. Verifique o formulário." };
+  const prepared = prepareAnamnesis(input);
+  if ("error" in prepared) {
+    return { success: false, message: prepared.error };
   }
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("anamnesis")
-    .update(emptyToNull(parsed.data))
+    .update(prepared.data)
     .eq("id", anamnesisId)
     .eq("patient_id", patientId);
 

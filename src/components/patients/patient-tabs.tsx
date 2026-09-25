@@ -5,6 +5,7 @@ import { ClipboardList } from "lucide-react";
 
 import type {
   Anamnesis,
+  AnamnesisTemplate,
   AnthropometricAssessment,
   MealPlan,
   Patient,
@@ -50,6 +51,7 @@ interface PatientTabsProps {
   photos: PatientPhoto[];
   consentimentoAtivoFotos: boolean;
   billings: PatientBillingWithPayments[];
+  anamnesisTemplates: AnamnesisTemplate[];
 }
 
 export function PatientTabs({
@@ -63,6 +65,7 @@ export function PatientTabs({
   photos,
   consentimentoAtivoFotos,
   billings,
+  anamnesisTemplates,
 }: PatientTabsProps) {
   const age = calculateAge(patient.data_nascimento);
   // A aba aberta fica na URL (?aba=planos): voltar de um plano, ou pelo
@@ -105,7 +108,7 @@ export function PatientTabs({
       </TabsContent>
 
       <TabsContent value="anamnese">
-        <AnamnesisTimeline patientId={patient.id} anamneses={anamneses} />
+        <AnamnesisTimeline patientId={patient.id} anamneses={anamneses} templates={anamnesisTemplates} />
       </TabsContent>
 
       <TabsContent value="avaliacoes" className="space-y-6">

@@ -79,6 +79,8 @@ export interface Anamnesis {
   data_registro: string;
   /** Nome opcional do registro (migration 0037). */
   titulo: string | null;
+  /** Texto livre (HTML sanitizado, migration 0038). Nulo = registro antigo, montado das colunas por tema. */
+  conteudo: string | null;
   queixa_principal: string | null;
   historico_saude: string | null;
   historico_familiar: string | null;
@@ -462,6 +464,16 @@ export interface Appointment {
 /** Appointment com o nome do paciente já embutido (join), para exibição na agenda. */
 export interface AppointmentWithPatient extends Appointment {
   patients: { nome: string } | null;
+}
+
+/** "Meus modelos de anamnese" (migration 0038). */
+export interface AnamnesisTemplate {
+  id: string;
+  user_id: string;
+  nome: string;
+  conteudo: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface TaskWithPatient extends Task {

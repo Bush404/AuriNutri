@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { ClipboardList, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import type { Anamnesis } from "@/lib/types/database.types";
+import type { Anamnesis, AnamnesisTemplate } from "@/lib/types/database.types";
 import { deleteAnamnesis } from "@/lib/actions/clinical";
 import { updateSearchParams } from "@/lib/url-state";
 import { formatDate } from "@/lib/utils";
@@ -31,11 +31,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { AnamnesisForm } from "@/components/patients/anamnesis-form";
+import { AnamnesisTemplatesDialog } from "@/components/patients/anamnesis-templates-dialog";
 
 interface AnamnesisTimelineProps {
   patientId: string;
   /** Já vem ordenado do servidor, mais recente primeiro. */
   anamneses: Anamnesis[];
+  /** "Meus modelos de anamnese" do profissional. */
+  templates: AnamnesisTemplate[];
 }
 
 /** Valor de `?anamnese=` para o formulário de uma anamnese nova. */
@@ -53,7 +56,7 @@ function anamnesisName(anamnese: Anamnesis): string {
  * O registro aberto fica na URL (?anamnese=<id> ou ?anamnese=nova): o
  * "voltar" do navegador fecha o registro e continua nesta aba.
  */
-export function AnamnesisTimeline({ patientId, anamneses }: AnamnesisTimelineProps) {
+export function AnamnesisTimeline({ patientId, anamneses, templates }: AnamnesisTimelineProps) {
   const aberta = useSearchParams().get("anamnese");
   const creating = aberta === NOVA;
   const openId = aberta && aberta !== NOVA ? aberta : null;
@@ -84,15 +87,20 @@ export function AnamnesisTimeline({ patientId, anamneses }: AnamnesisTimelinePro
             Registros do paciente, mais recente primeiro. Um novo registro nunca sobrescreve os anteriores.
           </p>
         </div>
-        {!creating && (
-          <Button size="sm" onClick={() => abrir(NOVA)}>
-            <Plus className="h-4 w-4" />
-            Adicionar nova anamnese
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2">
+          <AnamnesisTemplatesDialog templates={templates} />
+          {!creating && (
+            <Button size="sm" onClick={() => abrir(NOVA)}>
+              <Plus className="h-4 w-4" />
+              Adicionar nova anamnese
+            </Button>
+          )}
+        </div>
       </div>
 
-      {creating && <AnamnesisForm patientId={patientId} onSaved={fechar} onCancel={fechar} />}
+      {creating && (
+        <AnamnesisForm patientId={patientId} templates={templates} onSaved={fechar} onCancel={fechar} />
+      )}
 
       {anamneses.length === 0 && !creating && (
         <Card>
@@ -111,7 +119,13 @@ export function AnamnesisTimeline({ patientId, anamneses }: AnamnesisTimelinePro
           {anamneses.map((anamnese) => (
             <li key={anamnese.id}>
               {openId === anamnese.id ? (
-                <AnamnesisForm patientId={patientId} anamnesis={anamnese} onSaved={fechar} onCancel={fechar} />
+                <AnamnesisForm
+                  patientId={patientId}
+                  anamnesis={anamnese}
+                  templates={templates}
+                  onSaved={fechar}
+                  onCancel={fechar}
+                />
               ) : (
                 <AnamnesisRow patientId={patientId} anamnese={anamnese} onOpen={() => abrir(anamnese.id)} />
               )}

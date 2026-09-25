@@ -35,6 +35,7 @@ const TABLES = [
   "profiles",
   "patients",
   "anamnesis",
+  "anamnesis_templates",
   "anthropometric_assessments",
   "foods",
   "meal_plans",

@@ -527,6 +527,21 @@ async function main() {
       updateValue: "alterado por B",
       canDelete: true,
     });
+    // Modelos de anamnese (migration 0038) — exclusão real, sem soft delete.
+    const { data: anamnesisTemplate, error: anamnesisTemplateError } = await userA.client
+      .from("anamnesis_templates")
+      .insert({ user_id: userA.id, nome: "Modelo de teste (Fase 14)", conteudo: "<p>modelo</p>" })
+      .select("id")
+      .single();
+    if (anamnesisTemplateError) throw new Error(`Falha ao criar modelo de anamnese de A: ${anamnesisTemplateError.message}`);
+    await checkTableIsolation(userB, {
+      table: "anamnesis_templates",
+      id: anamnesisTemplate.id,
+      updateField: "nome",
+      updateValue: "alterado por B",
+      canDelete: true,
+    });
+
     // Exclusão de anamnese pela tela (migration 0037, security definer).
     const { data: anamnesisRpcResult, error: anamnesisRpcError } = await userB.client.rpc("soft_delete_anamnesis", {
       anamnesis_id: anamnesis.id,

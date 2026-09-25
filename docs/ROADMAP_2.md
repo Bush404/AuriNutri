@@ -201,30 +201,39 @@ Tudo **guardado localmente** até os créditos do Netlify renovarem (ver Fase 12
 
 ---
 
-## PHASE 14 — Anamnese em texto livre e modelos · `TODO` · `HIGH`
+## PHASE 14 — Anamnese em texto livre e modelos · `DONE` (25/09/2026, aguardando publicação) · `HIGH`
 
 **Pedido:** deixar de ter caixas separadas por tema e virar uma página em branco estilo Word. Deve
 ser possível importar um modelo próprio da nutricionista e só editar.
 
 ```
-[ ] Editor de texto rico (negrito, listas, títulos, tabela simples); biblioteca a avaliar antes (ex.: Tiptap)
-[ ] Nova coluna de conteúdo livre na anamnese; campos por tema antigos passam a ser só leitura
-[ ] Migração: cada anamnese antiga é convertida em texto (título do tema + conteúdo), sem apagar colunas antigas
-[ ] "Meus modelos de anamnese": o próprio profissional cria, edita e exclui os seus (tabela nova + RLS)
-[ ] Modelos prontos do AuriNutri (globais, só leitura, mesmo padrão dos alimentos TACO):
-    o profissional usa direto ou cria uma cópia editável nos "Meus modelos"
-[ ] Conteúdo dos modelos prontos escrito com a nutricionista (ex.: adulto geral, esportivo,
-    gestante, infantil) e revisado por ela antes de publicar
-[ ] Nova anamnese: escolher "Em branco" ou um modelo (próprio ou pronto)
-[ ] Colar texto vindo do Word mantendo a formatação básica (títulos, negrito, listas)
-[ ] Anamnese no PDF / exportação LGPD continua funcionando com o novo formato
+[x] Editor de texto rico: Tiptap 3 (títulos, negrito, itálico, sublinhado, listas, tabela, desfazer)
+    — src/components/shared/rich-text-editor.tsx
+[x] Nova coluna anamnesis.conteudo (migration 0038); campos por tema antigos viram só leitura
+[x] Anamneses antigas: SEM conversão em massa. Registro com conteudo nulo é montado na hora a partir
+    das colunas por tema (legacyAnamnesisToHtml, testado) e só ganha conteudo quando for salvo de novo
+[x] "Meus modelos de anamnese": criar, editar e excluir (tabela anamnesis_templates + RLS)
+[x] Nova anamnese: "Começar de" página em branco ou um modelo (o texto é copiado)
+[x] "Salvar como modelo" a partir de uma anamnese, com aviso para tirar dados do paciente
+[x] Colar do Word mantendo títulos, negrito, listas e tabelas (o resto é descartado)
+[x] Exportação LGPD continua completa (select * já leva conteudo). Nenhum PDF usa anamnese hoje
+[ ] Modelos prontos do AuriNutri — ADIADO por decisão da responsável (25/09/2026), entra depois
 ```
 
-### Riscos
-- **Perda de dados na migração (ALTO):** mesma garantia da migration 0006: nada é apagado nem
-  sobrescrito, as colunas antigas continuam no banco e a conversão é testada antes, em uma cópia.
-- **HTML salvo pelo editor (segurança):** todo conteúdo rico é limpo (sanitizado) antes de exibir, para
-  impedir que um arquivo importado carregue código malicioso.
+**Segurança do texto rico:** o HTML é limpo no servidor antes de gravar (`sanitizeRichText`,
+`sanitize-html`): só passam os elementos que o editor produz; `<script>`, `<iframe>`, `<img>`,
+estilos, classes, eventos (`onclick`...) e links `javascript:` são removidos. 10 testes em
+`rich-text.test.ts`. Na exibição, o próprio editor só aceita os elementos do seu esquema.
+
+**Verificado (25/09/2026):** migration 0038 aplicada; E2E novo `anamnese.e2e.ts` (texto livre →
+salvar como modelo → começar de modelo → excluir modelo), 15/15 passando (a Central de Envio falhou
+uma vez por tempo de geração de PDF no servidor local e passou ao repetir); isolamento 91/91 com
+`anamnesis_templates`; `npm test` 274. A tabela nova também entrou no `npm run backup:db`.
+
+### Riscos (mitigado)
+- **Perda de dados:** não houve migração de dados. As colunas antigas não são tocadas nem na
+  edição; o texto montado delas só vira `conteudo` quando o profissional salva.
+- **HTML malicioso (colado ou importado):** limpo no servidor antes de gravar, ver acima.
 
 ---
 
