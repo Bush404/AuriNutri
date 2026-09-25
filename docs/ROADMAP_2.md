@@ -239,6 +239,12 @@ uma vez por tempo de geração de PDF no servidor local e passou ao repetir); is
 
 ## PHASE 15 — Antropometria profissional · `TODO` · `CRITICAL`
 
+**Próxima sessão (combinado em 25/09/2026): começar pela lista para aprovação.** Antes de qualquer
+código, preparar para a responsável pelo produto a lista de protocolos de dobras cutâneas / % de
+gordura, classificações de IMC para adultos e idosos, indicadores (RCQ, RCEst) e curvas da OMS para
+crianças e adolescentes, com a fonte de cada um, para ela marcar o que fica, sai ou falta (decisão R4).
+Só depois da aprovação começa o Bloco A.
+
 **Por que crítica:** foi apontada como "de extrema importância" e hoje é a tela mais distante dos
 softwares de mercado. Ela alimenta a Fase 16 (cálculo energético) e a Fase 17 (planejamento).
 
