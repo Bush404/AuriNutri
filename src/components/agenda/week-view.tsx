@@ -1,11 +1,19 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Clock } from "lucide-react";
+import { CheckSquare, Clock } from "lucide-react";
 import { toast } from "sonner";
 
-import type { AppointmentWithPatient } from "@/lib/types/database.types";
-import { APPOINTMENT_STATUS_META, WEEKDAY_LABELS, formatDayShort, weekdayOf } from "@/lib/agenda";
+import type { AppointmentWithPatient, TaskWithPatient } from "@/lib/types/database.types";
+import {
+  APPOINTMENT_STATUS_META,
+  WEEKDAY_LABELS,
+  formatDayShort,
+  taskChipClassName,
+  taskTimeLabel,
+  timeStrToMinutes,
+  weekdayOf,
+} from "@/lib/agenda";
 import { utcInstantToZonedDateTime } from "@/lib/timezone";
 import { rescheduleAppointment } from "@/lib/actions/appointments";
 import { cn } from "@/lib/utils";
@@ -24,19 +32,46 @@ interface WeekViewProps {
   days: string[];
   todayStr: string;
   appointments: AppointmentWithPatient[];
+  tasks: TaskWithPatient[];
   timeZone: string;
   onCreate: (dateStr: string, timeStr: string) => void;
   onSelect: (appointment: AppointmentWithPatient) => void;
+  onSelectTask: (task: TaskWithPatient) => void;
   onReschedule: (appointment: AppointmentWithPatient) => void;
 }
 
-export function WeekView({ days, todayStr, appointments, timeZone, onCreate, onSelect, onReschedule }: WeekViewProps) {
+export function WeekView({
+  days,
+  todayStr,
+  appointments,
+  tasks,
+  timeZone,
+  onCreate,
+  onSelect,
+  onSelectTask,
+  onReschedule,
+}: WeekViewProps) {
   const byDay = new Map<string, AppointmentWithPatient[]>();
   for (const appointment of appointments) {
     const { dateStr } = utcInstantToZonedDateTime(appointment.data_hora, timeZone);
     const list = byDay.get(dateStr) ?? [];
     list.push(appointment);
     byDay.set(dateStr, list);
+  }
+
+  // Tarefa com horário dentro da grade vai na hora; sem horário (ou fora da
+  // grade de 6h–21h) vai no topo do dia, no cabeçalho.
+  const timedTasks = new Map<string, TaskWithPatient[]>();
+  const allDayTasks = new Map<string, TaskWithPatient[]>();
+  for (const task of tasks) {
+    if (!task.data_limite) continue;
+    const time = taskTimeLabel(task.horario);
+    const minutes = time ? timeStrToMinutes(time) : null;
+    const inGrid = minutes !== null && minutes >= GRID_START_HOUR * 60 && minutes < GRID_END_HOUR * 60;
+    const target = inGrid ? timedTasks : allDayTasks;
+    const list = target.get(task.data_limite) ?? [];
+    list.push(task);
+    target.set(task.data_limite, list);
   }
 
   return (
@@ -56,6 +91,24 @@ export function WeekView({ days, todayStr, appointments, timeZone, onCreate, onS
             <p className={cn("text-sm font-semibold", dateStr === todayStr ? "text-primary-800" : "text-foreground")}>
               {formatDayShort(dateStr)}
             </p>
+            {(allDayTasks.get(dateStr) ?? []).map((task) => (
+              <button
+                key={task.id}
+                type="button"
+                onClick={() => onSelectTask(task)}
+                className={cn(
+                  "mt-1 flex w-full items-center gap-1 truncate rounded border px-1.5 py-0.5 text-left text-[11px] font-medium hover:brightness-95",
+                  taskChipClassName(task.concluida)
+                )}
+                title={`Tarefa: ${taskTimeLabel(task.horario) ? taskTimeLabel(task.horario) + " — " : ""}${task.titulo}`}
+              >
+                <CheckSquare className="h-3 w-3 shrink-0" aria-hidden />
+                <span className="truncate">
+                  {taskTimeLabel(task.horario) && `${taskTimeLabel(task.horario)} `}
+                  {task.titulo}
+                </span>
+              </button>
+            ))}
           </div>
         ))}
 
@@ -85,6 +138,29 @@ export function WeekView({ days, todayStr, appointments, timeZone, onCreate, onS
                 aria-label={`Nova consulta em ${formatDayShort(dateStr)} às ${hour}h`}
               />
             ))}
+
+            {(timedTasks.get(dateStr) ?? []).map((task) => {
+              const time = taskTimeLabel(task.horario)!;
+              const top = (timeStrToMinutes(time) - GRID_START_HOUR * 60) * PX_PER_MINUTE;
+              return (
+                <button
+                  key={task.id}
+                  type="button"
+                  onClick={() => onSelectTask(task)}
+                  style={{ top, height: 22 }}
+                  className={cn(
+                    "absolute inset-x-0.5 z-10 flex items-center gap-1 overflow-hidden rounded border px-1.5 text-left text-[11px] shadow-sm hover:brightness-95 sm:text-xs",
+                    taskChipClassName(task.concluida)
+                  )}
+                  title={`Tarefa: ${time} — ${task.titulo}`}
+                >
+                  <CheckSquare className="h-3 w-3 shrink-0" aria-hidden />
+                  <span className="truncate font-medium">
+                    {time} {task.titulo}
+                  </span>
+                </button>
+              );
+            })}
 
             {(byDay.get(dateStr) ?? []).map((appointment) => (
               <AppointmentBlock

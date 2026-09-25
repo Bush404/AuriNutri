@@ -72,6 +72,26 @@ export async function updateAnamnesis(
   return { success: true, message: "Anamnese atualizada com sucesso." };
 }
 
+/**
+ * Soft delete via função `security definer` (migration 0037, padrão da 0017).
+ * O registro some da tela mas continua no banco e no audit_log.
+ */
+export async function deleteAnamnesis(patientId: string, anamnesisId: string): Promise<ActionResult> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.rpc("soft_delete_anamnesis", { anamnesis_id: anamnesisId });
+
+  if (error) {
+    return { success: false, message: error.message };
+  }
+  if (!data) {
+    return { success: false, message: "Anamnese não encontrada." };
+  }
+
+  revalidatePath(`/pacientes/${patientId}`);
+  return { success: true, message: "Anamnese excluída." };
+}
+
 export async function createAssessment(patientId: string, input: AssessmentInput): Promise<ActionResult> {
   const parsed = assessmentSchema.safeParse(input);
   if (!parsed.success) {

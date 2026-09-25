@@ -17,6 +17,7 @@ import {
   splitInstallments,
   subtractCurrency,
   sumCurrency,
+  balancoUltimosDias,
 } from "./finance";
 
 type ExpenseInput = Pick<Expense, "valor" | "recorrencia" | "ativa">;
@@ -510,3 +511,45 @@ describe("subtractCurrency", () => {
   });
 });
 
+
+describe("balancoUltimosDias (card do dashboard)", () => {
+  const hoje = "2026-09-25";
+
+  it("janela de 30 dias com hoje incluso: começa 29 dias antes", () => {
+    expect(balancoUltimosDias([], [], hoje).inicio).toBe("2026-08-27");
+  });
+
+  it("soma o que entrou e subtrai o que saiu dentro da janela, calculado à mão", () => {
+    const recebimentos = [
+      { valor: 250, data_pagamento: "2026-09-25" }, // hoje: entra
+      { valor: 180.5, data_pagamento: "2026-08-27" }, // primeiro dia: entra
+      { valor: 999, data_pagamento: "2026-08-26" }, // um dia antes: fora
+      { valor: 300, data_pagamento: null }, // pendente: fora
+    ];
+    const despesas = [
+      { valor: 120.25, data_pagamento: "2026-09-10" }, // entra
+      { valor: 500, data_pagamento: "2026-09-26" }, // amanhã: fora
+      { valor: 80, data_pagamento: null }, // não paga: fora
+    ];
+    // 250 + 180,50 = 430,50 ; 430,50 − 120,25 = 310,25
+    expect(balancoUltimosDias(recebimentos, despesas, hoje)).toEqual({
+      recebido: 430.5,
+      despesasPagas: 120.25,
+      saldo: 310.25,
+      inicio: "2026-08-27",
+    });
+  });
+
+  it("saldo pode ser negativo e não sofre erro de ponto flutuante", () => {
+    const r = balancoUltimosDias(
+      [{ valor: 0.1, data_pagamento: hoje }, { valor: 0.2, data_pagamento: hoje }],
+      [{ valor: 1, data_pagamento: hoje }],
+      hoje
+    );
+    expect(r.saldo).toBe(-0.7);
+  });
+
+  it("atravessa a virada do ano", () => {
+    expect(balancoUltimosDias([], [], "2027-01-10").inicio).toBe("2026-12-12");
+  });
+});

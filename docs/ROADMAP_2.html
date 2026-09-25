@@ -126,13 +126,13 @@
 <section class="overall">
   <div class="overall-top">
     <h2>Progresso do Roadmap 2</h2>
-    <div class="pct">0%</div>
+    <div class="pct">19%</div>
   </div>
-  <div class="bar"><i style="width:0%"></i></div>
+  <div class="bar"><i style="width:19%"></i></div>
   <div class="legend">
-    <span><b>0</b> fases concluídas</span>
-    <span><b>0</b> em andamento</span>
-    <span><b>7</b> planejadas</span>
+    <span><b>1</b> fase concluída (13, aguardando publicação)</span>
+    <span><b>1</b> em andamento (12, falta publicar)</span>
+    <span><b>5</b> planejadas</span>
     <span><b>1</b> bloqueada (licenças)</span>
     <span><b>3</b> decisões pendentes</span>
   </div>
@@ -166,19 +166,19 @@
 <details class="phase active" open>
   <summary class="ph-head">
     <span class="mark">12</span>
-    <span class="ph-title"><span class="n">PHASE 12 · PRÓXIMA</span><div class="t">Segurança e velocidade</div></span>
-    <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+    <span class="ph-title"><span class="n">PHASE 12 · EM ANDAMENTO</span><div class="t">Segurança e velocidade</div></span>
+    <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-high">Falta publicar</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
     <p class="obj"><b>Objetivo:</b> vem primeiro porque afeta todas as telas atuais e todas as que vão ser criadas. Corrigir agora custa menos.</p>
     <ul class="tasks">
-      <li>Atualizar o Next.js 14.2.13 (com falhas de segurança conhecidas) para o último patch da linha 14.2.x</li>
-      <li>Confirmar backup automático do banco e escrever como restaurar</li>
-      <li>Verificação em duas etapas em Supabase, Netlify, GitHub, Resend, Sentry e no registro do domínio</li>
-      <li>Registrar quando migrar para Next 15/16 (troca de versão maior, fase própria)</li>
-      <li>Medir o tempo das páginas principais antes de mexer</li>
-      <li>Conferir se o servidor do site e o banco estão em regiões distantes</li>
-      <li>Consultas ao banco em paralelo, e não uma depois da outra</li>
+      <li class="ok">Next.js 16 + React 19 no ar e testados (12/12 no site publicado)</li>
+      <li class="ok">Cópia de segurança manual completa: 29 tabelas, contas e arquivos</li>
+      <li class="ok">Verificação em duas etapas em todas as contas administrativas</li>
+      <li class="ok">Medido: ~0,2 s por consulta ao banco; site em Ohio, banco em São Paulo</li>
+      <li class="ok">Consultas ao banco em paralelo (layout, dashboard, agenda, plano alimentar)</li>
+      <li>Publicar Sentry no navegador + velocidade quando os créditos do Netlify renovarem</li>
+      <li>Planos pagos do Netlify (região São Paulo) e do Supabase (backup diário) antes do primeiro cliente</li>
       <li>Telas de carregamento onde ainda faltam</li>
       <li>Medir de novo e registrar o antes/depois em números</li>
     </ul>
@@ -191,20 +191,20 @@
 
 <details class="phase">
   <summary class="ph-head">
-    <span class="mark">13</span>
+    <span class="mark done">✓</span>
     <span class="ph-title"><span class="n">PHASE 13</span><div class="t">Ajustes rápidos do dia a dia</div></span>
-    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-todo">Todo</span><span class="caret">▶</span></span>
+    <span class="ph-meta"><span class="chip c-high">High</span><span class="chip c-done">Done · aguardando publicação</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
     <p class="obj"><b>Objetivo:</b> melhorar telas que já existem, sem modelo de dados novo. As tarefas e os botões dos planos já funcionam por trás; falta só a interface.</p>
     <ul class="tasks">
-      <li>Dashboard: "Ticket médio" vira "Balanço dos últimos 30 dias" (recebido − despesas)</li>
-      <li>Dashboard: parte de baixo em duas colunas. À esquerda, calendário dos próximos 7 dias (só visualização) com "Ver agenda completa"; à direita, "Próximos compromissos (7 dias)"</li>
-      <li>Tarefas: criar pela agenda (título, data, horário e paciente opcionais), visual próprio no calendário, concluir/reabrir/excluir</li>
-      <li>Tarefas entram em "Próximos compromissos" no dashboard</li>
-      <li>Anamnese: "Adicionar nova anamnese" no topo e anteriores fechadas abaixo (nome, data, visualizar/editar, excluir)</li>
-      <li>Planos: botões Editar, Excluir e Ativar/Desativar na lista</li>
-      <li>Busca: "Buscar alimento (TACO ou seus)" vira "Buscar alimentos"</li>
+      <li class="ok">Dashboard: "Ticket médio" vira "Balanço dos últimos 30 dias" (recebido − despesas)</li>
+      <li class="ok">Dashboard: parte de baixo em duas colunas. À esquerda, calendário dos próximos 7 dias (só visualização) com "Ver agenda completa"; à direita, "Próximos compromissos (7 dias)"</li>
+      <li class="ok">Tarefas: criar pela agenda (título, data, horário e paciente opcionais), visual próprio no calendário, concluir/reabrir/excluir</li>
+      <li class="ok">Tarefas entram em "Próximos compromissos" no dashboard</li>
+      <li class="ok">Anamnese: "Adicionar nova anamnese" no topo e anteriores fechadas abaixo (nome, data, visualizar/editar, excluir)</li>
+      <li class="ok">Planos: botões Editar, Excluir e Ativar/Desativar na lista</li>
+      <li class="ok">Busca: "Buscar alimento (TACO ou seus)" vira "Buscar alimentos"</li>
     </ul>
     <div class="accept"><b>Aceite</b>
       Balanço de 30 dias confere com cálculo feito à mão. Tarefa de uma conta não aparece para outra. Anamnese excluída some da tela, mas fica no histórico de auditoria.</div>

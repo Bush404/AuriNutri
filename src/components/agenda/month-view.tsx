@@ -1,20 +1,35 @@
 "use client";
 
-import type { AppointmentWithPatient } from "@/lib/types/database.types";
-import { APPOINTMENT_STATUS_META, WEEKDAY_LABELS, isSameMonth } from "@/lib/agenda";
+import { CheckSquare } from "lucide-react";
+
+import type { AppointmentWithPatient, TaskWithPatient } from "@/lib/types/database.types";
+import {
+  APPOINTMENT_STATUS_META,
+  WEEKDAY_LABELS,
+  agendaItemSortKey,
+  isSameMonth,
+  taskChipClassName,
+  taskTimeLabel,
+} from "@/lib/agenda";
 import { utcInstantToZonedDateTime } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 
 const MAX_CHIPS_PER_DAY = 3;
+
+type DayItem =
+  | { kind: "consulta"; timeStr: string; appointment: AppointmentWithPatient }
+  | { kind: "tarefa"; timeStr: string | null; task: TaskWithPatient };
 
 interface MonthViewProps {
   weeks: string[][];
   monthAnchor: string;
   todayStr: string;
   appointments: AppointmentWithPatient[];
+  tasks: TaskWithPatient[];
   timeZone: string;
   onCreate: (dateStr: string) => void;
   onSelect: (appointment: AppointmentWithPatient) => void;
+  onSelectTask: (task: TaskWithPatient) => void;
   onShowDay: (dateStr: string) => void;
 }
 
@@ -23,20 +38,28 @@ export function MonthView({
   monthAnchor,
   todayStr,
   appointments,
+  tasks,
   timeZone,
   onCreate,
   onSelect,
+  onSelectTask,
   onShowDay,
 }: MonthViewProps) {
-  const byDay = new Map<string, AppointmentWithPatient[]>();
-  for (const appointment of appointments) {
-    const { dateStr } = utcInstantToZonedDateTime(appointment.data_hora, timeZone);
+  const byDay = new Map<string, DayItem[]>();
+  function push(dateStr: string, item: DayItem) {
     const list = byDay.get(dateStr) ?? [];
-    list.push(appointment);
+    list.push(item);
     byDay.set(dateStr, list);
   }
+  for (const appointment of appointments) {
+    const { dateStr, timeStr } = utcInstantToZonedDateTime(appointment.data_hora, timeZone);
+    push(dateStr, { kind: "consulta", timeStr, appointment });
+  }
+  for (const task of tasks) {
+    if (task.data_limite) push(task.data_limite, { kind: "tarefa", timeStr: taskTimeLabel(task.horario), task });
+  }
   for (const list of byDay.values()) {
-    list.sort((a, b) => a.data_hora.localeCompare(b.data_hora));
+    list.sort((a, b) => agendaItemSortKey(a).localeCompare(agendaItemSortKey(b)));
   }
 
   return (
@@ -51,9 +74,9 @@ export function MonthView({
 
       <div className="grid grid-cols-7">
         {weeks.flat().map((dateStr) => {
-          const dayAppointments = byDay.get(dateStr) ?? [];
-          const visible = dayAppointments.slice(0, MAX_CHIPS_PER_DAY);
-          const overflow = dayAppointments.length - visible.length;
+          const dayItems = byDay.get(dateStr) ?? [];
+          const visible = dayItems.slice(0, MAX_CHIPS_PER_DAY);
+          const overflow = dayItems.length - visible.length;
           const isCurrentMonth = isSameMonth(dateStr, monthAnchor);
           const isToday = dateStr === todayStr;
           const dayNumber = Number(dateStr.slice(-2));
@@ -80,9 +103,33 @@ export function MonthView({
               </span>
 
               <div className="flex flex-1 flex-col gap-1 overflow-hidden">
-                {visible.map((appointment) => {
+                {visible.map((item) => {
+                  if (item.kind === "tarefa") {
+                    const { task } = item;
+                    return (
+                      <button
+                        key={task.id}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectTask(task);
+                        }}
+                        className={cn(
+                          "flex items-center gap-1 truncate rounded border px-1.5 py-0.5 text-left text-[11px] font-medium hover:brightness-95 sm:text-xs",
+                          taskChipClassName(task.concluida)
+                        )}
+                        title={`Tarefa: ${item.timeStr ? item.timeStr + " — " : ""}${task.titulo}${task.concluida ? " (concluída)" : ""}`}
+                      >
+                        <CheckSquare className="h-3 w-3 shrink-0" aria-hidden />
+                        <span className="truncate">
+                          {item.timeStr && <span className="hidden sm:inline">{item.timeStr} </span>}
+                          {task.titulo}
+                        </span>
+                      </button>
+                    );
+                  }
+                  const { appointment, timeStr } = item;
                   const meta = APPOINTMENT_STATUS_META[appointment.status];
-                  const { timeStr } = utcInstantToZonedDateTime(appointment.data_hora, timeZone);
                   return (
                     <button
                       key={appointment.id}

@@ -77,6 +77,8 @@ export interface Anamnesis {
   user_id: string;
   /** anamnesis é 1:N por paciente — data deste registro específico do histórico. */
   data_registro: string;
+  /** Nome opcional do registro (migration 0037). */
+  titulo: string | null;
   queixa_principal: string | null;
   historico_saude: string | null;
   historico_familiar: string | null;
@@ -462,6 +464,10 @@ export interface AppointmentWithPatient extends Appointment {
   patients: { nome: string } | null;
 }
 
+export interface TaskWithPatient extends Task {
+  patients: { nome: string } | null;
+}
+
 export interface Task {
   id: string;
   user_id: string;
@@ -472,6 +478,8 @@ export interface Task {
   concluida: boolean;
   /** Data (yyyy-mm-dd), sem horário — não precisa da precisão de fuso de appointments.data_hora. */
   data_limite: string | null;
+  /** Horário opcional (hh:mm:ss), de parede, no fuso do profissional (migration 0037). */
+  horario: string | null;
   created_at: string;
   updated_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */

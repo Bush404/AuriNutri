@@ -123,7 +123,7 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={handleFocus}
           onKeyDown={onKeyDown}
-          placeholder="Buscar alimento (TACO ou seus)..."
+          placeholder="Buscar alimentos..."
           aria-label="Alimento"
           aria-required="true"
           className="pl-9"

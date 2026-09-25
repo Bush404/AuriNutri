@@ -56,7 +56,7 @@ lentidão agora custa menos do que depois de dobrar o número de telas.
 [x] `npm run backup:db` refeito: todas as 29 tabelas (antes 8), contas de login e os arquivos dos
     5 buckets; busca em páginas (antes parava em 1.000 linhas por tabela sem avisar) e tenta de
     novo quando o Storage responde Gateway Timeout. Testado: 949 linhas, 4 contas, 45 arquivos
-[ ] Checklist de contas administrativas: 2FA em Supabase, Netlify, GitHub, Resend, Sentry, registro do domínio
+[x] Verificação em duas etapas ativada pela responsável em Gmail, GitHub, Supabase, Netlify, Resend, Sentry e registro do domínio (25/09/2026)
 ```
 
 **Troca para Next 16 (25/09/2026), decidida com a responsável pelo produto:** a linha 14 do Next.js
@@ -132,17 +132,17 @@ com `npm run build` + `npm test` + `npm run test:e2e` antes do deploy.
 
 ---
 
-## PHASE 13 — Ajustes rápidos do dia a dia · `TODO` · `HIGH`
+## PHASE 13 — Ajustes rápidos do dia a dia · `DONE` (25/09/2026, aguardando publicação) · `HIGH`
 
 Tudo aqui mexe em telas que já existem, sem modelo de dados novo (exceto se indicado).
 
 ### Dashboard
 ```
-[ ] Trocar o card "Ticket médio" por "Balanço dos últimos 30 dias" (recebido − despesas, período móvel)
-[ ] Dividir a seção inferior em duas colunas:
+[x] Trocar o card "Ticket médio" por "Balanço dos últimos 30 dias" (recebido − despesas, período móvel)
+[x] Dividir a seção inferior em duas colunas:
       esquerda: minicalendário dos próximos 7 dias, só visualização, com botão "Ver agenda completa"
       direita:  "Próximos compromissos (7 dias)" = consultas + tarefas
-[ ] No celular, as duas colunas empilham (calendário em cima)
+[x] No celular, as duas colunas empilham (calendário em cima)
 ```
 Nome sugerido para a lista da direita: **"Próximos compromissos (7 dias)"**, porque junta consultas e
 tarefas. "Próximas tarefas" daria a entender que as consultas sumiram.
@@ -152,30 +152,42 @@ em um tooltip. Os dados vêm de `payments`/`expense_occurrences`, que já existe
 
 ### Tarefas (interface para o backend da Fase 5)
 ```
-[ ] Criar tarefa pela agenda (título, data, horário opcional, paciente opcional, observação)
-[ ] Tarefas aparecem no calendário com visual diferente das consultas
-[ ] Concluir / reabrir / excluir tarefa
-[ ] Tarefas entram em "Próximos compromissos" no dashboard
+[x] Criar tarefa pela agenda (título, data, horário opcional, paciente opcional, observação)
+[x] Tarefas aparecem no calendário com visual diferente das consultas
+[x] Concluir / reabrir / excluir tarefa
+[x] Tarefas entram em "Próximos compromissos" no dashboard
 ```
 Tarefas **não** entram na trava de horário sobreposto (migration 0012 vale só para consultas).
 
 ### Anamnese: lista em vez de abrir a última
 ```
-[ ] Ao entrar na aba: botão "Adicionar nova anamnese" no topo
-[ ] Abaixo: anamneses anteriores fechadas (título/nome, data), com "Visualizar/editar" e "Excluir"
-[ ] Excluir usa soft delete via função security definer (padrão obrigatório desde a migration 0017)
+[x] Ao entrar na aba: botão "Adicionar nova anamnese" no topo
+[x] Abaixo: anamneses anteriores fechadas (título/nome, data), com "Visualizar/editar" e "Excluir"
+[x] Excluir usa soft delete via função security definer (padrão obrigatório desde a migration 0017)
 ```
 
 ### Planos alimentares
 ```
-[ ] Botões Editar, Excluir e Ativar/Desativar em cada plano da lista (actions já existem)
-[ ] Busca de alimento: trocar "Buscar alimento (TACO ou seus)..." por "Buscar alimentos"
+[x] Botões Editar, Excluir e Ativar/Desativar em cada plano da lista (actions já existem)
+[x] Busca de alimento: trocar "Buscar alimento (TACO ou seus)..." por "Buscar alimentos"
 ```
 
 ### Critérios de aceite
-- Balanço de 30 dias confere com um cálculo feito à mão (teste unitário).
-- Tarefa de uma conta não aparece para outra (acrescentar `tasks` ao teste de isolamento).
-- Excluir anamnese não apaga do banco: some da tela e fica no audit_log.
+- [x] Balanço de 30 dias confere com um cálculo feito à mão: `balancoUltimosDias` em `finance.ts`,
+  4 testes (bordas da janela, pendências fora, saldo negativo sem erro de ponto flutuante, virada do ano).
+- [x] Tarefa de uma conta não aparece para outra: `tasks` já estava no teste de isolamento; somado
+  `soft_delete_anamnesis` por outra conta (retorna false). `test:security-isolation-full` 88/88.
+- [x] Excluir anamnese não apaga do banco: `soft_delete_anamnesis` (migration 0037, padrão da 0017)
+  só preenche `deleted_at`, e o gatilho de auditoria registra o UPDATE.
+
+**Como ficou (25/09/2026):** migration `0037` (aplicada) acrescenta `tasks.horario` (opcional, de
+parede no fuso do profissional), `anamnesis.titulo` (nome opcional) e `soft_delete_anamnesis`.
+Tarefas: `TaskFormDialog` na agenda, chip tracejado com ícone de caixinha no mês, na semana (na
+hora certa, ou no topo do dia se não tiver horário) e no detalhe do dia; a ordem do dia é tarefa
+sem horário primeiro e depois tudo por horário (`agendaItemSortKey`, testado). O dashboard só lista
+tarefas em aberto. "Editar" na lista de planos abre o plano; Ativar/Desativar e Excluir agem na
+própria lista. E2E novo `tarefas.e2e.ts` (criar → dashboard → concluir → excluir), 13/13 passando.
+Tudo **guardado localmente** até os créditos do Netlify renovarem (ver Fase 12).
 
 ---
 

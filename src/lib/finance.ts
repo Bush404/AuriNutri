@@ -420,3 +420,42 @@ export function subtractCurrency(minuendo: number, subtraendo: number): number {
   return centavosParaReais(reaisParaCentavos(minuendo) - reaisParaCentavos(subtraendo));
 }
 
+
+/** Dias da janela do "Balanço dos últimos 30 dias" do dashboard (hoje incluso). */
+export const JANELA_BALANCO_DIAS = 30;
+
+/** "yyyy-mm-dd" deslocado em dias, sem depender do fuso do servidor. */
+function shiftDateStr(dateStr: string, deltaDias: number): string {
+  const [ano, mes, dia] = dateStr.split("-").map(Number);
+  return new Date(Date.UTC(ano, mes - 1, dia + deltaDias)).toISOString().slice(0, 10);
+}
+
+export interface BalancoPeriodo {
+  recebido: number;
+  despesasPagas: number;
+  /** recebido − despesas pagas. Pode ser negativo. */
+  saldo: number;
+  /** Primeiro dia da janela (yyyy-mm-dd). */
+  inicio: string;
+}
+
+/**
+ * Balanço do dashboard: o que ENTROU (pagamentos de pacientes) menos o que
+ * SAIU (despesas pagas), pela data em que o dinheiro se moveu — nunca pelo
+ * vencimento. Janela móvel: os últimos 30 dias até `hoje` (no fuso do
+ * profissional), hoje incluso. Pendências não entram: ainda não são dinheiro.
+ */
+export function balancoUltimosDias(
+  recebimentos: { valor: number; data_pagamento: string | null }[],
+  despesas: { valor: number; data_pagamento: string | null }[],
+  hoje: string,
+  dias: number = JANELA_BALANCO_DIAS
+): BalancoPeriodo {
+  const inicio = shiftDateStr(hoje, -(dias - 1));
+  const naJanela = (data: string | null) => data !== null && data >= inicio && data <= hoje;
+
+  const recebido = sumCurrency(recebimentos.filter((r) => naJanela(r.data_pagamento)).map((r) => r.valor));
+  const despesasPagas = sumCurrency(despesas.filter((d) => naJanela(d.data_pagamento)).map((d) => d.valor));
+
+  return { recebido, despesasPagas, saldo: subtractCurrency(recebido, despesasPagas), inicio };
+}

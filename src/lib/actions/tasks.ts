@@ -27,6 +27,7 @@ export async function createTask(input: TaskInput): Promise<ActionResult> {
     titulo: parsed.data.titulo,
     descricao: parsed.data.descricao || null,
     data_limite: parsed.data.data_limite || null,
+    horario: parsed.data.horario || null,
     concluida: parsed.data.concluida ?? false,
   });
 
@@ -35,10 +36,11 @@ export async function createTask(input: TaskInput): Promise<ActionResult> {
   }
 
   revalidatePath("/agenda");
+  revalidatePath("/dashboard");
   if (parsed.data.patient_id) {
     revalidatePath(`/pacientes/${parsed.data.patient_id}`);
   }
-  return { success: true, message: "Pendência criada com sucesso." };
+  return { success: true, message: "Tarefa criada." };
 }
 
 export async function updateTask(taskId: string, input: TaskInput): Promise<ActionResult> {
@@ -56,6 +58,7 @@ export async function updateTask(taskId: string, input: TaskInput): Promise<Acti
       titulo: parsed.data.titulo,
       descricao: parsed.data.descricao || null,
       data_limite: parsed.data.data_limite || null,
+      horario: parsed.data.horario || null,
       concluida: parsed.data.concluida ?? false,
     })
     .eq("id", taskId);
@@ -65,10 +68,11 @@ export async function updateTask(taskId: string, input: TaskInput): Promise<Acti
   }
 
   revalidatePath("/agenda");
+  revalidatePath("/dashboard");
   if (parsed.data.patient_id) {
     revalidatePath(`/pacientes/${parsed.data.patient_id}`);
   }
-  return { success: true, message: "Pendência atualizada com sucesso." };
+  return { success: true, message: "Tarefa atualizada." };
 }
 
 export async function toggleTaskConcluida(taskId: string, concluida: boolean): Promise<ActionResult> {
@@ -80,6 +84,7 @@ export async function toggleTaskConcluida(taskId: string, concluida: boolean): P
   }
 
   revalidatePath("/agenda");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -97,5 +102,6 @@ export async function deleteTask(taskId: string): Promise<ActionResult> {
   }
 
   revalidatePath("/agenda");
+  revalidatePath("/dashboard");
   return { success: true };
 }

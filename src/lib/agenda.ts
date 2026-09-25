@@ -209,3 +209,29 @@ export function addMinutesToTimeStr(time: string, minutes: number): string {
 export function rangesOverlap(aStart: number, aEnd: number, bStart: number, bEnd: number): boolean {
   return aStart < bEnd && bStart < aEnd;
 }
+
+// ============================================================================
+// Tarefas (Fase 13 do Roadmap 2) — aparecem no calendário junto das consultas,
+// com visual próprio (borda tracejada), sem cor nova.
+// ============================================================================
+
+/** Chip de tarefa: tracejado para não ser confundido com consulta. */
+export function taskChipClassName(concluida: boolean): string {
+  return concluida
+    ? "border-dashed border-border bg-muted/30 text-muted-foreground line-through"
+    : "border-dashed border-foreground/40 bg-background text-foreground";
+}
+
+/** "14:30:00" (Postgres `time`) → "14:30". Sem horário → null. */
+export function taskTimeLabel(horario: string | null | undefined): string | null {
+  return horario ? horario.slice(0, 5) : null;
+}
+
+/**
+ * Ordem de exibição dentro de um dia: tarefas sem horário primeiro (valem
+ * para o dia todo), depois tudo por horário. Empate: consulta antes de tarefa.
+ */
+export function agendaItemSortKey(item: { kind: "consulta" | "tarefa"; timeStr: string | null }): string {
+  if (item.timeStr === null) return "0";
+  return `1${item.timeStr}${item.kind === "consulta" ? "0" : "1"}`;
+}

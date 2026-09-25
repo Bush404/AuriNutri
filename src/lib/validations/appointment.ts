@@ -57,6 +57,8 @@ export const taskSchema = z.object({
   appointment_id: optionalUuid(),
   /** Data (yyyy-mm-dd), sem horário — não precisa de conversão de fuso. */
   data_limite: optionalText(),
+  /** Horário opcional (hh:mm), de parede, no fuso do profissional. */
+  horario: optionalText().refine((v) => !v || /^\d{2}:\d{2}$/.test(v), "Horário inválido"),
   concluida: z.boolean().optional(),
 });
 export type TaskInput = z.infer<typeof taskSchema>;

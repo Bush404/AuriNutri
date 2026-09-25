@@ -38,6 +38,7 @@ export const patientSchema = z.object({
 export type PatientInput = z.infer<typeof patientSchema>;
 
 export const anamnesisSchema = z.object({
+  titulo: optionalText(),
   queixa_principal: optionalText(),
   historico_saude: optionalText(),
   historico_familiar: optionalText(),

@@ -527,6 +527,14 @@ async function main() {
       updateValue: "alterado por B",
       canDelete: true,
     });
+    // Exclusão de anamnese pela tela (migration 0037, security definer).
+    const { data: anamnesisRpcResult, error: anamnesisRpcError } = await userB.client.rpc("soft_delete_anamnesis", {
+      anamnesis_id: anamnesis.id,
+    });
+    if (!anamnesisRpcError && anamnesisRpcResult === true) {
+      breach("B CONSEGUIU excluir (RPC soft_delete_anamnesis) a anamnese de A");
+    }
+    pass("B não consegue excluir (RPC) a anamnese de A", anamnesisRpcError?.message ?? `retorno: ${anamnesisRpcResult}`);
 
     const { data: assessment, error: assessmentError } = await userA.client
       .from("anthropometric_assessments")

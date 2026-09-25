@@ -93,7 +93,11 @@ export async function setMealPlanCalorieGoal(planId: string, metaKcal: number): 
   return { success: true, message: "Meta calórica atualizada." };
 }
 
-export async function toggleMealPlanStatus(planId: string, ativo: boolean): Promise<ActionResult> {
+export async function toggleMealPlanStatus(
+  planId: string,
+  ativo: boolean,
+  patientId?: string
+): Promise<ActionResult> {
   const supabase = await createClient();
   const { error } = await supabase.from("meal_plans").update({ ativo }).eq("id", planId);
 
@@ -103,6 +107,7 @@ export async function toggleMealPlanStatus(planId: string, ativo: boolean): Prom
 
   revalidatePath(`/planos/${planId}`);
   revalidatePath("/planos");
+  if (patientId) revalidatePath(`/pacientes/${patientId}`);
   return { success: true };
 }
 

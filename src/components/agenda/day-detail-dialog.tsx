@@ -1,9 +1,9 @@
 "use client";
 
-import { CalendarClock, Plus } from "lucide-react";
+import { CalendarClock, CheckSquare, Plus } from "lucide-react";
 
-import type { AppointmentWithPatient } from "@/lib/types/database.types";
-import { APPOINTMENT_STATUS_META, formatDayShort } from "@/lib/agenda";
+import type { AppointmentWithPatient, TaskWithPatient } from "@/lib/types/database.types";
+import { APPOINTMENT_STATUS_META, agendaItemSortKey, formatDayShort, taskChipClassName, taskTimeLabel } from "@/lib/agenda";
 import { utcInstantToZonedDateTime } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 
@@ -16,9 +16,12 @@ interface DayDetailDialogProps {
   onOpenChange: (open: boolean) => void;
   dateStr: string | null;
   appointments: AppointmentWithPatient[];
+  tasks: TaskWithPatient[];
   timeZone: string;
   onCreate: (dateStr: string) => void;
+  onCreateTask: (dateStr: string) => void;
   onSelect: (appointment: AppointmentWithPatient) => void;
+  onSelectTask: (task: TaskWithPatient) => void;
 }
 
 export function DayDetailDialog({
@@ -26,15 +29,25 @@ export function DayDetailDialog({
   onOpenChange,
   dateStr,
   appointments,
+  tasks,
   timeZone,
   onCreate,
+  onCreateTask,
   onSelect,
+  onSelectTask,
 }: DayDetailDialogProps) {
   if (!dateStr) return null;
 
   const dayAppointments = appointments
     .filter((a) => utcInstantToZonedDateTime(a.data_hora, timeZone).dateStr === dateStr)
     .sort((a, b) => a.data_hora.localeCompare(b.data_hora));
+  const dayTasks = tasks
+    .filter((t) => t.data_limite === dateStr)
+    .sort((a, b) =>
+      agendaItemSortKey({ kind: "tarefa", timeStr: taskTimeLabel(a.horario) }).localeCompare(
+        agendaItemSortKey({ kind: "tarefa", timeStr: taskTimeLabel(b.horario) })
+      )
+    );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -44,11 +57,28 @@ export function DayDetailDialog({
         </DialogHeader>
 
         <div className="space-y-2">
-          {dayAppointments.length === 0 && (
+          {dayAppointments.length === 0 && dayTasks.length === 0 && (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              Nenhuma consulta neste dia.
+              Nenhuma consulta ou tarefa neste dia.
             </p>
           )}
+
+          {dayTasks.map((task) => (
+            <button
+              key={task.id}
+              type="button"
+              onClick={() => onSelectTask(task)}
+              className={cn(
+                "flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-sm transition-colors hover:brightness-95",
+                taskChipClassName(task.concluida)
+              )}
+            >
+              <CheckSquare className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="font-medium">{taskTimeLabel(task.horario) ?? "Dia todo"}</span>
+              <span className="truncate">{task.titulo}</span>
+              {task.patients?.nome && <span className="truncate text-muted-foreground">· {task.patients.nome}</span>}
+            </button>
+          ))}
 
           {dayAppointments.map((appointment) => {
             const meta = APPOINTMENT_STATUS_META[appointment.status];
@@ -79,17 +109,28 @@ export function DayDetailDialog({
           })}
         </div>
 
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={() => {
-            onOpenChange(false);
-            onCreate(dateStr);
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          Nova consulta neste dia
-        </Button>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              onOpenChange(false);
+              onCreate(dateStr);
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            Nova consulta
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              onOpenChange(false);
+              onCreateTask(dateStr);
+            }}
+          >
+            <CheckSquare className="h-4 w-4" />
+            Nova tarefa
+          </Button>
+        </div>
 
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <CalendarClock className="h-3.5 w-3.5" />

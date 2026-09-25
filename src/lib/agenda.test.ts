@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   addDays,
+  agendaItemSortKey,
+  taskTimeLabel,
   addMinutesToTimeStr,
   addMonths,
   formatMonthLabel,
@@ -127,5 +129,24 @@ describe("formatMonthLabel / formatWeekRangeLabel", () => {
   it("formata o intervalo da semana como dd/mm – dd/mm", () => {
     const week = getWeekDays("2026-09-17");
     expect(formatWeekRangeLabel(week)).toBe("13/9 – 19/9");
+  });
+});
+
+describe("tarefas no calendário", () => {
+  it("taskTimeLabel corta os segundos do Postgres e aceita ausência", () => {
+    expect(taskTimeLabel("14:30:00")).toBe("14:30");
+    expect(taskTimeLabel(null)).toBeNull();
+    expect(taskTimeLabel(undefined)).toBeNull();
+  });
+
+  it("ordena o dia: tarefa sem horário primeiro, depois por horário, consulta antes de tarefa no empate", () => {
+    const itens = [
+      { id: "consulta-10", kind: "consulta" as const, timeStr: "10:00" },
+      { id: "tarefa-09", kind: "tarefa" as const, timeStr: "09:00" },
+      { id: "tarefa-10", kind: "tarefa" as const, timeStr: "10:00" },
+      { id: "tarefa-dia", kind: "tarefa" as const, timeStr: null },
+    ];
+    const ordem = [...itens].sort((a, b) => agendaItemSortKey(a).localeCompare(agendaItemSortKey(b))).map((i) => i.id);
+    expect(ordem).toEqual(["tarefa-dia", "tarefa-09", "consulta-10", "tarefa-10"]);
   });
 });

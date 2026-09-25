@@ -12,6 +12,7 @@ import type { Anamnesis } from "@/lib/types/database.types";
 import { useUnsavedChangesWarning } from "@/lib/hooks/use-unsaved-changes-warning";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -49,6 +50,7 @@ export function AnamnesisForm({ patientId, anamnesis, onSaved, onCancel }: Anamn
   } = useForm<AnamnesisInput>({
     resolver: zodResolver(anamnesisSchema),
     defaultValues: {
+      titulo: anamnesis?.titulo ?? "",
       queixa_principal: anamnesis?.queixa_principal ?? "",
       historico_saude: anamnesis?.historico_saude ?? "",
       historico_familiar: anamnesis?.historico_familiar ?? "",
@@ -92,6 +94,11 @@ export function AnamnesisForm({ patientId, anamnesis, onSaved, onCancel }: Anamn
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <div className="space-y-2 md:max-w-md">
+            <Label htmlFor="titulo">Nome (opcional)</Label>
+            <Input id="titulo" placeholder="Ex.: Anamnese inicial, Retorno de 3 meses" {...register("titulo")} />
+          </div>
+
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             {ANAMNESIS_FIELDS.map((field) => (
               <div key={field.name} className="space-y-2">

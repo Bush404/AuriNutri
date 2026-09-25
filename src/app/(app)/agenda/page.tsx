@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { DEFAULT_TIME_ZONE, todayInTimeZone, zonedWallTimeToUtc } from "@/lib/timezone";
 import { addDays, addMonths, formatMonthLabel, formatWeekRangeLabel, getMonthGridWeeks, getWeekDays } from "@/lib/agenda";
-import type { AppointmentStatus, AppointmentWithPatient } from "@/lib/types/database.types";
+import type { AppointmentStatus, AppointmentWithPatient, TaskWithPatient } from "@/lib/types/database.types";
 import type { PatientPickerResult } from "@/lib/actions/patients";
 
 import { Button } from "@/components/ui/button";
@@ -63,9 +63,20 @@ export default async function AgendaPage(props: AgendaPageProps) {
   if (status) query = query.eq("status", status);
   if (searchParams.paciente) query = query.eq("patient_id", searchParams.paciente);
 
-  // O paciente do filtro vem junto com as consultas, não depois.
-  const [{ data: appointments, error }, patientFilter] = await Promise.all([
+  // Tarefas do mesmo período (data sem fuso: comparação direta de yyyy-mm-dd).
+  // O filtro de status é de consulta e não se aplica a tarefa; o de paciente sim.
+  let tasksQuery = supabase
+    .from("tasks")
+    .select("*, patients(nome)")
+    .gte("data_limite", rangeStart)
+    .lt("data_limite", rangeEndExclusive)
+    .order("data_limite");
+  if (searchParams.paciente) tasksQuery = tasksQuery.eq("patient_id", searchParams.paciente);
+
+  // O paciente do filtro e as tarefas vêm junto com as consultas, não depois.
+  const [{ data: appointments, error }, { data: tasks }, patientFilter] = await Promise.all([
     query.returns<AppointmentWithPatient[]>(),
+    tasksQuery.returns<TaskWithPatient[]>(),
     searchParams.paciente
       ? supabase
           .from("patients")
@@ -149,6 +160,7 @@ export default async function AgendaPage(props: AgendaPageProps) {
               todayStr={todayStr}
               timeZone={timeZone}
               appointments={appointments ?? []}
+              tasks={tasks ?? []}
               patientFilter={patientFilter}
             />
           )}
