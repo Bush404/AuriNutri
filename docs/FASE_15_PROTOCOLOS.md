@@ -1,5 +1,11 @@
 # Fase 15 — Lista de protocolos para aprovação (decisão R4)
 
+> **APROVADA em 30/09/2026.** Decisões: gestantes **depois** (fase própria); densidade → % gordura
+> por **Brozek e Siri** (o profissional escolhe; Brozek é o padrão); **RCEst entra**; para crianças
+> entram **peso/altura e percentis**; **desenhos de onde medir ficam para depois**; Body3D não
+> entra. Todo o resto da lista fica como proposto. Itens ⚠️ ainda não vistos no WebDiet usam a
+> referência proposta na linha e são revisados pela nutricionista quando a tela estiver pronta.
+
 Montada em 30/09/2026 a partir dos prints do WebDiet enviados pela responsável pelo produto,
 com a referência científica de cada item. **Como marcar:** em cada linha, troque `[ ]` por
 `[x] fica`, `[x] sai` ou escreva o que falta. Itens com ⚠️ não apareceram nos prints e precisam
