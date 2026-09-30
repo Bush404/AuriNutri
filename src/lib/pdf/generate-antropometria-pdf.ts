@@ -5,7 +5,9 @@ import type { createClient } from "@/lib/supabase/server";
 import { buildProfissionalPdfHeaderData } from "@/lib/pdf/profissional-header";
 import { AntropometriaPdfDocument } from "@/lib/pdf/antropometria-pdf-document";
 import { slugify } from "@/lib/pdf/generate-plan-pdf";
-import type { AnthropometricAssessment } from "@/lib/types/database.types";
+import type { AnthropometricAssessment, Patient } from "@/lib/types/database.types";
+import { calcularResultados, sexoDasFormulas } from "@/lib/anthropometry-results";
+import { idadeNaData } from "@/lib/anthropometry";
 
 export interface GenerateAntropometriaPdfResult {
   buffer: Buffer;
@@ -27,9 +29,9 @@ export async function generateAntropometriaPdf(
 ): Promise<GenerateAntropometriaPdfResult | null> {
   const { data: patient } = await supabase
     .from("patients")
-    .select("nome")
+    .select("nome, sexo, data_nascimento")
     .eq("id", patientId)
-    .single<{ nome: string }>();
+    .single<Pick<Patient, "nome" | "sexo" | "data_nascimento">>();
 
   if (!patient) return null;
 
@@ -49,7 +51,11 @@ export async function generateAntropometriaPdf(
       profissional,
       pacienteNome: patient.nome,
       geradoEm: new Date().toISOString(),
-      assessments: [assessment],
+      assessment,
+      resultados: calcularResultados(assessment, {
+        sexo: sexoDasFormulas(patient.sexo, assessment.sexo_referencia),
+        idade: idadeNaData(patient.data_nascimento, assessment.data_avaliacao),
+      }),
     },
   }) as unknown as ReactElement<DocumentProps>;
 

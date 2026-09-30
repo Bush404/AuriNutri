@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { anamnesisSchema, assessmentSchema, type AnamnesisInput, type AssessmentInput } from "@/lib/validations/patient";
+import { anamnesisSchema, type AnamnesisInput } from "@/lib/validations/patient";
+import { assessmentSchema, CAMPOS_NUMERICOS, type AssessmentInput } from "@/lib/validations/assessment";
+import { calcularResultados, sexoDasFormulas, type MedidasAvaliacao } from "@/lib/anthropometry-results";
+import { idadeNaData, type ProtocoloDobras, type SexoParaFormula } from "@/lib/anthropometry";
+import type { Patient } from "@/lib/types/database.types";
 import type { ActionResult } from "@/lib/actions/patients";
 import { sanitizeRichText } from "@/lib/rich-text-sanitize";
 import { isRichTextEmpty } from "@/lib/rich-text";
@@ -104,12 +108,66 @@ export async function deleteAnamnesis(patientId: string, anamnesisId: string): P
   return { success: true, message: "Anamnese excluída." };
 }
 
-export async function createAssessment(patientId: string, input: AssessmentInput): Promise<ActionResult> {
+/**
+ * Monta a linha a gravar a partir do formulário. O % de gordura do protocolo é
+ * recalculado AQUI no servidor (não confia no valor da tela) com o sexo e a
+ * idade do cadastro, e gravado como foto do momento — ver migration 0039.
+ */
+async function prepareAssessment(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  patientId: string,
+  input: AssessmentInput
+) {
   const parsed = assessmentSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, message: "Verifique os valores informados." };
+    return { error: parsed.error.issues[0]?.message ?? "Verifique os valores informados." } as const;
+  }
+  const data = parsed.data;
+
+  const { data: patient } = await supabase
+    .from("patients")
+    .select("sexo, data_nascimento")
+    .eq("id", patientId)
+    .single<Pick<Patient, "sexo" | "data_nascimento">>();
+  if (!patient) {
+    return { error: "Paciente não encontrado." } as const;
   }
 
+  const sexo = sexoDasFormulas(patient.sexo, data.sexo_referencia as SexoParaFormula | undefined);
+  const row = {
+    data_avaliacao: data.data_avaliacao,
+    peso_kg: data.peso_kg,
+    altura_cm: data.altura_cm,
+    peso_estimado: data.peso_estimado,
+    altura_estimada: data.altura_estimada,
+    ...Object.fromEntries(CAMPOS_NUMERICOS.map((c) => [c, data[c] ?? null])),
+    bio_idade_metabolica: data.bio_idade_metabolica ?? null,
+    lado_referencia: data.lado_referencia,
+    protocolo_dobras: (data.protocolo_dobras as ProtocoloDobras | undefined) ?? null,
+    formula_densidade: data.formula_densidade,
+    sexo_referencia: sexo,
+    observacoes: data.observacoes || null,
+  } as unknown as Record<string, unknown> & MedidasAvaliacao;
+
+  if (row.protocolo_dobras) {
+    const resultados = calcularResultados(row, {
+      sexo,
+      idade: idadeNaData(patient.data_nascimento, data.data_avaliacao),
+    });
+    const gordura = resultados.gordura?.ok ? resultados.gordura : null;
+    row.percentual_gordura = gordura ? Math.round(gordura.percentualGordura * 100) / 100 : null;
+    row.densidade_corporal = gordura?.densidade ? Math.round(gordura.densidade * 100000) / 100000 : null;
+  } else {
+    row.densidade_corporal = null;
+  }
+
+  return { row } as const;
+}
+
+export async function createAssessment(
+  patientId: string,
+  input: AssessmentInput
+): Promise<ActionResult & { id?: string }> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -119,55 +177,39 @@ export async function createAssessment(patientId: string, input: AssessmentInput
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
 
-  const { error } = await supabase.from("anthropometric_assessments").insert({
-    patient_id: patientId,
-    user_id: user.id,
-    data_avaliacao: parsed.data.data_avaliacao,
-    peso_kg: parsed.data.peso_kg,
-    altura_cm: parsed.data.altura_cm,
-    circunferencia_cintura_cm: parsed.data.circunferencia_cintura_cm ?? null,
-    circunferencia_quadril_cm: parsed.data.circunferencia_quadril_cm ?? null,
-    circunferencia_braco_cm: parsed.data.circunferencia_braco_cm ?? null,
-    circunferencia_coxa_cm: parsed.data.circunferencia_coxa_cm ?? null,
-    circunferencia_pescoco_cm: parsed.data.circunferencia_pescoco_cm ?? null,
-    percentual_gordura: parsed.data.percentual_gordura ?? null,
-    observacoes: parsed.data.observacoes || null,
-  });
+  const prepared = await prepareAssessment(supabase, patientId, input);
+  if ("error" in prepared) {
+    return { success: false, message: prepared.error };
+  }
+
+  const { data, error } = await supabase
+    .from("anthropometric_assessments")
+    .insert({ ...prepared.row, patient_id: patientId, user_id: user.id })
+    .select("id")
+    .single<{ id: string }>();
 
   if (error) {
     return { success: false, message: error.message };
   }
 
   revalidatePath(`/pacientes/${patientId}`);
-  return { success: true, message: "Avaliação registrada com sucesso." };
+  return { success: true, message: "Avaliação registrada com sucesso.", id: data.id };
 }
 
-/** Soft delete — ver comentário equivalente em deletePatient. */
 export async function updateAssessment(
   assessmentId: string,
   patientId: string,
   input: AssessmentInput
 ): Promise<ActionResult> {
-  const parsed = assessmentSchema.safeParse(input);
-  if (!parsed.success) {
-    return { success: false, message: "Verifique os valores informados." };
+  const supabase = await createClient();
+  const prepared = await prepareAssessment(supabase, patientId, input);
+  if ("error" in prepared) {
+    return { success: false, message: prepared.error };
   }
 
-  const supabase = await createClient();
   const { error } = await supabase
     .from("anthropometric_assessments")
-    .update({
-      data_avaliacao: parsed.data.data_avaliacao,
-      peso_kg: parsed.data.peso_kg,
-      altura_cm: parsed.data.altura_cm,
-      circunferencia_cintura_cm: parsed.data.circunferencia_cintura_cm ?? null,
-      circunferencia_quadril_cm: parsed.data.circunferencia_quadril_cm ?? null,
-      circunferencia_braco_cm: parsed.data.circunferencia_braco_cm ?? null,
-      circunferencia_coxa_cm: parsed.data.circunferencia_coxa_cm ?? null,
-      circunferencia_pescoco_cm: parsed.data.circunferencia_pescoco_cm ?? null,
-      percentual_gordura: parsed.data.percentual_gordura ?? null,
-      observacoes: parsed.data.observacoes || null,
-    })
+    .update(prepared.row)
     .eq("id", assessmentId)
     .eq("patient_id", patientId);
 
@@ -176,6 +218,7 @@ export async function updateAssessment(
   }
 
   revalidatePath(`/pacientes/${patientId}`);
+  revalidatePath(`/pacientes/${patientId}/avaliacoes/${assessmentId}`);
   return { success: true, message: "Avaliação atualizada com sucesso." };
 }
 

@@ -7,7 +7,7 @@ os caminhos que, se quebrarem, o produto para:
 | --- | --- |
 | `cadastro.e2e.ts` | criar conta → (confirmação de e-mail via admin) → login → dashboard |
 | `auth.e2e.ts` | rota protegida redireciona para o login; senha errada é recusada; login leva ao destino |
-| `avaliacao.e2e.ts` | criar paciente → avaliação antropométrica → IMC calculado (22,86 para 70 kg / 175 cm) |
+| `avaliacao.e2e.ts` | criar paciente → avaliação antropométrica → IMC calculado (22,86 para 70 kg / 175 cm); paciente sem sexo → pede a base → protocolo Guedes → % de gordura gravado |
 | `plano-alimentar.e2e.ts` | paciente → plano → refeição → alimento TACO; alimento próprio → plano → macros conferidos → PDF gerado |
 | `receita.e2e.ts` | receita pelas 4 etapas do assistente → usada num plano |
 | `agenda.e2e.ts` | agendar consulta com cobrança "Não pago" → marcar como realizada → cobrança em aberto no financeiro |

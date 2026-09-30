@@ -168,3 +168,31 @@ depois da 16; (c) não entra. [ ]
 6. Ilustrações de onde medir: agora ou depois? (2.6)
 7. Ainda não visto no WebDiet (opcional conferir): ponto de corte do RCQ, classificação da CMB e
    do % GC, para que serve a "altura sentado", e a fonte do estado proteico/lipídico da gestante.
+
+---
+
+## Para revisar — Bloco A implementado (30/09/2026)
+
+Cada fórmula foi conferida em fonte publicada (não de memória) e tem teste com valor calculado à
+parte. Mesmo assim, o roadmap pede a revisão da nutricionista antes de fechar o bloco. Sugestão:
+lançar no AuriNutri e no WebDiet as mesmas medidas de 2 ou 3 pacientes reais e comparar.
+
+**Conferência feita durante a implementação:**
+- A memória do assistente estava **errada** na equação feminina de Petroski e em vários percentis
+  masculinos da CMB (Frisancho). Corrigido pela fonte.
+- O pacote científico `bodycomp` (CRAN) tem a tabela de Durnin & Womersley com valores trocados em
+  3 faixas (homens 50+, mulheres 30–39 e 40–49). Foi usada a tabela original de 1974.
+
+**Decididos pelo assistente, a confirmar:**
+| Item | O que foi feito | Alternativa |
+|---|---|---|
+| Classificação do % de gordura | Lohman, 1992: homem ≤5 risco · 6–14 abaixo da média · 15 média · 16–24 acima · ≥25 risco; mulher ≤8 · 9–22 · 23 · 24–31 · ≥32. Fixa. | No WebDiet ela é editável. |
+| "% de gordura ideal" | Mostra a "média" da mesma tabela (15% homem, 23% mulher) | Outro valor/tabela |
+| RCQ | Risco aumentado a partir de 0,90 (homem) e 0,85 (mulher) — OMS, 2008 | Tabela por idade (Bray & Gray) |
+| RCEst | 0,5 = risco aumentado; 0,6 = muito aumentado — Ashwell & Gibson, 2016 | Só o corte de 0,5 |
+| CMB | Mostra as duas: adequação ao P50 (Blackburn & Thornton, 1979) e faixa de percentil (Frisancho, 1981) | Só uma delas |
+| Panturrilha no idoso | < 31 cm = indicativo de perda de massa muscular (OMS, 1995) | — |
+| Peso de acamado / altura pelo joelho | Chumlea (1988 / 1985), **só 60 anos ou mais**. As equações para adultos mais novos pedem a cor da pele, não incluídas. | Incluir as de adultos |
+| Massa muscular | Peso − (gordura + ósseo + residual) — De Rose & Guimarães, 1980; precisa dos diâmetros do punho e do fêmur | — |
+| Compleição | **Não feita** | Fazer (qual referência?) |
+| Altura sentado | Só é guardada, não entra em cálculo | — |

@@ -247,20 +247,23 @@ softwares de mercado. Ela alimenta a Fase 16 (cálculo energético) e a Fase 17 
 
 Ao clicar em "Nova avaliação", o profissional escolhe entre três tipos:
 
-### Bloco A — Adultos e idosos
+### Bloco A — Adultos e idosos · `FEITO 30/09/2026 (local)` — falta a revisão da nutricionista
 ```
-[ ] Peso, altura, IMC com classificação (OMS para adultos; faixa específica para idosos, a confirmar)
-[ ] Circunferências completas (pescoço, tórax, cintura, abdome, quadril, braço relaxado/contraído,
-    antebraço, punho, coxa proximal/medial, panturrilha)
-[ ] Dobras cutâneas (tríceps, bíceps, subescapular, peitoral, axilar média, suprailíaca, abdominal,
-    coxa, panturrilha)
-[ ] Protocolos de % de gordura à escolha (ex.: Jackson & Pollock 3 e 7 dobras, Durnin & Womersley,
-    Petroski, Guedes, Faulkner), calculando massa gorda e massa magra
-[ ] Diâmetros ósseos (úmero, fêmur, punho) → peso ósseo / compleição
-[ ] Bioimpedância: digitar os valores do aparelho
-[ ] Idosos: altura estimada pela altura do joelho, circunferência da panturrilha
-[ ] Indicadores derivados: RCQ, RCEst, com classificação de risco
+[x] Peso, altura, IMC com classificação (OMS para adultos; Lipschitz 1994 para 60+)
+[x] Circunferências completas (pescoço, tórax, ombro, cintura, abdome, quadril; braço relaxado/
+    contraído, antebraço, coxa proximal/medial/distal, panturrilha dos dois lados)
+[x] Dobras cutâneas (as 9 + supraespinhal)
+[x] Protocolos de % de gordura à escolha (Pollock 3 e 7, Petroski, Guedes, Durnin, Faulkner) com
+    Brozek ou Siri, calculando massa gorda, massa magra, peso residual e massa muscular
+[x] Diâmetros ósseos (úmero, fêmur, punho) → peso ósseo      [ ] compleição (não feito)
+[x] Bioimpedância: digitar os valores do aparelho
+[x] Idosos: altura pela altura do joelho e peso de acamado (Chumlea, só 60+), panturrilha
+[x] Indicadores derivados: RCQ, RCEst, CMB (adequação + percentil), com classificação
+[x] Tela em página inteira com resultados ao vivo; Editar / Duplicar / Excluir; PDF atualizado
 ```
+Migration 0039 aplicada. Fórmulas em `src/lib/anthropometry.ts`, cada coeficiente conferido em
+fonte publicada (fontes no topo do arquivo). **Revisão da nutricionista pendente** — ver a seção
+"Para revisar" em `docs/FASE_15_PROTOCOLOS.md`.
 
 ### Bloco B — Crianças e adolescentes
 ```

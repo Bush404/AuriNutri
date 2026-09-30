@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, Plus } from "lucide-react";
 
 import type {
   Anamnesis,
@@ -15,11 +16,11 @@ import type {
 import { calculateAge, formatDate } from "@/lib/utils";
 import { updateSearchParams } from "@/lib/url-state";
 
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { AnamnesisTimeline } from "@/components/patients/anamnesis-timeline";
-import { NewAssessmentDialog } from "@/components/patients/new-assessment-dialog";
 import { AssessmentsTable } from "@/components/patients/assessments-table";
 import { EvolutionChart } from "@/components/patients/evolution-chart";
 import { MealPlanList } from "@/components/meal-plans/meal-plan-list";
@@ -115,11 +116,16 @@ export function PatientTabs({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle>Avaliações antropométricas</CardTitle>
-            <NewAssessmentDialog patientId={patient.id} />
+            <Button size="sm" asChild>
+              <Link href={`/pacientes/${patient.id}/avaliacoes/nova`}>
+                <Plus className="h-4 w-4" />
+                Nova avaliação
+              </Link>
+            </Button>
           </CardHeader>
           <CardContent>
             {assessments.length > 0 ? (
-              <AssessmentsTable patientId={patient.id} assessments={assessments} />
+              <AssessmentsTable patientId={patient.id} dataNascimento={patient.data_nascimento} assessments={assessments} />
             ) : (
               <EmptyState
                 icon={ClipboardList}

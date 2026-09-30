@@ -1,3 +1,5 @@
+import type { FormulaDensidade, ProtocoloDobras, SexoParaFormula } from "@/lib/anthropometry";
+
 export type Sexo = "feminino" | "masculino" | "outro";
 
 export interface Profile {
@@ -111,11 +113,63 @@ export interface AnthropometricAssessment {
   circunferencia_braco_cm: number | null;
   circunferencia_coxa_cm: number | null;
   circunferencia_pescoco_cm: number | null;
+  /** Com protocolo_dobras: calculado ao salvar. Sem protocolo (avaliação antiga): digitado à mão. */
   percentual_gordura: number | null;
   observacoes: string | null;
   created_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */
   deleted_at: string | null;
+
+  // Fase 15, Bloco A (migration 0039) — todas opcionais.
+  altura_sentado_cm: number | null;
+  altura_joelho_cm: number | null;
+  peso_estimado: boolean;
+  altura_estimada: boolean;
+  dobra_triceps_mm: number | null;
+  dobra_biceps_mm: number | null;
+  dobra_abdominal_mm: number | null;
+  dobra_subescapular_mm: number | null;
+  dobra_axilar_media_mm: number | null;
+  dobra_coxa_mm: number | null;
+  dobra_peitoral_mm: number | null;
+  dobra_suprailiaca_mm: number | null;
+  dobra_panturrilha_mm: number | null;
+  dobra_supraespinhal_mm: number | null;
+  circunferencia_torax_cm: number | null;
+  circunferencia_ombro_cm: number | null;
+  circunferencia_abdomen_cm: number | null;
+  circunferencia_braco_relaxado_dir_cm: number | null;
+  circunferencia_braco_relaxado_esq_cm: number | null;
+  circunferencia_braco_contraido_dir_cm: number | null;
+  circunferencia_braco_contraido_esq_cm: number | null;
+  circunferencia_antebraco_dir_cm: number | null;
+  circunferencia_antebraco_esq_cm: number | null;
+  circunferencia_coxa_proximal_dir_cm: number | null;
+  circunferencia_coxa_proximal_esq_cm: number | null;
+  circunferencia_coxa_medial_dir_cm: number | null;
+  circunferencia_coxa_medial_esq_cm: number | null;
+  circunferencia_coxa_distal_dir_cm: number | null;
+  circunferencia_coxa_distal_esq_cm: number | null;
+  circunferencia_panturrilha_dir_cm: number | null;
+  circunferencia_panturrilha_esq_cm: number | null;
+  lado_referencia: "direito" | "esquerdo";
+  diametro_umero_cm: number | null;
+  diametro_punho_cm: number | null;
+  diametro_femur_cm: number | null;
+  bio_percentual_gordura: number | null;
+  bio_massa_gorda_kg: number | null;
+  bio_percentual_massa_muscular: number | null;
+  bio_massa_muscular_kg: number | null;
+  bio_massa_livre_gordura_kg: number | null;
+  bio_peso_osseo_kg: number | null;
+  bio_gordura_visceral: number | null;
+  bio_agua_corporal_percentual: number | null;
+  bio_idade_metabolica: number | null;
+  protocolo_dobras: ProtocoloDobras | null;
+  formula_densidade: FormulaDensidade;
+  sexo_referencia: SexoParaFormula | null;
+  densidade_corporal: number | null;
+  updated_at: string;
 }
 
 /** Sexo laboratorial usado nas faixas de referência — vocabulário próprio de lab_reference_ranges, distinto de Sexo (patients.sexo usa feminino/masculino/outro). */

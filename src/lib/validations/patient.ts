@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** Converte string vazia/undefined em undefined antes da validação de texto opcional. */
-const optionalText = () =>
+export const optionalText = () =>
   z
     .string()
     .optional()
@@ -13,7 +13,7 @@ const optionalText = () =>
  * "não informado" ANTES de coagir para number, evitando que "" vire 0 e quebre
  * a validação de .positive() em campos opcionais.
  */
-const optionalPositiveNumber = () =>
+export const optionalPositiveNumber = () =>
   z.preprocess(
     (val) => (val === "" || val === undefined || val === null ? undefined : val),
     z.coerce.number().positive("Deve ser maior que zero").optional()
@@ -53,19 +53,3 @@ export const anamnesisTemplateSchema = z.object({
   conteudo: z.string().max(500_000, "Texto grande demais"),
 });
 export type AnamnesisTemplateInput = z.infer<typeof anamnesisTemplateSchema>;
-
-export const assessmentSchema = z.object({
-  data_avaliacao: z.string().min(1, "Informe a data da avaliação"),
-  peso_kg: z.coerce.number({ invalid_type_error: "Informe o peso" }).positive("Peso deve ser maior que zero"),
-  altura_cm: z.coerce
-    .number({ invalid_type_error: "Informe a altura" })
-    .positive("Altura deve ser maior que zero"),
-  circunferencia_cintura_cm: optionalPositiveNumber(),
-  circunferencia_quadril_cm: optionalPositiveNumber(),
-  circunferencia_braco_cm: optionalPositiveNumber(),
-  circunferencia_coxa_cm: optionalPositiveNumber(),
-  circunferencia_pescoco_cm: optionalPositiveNumber(),
-  percentual_gordura: optionalPositiveNumber(),
-  observacoes: optionalText(),
-});
-export type AssessmentInput = z.infer<typeof assessmentSchema>;

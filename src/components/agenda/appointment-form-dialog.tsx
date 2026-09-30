@@ -136,7 +136,7 @@ interface AppointmentFormDialogProps {
   defaultPatient?: PatientPickerResult | null;
 }
 
-/** Diálogo único de criar/editar consulta — reaproveitado em modo edição, mesmo padrão de NewAssessmentDialog. */
+/** Diálogo único de criar/editar consulta — reaproveitado em modo edição. */
 export function AppointmentFormDialog({
   open,
   onOpenChange,

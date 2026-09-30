@@ -107,8 +107,16 @@ export async function createAntropometriaShareLink(
   const limited = await rateLimitOrError(supabase, "gerar_pdf");
   if (limited) return limited;
 
-  const existente = await findActiveToken(supabase, "antropometria", assessmentId);
-  if (existente) return tokenToResult(existente);
+  // Reaproveita o PDF só se a avaliação não foi editada depois dele (migration 0039).
+  const [existente, { data: avaliacao }] = await Promise.all([
+    findActiveToken(supabase, "antropometria", assessmentId),
+    supabase
+      .from("anthropometric_assessments")
+      .select("updated_at")
+      .eq("id", assessmentId)
+      .maybeSingle<{ updated_at: string }>(),
+  ]);
+  if (existente && avaliacao && existente.created_at >= avaliacao.updated_at) return tokenToResult(existente);
 
   const generated = await generateAntropometriaPdf(supabase, user, patientId, assessmentId);
   if (!generated) {
