@@ -8,7 +8,12 @@ Roadmap 1 (`docs/MASTER_DEVELOPMENT_PLAN.md`, Phases 0–11) is done. We are now
 **Roadmap 2** — before doing any task, read `docs/ROADMAP_2.md` (Phases 12–19, order, and
 pending decisions). Work one phase at a time, in the order the roadmap sets. Do not implement
 functionality from a later phase — check the roadmap before adding anything that looks like a
-new feature, and confirm it belongs to the current phase first. `docs/MASTER_DEVELOPMENT_PLAN.md`
+new feature, and confirm it belongs to the current phase first.
+
+**`docs/ROADMAP_2.html` is the only roadmap the product owner reads** (opened in Chrome from disk).
+Every time a phase or bloco starts or finishes, a task is ticked, or a decision is taken, update it in
+the same turn: progress %, legend counts, the phase's chips, `li.ok` items, the `active`/"PRÓXIMA"
+phase and the decisions table. `docs/ROADMAP_2.md` stays the technical record and is updated too. `docs/MASTER_DEVELOPMENT_PLAN.md`
 and `docs/DECISIONS.md` remain the record of how earlier phases were built and why.
 
 ## What this is
