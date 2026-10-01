@@ -22,6 +22,25 @@ export const mealPlanSchema = z.object({
 });
 export type MealPlanInput = z.infer<typeof mealPlanSchema>;
 
+/** Aceita vírgula decimal ("2,5"). */
+const numeroDigitado = (msg: string) =>
+  z.preprocess(
+    (v) => (typeof v === "string" ? v.replace(",", ".") : v),
+    z.coerce.number({ invalid_type_error: msg }).min(0, "Não pode ser negativo").max(10000, msg)
+  );
+
+/** Planejamento teórico (Fase 17, Bloco A): g/kg ou % do GET; os gramas são calculados no servidor. */
+export const planejamentoSchema = z.object({
+  modo: z.enum(["g_kg", "percentual"]),
+  peso_kg: optionalPositiveNumber(),
+  get_kcal: optionalPositiveNumber(),
+  proteinas: numeroDigitado("Informe as proteínas"),
+  lipidios: numeroDigitado("Informe os lipídios"),
+  carboidratos: numeroDigitado("Informe os carboidratos"),
+  calculo_id: z.preprocess((v) => (v === "" || v === null ? undefined : v), z.string().uuid().optional()),
+});
+export type PlanejamentoInput = z.input<typeof planejamentoSchema>;
+
 export const mealSchema = z.object({
   nome: z.string().min(1, "Informe o nome da refeição"),
   horario: z

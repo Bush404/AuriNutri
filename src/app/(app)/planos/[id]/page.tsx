@@ -3,7 +3,6 @@ import { UtensilsCrossed } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 import { calculatePlanTotals, collectFontesUsadas, buildFonteFooter } from "@/lib/nutrition";
-import { calculateAge } from "@/lib/utils";
 import type { Meal, MealItemSubstitution, MealPlan, Sexo } from "@/lib/types/database.types";
 import { listMealTemplates } from "@/lib/actions/meal-templates";
 import { listPlanShareLinks } from "@/lib/actions/plan-share";
@@ -15,7 +14,8 @@ import { MealCard, type MealWithItemsAndSubstitutions } from "@/components/meal-
 import type { MealItemWithSubstitutions } from "@/components/meal-plans/meal-item-row";
 import { NewMealDialog } from "@/components/meal-plans/new-meal-dialog";
 import { NewMealFromTemplateDialog } from "@/components/meal-plans/new-meal-from-template-dialog";
-import { EnergyCalculatorCard } from "@/components/meal-plans/energy-calculator-card";
+import { NutrientAnalysisCard } from "@/components/meal-plans/nutrient-analysis-card";
+import type { CalculoParaImportar } from "@/components/meal-plans/planejamento-dialog";
 
 type PlanWithPatient = MealPlan & {
   patients: { id: string; nome: string; telefone: string | null; sexo: Sexo | null; data_nascimento: string | null };
@@ -54,13 +54,26 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
     notFound();
   }
 
-  const { data: latestAssessment } = await supabase
-    .from("anthropometric_assessments")
-    .select("peso_kg, altura_cm")
-    .eq("patient_id", plan.patients.id)
-    .order("data_avaliacao", { ascending: false })
-    .limit(1)
-    .maybeSingle<{ peso_kg: number; altura_cm: number }>();
+  // Peso mais recente (padrão do planejamento — avaliação recém-aberta, ainda sem
+  // peso, não conta) e os cálculos energéticos salvos (Fase 16) para importar.
+  const [{ data: latestAssessment }, { data: calculos }] = await Promise.all([
+    supabase
+      .from("anthropometric_assessments")
+      .select("peso_kg")
+      .eq("patient_id", plan.patients.id)
+      .not("peso_kg", "is", null)
+      .order("data_avaliacao", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ peso_kg: number }>(),
+    supabase
+      .from("energy_calculations")
+      .select("id, nome, data_calculo, get_kcal, peso_kg")
+      .eq("patient_id", plan.patients.id)
+      .not("get_kcal", "is", null)
+      .order("data_calculo", { ascending: false })
+      .order("created_at", { ascending: false })
+      .returns<CalculoParaImportar[]>(),
+  ]);
 
   const mealsWithItems: MealWithItemsAndSubstitutions[] = (meals ?? []).map((meal) => ({
     ...meal,
@@ -78,7 +91,7 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
   const totals = calculatePlanTotals(mealsWithItems);
   const fonteFooter = buildFonteFooter(collectFontesUsadas(mealsWithItems));
   const nextMealOrdem = mealsWithItems.length;
-  const idade = calculateAge(plan.patients.data_nascimento);
+  const pesoTotalG = mealsWithItems.reduce((s, m) => s + m.items.reduce((t, i) => t + Number(i.quantidade_g), 0), 0);
 
   return (
     <div className="space-y-6">
@@ -100,15 +113,6 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
         }}
       />
 
-      <EnergyCalculatorCard
-        planId={plan.id}
-        patientId={plan.patients.id}
-        sexo={plan.patients.sexo}
-        idade={idade}
-        pesoKg={latestAssessment?.peso_kg ?? null}
-        alturaCm={latestAssessment?.altura_cm ?? null}
-      />
-
       <div className="space-y-4">
         {mealsWithItems.length > 0 ? (
           mealsWithItems.map((meal) => <MealCard key={meal.id} planId={plan.id} meal={meal} />)
@@ -125,6 +129,16 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
           <NewMealFromTemplateDialog planId={plan.id} nextOrdem={nextMealOrdem} templates={templates} />
         </div>
       </div>
+
+      <NutrientAnalysisCard
+        planId={plan.id}
+        patientId={plan.patients.id}
+        plan={plan}
+        totais={totals}
+        pesoTotalG={pesoTotalG}
+        pesoPaciente={latestAssessment?.peso_kg ?? null}
+        calculos={calculos ?? []}
+      />
 
       {fonteFooter && (
         <p className="border-t border-border pt-4 text-center text-xs text-muted-foreground">

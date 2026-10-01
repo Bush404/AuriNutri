@@ -387,7 +387,14 @@ adicional digitado à mão).
 de medidas referidas do IBGE (POF 2008–2009, ftp.ibge.gov.br) ligada aos alimentos da TACO; a tabela de
 composição do IBGE não entra (é compilação, com valores da USDA). TBCA 7.3 só com autorização de uso
 comercial (R1). Resumo fixo no rodapé; só "Por alimentos";
-micronutrientes × DRI entram. Periodização aguarda explicação da responsável. **Bloco A (planejamento) em andamento.**
+micronutrientes × DRI entram. Periodização aguarda explicação da responsável.
+
+**Bloco A (01/10/2026, local, aguardando teste):** migration 0043 (`planejamento_*` em `meal_plans`; o
+resultado continua em `meta_*`), `src/lib/meal-planning.ts` (+9 testes), janela "Referências de cálculos
+energéticos" (importar da aba Cálculo energético, g/kg ou % do GET) e cartão "Análise de nutrientes do
+cardápio" (Prescrito × Teórico × Diferença, carboidratos livres, kcal não proteica/g N, densidade calórica,
+barra de distribuição calórica). A "Calculadora de gasto energético" antiga saiu do plano. Corrigido junto:
+consultas de "último peso" ignoravam avaliações sem peso só no papel (a edição da Fase 15 tinha falhado).
 
 ### Bloco A — "Adicionar um planejamento" (substitui "Calculadora de gasto energético")
 ```

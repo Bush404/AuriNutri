@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { mealPlanSchema, type MealPlanInput } from "@/lib/validations/meal-plan";
+import { mealPlanSchema, planejamentoSchema, type MealPlanInput, type PlanejamentoInput } from "@/lib/validations/meal-plan";
+import { distribuirMacros } from "@/lib/meal-planning";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { Meal, MealItem, MealPlan } from "@/lib/types/database.types";
 
@@ -76,21 +77,79 @@ export async function updateMealPlan(planId: string, input: MealPlanInput): Prom
   return { success: true, message: "Plano atualizado com sucesso." };
 }
 
-/** Atalho usado pela calculadora de gasto energético para gravar só a meta calórica. */
-export async function setMealPlanCalorieGoal(planId: string, metaKcal: number): Promise<ActionResult> {
-  if (!(metaKcal > 0)) {
-    return { success: false, message: "Meta calórica inválida." };
+/**
+ * "Adicionar planejamento teórico" (Fase 17, Bloco A). Os gramas e o GET são
+ * recalculados AQUI (não confia na tela) e gravados nas metas do plano
+ * (migration 0007); o modo e os valores digitados ficam em planejamento_*
+ * (migration 0043) para a janela reabrir igual.
+ */
+export async function salvarPlanejamentoTeorico(planId: string, input: PlanejamentoInput): Promise<ActionResult> {
+  const parsed = planejamentoSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Verifique os valores do planejamento." };
   }
+  const d = parsed.data;
+  const r = distribuirMacros({
+    modo: d.modo,
+    pesoKg: d.peso_kg ?? null,
+    getKcal: d.get_kcal ?? null,
+    proteinas: d.proteinas,
+    lipidios: d.lipidios,
+    carboidratos: d.carboidratos,
+  });
+  if (!r.ok) return { success: false, message: r.motivo };
 
+  const arred = (v: number) => Math.round(v * 10) / 10;
   const supabase = await createClient();
-  const { error } = await supabase.from("meal_plans").update({ meta_kcal: metaKcal }).eq("id", planId);
+  const { error } = await supabase
+    .from("meal_plans")
+    .update({
+      meta_kcal: Math.round(r.metas.kcal),
+      meta_proteinas_g: arred(r.metas.proteinas_g),
+      meta_gorduras_g: arred(r.metas.lipidios_g),
+      meta_carboidratos_g: arred(r.metas.carboidratos_g),
+      planejamento_modo: d.modo,
+      planejamento_peso_kg: d.peso_kg ?? null,
+      planejamento_proteinas: d.proteinas,
+      planejamento_lipidios: d.lipidios,
+      planejamento_carboidratos: d.carboidratos,
+      planejamento_calculo_id: d.calculo_id ?? null,
+    })
+    .eq("id", planId);
 
   if (error) {
     return { success: false, message: error.message };
   }
 
   revalidatePath(`/planos/${planId}`);
-  return { success: true, message: "Meta calórica atualizada." };
+  return { success: true, message: "Planejamento teórico salvo." };
+}
+
+/** Tira o planejamento teórico (e as metas) do plano. */
+export async function removerPlanejamentoTeorico(planId: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("meal_plans")
+    .update({
+      meta_kcal: null,
+      meta_proteinas_g: null,
+      meta_gorduras_g: null,
+      meta_carboidratos_g: null,
+      planejamento_modo: null,
+      planejamento_peso_kg: null,
+      planejamento_proteinas: null,
+      planejamento_lipidios: null,
+      planejamento_carboidratos: null,
+      planejamento_calculo_id: null,
+    })
+    .eq("id", planId);
+
+  if (error) {
+    return { success: false, message: error.message };
+  }
+
+  revalidatePath(`/planos/${planId}`);
+  return { success: true, message: "Planejamento teórico removido." };
 }
 
 export async function toggleMealPlanStatus(
@@ -160,6 +219,12 @@ export async function duplicateMealPlan(planId: string): Promise<ActionResult> {
       meta_proteinas_g: originalPlan.meta_proteinas_g,
       meta_carboidratos_g: originalPlan.meta_carboidratos_g,
       meta_gorduras_g: originalPlan.meta_gorduras_g,
+      planejamento_modo: originalPlan.planejamento_modo,
+      planejamento_peso_kg: originalPlan.planejamento_peso_kg,
+      planejamento_proteinas: originalPlan.planejamento_proteinas,
+      planejamento_lipidios: originalPlan.planejamento_lipidios,
+      planejamento_carboidratos: originalPlan.planejamento_carboidratos,
+      planejamento_calculo_id: originalPlan.planejamento_calculo_id,
     })
     .select("id")
     .single<{ id: string }>();

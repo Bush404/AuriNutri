@@ -356,6 +356,13 @@ export interface MealPlan {
   meta_proteinas_g: number | null;
   meta_carboidratos_g: number | null;
   meta_gorduras_g: number | null;
+  /** Como o planejamento teórico foi feito (Fase 17, migration 0043); o resultado fica nas metas acima. */
+  planejamento_modo: "g_kg" | "percentual" | null;
+  planejamento_peso_kg: number | null;
+  planejamento_proteinas: number | null;
+  planejamento_lipidios: number | null;
+  planejamento_carboidratos: number | null;
+  planejamento_calculo_id: string | null;
   created_at: string;
   updated_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */

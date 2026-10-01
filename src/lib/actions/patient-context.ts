@@ -48,6 +48,8 @@ export async function getPatientAgendaContext(
         .from("anthropometric_assessments")
         .select("data_avaliacao, peso_kg")
         .eq("patient_id", patientId)
+        // Avaliação recém-aberta, ainda sem peso (migration 0041), não conta como pesagem.
+        .not("peso_kg", "is", null)
         .order("data_avaliacao", { ascending: false })
         .limit(2)
         .returns<{ data_avaliacao: string; peso_kg: number }[]>(),
