@@ -106,7 +106,8 @@ function indicesAdulto(a: AnthropometricAssessment, r: ResultadosAvaliacao): Ind
   const idoso = r.idade !== null && r.idade >= IDADE_IDOSO;
   const g = r.gordura?.ok ? r.gordura.percentualGordura : a.percentual_gordura ?? a.bio_percentual_gordura;
   const fg = r.sexo ? FAIXA_GORDURA[r.sexo] : null;
-  const massaGorda = g !== null && g !== undefined ? (a.peso_kg * g) / 100 : null;
+  const peso = a.peso_kg;
+  const massaGorda = g !== null && g !== undefined && peso !== null ? (peso * g) / 100 : null;
   return [
     {
       label: "Massa corporal total",
@@ -127,7 +128,7 @@ function indicesAdulto(a: AnthropometricAssessment, r: ResultadosAvaliacao): Ind
       label: "Massa de gordura",
       valor: massaGorda,
       texto: num(massaGorda, 1, " kg"),
-      faixa: fg ? [(a.peso_kg * fg[0]) / 100, (a.peso_kg * fg[1]) / 100] : null,
+      faixa: fg && peso !== null ? [(peso * fg[0]) / 100, (peso * fg[1]) / 100] : null,
     },
   ];
 }

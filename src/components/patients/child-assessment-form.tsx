@@ -19,10 +19,12 @@ import {
   type IndicadorCrescimento,
 } from "@/lib/growth/growth";
 import { assessmentSchema, type AssessmentInput } from "@/lib/validations/assessment";
-import { createAssessment, updateAssessment } from "@/lib/actions/clinical";
+import { updateAssessment } from "@/lib/actions/clinical";
+import { useAutoSave } from "@/lib/hooks/use-auto-save";
 import { useUnsavedChangesWarning } from "@/lib/hooks/use-unsaved-changes-warning";
 import type { AnthropometricAssessment, Patient } from "@/lib/types/database.types";
 
+import { AutoSaveStatus } from "@/components/patients/auto-save-status";
 import { GrowthChart, janelaDoGrafico, type PontoCrescimento } from "@/components/patients/growth-chart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,7 +57,8 @@ const fmt = (v: number, casas = 1) => v.toLocaleString("pt-BR", { minimumFractio
 
 interface ChildAssessmentFormProps {
   patient: Pick<Patient, "id" | "nome" | "sexo" | "data_nascimento">;
-  assessment?: AnthropometricAssessment;
+  /** Já existe no banco: "Nova avaliação" cria o registro ao abrir (iniciarAvaliacao). */
+  assessment: AnthropometricAssessment;
   /** Outras avaliações infantis do paciente — viram pontos nas curvas. */
   historico: AvaliacaoInfantilResumo[];
 }
@@ -63,31 +66,36 @@ interface ChildAssessmentFormProps {
 export function ChildAssessmentForm({ patient, assessment, historico }: ChildAssessmentFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const editando = Boolean(assessment);
 
   const {
     register,
     handleSubmit,
     control,
     setValue,
-    formState: { errors, isDirty },
+    trigger,
+    formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(assessmentSchema) as unknown as Resolver<FormValues>,
     defaultValues: {
       tipo: "crianca",
-      data_avaliacao: assessment?.data_avaliacao ?? new Date().toISOString().slice(0, 10),
-      peso_kg: texto(assessment?.peso_kg),
-      altura_cm: texto(assessment?.altura_cm),
-      dobra_triceps_mm: texto(assessment?.dobra_triceps_mm),
-      dobra_subescapular_mm: texto(assessment?.dobra_subescapular_mm),
-      dobra_panturrilha_mm: texto(assessment?.dobra_panturrilha_mm),
-      sexo_referencia: assessment?.sexo_referencia ?? "",
-      observacoes: assessment?.observacoes ?? "",
+      data_avaliacao: assessment.data_avaliacao,
+      peso_kg: texto(assessment.peso_kg),
+      altura_cm: texto(assessment.altura_cm),
+      dobra_triceps_mm: texto(assessment.dobra_triceps_mm),
+      dobra_subescapular_mm: texto(assessment.dobra_subescapular_mm),
+      dobra_panturrilha_mm: texto(assessment.dobra_panturrilha_mm),
+      sexo_referencia: assessment.sexo_referencia ?? "",
+      observacoes: assessment.observacoes ?? "",
     },
   });
-  useUnsavedChangesWarning(isDirty && !loading);
-
   const v = useWatch({ control }) as FormValues;
+
+  // Salva sozinho a cada alteração; campo inválido fica destacado e não é enviado.
+  const { estado, erro: erroSalvamento, salvarAgora } = useAutoSave(v, async (valores) => {
+    if (!(await trigger())) return { success: false, message: "Corrija os campos destacados para salvar." };
+    return updateAssessment(assessment.id, patient.id, valores as unknown as AssessmentInput);
+  });
+  useUnsavedChangesWarning(estado !== "salvo" && !loading);
   const precisaEscolherBase = patient.sexo !== "masculino" && patient.sexo !== "feminino";
   const sexo = sexoDasFormulas(patient.sexo, v.sexo_referencia || null);
   const meses = idadeEmMeses(patient.data_nascimento, v.data_avaliacao);
@@ -110,7 +118,7 @@ export function ChildAssessmentForm({ patient, assessment, historico }: ChildAss
   function pontos(indicador: IndicadorCrescimento): PontoCrescimento[] {
     const lista: PontoCrescimento[] = [];
     for (const h of historico) {
-      if (h.id === assessment?.id) continue;
+      if (h.id === assessment.id || h.peso_kg === null || h.altura_cm === null) continue;
       const m = idadeEmMeses(patient.data_nascimento, h.data_avaliacao);
       if (m === null) continue;
       const imc = h.peso_kg / (h.altura_cm / 100) ** 2;
@@ -123,18 +131,14 @@ export function ChildAssessmentForm({ patient, assessment, historico }: ChildAss
     return lista;
   }
 
-  async function onSubmit(values: FormValues) {
+  async function onSubmit() {
     setLoading(true);
-    const input = values as unknown as AssessmentInput;
-    const result = editando
-      ? await updateAssessment(assessment!.id, patient.id, input)
-      : await createAssessment(patient.id, input);
-    if (!result.success) {
+    const falha = await salvarAgora();
+    if (falha) {
       setLoading(false);
-      toast.error(`Não foi possível ${editando ? "atualizar" : "registrar"} a avaliação`, { description: result.message });
+      toast.error("Não foi possível salvar a avaliação", { description: falha });
       return;
     }
-    toast.success(result.message ?? "Avaliação salva.");
     router.push(`/pacientes/${patient.id}?aba=avaliacoes`);
   }
 
@@ -163,7 +167,7 @@ export function ChildAssessmentForm({ patient, assessment, historico }: ChildAss
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]">
         <Card className="min-w-0">
           <CardHeader>
             <CardTitle className="text-base">Dados antropométricos</CardTitle>
@@ -183,8 +187,8 @@ export function ChildAssessmentForm({ patient, assessment, historico }: ChildAss
                 19 anos (228 meses) — use a avaliação de adultos.
               </p>
             )}
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              <div className="col-span-2 space-y-1.5 sm:col-span-1">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
                 <Label htmlFor="data_avaliacao" className="text-xs">
                   Data da avaliação *
                 </Label>
@@ -223,7 +227,7 @@ export function ChildAssessmentForm({ patient, assessment, historico }: ChildAss
             )}
 
             <p className="pt-2 text-sm font-medium">Dobras cutâneas (mm)</p>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4">
               {campo("dobra_triceps_mm", "Tricipital")}
               {campo("dobra_subescapular_mm", "Subescapular")}
               {campo("dobra_panturrilha_mm", "Panturrilha")}
@@ -235,11 +239,19 @@ export function ChildAssessmentForm({ patient, assessment, historico }: ChildAss
               </Label>
               <Textarea id="observacoes" rows={3} {...register("observacoes")} />
             </div>
+
+            <div className="space-y-2">
+              <AutoSaveStatus estado={estado} erro={erroSalvamento} />
+              <Button type="submit" size="lg" className="w-full" disabled={loading}>
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                Salvar e voltar
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
         <div className="min-w-0">
-          <Card className="lg:sticky lg:top-4">
+          <Card>
             <CardHeader>
               <CardTitle className="text-base">Resultados</CardTitle>
               <CardDescription>Curvas da OMS; classificação do SISVAN.</CardDescription>
@@ -282,10 +294,6 @@ export function ChildAssessmentForm({ patient, assessment, historico }: ChildAss
                   </p>
                 </div>
               )}
-              <Button type="submit" className="w-full" disabled={loading || foraDaIdade || meses === null}>
-                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                {editando ? "Salvar alterações" : "Salvar avaliação"}
-              </Button>
             </CardContent>
           </Card>
         </div>

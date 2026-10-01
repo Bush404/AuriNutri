@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { Plus } from "lucide-react";
+import { useState, useTransition } from "react";
+import { Loader2, Plus } from "lucide-react";
+import { toast } from "sonner";
+
+import { iniciarAvaliacao } from "@/lib/actions/clinical";
 
 import { idadeEmMeses, MESES_MAXIMO_INFANTIL } from "@/lib/growth/growth";
 import { cn } from "@/lib/utils";
@@ -32,6 +34,19 @@ export function NewAssessmentMenu({
 }) {
   const [aberto, setAberto] = useState(false);
   const [anexando, setAnexando] = useState(false);
+  const [criando, startCriando] = useTransition();
+  const [tipoCriando, setTipoCriando] = useState<"adulto" | "crianca" | null>(null);
+
+  // A avaliação é criada já ao escolher o tipo e abre salvando sozinha (como no WebDiet).
+  function iniciar(tipo: "adulto" | "crianca") {
+    setTipoCriando(tipo);
+    startCriando(async () => {
+      const r = await iniciarAvaliacao(patientId, tipo);
+      if (r && !r.success) toast.error("Não foi possível abrir a avaliação", { description: r.message });
+    });
+  }
+  const carregando = (tipo: "adulto" | "crianca") =>
+    criando && tipoCriando === tipo && <Loader2 className="h-4 w-4 animate-spin" />;
   const hoje = new Date().toISOString().slice(0, 10);
   const meses = dataNascimento ? idadeEmMeses(dataNascimento, hoje) : null;
   const infantilBloqueado =
@@ -63,8 +78,9 @@ export function NewAssessmentMenu({
             <DialogDescription>Escolha o tipo de avaliação.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <Button asChild className={opcao}>
-              <Link href={`/pacientes/${patientId}/avaliacoes/nova`}>Antropometria de adultos e idosos</Link>
+            <Button className={opcao} disabled={criando} onClick={() => iniciar("adulto")}>
+              {carregando("adulto")}
+              Antropometria de adultos e idosos
             </Button>
             {infantilBloqueado ? (
               <div className="space-y-1">
@@ -74,8 +90,9 @@ export function NewAssessmentMenu({
                 <p className="text-center text-xs text-muted-foreground">{infantilBloqueado}</p>
               </div>
             ) : (
-              <Button asChild className={opcao}>
-                <Link href={`/pacientes/${patientId}/avaliacoes/nova?tipo=crianca`}>Antropometria de crianças e adolescentes</Link>
+              <Button className={opcao} disabled={criando} onClick={() => iniciar("crianca")}>
+                {carregando("crianca")}
+                Antropometria de crianças e adolescentes
               </Button>
             )}
             <div className="space-y-1">

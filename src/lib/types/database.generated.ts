@@ -81,7 +81,7 @@ export type Database = {
       }
       anthropometric_assessments: {
         Row: {
-          altura_cm: number
+          altura_cm: number | null
           circunferencia_braco_cm: number | null
           circunferencia_cintura_cm: number | null
           circunferencia_coxa_cm: number | null
@@ -94,11 +94,11 @@ export type Database = {
           observacoes: string | null
           patient_id: string
           percentual_gordura: number | null
-          peso_kg: number
+          peso_kg: number | null
           user_id: string
         }
         Insert: {
-          altura_cm: number
+          altura_cm?: number | null
           circunferencia_braco_cm?: number | null
           circunferencia_cintura_cm?: number | null
           circunferencia_coxa_cm?: number | null
@@ -111,11 +111,11 @@ export type Database = {
           observacoes?: string | null
           patient_id: string
           percentual_gordura?: number | null
-          peso_kg: number
+          peso_kg?: number | null
           user_id: string
         }
         Update: {
-          altura_cm?: number
+          altura_cm?: number | null
           circunferencia_braco_cm?: number | null
           circunferencia_cintura_cm?: number | null
           circunferencia_coxa_cm?: number | null
@@ -128,7 +128,7 @@ export type Database = {
           observacoes?: string | null
           patient_id?: string
           percentual_gordura?: number | null
-          peso_kg?: number
+          peso_kg?: number | null
           user_id?: string
         }
         Relationships: [

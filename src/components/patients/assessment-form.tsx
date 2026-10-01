@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -32,12 +32,14 @@ import {
   type AssessmentInput,
   type CampoNumerico,
 } from "@/lib/validations/assessment";
-import { createAssessment, updateAssessment } from "@/lib/actions/clinical";
+import { updateAssessment } from "@/lib/actions/clinical";
+import { useAutoSave } from "@/lib/hooks/use-auto-save";
 import { useUnsavedChangesWarning } from "@/lib/hooks/use-unsaved-changes-warning";
 import type { AnthropometricAssessment, Patient } from "@/lib/types/database.types";
 import { cn } from "@/lib/utils";
 
 import { AssessmentResultsPanel } from "@/components/patients/assessment-results-panel";
+import { AutoSaveStatus } from "@/components/patients/auto-save-status";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -58,27 +60,23 @@ type FormValues = Record<CampoNumerico | "bio_idade_metabolica" | "peso_kg" | "a
 
 const texto = (v: number | null | undefined) => (v === null || v === undefined ? "" : String(v));
 
-function buildDefaults(assessment: AnthropometricAssessment | undefined, duplicar: boolean): FormValues {
-  const hoje = new Date().toISOString().slice(0, 10);
+function buildDefaults(assessment: AnthropometricAssessment): FormValues {
   const valores = Object.fromEntries(
-    CAMPOS_NUMERICOS.map((c) => [c, texto(assessment?.[c as keyof AnthropometricAssessment] as number | null)])
+    CAMPOS_NUMERICOS.map((c) => [c, texto(assessment[c as keyof AnthropometricAssessment] as number | null)])
   ) as Record<CampoNumerico, string>;
   return {
     ...valores,
-    // Duplicar = nova consulta a partir desta: copia as medidas, data de hoje, e
-    // não copia o % digitado à mão de uma avaliação antiga (é de outra data).
-    ...(duplicar ? { percentual_gordura: "" } : {}),
-    data_avaliacao: assessment && !duplicar ? assessment.data_avaliacao : hoje,
-    peso_kg: texto(assessment?.peso_kg),
-    altura_cm: texto(assessment?.altura_cm),
-    bio_idade_metabolica: texto(assessment?.bio_idade_metabolica),
-    peso_estimado: assessment?.peso_estimado ?? false,
-    altura_estimada: assessment?.altura_estimada ?? false,
-    lado_referencia: assessment?.lado_referencia ?? "direito",
-    protocolo_dobras: assessment?.protocolo_dobras ?? "",
-    formula_densidade: assessment?.formula_densidade ?? "brozek",
-    sexo_referencia: assessment?.sexo_referencia ?? "",
-    observacoes: duplicar ? "" : assessment?.observacoes ?? "",
+    data_avaliacao: assessment.data_avaliacao,
+    peso_kg: texto(assessment.peso_kg),
+    altura_cm: texto(assessment.altura_cm),
+    bio_idade_metabolica: texto(assessment.bio_idade_metabolica),
+    peso_estimado: assessment.peso_estimado,
+    altura_estimada: assessment.altura_estimada,
+    lado_referencia: assessment.lado_referencia,
+    protocolo_dobras: assessment.protocolo_dobras ?? "",
+    formula_densidade: assessment.formula_densidade,
+    sexo_referencia: assessment.sexo_referencia ?? "",
+    observacoes: assessment.observacoes ?? "",
   };
 }
 
@@ -121,15 +119,13 @@ const BIO_LABELS: Record<(typeof CAMPOS_BIOIMPEDANCIA)[number], string> = {
 
 interface AssessmentFormProps {
   patient: Pick<Patient, "id" | "nome" | "sexo" | "data_nascimento">;
-  /** Editar esta avaliação — ou, com `duplicar`, usá-la como ponto de partida de uma nova. */
-  assessment?: AnthropometricAssessment;
-  duplicar?: boolean;
+  /** Já existe no banco: "Nova avaliação" cria o registro ao abrir (iniciarAvaliacao). */
+  assessment: AnthropometricAssessment;
 }
 
-export function AssessmentForm({ patient, assessment, duplicar = false }: AssessmentFormProps) {
+export function AssessmentForm({ patient, assessment }: AssessmentFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const editando = Boolean(assessment) && !duplicar;
   const voltarPara = `/pacientes/${patient.id}?aba=avaliacoes`;
 
   const {
@@ -137,15 +133,21 @@ export function AssessmentForm({ patient, assessment, duplicar = false }: Assess
     handleSubmit,
     control,
     setValue,
-    formState: { errors, isDirty },
+    trigger,
+    formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(assessmentSchema) as unknown as Resolver<FormValues>,
-    defaultValues: buildDefaults(assessment, duplicar),
+    defaultValues: buildDefaults(assessment),
   });
 
-  useUnsavedChangesWarning(isDirty && !loading);
-
   const v = useWatch({ control }) as FormValues;
+
+  // Salva sozinho a cada alteração; campo inválido fica destacado e não é enviado.
+  const { estado, erro: erroSalvamento, salvarAgora } = useAutoSave(v, async (valores) => {
+    if (!(await trigger())) return { success: false, message: "Corrija os campos destacados para salvar." };
+    return updateAssessment(assessment.id, patient.id, valores as unknown as AssessmentInput);
+  });
+  useUnsavedChangesWarning(estado !== "salvo" && !loading);
   const precisaEscolherBase = patient.sexo !== "masculino" && patient.sexo !== "feminino";
   const sexo = sexoDasFormulas(patient.sexo, v.sexo_referencia || null);
   const idade = idadeNaData(patient.data_nascimento, v.data_avaliacao);
@@ -190,9 +192,19 @@ export function AssessmentForm({ patient, assessment, duplicar = false }: Assess
       ? estimarPesoAcamado({ sexo, alturaJoelhoCm: aj, circunferenciaBracoCm: cb, circunferenciaPanturrilhaCm: cp, dobraSubescapularMm: se })
       : null;
   const [mostrarEstimativas, setMostrarEstimativas] = useState(false);
+  const [abertas, setAbertas] = useState<Set<SecaoRecolhivel>>(new Set());
+  const secao = (nome: SecaoRecolhivel) => ({
+    aberta: abertas.has(nome),
+    onAlternar: () =>
+      setAbertas((atual) => {
+        const nova = new Set(atual);
+        if (!nova.delete(nome)) nova.add(nome);
+        return nova;
+      }),
+  });
 
   const temCamposAntigos = Boolean(
-    assessment && (assessment.circunferencia_braco_cm || assessment.circunferencia_coxa_cm || (!assessment.protocolo_dobras && assessment.percentual_gordura))
+    (assessment.circunferencia_braco_cm || assessment.circunferencia_coxa_cm || (!assessment.protocolo_dobras && assessment.percentual_gordura))
   );
 
   async function onSubmit(values: FormValues) {
@@ -201,17 +213,12 @@ export function AssessmentForm({ patient, assessment, duplicar = false }: Assess
       return;
     }
     setLoading(true);
-    const input = values as unknown as AssessmentInput;
-    const result = editando
-      ? await updateAssessment(assessment!.id, patient.id, input)
-      : await createAssessment(patient.id, input);
-
-    if (!result.success) {
+    const falha = await salvarAgora();
+    if (falha) {
       setLoading(false);
-      toast.error(`Não foi possível ${editando ? "atualizar" : "registrar"} a avaliação`, { description: result.message });
+      toast.error("Não foi possível salvar a avaliação", { description: falha });
       return;
     }
-    toast.success(result.message ?? "Avaliação salva.");
     router.push(voltarPara);
   }
 
@@ -241,11 +248,14 @@ export function AssessmentForm({ patient, assessment, duplicar = false }: Assess
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+    <form
+      // Campo com erro numa seção fechada ficaria invisível: abre todas para mostrar.
+      onSubmit={handleSubmit(onSubmit, () => setAbertas(new Set(SECOES_RECOLHIVEIS)))}
+      className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]">
       <div className="min-w-0 space-y-6">
         <Secao titulo="Dados básicos">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <div className="col-span-2 space-y-1.5 sm:col-span-1">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
               <Label htmlFor="data_avaliacao" className="text-xs">
                 Data da avaliação *
               </Label>
@@ -349,7 +359,7 @@ export function AssessmentForm({ patient, assessment, duplicar = false }: Assess
           )}
         </Secao>
 
-        <Secao titulo="Dobras cutâneas (mm)">
+        <Secao titulo="Dobras cutâneas (mm)" {...secao("dobras")}>
           <fieldset className="space-y-3 rounded-md bg-muted/40 p-3">
             <legend className="sr-only">Protocolo de % de gordura</legend>
             <p className="text-sm font-medium text-foreground">Fórmula para o % de gordura</p>
@@ -400,23 +410,21 @@ export function AssessmentForm({ patient, assessment, duplicar = false }: Assess
               </div>
             )}
           </fieldset>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4">
             {DOBRAS.map((d) =>
               campo(`dobra_${d}_mm` as CampoNumerico, DOBRA_LABELS[d], { destaque: dobrasDoProtocolo.includes(d) })
             )}
           </div>
         </Secao>
 
-        <Secao titulo="Circunferências (cm)" descricao="Usadas no RCQ, RCEst, CMB e nas estimativas de peso.">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">{TRONCO.map((t) => campo(t.campo, t.label))}</div>
+        <Secao titulo="Circunferências (cm)" {...secao("circunferencias")} descricao="Usadas no RCQ, RCEst, CMB e nas estimativas de peso.">
+          <div className="grid grid-cols-2 gap-4">{TRONCO.map((t) => campo(t.campo, t.label))}</div>
           <div className="space-y-2">
-            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-4 gap-y-3 sm:grid-cols-[140px_minmax(0,1fr)_minmax(0,1fr)]">
-              {CAMPOS_CIRCUNFERENCIAS_MEMBROS.map(([dir, esq], i) => (
-                <Membro key={dir} label={MEMBRO_LABELS[i]}>
-                  {campo(dir, `${MEMBRO_LABELS[i]} — direito`)}
-                  {campo(esq, `${MEMBRO_LABELS[i]} — esquerdo`)}
-                </Membro>
-              ))}
+            <div className="grid grid-cols-2 gap-4">
+              {CAMPOS_CIRCUNFERENCIAS_MEMBROS.flatMap(([dir, esq], i) => [
+                campo(dir, `${MEMBRO_LABELS[i]} direito`),
+                campo(esq, `${MEMBRO_LABELS[i]} esquerdo`),
+              ])}
             </div>
             <p className="text-xs text-muted-foreground">Preencher os dois lados é opcional — um lado basta.</p>
           </div>
@@ -440,40 +448,47 @@ export function AssessmentForm({ patient, assessment, duplicar = false }: Assess
               <p className="text-xs text-muted-foreground">
                 Medidas do formato antigo desta avaliação (antes da nova antropometria), mantidas como foram registradas.
               </p>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                {assessment?.circunferencia_braco_cm !== null && campo("circunferencia_braco_cm", "Braço (formato antigo)")}
-                {assessment?.circunferencia_coxa_cm !== null && campo("circunferencia_coxa_cm", "Coxa (formato antigo)")}
-                {!assessment?.protocolo_dobras &&
-                  assessment?.percentual_gordura !== null &&
-                  !duplicar &&
+              <div className="grid grid-cols-2 gap-4">
+                {assessment.circunferencia_braco_cm !== null && campo("circunferencia_braco_cm", "Braço (formato antigo)")}
+                {assessment.circunferencia_coxa_cm !== null && campo("circunferencia_coxa_cm", "Coxa (formato antigo)")}
+                {!assessment.protocolo_dobras &&
+                  assessment.percentual_gordura !== null &&
                   campo("percentual_gordura", "% de gordura (digitado)")}
               </div>
             </div>
           )}
         </Secao>
 
-        <Secao titulo="Diâmetros ósseos (cm)" descricao="Usados no peso ósseo e na massa muscular.">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <Secao titulo="Diâmetros ósseos (cm)" {...secao("diametros")} descricao="Usados no peso ósseo e na massa muscular.">
+          <div className="grid grid-cols-2 gap-4">
             {campo("diametro_umero_cm", "Úmero")}
             {campo("diametro_punho_cm", "Punho")}
             {campo("diametro_femur_cm", "Fêmur")}
           </div>
         </Secao>
 
-        <Secao titulo="Bioimpedância" descricao="Digite os valores que o aparelho mostrou.">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <Secao titulo="Bioimpedância" {...secao("bioimpedancia")} descricao="Digite os valores que o aparelho mostrou.">
+          <div className="grid grid-cols-2 gap-4">
             {CAMPOS_BIOIMPEDANCIA.map((c) => campo(c, BIO_LABELS[c]))}
             {campo("bio_idade_metabolica", "Idade metabólica (anos)")}
           </div>
         </Secao>
 
-        <Secao titulo="Observações">
+        <Secao titulo="Observações" {...secao("observacoes")}>
           <Textarea id="observacoes" aria-label="Observações" rows={3} {...register("observacoes")} />
         </Secao>
+
+        <div className="space-y-2">
+          <AutoSaveStatus estado={estado} erro={erroSalvamento} />
+          <Button type="submit" size="lg" className="w-full" disabled={loading}>
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+            Salvar e voltar
+          </Button>
+        </div>
       </div>
 
       <div className="min-w-0">
-        <Card className="lg:sticky lg:top-4">
+        <Card>
           <CardHeader>
             <CardTitle className="text-base">Resultados</CardTitle>
             <CardDescription>Calculados enquanto você digita.</CardDescription>
@@ -486,10 +501,6 @@ export function AssessmentForm({ patient, assessment, duplicar = false }: Assess
               bio={bio}
               classificacaoBio={classificacaoBio}
             />
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {editando ? "Salvar alterações" : "Salvar avaliação"}
-            </Button>
           </CardContent>
         </Card>
       </div>
@@ -497,24 +508,52 @@ export function AssessmentForm({ patient, assessment, duplicar = false }: Assess
   );
 }
 
-function Secao({ titulo, descricao, children }: { titulo: string; descricao?: string; children: ReactNode }) {
+const SECOES_RECOLHIVEIS = ["dobras", "circunferencias", "diametros", "bioimpedancia", "observacoes"] as const;
+type SecaoRecolhivel = (typeof SECOES_RECOLHIVEIS)[number];
+
+interface SecaoProps {
+  titulo: string;
+  descricao?: string;
+  children: ReactNode;
+  /** Sem `aberta`, a seção fica sempre aberta (Dados básicos). */
+  aberta?: boolean;
+  onAlternar?: () => void;
+}
+
+/**
+ * Seção do formulário. As recolhíveis abrem e fecham pelo título (como no WebDiet);
+ * fechadas, os campos continuam montados (só escondidos) para não perder o que foi digitado.
+ */
+function Secao({ titulo, descricao, children, aberta, onAlternar }: SecaoProps) {
+  const recolhivel = aberta !== undefined;
+  const id = `secao-${titulo.replace(/\W+/g, "-").toLowerCase()}`;
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{titulo}</CardTitle>
-        {descricao && <CardDescription>{descricao}</CardDescription>}
+        {recolhivel ? (
+          <CardTitle className="text-base">
+            <button
+              type="button"
+              className="flex w-full items-center justify-between gap-3 text-left"
+              aria-expanded={aberta}
+              aria-controls={id}
+              onClick={onAlternar}
+            >
+              {titulo}
+              <ChevronDown
+                className={cn("h-5 w-5 shrink-0 text-muted-foreground transition-transform", aberta && "rotate-180")}
+                aria-hidden="true"
+              />
+            </button>
+          </CardTitle>
+        ) : (
+          <CardTitle className="text-base">{titulo}</CardTitle>
+        )}
+        {descricao && (!recolhivel || aberta) && <CardDescription>{descricao}</CardDescription>}
       </CardHeader>
-      <CardContent className="space-y-4">{children}</CardContent>
+      <CardContent id={id} hidden={recolhivel && !aberta} className="space-y-4">
+        {children}
+      </CardContent>
     </Card>
-  );
-}
-
-/** Uma linha de membro: no celular o nome some (já está no rótulo de cada campo). */
-function Membro({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <>
-      <p className="hidden self-end pb-2 text-sm text-foreground sm:block">{label}</p>
-      {children}
-    </>
   );
 }

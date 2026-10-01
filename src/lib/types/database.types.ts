@@ -105,9 +105,9 @@ export interface AnthropometricAssessment {
   patient_id: string;
   user_id: string;
   data_avaliacao: string;
-  peso_kg: number;
-  altura_cm: number;
-  imc: number;
+  peso_kg: number | null;
+  altura_cm: number | null;
+  imc: number | null;
   circunferencia_cintura_cm: number | null;
   circunferencia_quadril_cm: number | null;
   circunferencia_braco_cm: number | null;

@@ -201,14 +201,14 @@ function massaGorda(a: AnthropometricAssessment, r: ResultadosAvaliacao | null) 
   if (r?.massaGordaKg != null) return r.massaGordaKg;
   if (a.bio_massa_gorda_kg != null) return a.bio_massa_gorda_kg;
   const pg = percentualGordura(a);
-  return pg !== null ? (a.peso_kg * pg) / 100 : null;
+  return pg !== null && a.peso_kg !== null ? (a.peso_kg * pg) / 100 : null;
 }
 
 function massaLivre(a: AnthropometricAssessment, r: ResultadosAvaliacao | null) {
   if (r?.massaLivreGorduraKg != null) return r.massaLivreGorduraKg;
   if (a.bio_massa_livre_gordura_kg != null) return a.bio_massa_livre_gordura_kg;
   const mg = massaGorda(a, r);
-  return mg !== null ? a.peso_kg - mg : null;
+  return mg !== null && a.peso_kg !== null ? a.peso_kg - mg : null;
 }
 
 function massaGordaAnexo(x: AnthropometricAttachment | null) {

@@ -1,13 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { anamnesisSchema, type AnamnesisInput } from "@/lib/validations/patient";
 import { assessmentSchema, CAMPOS_NUMERICOS, type AssessmentInput } from "@/lib/validations/assessment";
 import { calcularResultados, sexoDasFormulas, type MedidasAvaliacao } from "@/lib/anthropometry-results";
 import { idadeNaData, type ProtocoloDobras, type SexoParaFormula } from "@/lib/anthropometry";
 import { gorduraInfantil, idadeEmMeses, MESES_MAXIMO_INFANTIL } from "@/lib/growth/growth";
-import type { Patient } from "@/lib/types/database.types";
+import type { AnthropometricAssessment, Patient } from "@/lib/types/database.types";
 import type { ActionResult } from "@/lib/actions/patients";
 import { sanitizeRichText } from "@/lib/rich-text-sanitize";
 import { isRichTextEmpty } from "@/lib/rich-text";
@@ -158,8 +159,8 @@ async function prepareAssessment(
     const row = {
       tipo: "crianca",
       data_avaliacao: data.data_avaliacao,
-      peso_kg: data.peso_kg,
-      altura_cm: data.altura_cm,
+      peso_kg: data.peso_kg ?? null,
+      altura_cm: data.altura_cm ?? null,
       dobra_triceps_mm: data.dobra_triceps_mm ?? null,
       dobra_subescapular_mm: data.dobra_subescapular_mm ?? null,
       dobra_panturrilha_mm: data.dobra_panturrilha_mm ?? null,
@@ -175,8 +176,8 @@ async function prepareAssessment(
   const row = {
     tipo: "adulto",
     data_avaliacao: data.data_avaliacao,
-    peso_kg: data.peso_kg,
-    altura_cm: data.altura_cm,
+    peso_kg: data.peso_kg ?? null,
+    altura_cm: data.altura_cm ?? null,
     peso_estimado: data.peso_estimado,
     altura_estimada: data.altura_estimada,
     ...Object.fromEntries(CAMPOS_NUMERICOS.map((c) => [c, data[c] ?? null])),
@@ -203,10 +204,19 @@ async function prepareAssessment(
   return { row } as const;
 }
 
-export async function createAssessment(
+/**
+ * "Nova avaliação" e "Duplicar": cria o registro na hora (como no WebDiet) e
+ * abre a página dele, onde o formulário salva sozinho a cada alteração — fechar
+ * a tela nunca perde a avaliação (migration 0041). A nova de adulto já vem com
+ * a altura da primeira avaliação do paciente; a duplicada copia as medidas da
+ * origem com a data de hoje, sem as observações nem o % digitado à mão numa
+ * avaliação antiga (é de outra data).
+ */
+export async function iniciarAvaliacao(
   patientId: string,
-  input: AssessmentInput
-): Promise<ActionResult & { id?: string }> {
+  tipo: "adulto" | "crianca",
+  deId?: string
+): Promise<ActionResult> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -216,14 +226,56 @@ export async function createAssessment(
     return { success: false, message: "Sessão expirada. Faça login novamente." };
   }
 
-  const prepared = await prepareAssessment(supabase, patientId, input);
-  if ("error" in prepared) {
-    return { success: false, message: prepared.error };
+  const hoje = new Date().toISOString().slice(0, 10);
+  let row: Record<string, unknown> = { tipo, data_avaliacao: hoje };
+
+  if (deId) {
+    const { data: origem } = await supabase
+      .from("anthropometric_assessments")
+      .select("*")
+      .eq("id", deId)
+      .eq("patient_id", patientId)
+      .maybeSingle<AnthropometricAssessment>();
+    if (!origem) {
+      return { success: false, message: "Avaliação de origem não encontrada." };
+    }
+    const prepared = await prepareAssessment(supabase, patientId, {
+      ...Object.fromEntries(CAMPOS_NUMERICOS.map((c) => [c, origem[c] ?? undefined])),
+      percentual_gordura: undefined,
+      tipo: "adulto",
+      data_avaliacao: hoje,
+      peso_kg: origem.peso_kg ?? undefined,
+      altura_cm: origem.altura_cm ?? undefined,
+      peso_estimado: origem.peso_estimado,
+      altura_estimada: origem.altura_estimada,
+      bio_idade_metabolica: origem.bio_idade_metabolica ?? undefined,
+      lado_referencia: origem.lado_referencia,
+      protocolo_dobras: origem.protocolo_dobras ?? undefined,
+      formula_densidade: origem.formula_densidade,
+      sexo_referencia: origem.sexo_referencia ?? undefined,
+    } as AssessmentInput);
+    if ("error" in prepared) {
+      return { success: false, message: prepared.error };
+    }
+    row = prepared.row;
+  } else if (tipo === "adulto") {
+    // Altura de adulto quase não muda: a nova já vem com a da primeira avaliação.
+    const { data: primeira } = await supabase
+      .from("anthropometric_assessments")
+      .select("altura_cm")
+      .eq("patient_id", patientId)
+      .eq("tipo", "adulto")
+      .not("altura_cm", "is", null)
+      .order("data_avaliacao", { ascending: true })
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle<{ altura_cm: number }>();
+    row.altura_cm = primeira?.altura_cm ?? null;
   }
 
   const { data, error } = await supabase
     .from("anthropometric_assessments")
-    .insert({ ...prepared.row, patient_id: patientId, user_id: user.id })
+    .insert({ ...row, patient_id: patientId, user_id: user.id })
     .select("id")
     .single<{ id: string }>();
 
@@ -232,7 +284,7 @@ export async function createAssessment(
   }
 
   revalidatePath(`/pacientes/${patientId}`);
-  return { success: true, message: "Avaliação registrada com sucesso.", id: data.id };
+  redirect(`/pacientes/${patientId}/avaliacoes/${data.id}`);
 }
 
 export async function updateAssessment(

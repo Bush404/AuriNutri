@@ -78,10 +78,9 @@ const optionalEnum = <T extends [string, ...string[]]>(values: T) =>
 export const assessmentSchema = z.object({
   tipo: z.enum(["adulto", "crianca"]).default("adulto"),
   data_avaliacao: z.string().min(1, "Informe a data da avaliação"),
-  peso_kg: z.coerce.number({ invalid_type_error: "Informe o peso" }).positive("Peso deve ser maior que zero"),
-  altura_cm: z.coerce
-    .number({ invalid_type_error: "Informe a altura" })
-    .positive("Altura deve ser maior que zero"),
+  // Opcionais: a avaliação é criada ao abrir e salva sozinha, antes de o peso ser digitado (migration 0041).
+  peso_kg: optionalPositiveNumber(),
+  altura_cm: optionalPositiveNumber(),
   peso_estimado: z.boolean().default(false),
   altura_estimada: z.boolean().default(false),
   ...medidas,

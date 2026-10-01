@@ -4,7 +4,7 @@ import { Fragment, useState, useTransition, type ReactNode } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 
-import { deleteAssessment } from "@/lib/actions/clinical";
+import { deleteAssessment, iniciarAvaliacao } from "@/lib/actions/clinical";
 import { deleteAnthropometricAttachment, getAnthropometricAttachmentSignedUrl } from "@/lib/actions/anthropometric-attachments";
 import { itensDisponiveis, rotuloAvaliacao, type ChaveItem } from "@/lib/evolution";
 import type { AnthropometricAssessment, AnthropometricAttachment } from "@/lib/types/database.types";
@@ -48,6 +48,15 @@ export function AssessmentsList({
   const [editandoAnexo, setEditandoAnexo] = useState<AnthropometricAttachment | null>(null);
   const [excluindo, setExcluindo] = useState<Linha | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [duplicando, startDuplicando] = useTransition();
+
+  // Duplicar cria a nova avaliação na hora (com as medidas desta) e abre a página dela.
+  function duplicar(assessmentId: string) {
+    startDuplicando(async () => {
+      const r = await iniciarAvaliacao(patientId, "adulto", assessmentId);
+      if (r && !r.success) toast.error("Não foi possível duplicar a avaliação", { description: r.message });
+    });
+  }
 
   const itens = itensDisponiveis({ assessments, attachments });
   const linhas: Linha[] = itens.map((i) =>
@@ -112,9 +121,9 @@ export function AssessmentsList({
             );
             if (l.a.tipo === "adulto") {
               acoes.push(
-                <Link key="dup" className={acao} href={`/pacientes/${patientId}/avaliacoes/nova?de=${l.a.id}`}>
+                <button key="dup" type="button" className={acao} disabled={duplicando} onClick={() => duplicar(l.a.id)}>
                   Duplicar
-                </Link>
+                </button>
               );
             }
           } else {
