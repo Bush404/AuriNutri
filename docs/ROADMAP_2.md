@@ -345,7 +345,8 @@ adicional digitado à mão).
 [x] Salvar o cálculo com nome e data (salva ao abrir e sozinho); GET recalculado no servidor (migration 0042)
 [x] "Outro/sem sexo" continua nunca sendo assumido (regra da Fase 4)
 [x] Ajustes: MET (atividade, MET e minutos por dia), meta de peso (VENTA, 7.700 kcal/kg)
-[ ] Lista de atividades do Compendium na busca do MET (hoje o MET é digitado) — Bloco C
+[x] Lista de atividades do Compendium (2024, 1.111 atividades, tradução do AuriNutri) na busca do MET
+[x] Tela refeita no formato do WebDiet (01/10/2026): caixas de 3 em 3, ajustes em janelas, VENTA com barras
 ```
 
 ### Critérios de aceite
