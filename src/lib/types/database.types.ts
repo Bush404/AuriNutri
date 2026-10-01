@@ -174,6 +174,45 @@ export interface AnthropometricAssessment {
   tipo: "adulto" | "crianca";
 }
 
+/** Atividade do Compendium somada ao GET (minutos por dia). */
+export interface AtividadeMet {
+  codigo: string;
+  nome: string;
+  met: number;
+  minutos: number;
+}
+
+/** Cálculo de gasto energético (Fase 16 — migration 0042). */
+export interface EnergyCalculation {
+  id: string;
+  patient_id: string;
+  user_id: string;
+  nome: string | null;
+  data_calculo: string;
+  assessment_id: string | null;
+  peso_kg: number | null;
+  altura_cm: number | null;
+  massa_livre_gordura_kg: number | null;
+  sexo_referencia: "masculino" | "feminino" | null;
+  formula: string | null;
+  nivel_eer: "inativo" | "pouco_ativo" | "ativo" | "muito_ativo" | null;
+  kcal_por_kg: number | null;
+  valor_manual_kcal: number | null;
+  fator_atividade: number;
+  fator_injuria: number;
+  fator_injuria_label: string | null;
+  atividades_met: AtividadeMet[];
+  venta_kg: number | null;
+  venta_dias: number | null;
+  adicional_gestante_kcal: number | null;
+  tmb_kcal: number | null;
+  get_kcal: number | null;
+  observacoes: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
 /** Relatório antropométrico externo anexado (Fase 15, Bloco C — migration 0040). */
 export interface AnthropometricAttachment {
   id: string;

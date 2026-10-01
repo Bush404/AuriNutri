@@ -1,13 +1,14 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import type { Anamnesis, AnthropometricAssessment, Meal, MealItem, MealPlan, Patient } from "@/lib/types/database.types";
+import type { Anamnesis, AnthropometricAssessment, EnergyCalculation, Meal, MealItem, MealPlan, Patient } from "@/lib/types/database.types";
 
 export interface PatientExport {
   exportado_em: string;
   paciente: Patient;
   anamneses: Anamnesis[];
   avaliacoes_antropometricas: AnthropometricAssessment[];
+  calculos_energeticos: EnergyCalculation[];
   planos_alimentares: Array<MealPlan & { refeicoes: Array<Meal & { itens: MealItem[] }> }>;
 }
 
@@ -32,7 +33,7 @@ export async function exportPatientData(patientId: string): Promise<ExportPatien
     return { success: false, message: "Paciente não encontrado." };
   }
 
-  const [{ data: anamneses }, { data: assessments }, { data: mealPlans }] = await Promise.all([
+  const [{ data: anamneses }, { data: assessments }, { data: mealPlans }, { data: calculos }] = await Promise.all([
     supabase
       .from("anamnesis")
       .select("*")
@@ -51,6 +52,12 @@ export async function exportPatientData(patientId: string): Promise<ExportPatien
       .eq("patient_id", patientId)
       .order("created_at", { ascending: false })
       .returns<MealPlan[]>(),
+    supabase
+      .from("energy_calculations")
+      .select("*")
+      .eq("patient_id", patientId)
+      .order("data_calculo", { ascending: false })
+      .returns<EnergyCalculation[]>(),
   ]);
 
   const planosComRefeicoes = await Promise.all(
@@ -86,6 +93,7 @@ export async function exportPatientData(patientId: string): Promise<ExportPatien
       paciente: patient,
       anamneses: anamneses ?? [],
       avaliacoes_antropometricas: assessments ?? [],
+      calculos_energeticos: calculos ?? [],
       planos_alimentares: planosComRefeicoes,
     },
   };

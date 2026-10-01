@@ -335,15 +335,17 @@ Henry/Oxford (2005). **Gestantes e lactantes ficam para a fase própria de gesta
 adicional digitado à mão).
 
 ```
-[ ] Tela: escolhe a data/avaliação de origem → dados preenchidos (peso, altura, idade, sexo, massa magra)
-[ ] Escolhe a fórmula e o fator de atividade (e fator injúria/térmico quando se aplicar)
-[ ] Fórmulas adultos: Harris-Benedict, Mifflin-St Jeor (já existem), FAO/OMS, Schofield, Henry (Oxford),
-    Cunningham e Katch-McArdle (usam massa magra da Fase 15), IOM/DRI (EER), Tinsley
-[ ] Crianças/adolescentes: IOM/DRI (EER por faixa), Schofield, FAO/OMS
-[ ] Gestantes/lactantes: adicional energético (a confirmar com a nutricionista)
-[ ] Comparar fórmulas lado a lado na mesma tela
-[ ] Salvar o cálculo com data (histórico): é daqui que o planejamento do plano importa
-[ ] "Outro/sem sexo" continua nunca sendo assumido (regra da Fase 4)
+[x] Tela: "Importar de antropometria" escolhe a avaliação → peso, altura e massa magra; idade e sexo do cadastro
+[x] Escolhe a fórmula, o fator de atividade e o fator injúria (as EER usam o próprio nível de atividade)
+[x] Fórmulas adultos: Harris-Benedict 1919 e 1984, Mifflin-St Jeor (e por MLG), FAO/OMS, Henry & Rees,
+    Henry/Oxford, Cunningham, Katch-McArdle, EER/IOM 2005, EER 2023, Tinsley (peso e MLG) — Bloco A
+[x] Crianças/adolescentes: EER/IOM 2005, EER 2023, FAO/OMS, Schofield (peso e altura), Henry/Oxford
+[x] Gestantes/lactantes: só o adicional digitado à mão (fórmulas ficam para a fase de gestantes)
+[x] Comparar fórmulas lado a lado na mesma tela (clique escolhe a fórmula)
+[x] Salvar o cálculo com nome e data (salva ao abrir e sozinho); GET recalculado no servidor (migration 0042)
+[x] "Outro/sem sexo" continua nunca sendo assumido (regra da Fase 4)
+[x] Ajustes: MET (atividade, MET e minutos por dia), meta de peso (VENTA, 7.700 kcal/kg)
+[ ] Lista de atividades do Compendium na busca do MET (hoje o MET é digitado) — Bloco C
 ```
 
 ### Critérios de aceite

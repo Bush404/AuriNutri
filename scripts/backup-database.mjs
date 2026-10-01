@@ -37,6 +37,8 @@ const TABLES = [
   "anamnesis",
   "anamnesis_templates",
   "anthropometric_assessments",
+  "anthropometric_attachments",
+  "energy_calculations",
   "foods",
   "meal_plans",
   "meals",

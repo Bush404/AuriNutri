@@ -402,6 +402,34 @@ async function main() {
     }
     pass("B não consegue excluir (RPC) o relatório anexado de A", anexoRpcError?.message ?? `retorno: ${anexoRpcResult}`);
 
+    // Fase 16 — cálculo energético (migration 0042).
+    const { data: calculo, error: calculoError } = await userA.client
+      .from("energy_calculations")
+      .insert({ patient_id: patientId, user_id: userA.id, nome: "Teste isolamento", peso_kg: 70 })
+      .select("id")
+      .single();
+    if (calculoError) throw new Error(`Falha ao criar cálculo energético de A: ${calculoError.message}`);
+    await checkTableIsolation(userB, {
+      table: "energy_calculations",
+      id: calculo.id,
+      updateField: "nome",
+      updateValue: "alterado por B",
+      canDelete: true,
+    });
+    const { data: calculoRpcResult, error: calculoRpcError } = await userB.client.rpc("soft_delete_energy_calculation", {
+      calculation_id: calculo.id,
+    });
+    if (!calculoRpcError && calculoRpcResult === true) {
+      breach("B CONSEGUIU excluir (RPC soft_delete_energy_calculation) o cálculo energético de A");
+    }
+    pass("B não consegue excluir (RPC) o cálculo energético de A", calculoRpcError?.message ?? `retorno: ${calculoRpcResult}`);
+    // A policy de INSERT também exige que o paciente seja do profissional.
+    const { error: calculoAlheioError } = await userB.client
+      .from("energy_calculations")
+      .insert({ patient_id: patientId, user_id: userB.id, nome: "B no paciente de A" });
+    if (!calculoAlheioError) breach("B CONSEGUIU criar um cálculo energético no paciente de A");
+    pass("B não consegue criar cálculo energético no paciente de A", calculoAlheioError?.message ?? "");
+
     const { data: photo, error: photoError } = await userA.client
       .from("patient_photos")
       .insert({ patient_id: patientId, user_id: userA.id, data_registro: "2026-01-01", tipo: "frente", arquivo_path: null })

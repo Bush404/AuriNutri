@@ -258,6 +258,17 @@ function dadosDaAvaliacao(a: AnthropometricAssessment, sexo: Sexo | null, dataNa
   };
 }
 
+/**
+ * Massa livre de gordura de uma avaliação de adulto — a mesma da evolução
+ * (protocolo de dobras, bioimpedância ou % digitado). O cálculo energético
+ * (Fase 16) importa daqui. Criança: null (não há protocolo de MLG).
+ */
+export function massaLivreDaAvaliacao(a: AnthropometricAssessment, sexo: Sexo | null, dataNascimento: string | null) {
+  if (a.tipo === "crianca") return null;
+  const mlg = massaLivre(a, dadosDaAvaliacao(a, sexo, dataNascimento).r);
+  return mlg !== null && mlg > 0 ? mlg : null;
+}
+
 const formatar = (v: number, casas: number) =>
   v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
 

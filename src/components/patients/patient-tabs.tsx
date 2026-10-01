@@ -9,6 +9,7 @@ import type {
   AnamnesisTemplate,
   AnthropometricAssessment,
   AnthropometricAttachment,
+  EnergyCalculation,
   MealPlan,
   Patient,
   PatientConsent,
@@ -23,6 +24,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { AnamnesisTimeline } from "@/components/patients/anamnesis-timeline";
 import { NewAssessmentMenu } from "@/components/patients/new-assessment-menu";
 import { AssessmentsList } from "@/components/patients/assessments-list";
+import { EnergyCalculationsPanel } from "@/components/patients/energy-calculations-panel";
 import { MealPlanList } from "@/components/meal-plans/meal-plan-list";
 import { PatientConsentsPanel } from "@/components/patients/patient-consents-panel";
 import { LabExamsPanel } from "@/components/patients/lab-exams-panel";
@@ -34,6 +36,7 @@ const ABAS = [
   "informacoes",
   "anamnese",
   "avaliacoes",
+  "calculo-energetico",
   "evolucao-fotografica",
   "planos",
   "exames",
@@ -46,6 +49,7 @@ interface PatientTabsProps {
   anamneses: Anamnesis[];
   assessments: AnthropometricAssessment[];
   attachments: AnthropometricAttachment[];
+  calculos: EnergyCalculation[];
   mealPlans: MealPlan[];
   consents: PatientConsent[];
   labExams: LabExamWithMarkers[];
@@ -61,6 +65,7 @@ export function PatientTabs({
   anamneses,
   assessments,
   attachments,
+  calculos,
   mealPlans,
   consents,
   labExams,
@@ -82,6 +87,7 @@ export function PatientTabs({
         <TabsTrigger value="informacoes">Informações gerais</TabsTrigger>
         <TabsTrigger value="anamnese">Anamnese</TabsTrigger>
         <TabsTrigger value="avaliacoes">Antropometria Geral</TabsTrigger>
+        <TabsTrigger value="calculo-energetico">Cálculo energético</TabsTrigger>
         <TabsTrigger value="evolucao-fotografica">Evolução Fotográfica</TabsTrigger>
         <TabsTrigger value="planos">Planos alimentares</TabsTrigger>
         <TabsTrigger value="exames">Exames</TabsTrigger>
@@ -137,6 +143,10 @@ export function PatientTabs({
             )}
           </CardContent>
         </Card>
+      </TabsContent>
+
+      <TabsContent value="calculo-energetico">
+        <EnergyCalculationsPanel patientId={patient.id} calculos={calculos} />
       </TabsContent>
 
       <TabsContent value="evolucao-fotografica">
