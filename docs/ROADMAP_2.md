@@ -300,6 +300,18 @@ avaliação antropométrica". Saíram os gráficos na tela: "Relatório" baixa o
 até 5 datas e baixa o PDF comparativo (composição corporal, análises básicas e medidas, com a
 variação entre datas). Sem QR code do WebDiet (não há app do paciente).
 
+**Ajustes pós-uso (01/10/2026), pedidos da responsável depois de testar localmente** (commit 96401d5):
+- A avaliação é **salva ao abrir**: "Nova avaliação" e "Duplicar" criam o registro na hora
+  (`iniciarAvaliacao`) e o formulário salva sozinho a cada alteração (`useAutoSave`, com aviso
+  "Salvando… / Tudo salvo"). O botão virou "Salvar e voltar"; a página `/avaliacoes/nova` saiu.
+- Migration **0041** (aplicada): peso e altura deixam de ser obrigatórios, porque a avaliação existe
+  antes do peso. "Último peso" (plano e contexto do paciente) e as curvas infantis ignoram
+  avaliação sem peso; PDFs mostram "—".
+- Nova avaliação de adulto já vem com a altura da primeira avaliação do paciente.
+- Formulário: Dados básicos sempre aberta; Dobras, Circunferências, Diâmetros, Bioimpedância e
+  Observações recolhíveis (fechadas ao abrir); campos de 2 em 2; coluna de resultados mais larga e
+  rolando junto com a página; circunferências sem o nome repetido ao lado.
+
 ### Critérios de aceite
 - Cada fórmula de % gordura tem teste com valor calculado à mão a partir da fórmula publicada
   (mesmo padrão de `energy.test.ts`).
