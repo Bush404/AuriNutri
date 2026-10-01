@@ -157,3 +157,22 @@ export function distribuicaoCalorica(totais: MacroTotals) {
     total: totais.calorias,
   };
 }
+
+/**
+ * Densidade calórica (kcal/g) de uma refeição, nas faixas de Ledikwe et al.
+ * (2005), as mesmas do WebDiet: muito baixa < 0,6; baixa 0,6–1,5; média
+ * 1,5–4,0; alta > 4,0 kcal/g.
+ */
+export function classificarDensidade(kcal: number, pesoG: number) {
+  if (!(pesoG > 0)) return null;
+  const valor = kcal / pesoG;
+  const faixa =
+    valor < 0.6
+      ? { rotulo: "muito baixa", faixa: "até 0,6 kcal/g" }
+      : valor < 1.5
+        ? { rotulo: "baixa", faixa: "0,6 a 1,5 kcal/g" }
+        : valor <= 4
+          ? { rotulo: "média", faixa: "1,5 a 4,0 kcal/g" }
+          : { rotulo: "alta", faixa: "acima de 4,0 kcal/g" };
+  return { valor, ...faixa };
+}

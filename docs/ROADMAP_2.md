@@ -408,9 +408,12 @@ favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fi
 [x] Bloco B (resto, 02/10): arrastar refeições pela alça ou com as setas (`MealList`, `reorderMeals`),
     "reordenar por horário" (`reorderMealsByTime`), "expandir/recolher tudo", "Ver anamnese" (aba nova);
     2.5 "salvar sozinho" já atendido: cada ação da tela do plano grava na hora
-[ ] Bloco C: janela da refeição no formato do WebDiet; busca com filtros por fonte + medida usual;
-    favoritar alimento (tabela nova + RLS); cadastrar alimento sem sair; densidade calórica e % por
-    refeição; observações com texto formatado (Tiptap da Fase 14)
+[x] Bloco C (02/10): refeição aberta com busca + filtros (`meal-food-search.ts`, `MealFoodSearch`;
+    clicar adiciona na porção de referência), favoritos (migration 0044 `food_favorites`), cadastrar
+    alimento sem sair (FoodFormDialog), `MealAnalysis` (densidade calórica, Ledikwe 2005, +2 testes),
+    observações em texto formatado com salvamento automático (`atualizarObservacoesRefeicao`, PDF via
+    `observacaoParaPdf`, +1 teste). Sai o formulário antigo (add-meal-item-form, recipe-combobox).
+    "Medida usual" na busca fica para o Bloco D.
 [ ] Bloco D: medidas caseiras — script importando a tabela de medidas referidas do IBGE (POF
     2008–2009, ftp.ibge.gov.br, tabelamedidas_bd.xls, ~11.800 linhas por código de alimento+preparo)
     e ligação aos alimentos da TACO; medidas personalizadas do profissional; snapshot do item grava
@@ -421,7 +424,8 @@ favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fi
 [ ] Bloco G: lista de planos (kcal e kcal/kg), favoritar plano como modelo, começar de modelo,
     ordenar planos
 [ ] Responsável: explicar a "Periodização" do WebDiet; enviar o e-mail de licença da TBCA
-[ ] Conferir: rodar test:e2e e test:security-isolation-full (energy_calculations); duplicatePlan
+[ ] Conferir: rodar test:e2e (helpers ajustados ao fluxo novo; precisa da SUPABASE_SERVICE_ROLE_KEY no
+    .env.local) e test:security-isolation-full (energy_calculations, food_favorites); duplicatePlan
     copia os micronutrientes dos itens? (copia só colunas listadas — duplicateMeal copia tudo)
 ```
 

@@ -64,11 +64,20 @@ export async function escolherAlimento(page: Page, busca: string, nomeOpcao: str
   return nome;
 }
 
+/**
+ * Busca na refeição aberta (Fase 17, Bloco C), clica no nome (entra na porção de
+ * referência) e ajusta a quantidade em gramas na linha do alimento.
+ */
 export async function adicionarAlimentoNaRefeicao(page: Page, busca: string, nomeOpcao: string | RegExp, gramas: number) {
-  const nome = await escolherAlimento(page, busca, nomeOpcao);
-  await page.getByLabel("Quantidade em gramas").fill(String(gramas));
-  await page.getByRole("button", { name: "Adicionar", exact: true }).click();
-  await expect(page.getByLabel("Quantidade em gramas")).toHaveValue("");
+  await page.getByLabel("Buscar alimentos").fill(busca);
+  const resultado = page.getByRole("row").filter({ hasText: nomeOpcao }).getByTitle("Adicionar à refeição").first();
+  await expect(resultado).toBeVisible();
+  const nome = (await resultado.innerText()).trim();
+  await resultado.click();
+  const quantidade = page.getByLabel(`Quantidade de ${nome} (g)`);
+  await expect(quantidade).toBeVisible();
+  await quantidade.fill(String(gramas));
+  await quantidade.press("Tab");
   await expect(textoVisivel(page, nome)).toBeVisible();
   return nome;
 }

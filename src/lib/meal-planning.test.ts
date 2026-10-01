@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { analisarCardapio, distribuicaoCalorica, distribuirMacros, equivalencias, kcalNaoProteicaPorGN } from "./meal-planning";
+import {
+  analisarCardapio,
+  classificarDensidade,
+  distribuicaoCalorica,
+  distribuirMacros,
+  equivalencias,
+  kcalNaoProteicaPorGN,
+} from "./meal-planning";
 
 describe("distribuirMacros — fórmula de bolso (g/kg)", () => {
   it("80 kg com 2 / 1 / 4 g/kg → 160 g PTN, 80 g LIP, 320 g CHO e 2.640 kcal", () => {
@@ -76,5 +83,17 @@ describe("análise do cardápio", () => {
     expect(d.proteinas.kcal).toBe(400);
     expect(d.lipidios.kcal).toBe(540);
     expect(d.proteinas.pct + d.lipidios.pct + d.carboidratos.pct).toBeCloseTo(100, 6);
+  });
+});
+
+describe("classificarDensidade (Ledikwe et al., 2005)", () => {
+  it("pão francês: 150 kcal em 50 g = 3,0 kcal/g → média (como no WebDiet)", () => {
+    expect(classificarDensidade(150, 50)).toMatchObject({ valor: 3, rotulo: "média" });
+  });
+  it("faixas e refeição vazia", () => {
+    expect(classificarDensidade(50, 100)?.rotulo).toBe("muito baixa");
+    expect(classificarDensidade(100, 100)?.rotulo).toBe("baixa");
+    expect(classificarDensidade(500, 100)?.rotulo).toBe("alta");
+    expect(classificarDensidade(0, 0)).toBeNull();
   });
 });

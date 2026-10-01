@@ -51,7 +51,8 @@ export async function updateMeal(planId: string, mealId: string, input: MealInpu
     .update({
       nome: parsed.data.nome,
       horario: parsed.data.horario || null,
-      observacoes: parsed.data.observacoes || null,
+      // As observações têm editor próprio na refeição aberta (Fase 17); só mexe nelas se vierem.
+      ...("observacoes" in input ? { observacoes: parsed.data.observacoes || null } : {}),
     })
     .eq("id", mealId);
 

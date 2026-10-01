@@ -11,7 +11,12 @@ import { calculateMealTotals } from "@/lib/nutrition";
 import { COR_MACRO } from "@/lib/macro-colors";
 import { deleteMeal, duplicateMeal, updateMeal } from "@/lib/actions/meals";
 import { saveMealAsTemplate } from "@/lib/actions/meal-templates";
-import { mealSchema, mealTemplateNameSchema, type MealInput, type MealTemplateNameInput } from "@/lib/validations/meal-plan";
+import {
+  mealSchema,
+  mealTemplateNameSchema,
+  type MealInput,
+  type MealTemplateNameInput,
+} from "@/lib/validations/meal-plan";
 import { cn } from "@/lib/utils";
 import { MealItemRow } from "@/components/meal-plans/meal-item-row";
 import { MealItemCard } from "@/components/meal-plans/meal-item-card";
@@ -21,7 +26,6 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,13 +38,18 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AddMealItemForm } from "@/components/meal-plans/add-meal-item-form";
+import { MealFoodSearch } from "@/components/meal-plans/meal-food-search";
+import { MealAnalysis, MealObservations } from "@/components/meal-plans/meal-analysis";
 
 export interface MealWithItemsAndSubstitutions extends Meal {
   items: MealItemWithSubstitutions[];
 }
 
-const fmt = (v: number, casas = 1) => v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
+const fmt = (v: number, casas = 1) =>
+  v.toLocaleString("pt-BR", {
+    minimumFractionDigits: casas,
+    maximumFractionDigits: casas,
+  });
 
 /**
  * Refeição como uma linha compacta, igual ao WebDiet (Fase 17): horário,
@@ -72,7 +81,7 @@ export function MealCard({
 
   const editForm = useForm<MealInput>({
     resolver: zodResolver(mealSchema),
-    defaultValues: { nome: meal.nome, horario: meal.horario ?? "", observacoes: meal.observacoes ?? "" },
+    defaultValues: { nome: meal.nome, horario: meal.horario ?? "" },
   });
 
   const templateForm = useForm<MealTemplateNameInput>({
@@ -84,7 +93,9 @@ export function MealCard({
     startTransition(async () => {
       const result = await deleteMeal(planId, meal.id);
       if (!result.success) {
-        toast.error("Não foi possível excluir a refeição", { description: result.message });
+        toast.error("Não foi possível excluir a refeição", {
+          description: result.message,
+        });
       }
     });
   }
@@ -93,7 +104,9 @@ export function MealCard({
     startTransition(async () => {
       const result = await duplicateMeal(planId, meal.id);
       if (!result.success) {
-        toast.error("Não foi possível duplicar a refeição", { description: result.message });
+        toast.error("Não foi possível duplicar a refeição", {
+          description: result.message,
+        });
         return;
       }
       toast.success("Refeição duplicada.");
@@ -102,7 +115,10 @@ export function MealCard({
 
   function onEditSubmit(values: MealInput) {
     startTransition(async () => {
-      const result = await updateMeal(planId, meal.id, values);
+      const result = await updateMeal(planId, meal.id, {
+        nome: values.nome,
+        horario: values.horario,
+      });
       if (!result.success) {
         toast.error("Não foi possível salvar", { description: result.message });
         return;
@@ -116,7 +132,9 @@ export function MealCard({
     startTransition(async () => {
       const result = await saveMealAsTemplate(meal.id, values);
       if (!result.success) {
-        toast.error("Não foi possível favoritar a refeição", { description: result.message });
+        toast.error("Não foi possível favoritar a refeição", {
+          description: result.message,
+        });
         return;
       }
       toast.success(result.message ?? "Refeição favoritada.");
@@ -131,7 +149,7 @@ export function MealCard({
         <span
           className={cn(
             "flex h-8 w-14 items-center justify-center rounded-md border border-border bg-background text-sm tabular-nums",
-            !meal.horario && "text-muted-foreground"
+            !meal.horario && "text-muted-foreground",
           )}
         >
           {meal.horario ? meal.horario.slice(0, 5) : "00:00"}
@@ -140,9 +158,15 @@ export function MealCard({
           {meal.nome}
         </span>
 
-        <Chip cor={COR_MACRO.proteinas} rotulo="Proteínas">{fmt(totals.proteinas)} g</Chip>
-        <Chip cor={COR_MACRO.lipidios} rotulo="Lipídios">{fmt(totals.gorduras)} g</Chip>
-        <Chip cor={COR_MACRO.carboidratos} rotulo="Carboidratos">{fmt(totals.carboidratos)} g</Chip>
+        <Chip cor={COR_MACRO.proteinas} rotulo="Proteínas">
+          {fmt(totals.proteinas)} g
+        </Chip>
+        <Chip cor={COR_MACRO.lipidios} rotulo="Lipídios">
+          {fmt(totals.gorduras)} g
+        </Chip>
+        <Chip cor={COR_MACRO.carboidratos} rotulo="Carboidratos">
+          {fmt(totals.carboidratos)} g
+        </Chip>
         <Chip rotulo="Calorias">{fmt(Math.round(totals.calorias), 0)} kcal</Chip>
 
         <div className="flex items-center gap-1">
@@ -173,21 +197,14 @@ export function MealCard({
                   <Label htmlFor={`edit_nome_${meal.id}`}>Nome</Label>
                   <Input id={`edit_nome_${meal.id}`} aria-required="true" {...editForm.register("nome")} />
                   {editForm.formState.errors.nome && (
-                    <p className="text-xs text-destructive" role="alert">{editForm.formState.errors.nome.message}</p>
+                    <p className="text-xs text-destructive" role="alert">
+                      {editForm.formState.errors.nome.message}
+                    </p>
                   )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`edit_horario_${meal.id}`}>Horário</Label>
                   <Input id={`edit_horario_${meal.id}`} type="time" {...editForm.register("horario")} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`edit_observacoes_${meal.id}`}>Observações</Label>
-                  <Textarea
-                    id={`edit_observacoes_${meal.id}`}
-                    rows={3}
-                    placeholder="Ex: pode substituir por opções equivalentes, comer com 30min de intervalo do treino..."
-                    {...editForm.register("observacoes")}
-                  />
                 </div>
                 <DialogFooter>
                   <Button type="submit" disabled={isPending}>
@@ -218,7 +235,9 @@ export function MealCard({
                   <Label htmlFor={`template_nome_${meal.id}`}>Nome da refeição favorita</Label>
                   <Input id={`template_nome_${meal.id}`} aria-required="true" {...templateForm.register("nome")} />
                   {templateForm.formState.errors.nome && (
-                    <p className="text-xs text-destructive" role="alert">{templateForm.formState.errors.nome.message}</p>
+                    <p className="text-xs text-destructive" role="alert">
+                      {templateForm.formState.errors.nome.message}
+                    </p>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -259,42 +278,54 @@ export function MealCard({
         </div>
       </div>
 
-      <div id={idConteudo} hidden={!aberta} className="space-y-3 border-t border-border bg-background px-3 pb-3 pt-3">
-        {meal.observacoes && <p className="text-sm text-muted-foreground">{meal.observacoes}</p>}
-        {meal.items.length > 0 && (
-          <>
-            {/* Celular (< sm): cartões empilhados, sem esconder nenhum macro — ver MealItemCard. */}
-            <div className="space-y-2 sm:hidden">
-              {meal.items.map((item) => (
-                <MealItemCard key={item.id} planId={planId} item={item} />
-              ))}
-            </div>
+      {/* Só monta aberta: cada refeição aberta faz a própria busca de alimentos. */}
+      {aberta && (
+        <div id={idConteudo} className="space-y-4 border-t border-border bg-background px-3 pb-3 pt-3">
+          <MealFoodSearch planId={planId} mealId={meal.id} nextOrdem={nextOrdem} />
 
-            <div className="hidden sm:block">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Alimento</TableHead>
-                    <TableHead>Qtd.</TableHead>
-                    <TableHead>Kcal</TableHead>
-                    <TableHead>Prot.</TableHead>
-                    <TableHead>Carb.</TableHead>
-                    <TableHead>Gord.</TableHead>
-                    <TableHead className="w-20" />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-foreground">Alimentos prescritos</p>
+            {meal.items.length === 0 ? (
+              <p className="rounded-md border border-dashed border-border px-3 py-3 text-center text-sm text-muted-foreground">
+                Nenhum alimento ainda. Use a busca acima para prescrever.
+              </p>
+            ) : (
+              <>
+                {/* Celular (< sm): cartões empilhados, sem esconder nenhum macro — ver MealItemCard. */}
+                <div className="space-y-2 sm:hidden">
                   {meal.items.map((item) => (
-                    <MealItemRow key={item.id} planId={planId} item={item} />
+                    <MealItemCard key={item.id} planId={planId} item={item} />
                   ))}
-                </TableBody>
-              </Table>
-            </div>
-          </>
-        )}
+                </div>
 
-        <AddMealItemForm planId={planId} mealId={meal.id} nextOrdem={nextOrdem} />
-      </div>
+                <div className="hidden sm:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Alimento</TableHead>
+                        <TableHead>Qtd.</TableHead>
+                        <TableHead>Kcal</TableHead>
+                        <TableHead>Prot.</TableHead>
+                        <TableHead>Carb.</TableHead>
+                        <TableHead>Gord.</TableHead>
+                        <TableHead className="w-20" />
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {meal.items.map((item) => (
+                        <MealItemRow key={item.id} planId={planId} item={item} />
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
+            )}
+          </div>
+
+          <MealAnalysis totais={totals} pesoG={meal.items.reduce((s, i) => s + Number(i.quantidade_g), 0)} />
+          <MealObservations planId={planId} mealId={meal.id} inicial={meal.observacoes} />
+        </div>
+      )}
     </div>
   );
 }

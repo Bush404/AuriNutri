@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { MealItem } from "@/lib/types/database.types";
 import { calculatePlanTotals, type MealWithItems } from "@/lib/nutrition";
-import { buildPlanPdfViewModel } from "./plan-pdf-data";
+import { buildPlanPdfViewModel, observacaoParaPdf } from "./plan-pdf-data";
 
 function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
   return {
@@ -203,5 +203,16 @@ describe("buildPlanPdfViewModel — os totais do PDF são os MESMOS da tela", ()
     expect(viewModel.refeicoes[0].itens[0].fonteAlimento).toBe("receita");
     expect(viewModel.refeicoes[0].itens[0].quantidadePorcoes).toBe(2);
     expect(viewModel.fonteFooter).toContain("TACO");
+  });
+});
+
+describe("observacaoParaPdf (Fase 17: observação da refeição com texto formatado)", () => {
+  it("texto simples antigo passa igual; HTML vira texto com marcadores de lista", () => {
+    expect(observacaoParaPdf("Comer devagar")).toBe("Comer devagar");
+    expect(observacaoParaPdf("<p><strong>Atenção</strong></p><ul><li><p>Sem açúcar</p></li><li><p>Beber água</p></li></ul>")).toBe(
+      "Atenção\n• Sem açúcar\n• Beber água"
+    );
+    expect(observacaoParaPdf("<p></p>")).toBeNull();
+    expect(observacaoParaPdf(null)).toBeNull();
   });
 });

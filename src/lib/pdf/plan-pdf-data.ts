@@ -10,6 +10,19 @@ import {
   type MealWithItems,
   type PlanMetas,
 } from "@/lib/nutrition";
+import { richTextToPlainText } from "@/lib/rich-text";
+
+/**
+ * Observação da refeição para o PDF: desde a Fase 17 ela é texto formatado (HTML
+ * limpo no servidor); itens de lista viram "• " e o resto vira texto simples.
+ * Observações antigas, em texto simples, passam como estão.
+ */
+export function observacaoParaPdf(texto: string | null): string | null {
+  if (!texto) return null;
+  if (!/<[a-z][sS]*>/i.test(texto)) return texto;
+  const plano = richTextToPlainText(texto.replace(/<li[^>]*>/gi, "• "));
+  return plano || null;
+}
 import type { ItemFonte, MealPlan } from "@/lib/types/database.types";
 
 /**
@@ -101,7 +114,7 @@ export function buildPlanPdfViewModel({
     id: meal.id,
     nome: meal.nome,
     horario: meal.horario,
-    observacoes: meal.observacoes,
+    observacoes: observacaoParaPdf(meal.observacoes),
     itens: meal.items
       .slice()
       .sort((a, b) => a.ordem - b.ordem)

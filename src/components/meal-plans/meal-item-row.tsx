@@ -39,6 +39,7 @@ export function MealItemRow({ planId, item }: { planId: string; item: MealItemWi
             type="number"
             step={isReceita ? "0.5" : "0.1"}
             className="h-8 w-20"
+            aria-label={`Quantidade de ${item.nome_alimento} (${isReceita ? "porções" : "g"})`}
             disabled={isPending}
           />
           <span className="text-xs text-muted-foreground">{isReceita ? "porção(ões)" : "g"}</span>
@@ -51,7 +52,7 @@ export function MealItemRow({ planId, item }: { planId: string; item: MealItemWi
       <TableCell>
         <div className="flex items-center justify-end gap-1">
           <MealItemSubstitutionsDialog planId={planId} item={item} substitutions={item.meal_item_substitutions} />
-          <Button variant="ghost" size="icon" onClick={handleDelete} disabled={isPending}>
+          <Button variant="ghost" size="icon" onClick={handleDelete} disabled={isPending} aria-label={`Remover ${item.nome_alimento}`}>
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
           </Button>
         </div>
