@@ -325,9 +325,14 @@ variação entre datas). Sem QR code do WebDiet (não há app do paciente).
 
 ---
 
-## PHASE 16 — Cálculo energético · `TODO` · `HIGH`
+## PHASE 16 — Cálculo energético · `EM ANDAMENTO` · `HIGH`
 
 Nova aba no paciente, **ao lado de Antropometria**.
+
+**Lista aprovada em 01/10/2026 (decisão R5):** ver `docs/FASE_16_FORMULAS.md` (montada a partir do
+WebDiet). Mesma tela do WebDiet, salva ao abrir, comparação lado a lado, Henry & Rees (1991) e
+Henry/Oxford (2005). **Gestantes e lactantes ficam para a fase própria de gestantes** (agora só o
+adicional digitado à mão).
 
 ```
 [ ] Tela: escolhe a data/avaliação de origem → dados preenchidos (peso, altura, idade, sexo, massa magra)
@@ -456,7 +461,11 @@ nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design 
 | # | Decisão | Bloqueia | Quem decide |
 |---|---|---|---|
 | R1 | Licença de TBCA 7.3 e Tucunduva (antigo D3) | Fase 18 | Nutricionista / jurídico |
-| R5 | Lista final de fórmulas de gasto energético (incluindo gestantes) | Fase 16 | Nutricionista |
+
+### Decididas em 01/10/2026
+- **R5 — Gasto energético:** lista aprovada em `docs/FASE_16_FORMULAS.md`. As fórmulas do WebDiet
+  para adultos e crianças, + Henry/Oxford (2005), + comparação lado a lado. Gestantes e lactantes
+  ficam para a fase de gestantes.
 
 ### Decididas em 30/09/2026
 - **R4 — Antropometria:** lista aprovada em `docs/FASE_15_PROTOCOLOS.md`. Mesmos protocolos do

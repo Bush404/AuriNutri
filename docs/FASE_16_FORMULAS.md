@@ -1,5 +1,12 @@
 # Fase 16 — Lista de fórmulas para aprovação (decisão R5)
 
+> **APROVADA em 01/10/2026.** Decisões: o cálculo é **salvo ao abrir e salva sozinho** (1.3);
+> **comparar fórmulas lado a lado** entra, como tabela em que um clique escolhe a fórmula (1.9);
+> **Henry & Rees (1991) e Henry/Oxford (2005)** entram as duas (2.10); **gestantes e lactantes
+> ficam para a fase própria** de gestantes (seção 7), e agora só o adicional digitado à mão (6.3);
+> lista de atividades do **MET** só se a licença do Compendium permitir, senão o profissional
+> digita o MET e os minutos (6.1). HandyMET não entra. Todo o resto fica como proposto.
+
 Montada em 01/10/2026 a partir dos prints do WebDiet enviados pela responsável pelo produto
 (`C:\Users\Bush404\Pictures\webdiet calculos`), com a referência científica de cada item.
 
