@@ -110,3 +110,28 @@ describe("AntropometriaPdfDocument — criança", () => {
     expect(buffer.subarray(0, 5).toString("utf-8")).toBe("%PDF-");
   });
 });
+
+describe("AntropometriaPdfDocument — histórico", () => {
+  it("relatório com histórico de 3 datas (com e sem massa muscular) gera PDF válido", async () => {
+    const element = createElement(AntropometriaPdfDocument, {
+      data: {
+        profissional,
+        pacienteNome: "Paciente Teste",
+        geradoEm: "2026-09-30T12:00:00Z",
+        assessment: avaliacaoAntiga(),
+        resultados: calcularResultados(avaliacaoAntiga(), { sexo: "feminino", idade: 63 }),
+        historico: {
+          datas: ["2025-01-10", "2025-03-07", "2025-03-07"],
+          peso: [
+            { data: "2025-01-10", valor: 90, origem: "avaliacao" },
+            { data: "2025-03-07", valor: 88.7, origem: "avaliacao" },
+          ],
+          massa_muscular: [],
+          percentual_gordura: [{ data: "2025-03-07", valor: 38, origem: "avaliacao" }],
+        },
+      },
+    }) as unknown as ReactElement<DocumentProps>;
+    const buffer = await renderToBuffer(element);
+    expect(buffer.subarray(0, 5).toString("utf-8")).toBe("%PDF-");
+  });
+});

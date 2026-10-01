@@ -293,6 +293,13 @@ controle conferidos contra os valores de −2/+2/+3 DP publicados pela OMS.
 ```
 Migration 0040 aplicada. Testes: 353 de unidade, E2E 17/17, isolamento 95/95.
 
+**Ajuste pós-uso (30/09/2026), a partir de prints do WebDiet:** a aba "Antropometria Geral" virou
+só a lista por data (Evolução | Relatório | Editar | Duplicar | Excluir) com o botão largo "Nova
+avaliação antropométrica". Saíram os gráficos na tela: "Relatório" baixa o PDF de uma avaliação
+(índices em barras Abaixo/Normal/Acima, histórico das últimas 5, conceitos) e "Evolução" escolhe
+até 5 datas e baixa o PDF comparativo (composição corporal, análises básicas e medidas, com a
+variação entre datas). Sem QR code do WebDiet (não há app do paciente).
+
 ### Critérios de aceite
 - Cada fórmula de % gordura tem teste com valor calculado à mão a partir da fórmula publicada
   (mesmo padrão de `energy.test.ts`).

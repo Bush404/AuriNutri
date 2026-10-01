@@ -21,10 +21,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { AnamnesisTimeline } from "@/components/patients/anamnesis-timeline";
-import { AssessmentsTable } from "@/components/patients/assessments-table";
-import { AttachmentsList } from "@/components/patients/attachments-list";
 import { NewAssessmentMenu } from "@/components/patients/new-assessment-menu";
-import { EvolutionPanel } from "@/components/patients/evolution-panel";
+import { AssessmentsList } from "@/components/patients/assessments-list";
 import { MealPlanList } from "@/components/meal-plans/meal-plan-list";
 import { PatientConsentsPanel } from "@/components/patients/patient-consents-panel";
 import { LabExamsPanel } from "@/components/patients/lab-exams-panel";
@@ -116,24 +114,20 @@ export function PatientTabs({
         <AnamnesisTimeline patientId={patient.id} anamneses={anamneses} templates={anamnesisTemplates} />
       </TabsContent>
 
-      <TabsContent value="avaliacoes" className="space-y-6">
+      <TabsContent value="avaliacoes">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle>Avaliações antropométricas</CardTitle>
+          <CardHeader>
+            <CardTitle>Antropometria</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <NewAssessmentMenu
               patientId={patient.id}
               dataNascimento={patient.data_nascimento}
               consentimentoAtivoExames={consentimentoAtivoExames}
+              larguraTotal
             />
-          </CardHeader>
-          <CardContent>
-            {assessments.length > 0 ? (
-              <AssessmentsTable
-                patientId={patient.id}
-                dataNascimento={patient.data_nascimento}
-                sexo={patient.sexo}
-                assessments={assessments}
-              />
+            {assessments.length + attachments.length > 0 ? (
+              <AssessmentsList patientId={patient.id} assessments={assessments} attachments={attachments} />
             ) : (
               <EmptyState
                 icon={ClipboardList}
@@ -141,30 +135,6 @@ export function PatientTabs({
                 description="Registre a primeira avaliação antropométrica deste paciente."
               />
             )}
-          </CardContent>
-        </Card>
-
-        {attachments.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Relatórios anexados</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AttachmentsList patientId={patient.id} attachments={attachments} />
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Evolução física (Fase 15, Bloco D): avaliações de todos os tipos + relatórios anexados. */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Evolução física</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <EvolutionPanel
-              patientId={patient.id}
-              entrada={{ assessments, attachments, sexo: patient.sexo, dataNascimento: patient.data_nascimento }}
-            />
           </CardContent>
         </Card>
       </TabsContent>

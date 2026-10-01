@@ -1,25 +1,36 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import { STORAGE_STATE } from "./env";
 import { criarPaciente, escolherNoSelect, PDF, registrarConsentimento, textoVisivel, unico } from "./helpers";
 
 test.use({ storageState: STORAGE_STATE });
 
-test("criar paciente, registrar avaliação antropométrica e conferir o IMC", async ({ page }) => {
+async function novaAvaliacao(page: Page, tipo: string | RegExp) {
+  await page.getByRole("tab", { name: "Antropometria Geral" }).click();
+  await page.getByRole("button", { name: "Nova avaliação antropométrica" }).click();
+  await page.getByRole("dialog").getByRole(typeof tipo === "string" ? "link" : "button", { name: tipo }).click();
+}
+
+test("avaliação de adulto: IMC na tela e PDF do relatório", async ({ page }) => {
   const { id } = await criarPaciente(page);
 
-  await page.getByRole("tab", { name: "Antropometria Geral" }).click();
-  await page.getByRole("button", { name: "Nova avaliação" }).click();
-  await page.getByRole("menuitem", { name: "Adultos e idosos" }).click();
+  await novaAvaliacao(page, "Antropometria de adultos e idosos");
   await expect(page).toHaveURL(new RegExp(`/pacientes/${id}/avaliacoes/nova$`));
 
   await page.getByLabel("Peso (kg)").fill("70");
   await page.getByLabel("Altura (cm)").fill("175");
+  // IMC = 70 / 1,75² = 22,857…
+  await expect(textoVisivel(page, /22,86 kg\/m²/)).toBeVisible();
   await page.getByRole("button", { name: "Salvar avaliação" }).click();
 
   await expect(page).toHaveURL(new RegExp(`/pacientes/${id}\\?aba=avaliacoes$`));
-  // IMC = 70 / 1,75² = 22,857… → coluna gerada no banco com 2 casas.
-  await expect(textoVisivel(page, "22.86")).toBeVisible();
+  await expect(page.getByText(/Avaliação de adulto - Realizado em/)).toBeVisible();
+
+  const [relatorio] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("link", { name: "Relatório" }).click(),
+  ]);
+  expect(relatorio.suggestedFilename()).toMatch(/^relatorio-antropometrico-.*\.pdf$/);
 });
 
 test("protocolo de dobras: paciente sem sexo pede a base e o % de gordura é gravado", async ({ page }) => {
@@ -43,10 +54,13 @@ test("protocolo de dobras: paciente sem sexo pede a base e o % de gordura é gra
 
   await page.getByRole("button", { name: "Salvar avaliação" }).click();
   await expect(page).toHaveURL(new RegExp(`/pacientes/${id}\\?aba=avaliacoes$`));
-  await expect(textoVisivel(page, "15.34%")).toBeVisible();
+
+  // Reabrindo, o % calculado no servidor continua lá.
+  await page.getByRole("listitem").getByRole("link", { name: "Editar", exact: true }).click();
+  await expect(textoVisivel(page, "15,3%")).toBeVisible();
 });
 
-test("criança: curvas da OMS, relatório anexado e evolução física", async ({ page }) => {
+test("criança: curvas da OMS, relatório anexado e PDF de evolução", async ({ page }) => {
   // Menina de ~3 anos.
   const nascimento = new Date();
   nascimento.setUTCFullYear(nascimento.getUTCFullYear() - 3);
@@ -58,9 +72,7 @@ test("criança: curvas da OMS, relatório anexado e evolução física", async (
   await expect(page).toHaveURL(/\/pacientes\/[0-9a-f-]{36}$/);
   const id = page.url().split("/").pop()!;
 
-  await page.getByRole("tab", { name: "Antropometria Geral" }).click();
-  await page.getByRole("button", { name: "Nova avaliação" }).click();
-  await page.getByRole("menuitem", { name: /Crianças e adolescentes/ }).click();
+  await novaAvaliacao(page, "Antropometria de crianças e adolescentes");
   await expect(page).toHaveURL(new RegExp(`/pacientes/${id}/avaliacoes/nova\\?tipo=crianca$`));
 
   // Mediana da OMS para meninas de 36 meses: 13,85 kg.
@@ -70,23 +82,23 @@ test("criança: curvas da OMS, relatório anexado e evolução física", async (
   await expect(page.getByRole("heading", { name: "Peso por estatura" })).toBeVisible();
   await page.getByRole("button", { name: "Salvar avaliação" }).click();
   await expect(page).toHaveURL(new RegExp(`/pacientes/${id}\\?aba=avaliacoes$`));
-  await expect(textoVisivel(page, "criança")).toBeVisible();
+  await expect(page.getByText(/Avaliação infantil - Realizado em/)).toBeVisible();
 
   // Relatório externo com peso: exige consentimento de exames.
   await registrarConsentimento(page, "Exames laboratoriais");
-  await page.getByRole("tab", { name: "Antropometria Geral" }).click();
-  await page.getByRole("button", { name: "Nova avaliação" }).click();
-  await page.getByRole("menuitem", { name: /Anexar relatório externo/ }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.locator('input[type="file"]').setInputFiles({ name: "bioimpedancia.pdf", mimeType: "application/pdf", buffer: PDF });
-  await dialog.getByLabel("Título").fill("Bioimpedância E2E");
-  await dialog.getByLabel("Peso (kg)").fill("14.2");
-  await dialog.getByRole("button", { name: "Anexar" }).click();
-  await expect(dialog).toBeHidden();
-  await expect(page.getByText(/Bioimpedância E2E/)).toBeVisible();
+  await novaAvaliacao(page, /Anexar relatório externo/);
+  const anexo = page.getByRole("dialog");
+  await anexo.locator('input[type="file"]').setInputFiles({ name: "bioimpedancia.pdf", mimeType: "application/pdf", buffer: PDF });
+  await anexo.getByLabel("Título").fill("Bioimpedância E2E");
+  await anexo.getByLabel("Peso (kg)").fill("14.2");
+  await anexo.getByRole("button", { name: "Anexar" }).click();
+  await expect(anexo).toBeHidden();
+  await expect(page.getByText(/Relatório externo \(Bioimpedância E2E\)/)).toBeVisible();
 
-  // Evolução física: o peso da avaliação e o do relatório, lado a lado na tabela.
-  await page.getByRole("button", { name: "Ver tabela" }).click();
-  await expect(textoVisivel(page, "13,9")).toBeVisible();
-  await expect(textoVisivel(page, "14,2")).toBeVisible();
+  // Evolução: as duas datas vêm marcadas e o PDF da comparação é gerado.
+  await page.getByRole("button", { name: "Evolução" }).first().click();
+  const evolucao = page.getByRole("dialog");
+  await expect(evolucao.getByRole("checkbox", { checked: true })).toHaveCount(2);
+  const [pdf] = await Promise.all([page.waitForEvent("download"), evolucao.getByRole("link", { name: "Gerar PDF" }).click()]);
+  expect(pdf.suggestedFilename()).toMatch(/^evolucao-.*\.pdf$/);
 });

@@ -1,12 +1,11 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
-import { generateEvolucaoPdf } from "@/lib/pdf/generate-evolucao-pdf";
-import { parseItens } from "@/lib/evolution";
+import { generateAntropometriaPdf } from "@/lib/pdf/generate-antropometria-pdf";
 import { withinRateLimit } from "@/lib/rate-limit";
 
-/** PDF "Evolução": `?itens=a:<id>,x:<id>,...` — até 5 avaliações (a:) ou relatórios anexados (x:). */
-export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+/** PDF "Relatório antropométrico" de uma avaliação (botão Relatório da lista). */
+export async function GET(_request: Request, props: { params: Promise<{ id: string; avaliacaoId: string }> }) {
   const params = await props.params;
   const supabase = await createClient();
 
@@ -18,19 +17,14 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     return new NextResponse("Não autorizado.", { status: 401 });
   }
 
-  const itens = parseItens(request.nextUrl.searchParams.get("itens"));
-  if (itens.length === 0) {
-    return new NextResponse("Escolha ao menos uma avaliação.", { status: 400 });
-  }
-
   if (!(await withinRateLimit(supabase, "gerar_pdf"))) {
     return new NextResponse("Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.", { status: 429 });
   }
 
-  const result = await generateEvolucaoPdf(supabase, user, params.id, itens);
+  const result = await generateAntropometriaPdf(supabase, user, params.id, params.avaliacaoId);
 
   if (!result) {
-    return new NextResponse("Avaliações não encontradas.", { status: 404 });
+    return new NextResponse("Avaliação não encontrada.", { status: 404 });
   }
 
   return new NextResponse(new Uint8Array(result.buffer), {

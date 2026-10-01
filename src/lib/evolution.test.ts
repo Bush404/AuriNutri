@@ -1,12 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { datasDisponiveis, INDICADORES_PADRAO, montarSeries, parseIndicadores } from "./evolution";
+import {
+  itensDisponiveis,
+  montarComparacao,
+  montarHistorico,
+  parseItens,
+  selecaoPadrao,
+  type ChaveItem,
+} from "./evolution";
 import { CAMPOS_NUMERICOS } from "@/lib/validations/assessment";
 import type { AnthropometricAssessment, AnthropometricAttachment } from "@/lib/types/database.types";
 
-function avaliacao(data: string, extra: Partial<AnthropometricAssessment> = {}): AnthropometricAssessment {
+const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+
+function avaliacao(n: number, data: string, extra: Partial<AnthropometricAssessment> = {}): AnthropometricAssessment {
   return {
     ...Object.fromEntries(CAMPOS_NUMERICOS.map((c) => [c, null])),
-    id: data,
+    id: uuid(n),
     patient_id: "p",
     user_id: "u",
     data_avaliacao: data,
@@ -30,9 +39,9 @@ function avaliacao(data: string, extra: Partial<AnthropometricAssessment> = {}):
   } as AnthropometricAssessment;
 }
 
-function anexo(data: string, extra: Partial<AnthropometricAttachment> = {}): AnthropometricAttachment {
+function anexo(n: number, data: string, extra: Partial<AnthropometricAttachment> = {}): AnthropometricAttachment {
   return {
-    id: `x${data}`,
+    id: uuid(n),
     patient_id: "p",
     user_id: "u",
     data_avaliacao: data,
@@ -55,57 +64,84 @@ const entrada = {
   sexo: "feminino" as const,
   dataNascimento: "1990-01-01",
   assessments: [
-    // avaliação antiga: braço sem lado e % digitado à mão
-    avaliacao("2025-01-10", { peso_kg: 82, circunferencia_braco_cm: 31, percentual_gordura: 35 }),
-    avaliacao("2025-03-10", { peso_kg: 80, circunferencia_cintura_cm: 85, circunferencia_quadril_cm: 100 }),
-    avaliacao("2025-06-10", { peso_kg: 78, circunferencia_braco_relaxado_esq_cm: 29 }),
+    // avaliação antiga: % de gordura digitado à mão
+    avaliacao(1, "2025-01-10", { peso_kg: 82, percentual_gordura: 35, circunferencia_braco_cm: 31 }),
+    avaliacao(2, "2025-03-10", { peso_kg: 80, circunferencia_cintura_cm: 85, circunferencia_quadril_cm: 100 }),
+    avaliacao(3, "2025-06-10", { peso_kg: 78, circunferencia_cintura_cm: 82, circunferencia_quadril_cm: 100 }),
   ],
-  attachments: [anexo("2025-04-20", { peso_kg: 79, percentual_gordura: 33, massa_livre_gordura_kg: 53 })],
+  attachments: [anexo(9, "2025-04-20", { titulo: "InBody", peso_kg: 79, percentual_gordura: 33, massa_livre_gordura_kg: 53 })],
 };
 
-describe("montarSeries", () => {
-  it("junta avaliações e relatórios anexados em ordem de data", () => {
-    const s = montarSeries(entrada, null);
-    expect(s.peso.map((p) => [p.data, p.valor, p.origem])).toEqual([
-      ["2025-01-10", 82, "avaliacao"],
-      ["2025-03-10", 80, "avaliacao"],
-      ["2025-04-20", 79, "anexo"],
-      ["2025-06-10", 78, "avaliacao"],
+const a = (n: number) => `a:${uuid(n)}` as ChaveItem;
+const x = (n: number) => `x:${uuid(n)}` as ChaveItem;
+
+describe("itens e seleção", () => {
+  it("lista avaliações e relatórios, mais recente primeiro", () => {
+    expect(itensDisponiveis(entrada).map((i) => [i.data, i.rotulo])).toEqual([
+      ["2025-06-10", "Avaliação de adulto"],
+      ["2025-04-20", "InBody"],
+      ["2025-03-10", "Avaliação de adulto"],
+      ["2025-01-10", "Avaliação de adulto"],
     ]);
   });
 
-  it("corta na data escolhida (inclusive)", () => {
-    const s = montarSeries(entrada, "2025-03-10");
-    expect(s.peso.map((p) => p.data)).toEqual(["2025-01-10", "2025-03-10"]);
+  it("seleção padrão: o item clicado e os anteriores, até 5", () => {
+    const itens = itensDisponiveis(entrada);
+    expect(selecaoPadrao(itens, a(2))).toEqual([a(2), a(1)]);
+    expect(selecaoPadrao(itens, a(3))).toHaveLength(4);
   });
 
-  it("avaliação antiga entra: braço sem lado e % de gordura digitado", () => {
-    const s = montarSeries(entrada, null);
-    expect(s.braco.map((p) => p.valor)).toEqual([31, 29]);
-    expect(s.percentual_gordura.map((p) => p.valor)).toEqual([35, 33]);
-  });
-
-  it("massa livre de gordura: calculada do % gravado ou vinda do anexo", () => {
-    const s = montarSeries(entrada, null);
-    expect(s.massa_livre_gordura[0].valor).toBeCloseTo(82 * 0.65, 6);
-    expect(s.massa_livre_gordura[1]).toMatchObject({ valor: 53, origem: "anexo" });
-  });
-
-  it("RCQ só onde há cintura e quadril", () => {
-    const s = montarSeries(entrada, null);
-    expect(s.rcq).toHaveLength(1);
-    expect(s.rcq[0].valor).toBeCloseTo(0.85, 6);
+  it("parseItens: só chaves válidas, sem repetir, no máximo 5", () => {
+    expect(parseItens(`${a(1)},lixo,${a(1)},${x(9)}`)).toEqual([a(1), x(9)]);
+    expect(parseItens([1, 2, 3, 4, 5, 6].map(a).join(","))).toHaveLength(5);
+    expect(parseItens(null)).toEqual([]);
   });
 });
 
-describe("datas e parâmetros", () => {
-  it("datas sem repetir, mais recente primeiro", () => {
-    expect(datasDisponiveis(entrada)).toEqual(["2025-06-10", "2025-04-20", "2025-03-10", "2025-01-10"]);
+describe("montarComparacao", () => {
+  it("colunas em ordem de data, mesmo pedidas fora de ordem", () => {
+    const c = montarComparacao(entrada, [a(3), a(1), x(9)]);
+    expect(c.colunas.map((col) => col.data)).toEqual(["2025-01-10", "2025-04-20", "2025-06-10"]);
   });
 
-  it("parseIndicadores: só válidos, sem repetir, no máximo 5; vazio = padrão", () => {
-    expect(parseIndicadores("peso,xyz,imc,peso")).toEqual(["peso", "imc"]);
-    expect(parseIndicadores("peso,imc,altura,cintura,quadril,rcq")).toHaveLength(5);
-    expect(parseIndicadores(null)).toEqual(INDICADORES_PADRAO);
+  it("peso com variação em relação à coluna anterior", () => {
+    const c = montarComparacao(entrada, [a(1), a(2), a(3)]);
+    const peso = c.analises.find((l) => l.label === "Peso (kg)")!;
+    expect(peso.valores).toEqual(["82,0", "80,0", "78,0"]);
+    expect(peso.deltas).toEqual([null, -2, -2]);
+  });
+
+  it("linhas sem nenhum valor somem; linhas de texto não têm variação", () => {
+    const c = montarComparacao(entrada, [a(2), a(3)]);
+    expect(c.analises.find((l) => l.label === "Densidade corporal (g/ml)")).toBeUndefined();
+    const risco = c.analises.find((l) => l.label === "Risco metabólico por RCQ")!;
+    expect(risco.deltas).toEqual([null, null]);
+    expect(risco.valores[0]).toBe("Risco aumentado");
+  });
+
+  it("avaliação antiga entra (braço sem lado, % digitado) e o relatório anexado também", () => {
+    const c = montarComparacao(entrada, [a(1), x(9)]);
+    expect(c.medidas.find((l) => l.label === "Braço (formato antigo) (cm)")!.valores).toEqual(["31,0", "—"]);
+    expect(c.analises.find((l) => l.label === "% de gordura")!.valores).toEqual(["35,0", "33,0"]);
+  });
+
+  it("composição corporal: massa de gordura + livre = peso", () => {
+    const c = montarComparacao(entrada, [a(1), x(9)]);
+    expect(c.composicao[0]).toMatchObject({ pesoKg: 82 });
+    expect(c.composicao[0].massaGordaKg! + c.composicao[0].massaLivreGorduraKg!).toBeCloseTo(82, 6);
+    expect(c.composicao[1]).toMatchObject({ pesoKg: 79, massaLivreGorduraKg: 53 });
+  });
+
+  it("chave de outro paciente/inexistente é ignorada", () => {
+    expect(montarComparacao(entrada, [a(77)]).colunas).toHaveLength(0);
+  });
+});
+
+describe("montarHistorico (Relatório)", () => {
+  it("só até a data, mais antiga primeiro", () => {
+    const h = montarHistorico(entrada, "2025-04-20");
+    expect(h.datas).toEqual(["2025-01-10", "2025-03-10", "2025-04-20"]);
+    expect(h.peso.map((p) => p.valor)).toEqual([82, 80, 79]);
+    expect(h.percentual_gordura.map((p) => p.valor)).toEqual([35, 33]);
   });
 });

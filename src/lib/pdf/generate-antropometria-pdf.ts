@@ -5,7 +5,8 @@ import type { createClient } from "@/lib/supabase/server";
 import { buildProfissionalPdfHeaderData } from "@/lib/pdf/profissional-header";
 import { AntropometriaPdfDocument } from "@/lib/pdf/antropometria-pdf-document";
 import { slugify } from "@/lib/pdf/generate-plan-pdf";
-import type { AnthropometricAssessment, Patient } from "@/lib/types/database.types";
+import type { AnthropometricAssessment, AnthropometricAttachment, Patient } from "@/lib/types/database.types";
+import { montarHistorico } from "@/lib/evolution";
 import { calcularResultados, sexoDasFormulas } from "@/lib/anthropometry-results";
 import { idadeNaData } from "@/lib/anthropometry";
 import { calcularResultadosCrianca, gorduraInfantil, idadeEmMeses } from "@/lib/growth/growth";
@@ -45,7 +46,31 @@ export async function generateAntropometriaPdf(
 
   if (!assessment) return null;
 
-  const profissional = await buildProfissionalPdfHeaderData(supabase, user);
+  // Histórico: as últimas avaliações/relatórios até a data desta.
+  const [{ data: anteriores }, { data: anexos }, profissional] = await Promise.all([
+    supabase
+      .from("anthropometric_assessments")
+      .select("*")
+      .eq("patient_id", patientId)
+      .lte("data_avaliacao", assessment.data_avaliacao)
+      .returns<AnthropometricAssessment[]>(),
+    supabase
+      .from("anthropometric_attachments")
+      .select("*")
+      .eq("patient_id", patientId)
+      .lte("data_avaliacao", assessment.data_avaliacao)
+      .returns<AnthropometricAttachment[]>(),
+    buildProfissionalPdfHeaderData(supabase, user),
+  ]);
+  const historico = montarHistorico(
+    {
+      assessments: anteriores ?? [],
+      attachments: anexos ?? [],
+      sexo: patient.sexo,
+      dataNascimento: patient.data_nascimento,
+    },
+    assessment.data_avaliacao
+  );
   const sexo = sexoDasFormulas(patient.sexo, assessment.sexo_referencia);
   const meses = idadeEmMeses(patient.data_nascimento, assessment.data_avaliacao);
   const crianca =
@@ -75,6 +100,7 @@ export async function generateAntropometriaPdf(
       geradoEm: new Date().toISOString(),
       assessment,
       crianca,
+      historico,
       resultados: calcularResultados(assessment, {
         sexo,
         idade: idadeNaData(patient.data_nascimento, assessment.data_avaliacao),
@@ -83,7 +109,7 @@ export async function generateAntropometriaPdf(
   }) as unknown as ReactElement<DocumentProps>;
 
   const buffer = await renderToBuffer(element);
-  const filename = `avaliacao-antropometrica-${slugify(patient.nome)}-${assessment.data_avaliacao}.pdf`;
+  const filename = `relatorio-antropometrico-${slugify(patient.nome)}-${assessment.data_avaliacao}.pdf`;
 
   return { buffer, pacienteNome: patient.nome, filename };
 }

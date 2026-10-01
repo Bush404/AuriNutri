@@ -3,20 +3,18 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
-import type { AnthropometricAssessment, AnthropometricAttachment, Patient } from "@/lib/types/database.types";
+import type { AnthropometricAssessment, Patient } from "@/lib/types/database.types";
 import { idadeNaData } from "@/lib/anthropometry";
 import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AssessmentForm } from "@/components/patients/assessment-form";
-import { EvolutionPanel } from "@/components/patients/evolution-panel";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChildAssessmentForm, type AvaliacaoInfantilResumo } from "@/components/patients/child-assessment-form";
 
 export default async function AvaliacaoPage(props: { params: Promise<{ id: string; avaliacaoId: string }> }) {
   const params = await props.params;
   const supabase = await createClient();
 
-  const [{ data: patient }, { data: assessment }, { data: todas }, { data: attachments }] = await Promise.all([
+  const [{ data: patient }, { data: assessment }, { data: historico }] = await Promise.all([
     supabase
       .from("patients")
       .select("id, nome, sexo, data_nascimento")
@@ -30,18 +28,13 @@ export default async function AvaliacaoPage(props: { params: Promise<{ id: strin
       .maybeSingle<AnthropometricAssessment>(),
     supabase
       .from("anthropometric_assessments")
-      .select("*")
+      .select("id, data_avaliacao, peso_kg, altura_cm")
       .eq("patient_id", params.id)
-      .returns<AnthropometricAssessment[]>(),
-    supabase
-      .from("anthropometric_attachments")
-      .select("*")
-      .eq("patient_id", params.id)
-      .returns<AnthropometricAttachment[]>(),
+      .eq("tipo", "crianca")
+      .returns<AvaliacaoInfantilResumo[]>(),
   ]);
 
   if (!patient || !assessment) notFound();
-  const historico: AvaliacaoInfantilResumo[] = (todas ?? []).filter((a) => a.tipo === "crianca");
   const idade = idadeNaData(patient.data_nascimento, assessment.data_avaliacao);
 
   return (
@@ -63,28 +56,10 @@ export default async function AvaliacaoPage(props: { params: Promise<{ id: strin
       </div>
 
       {assessment.tipo === "crianca" ? (
-        <ChildAssessmentForm key={assessment.id} patient={patient} assessment={assessment} historico={historico} />
+        <ChildAssessmentForm key={assessment.id} patient={patient} assessment={assessment} historico={historico ?? []} />
       ) : (
         <AssessmentForm key={assessment.id} patient={patient} assessment={assessment} />
       )}
-
-      <Card id="evolucao">
-        <CardHeader>
-          <CardTitle>Evolução até esta avaliação</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <EvolutionPanel
-            patientId={patient.id}
-            ateFixo={assessment.data_avaliacao}
-            entrada={{
-              assessments: todas ?? [],
-              attachments: attachments ?? [],
-              sexo: patient.sexo,
-              dataNascimento: patient.data_nascimento,
-            }}
-          />
-        </CardContent>
-      </Card>
     </div>
   );
 }
