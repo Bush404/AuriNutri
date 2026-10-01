@@ -132,7 +132,7 @@ com `npm run build` + `npm test` + `npm run test:e2e` antes do deploy.
 
 ---
 
-## PHASE 13 — Ajustes rápidos do dia a dia · `DONE` (25/09/2026, aguardando publicação) · `HIGH`
+## PHASE 13 — Ajustes rápidos do dia a dia · `DONE` (25/09/2026, publicada 30/09/2026) · `HIGH`
 
 Tudo aqui mexe em telas que já existem, sem modelo de dados novo (exceto se indicado).
 
@@ -201,7 +201,7 @@ Tudo **guardado localmente** até os créditos do Netlify renovarem (ver Fase 12
 
 ---
 
-## PHASE 14 — Anamnese em texto livre e modelos · `DONE` (25/09/2026, aguardando publicação) · `HIGH`
+## PHASE 14 — Anamnese em texto livre e modelos · `DONE` (25/09/2026, publicada 30/09/2026) · `HIGH`
 
 **Pedido:** deixar de ter caixas separadas por tema e virar uma página em branco estilo Word. Deve
 ser possível importar um modelo próprio da nutricionista e só editar.
@@ -237,17 +237,20 @@ uma vez por tempo de geração de PDF no servidor local e passou ao repetir); is
 
 ---
 
-## PHASE 15 — Antropometria profissional · `FEITA 30/09/2026, publicada 01/10/2026` — falta a revisão da nutricionista · `CRITICAL`
+## PHASE 15 — Antropometria profissional · `DONE` (30/09/2026, publicada 30/09 e 01/10/2026) · `CRITICAL`
 
 **Lista de protocolos aprovada em 30/09/2026 (decisão R4):** ver `docs/FASE_15_PROTOCOLOS.md`
-(montada a partir do WebDiet, com a fonte de cada item). Próximo passo: Bloco A.
+(montada a partir do WebDiet, com a fonte de cada item).
+
+**Pendência:** comparar 2 ou 3 pacientes reais com o WebDiet (seção "Para revisar" de
+`docs/FASE_15_PROTOCOLOS.md`).
 
 **Por que crítica:** foi apontada como "de extrema importância" e hoje é a tela mais distante dos
 softwares de mercado. Ela alimenta a Fase 16 (cálculo energético) e a Fase 17 (planejamento).
 
 Ao clicar em "Nova avaliação", o profissional escolhe entre três tipos:
 
-### Bloco A — Adultos e idosos · `FEITO 30/09/2026 (local)` — falta a revisão da nutricionista
+### Bloco A — Adultos e idosos · `DONE` (30/09/2026)
 ```
 [x] Peso, altura, IMC com classificação (OMS para adultos; Lipschitz 1994 para 60+)
 [x] Circunferências completas (pescoço, tórax, ombro, cintura, abdome, quadril; braço relaxado/
@@ -265,7 +268,7 @@ Migration 0039 aplicada. Fórmulas em `src/lib/anthropometry.ts`, cada coeficien
 fonte publicada (fontes no topo do arquivo). **Revisão da nutricionista pendente** — ver a seção
 "Para revisar" em `docs/FASE_15_PROTOCOLOS.md`.
 
-### Bloco B — Crianças e adolescentes · `FEITO 30/09/2026`
+### Bloco B — Crianças e adolescentes · `DONE` (30/09/2026)
 ```
 [x] Peso/idade (até 10 anos), altura/idade, IMC/idade, peso/comprimento (<2) e peso/estatura (2–5)
     em percentil e escore-z, classificação SISVAN (nomes certos abaixo de 5 anos)
@@ -276,7 +279,7 @@ fonte publicada (fontes no topo do arquivo). **Revisão da nutricionista pendent
 Coeficientes LMS baixados de cdn.who.int (`src/lib/growth/who-lms-data.ts`, gerado); 11 pontos de
 controle conferidos contra os valores de −2/+2/+3 DP publicados pela OMS.
 
-### Bloco C — Anexar relatório externo · `FEITO 30/09/2026`
+### Bloco C — Anexar relatório externo · `DONE` (30/09/2026)
 ```
 [x] Upload de PDF/JPEG/PNG/WEBP (bioimpedância, DEXA, laudo) com data, título e observação
 [x] Opcional: peso, % gordura, massa livre de gordura e massa muscular entram na evolução
@@ -284,7 +287,7 @@ controle conferidos contra os valores de −2/+2/+3 DP publicados pela OMS.
     consentimento de exames (mesma regra da Fase 7)
 ```
 
-### Bloco D — Evolução · `FEITO 30/09/2026`
+### Bloco D — Evolução · `DONE` (30/09/2026)
 ```
 [x] Cada avaliação mostra seu próprio gráfico de evolução (todas as avaliações até aquela data)
 [x] Profissional escolhe até 5 indicadores (de 15), lembrados no navegador; modo tabela
@@ -325,7 +328,7 @@ variação entre datas). Sem QR code do WebDiet (não há app do paciente).
 
 ---
 
-## PHASE 16 — Cálculo energético · `DONE` (01/10/2026, publicada) — falta a comparação com o WebDiet · `HIGH`
+## PHASE 16 — Cálculo energético · `DONE` (01/10/2026, publicada 01/10/2026) · `HIGH`
 
 Nova aba no paciente, **ao lado de Antropometria**.
 
