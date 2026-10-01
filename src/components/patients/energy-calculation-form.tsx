@@ -2,9 +2,9 @@
 
 import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { useFieldArray, useForm, useWatch, type Resolver } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Download, Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { idadeNaData } from "@/lib/anthropometry";
@@ -20,20 +20,19 @@ import {
   type FormulaEnergia,
   type NivelEER,
 } from "@/lib/energy-formulas";
-import { dadosDoCalculo, kcalAtividade, resultadoDoCalculo, type EntradasCalculo } from "@/lib/energy-calculation";
+import { dadosDoCalculo, resultadoDoCalculo, type EntradasCalculo } from "@/lib/energy-calculation";
 import { atualizarCalculoEnergetico } from "@/lib/actions/energy-calculations";
 import { useAutoSave } from "@/lib/hooks/use-auto-save";
 import { useUnsavedChangesWarning } from "@/lib/hooks/use-unsaved-changes-warning";
 import { energyCalculationSchema, type EnergyCalculationInput } from "@/lib/validations/energy-calculation";
-import type { AnthropometricAssessment, EnergyCalculation, Patient } from "@/lib/types/database.types";
+import type { AnthropometricAssessment, AtividadeMet, EnergyCalculation, Patient } from "@/lib/types/database.types";
 import { cn, formatDate } from "@/lib/utils";
 
 import { AutoSaveStatus } from "@/components/patients/auto-save-status";
+import { GestanteDialog, MetDialog, ReferenciasDialog, VentaDialog } from "@/components/patients/energy-calculation-dialogs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -46,8 +45,6 @@ export interface AvaliacaoParaImportar {
   mlgKg: number | null;
   sexoReferencia: "masculino" | "feminino" | null;
 }
-
-type AtividadeForm = { codigo: string; nome: string; met: string; minutos: string };
 
 type FormValues = {
   nome: string;
@@ -64,7 +61,7 @@ type FormValues = {
   fator_atividade: string;
   fator_injuria: string;
   fator_injuria_label: string;
-  atividades_met: AtividadeForm[];
+  atividades_met: AtividadeMet[];
   venta_kg: string;
   venta_dias: string;
   adicional_gestante_kcal: string;
@@ -87,7 +84,10 @@ const kcal = (v: number | null) => (v === null ? "—" : `${fmt(Math.round(v))} 
 /** Fórmulas que não entram na comparação: dependem de um número digitado à mão. */
 const SEM_COMPARACAO: FormulaEnergia[] = ["formula_de_bolso", "tmb_manual", "get_manual"];
 
-const INJURIA_OPCOES = FATORES_INJURIA.flatMap((g) => g.itens.map((i) => ({ chave: `${g.grupo} — ${i.label}`, ...i, grupo: g.grupo })));
+const INJURIA_OPCOES = FATORES_INJURIA.flatMap((g) => g.itens.map((i) => ({ chave: `${g.grupo} — ${i.label}`, ...i })));
+
+/** Idade usada para listar as fórmulas quando não há data de nascimento. */
+const ADULTO_PADRAO = 30;
 
 function buildDefaults(c: EnergyCalculation): FormValues {
   return {
@@ -105,13 +105,15 @@ function buildDefaults(c: EnergyCalculation): FormValues {
     fator_atividade: String(c.fator_atividade),
     fator_injuria: String(c.fator_injuria),
     fator_injuria_label: c.fator_injuria_label ?? "",
-    atividades_met: (c.atividades_met ?? []).map((a) => ({ codigo: a.codigo, nome: a.nome, met: String(a.met), minutos: String(a.minutos) })),
+    atividades_met: c.atividades_met ?? [],
     venta_kg: texto(c.venta_kg),
     venta_dias: texto(c.venta_dias),
     adicional_gestante_kcal: texto(c.adicional_gestante_kcal),
     observacoes: c.observacoes ?? "",
   };
 }
+
+type Janela = "importar" | "referencias" | "met" | "venta" | "gestante" | null;
 
 interface Props {
   patient: Pick<Patient, "id" | "nome" | "sexo" | "data_nascimento">;
@@ -120,15 +122,15 @@ interface Props {
 }
 
 /**
- * Tela do cálculo energético (Fase 16, a partir do WebDiet): 1. dados
- * antropométricos (com "Importar de antropometria"), 2. fórmula e fatores,
- * 3. ajustes refinados, 4. resultados — e a comparação de todas as fórmulas
- * lado a lado. Salva sozinho, como a antropometria.
+ * Tela do cálculo energético no formato do WebDiet: caixas compactas de 3 em
+ * 3 (dados, fórmula e fatores, ajustes) e os ajustes abrindo em janelas ao
+ * clicar. Resultados e comparação de fórmulas à direita. Salva sozinho.
  */
 export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [importando, setImportando] = useState(false);
+  const [janela, setJanela] = useState<Janela>(null);
+  const [mostrarObs, setMostrarObs] = useState(Boolean(calculo.observacoes));
 
   const {
     register,
@@ -141,9 +143,10 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
     resolver: zodResolver(energyCalculationSchema) as unknown as Resolver<FormValues>,
     defaultValues: buildDefaults(calculo),
   });
-  const atividades = useFieldArray({ control, name: "atividades_met" });
 
   const v = useWatch({ control }) as FormValues;
+  const alterar = <K extends keyof FormValues>(campo: K, valor: FormValues[K]) =>
+    setValue(campo, valor as never, { shouldDirty: true, shouldValidate: true });
 
   const { estado, erro: erroSalvamento, salvarAgora } = useAutoSave(v, async (valores) => {
     if (!(await trigger())) return { success: false, message: "Corrija os campos destacados para salvar." };
@@ -167,7 +170,7 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
     valor_manual_kcal: n(v.valor_manual_kcal),
     fator_atividade: Number(v.fator_atividade) || 1,
     fator_injuria: Number(v.fator_injuria) || 1,
-    atividades_met: (v.atividades_met ?? []).map((a) => ({ codigo: a.codigo, nome: a.nome, met: n(a.met) ?? 0, minutos: n(a.minutos) ?? 0 })),
+    atividades_met: v.atividades_met ?? [],
     venta_kg: n(v.venta_kg, true),
     venta_dias: n(v.venta_dias),
     adicional_gestante_kcal: n(v.adicional_gestante_kcal),
@@ -207,207 +210,155 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
   }
 
   function importar(a: AvaliacaoParaImportar) {
-    const opcoes = { shouldDirty: true };
-    setValue("peso_kg", texto(a.pesoKg), opcoes);
-    setValue("altura_cm", texto(a.alturaCm), opcoes);
-    setValue("massa_livre_gordura_kg", a.mlgKg ? a.mlgKg.toFixed(1) : "", opcoes);
-    setValue("assessment_id", a.id, opcoes);
-    if (precisaEscolherBase && a.sexoReferencia && !v.sexo_referencia) setValue("sexo_referencia", a.sexoReferencia, opcoes);
-    setImportando(false);
+    alterar("peso_kg", texto(a.pesoKg));
+    alterar("altura_cm", texto(a.alturaCm));
+    alterar("massa_livre_gordura_kg", a.mlgKg ? a.mlgKg.toFixed(1) : "");
+    alterar("assessment_id", a.id);
+    if (precisaEscolherBase && a.sexoReferencia && !v.sexo_referencia) alterar("sexo_referencia", a.sexoReferencia);
+    setJanela(null);
     toast.success(`Dados da avaliação de ${formatDate(a.data)} importados.`);
   }
 
-  const campo = (name: keyof FormValues, label: string, extra: { placeholder?: string; dica?: string } = {}) => {
-    const erro = errors[name]?.message as string | undefined;
-    return (
-      <div key={name} className="space-y-1.5">
-        <Label htmlFor={name} className="text-xs">
-          {label}
-        </Label>
-        <Input
-          id={name}
-          inputMode="decimal"
-          placeholder={extra.placeholder}
-          aria-invalid={erro ? true : undefined}
-          {...register(name)}
-        />
-        {extra.dica && <p className="text-xs text-muted-foreground">{extra.dica}</p>}
-        {erro && (
-          <p className="text-xs text-destructive" role="alert">
-            {erro}
-          </p>
-        )}
-      </div>
-    );
-  };
+  const erroDe = (name: keyof FormValues) => errors[name]?.message as string | undefined;
 
-  const info = formula ? FORMULAS[formula] : null;
-  const venta = resultado.adicionais.venta;
+  const ajusteMet = resultado.adicionais.met;
+  const ajusteVenta = resultado.adicionais.venta;
+  const ajusteGestante = resultado.adicionais.gestante;
+  const qtdAtividades = entradas.atividades_met.length;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]">
-      <div className="min-w-0 space-y-6">
-        <Secao titulo="Identificação">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="nome" className="text-xs">
-                Nome do cálculo
-              </Label>
-              <Input id="nome" maxLength={80} placeholder="Ex.: Dias de treino" {...register("nome")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="data_calculo" className="text-xs">
-                Data do cálculo *
-              </Label>
-              <Input id="data_calculo" type="date" aria-required="true" {...register("data_calculo")} />
-            </div>
+      <Card className="min-w-0">
+        <CardContent className="space-y-7 pt-6">
+          <div className="flex flex-wrap items-end gap-3">
+            <input
+              aria-label="Nome do cálculo"
+              placeholder="Sem nome"
+              maxLength={80}
+              className="min-w-0 flex-1 bg-transparent text-xl font-semibold text-foreground outline-none placeholder:text-foreground focus-visible:underline"
+              {...register("nome")}
+            />
+            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+              Data
+              <input
+                type="date"
+                aria-required="true"
+                className="rounded-md border border-input bg-background px-2 py-1 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                {...register("data_calculo")}
+              />
+            </label>
           </div>
-        </Secao>
 
-        <Secao
-          titulo="1. Dados antropométricos"
-          acao={
-            <Button type="button" variant="outline" size="sm" onClick={() => setImportando(true)}>
-              <Download className="h-4 w-4" />
-              Importar de antropometria
-            </Button>
-          }
-        >
-          <div className="grid grid-cols-2 gap-4">
-            {campo("altura_cm", "Altura (cm)")}
-            {campo("peso_kg", "Peso (kg)")}
-            {campo("massa_livre_gordura_kg", "Massa livre de gordura (kg)", {
-              dica: "Usada em Katch-McArdle, Cunningham, Mifflin por MLG e Tinsley por MLG.",
-            })}
-          </div>
-          {patient.data_nascimento === null && (
-            <p role="alert" className="rounded-md border border-accent/40 bg-accent/10 px-3 py-2 text-sm">
-              Cadastre a data de nascimento do paciente: todas as fórmulas usam a idade.
-            </p>
-          )}
-          {precisaEscolherBase && (
-            <div className="space-y-2 rounded-md border border-accent/40 bg-accent/10 p-3">
-              <p className="text-sm text-foreground">
-                {patient.sexo === "outro"
-                  ? 'O paciente está cadastrado como "outro". As fórmulas só têm coeficientes publicados para masculino e feminino — escolha qual base usar neste cálculo.'
-                  : "O sexo do paciente não está cadastrado. Escolha uma base para as fórmulas deste cálculo."}
-              </p>
-              <div className="max-w-[200px] space-y-1">
-                <Label className="text-xs">Base para as fórmulas</Label>
-                <Select
-                  value={v.sexo_referencia}
-                  onValueChange={(x) => setValue("sexo_referencia", x as "masculino" | "feminino", { shouldDirty: true })}
-                >
-                  <SelectTrigger aria-label="Base para as fórmulas">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="masculino">Masculino</SelectItem>
-                    <SelectItem value="feminino">Feminino</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <Bloco titulo="1. Dados antropométricos" acao={<LinkTexto onClick={() => setJanela("importar")}>Importar de antropometria</LinkTexto>}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <CaixaInput rotulo="Altura do paciente (cm)" id="altura_cm" erro={erroDe("altura_cm")} {...register("altura_cm")} />
+              <CaixaInput rotulo="Peso do paciente (kg)" id="peso_kg" erro={erroDe("peso_kg")} {...register("peso_kg")} />
+              <CaixaInput
+                rotulo="Massa livre de gordura (kg)"
+                id="massa_livre_gordura_kg"
+                erro={erroDe("massa_livre_gordura_kg")}
+                {...register("massa_livre_gordura_kg")}
+              />
             </div>
-          )}
-        </Secao>
-
-        <Secao titulo="2. Fórmula e fatores">
-          <div className="space-y-1.5">
-            <Label className="text-xs">Fórmula para cálculo teórico</Label>
-            <Select value={v.formula} onValueChange={(x) => setValue("formula", x as FormulaEnergia, { shouldDirty: true })}>
-              <SelectTrigger aria-label="Fórmula para cálculo teórico">
-                <SelectValue placeholder="Escolha sua fórmula" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>
-                    {idade !== null && idade < 18 ? "Protocolos para crianças e adolescentes" : "Protocolos para adultos e idosos"}
-                  </SelectLabel>
-                  {opcoesFormula
-                    .filter((f) => !SEM_COMPARACAO.includes(f))
-                    .map((f) => (
-                      <SelectItem key={f} value={f}>
-                        {FORMULAS[f].label}
-                      </SelectItem>
-                    ))}
-                </SelectGroup>
-                <SelectGroup>
-                  <SelectLabel>Outros</SelectLabel>
-                  {SEM_COMPARACAO.map((f) => (
-                    <SelectItem key={f} value={f}>
-                      {FORMULAS[f].label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            {info && (
-              <details className="rounded-md bg-muted/40 px-3 py-2 text-sm">
-                <summary className="cursor-pointer font-medium text-foreground">O que diz a referência</summary>
-                <p className="mt-2 text-muted-foreground">Usa: {info.usa}.</p>
-                <p className="mt-1 text-muted-foreground">{info.sobre}</p>
-                {info.referencia !== "—" && <p className="mt-1 text-xs text-muted-foreground">Fonte: {info.referencia}</p>}
-              </details>
+            {patient.data_nascimento === null && (
+              <Aviso>Cadastre a data de nascimento do paciente: todas as fórmulas usam a idade.</Aviso>
             )}
-          </div>
+            {precisaEscolherBase && (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <Caixa rotulo="Base para as fórmulas" className="sm:col-span-1">
+                  <Select value={v.sexo_referencia} onValueChange={(x) => alterar("sexo_referencia", x as "masculino" | "feminino")}>
+                    <SelectTrigger aria-label="Base para as fórmulas" className={selectSemBorda}>
+                      <SelectValue placeholder="Escolha a base" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="masculino">Masculino</SelectItem>
+                      <SelectItem value="feminino">Feminino</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Caixa>
+                <p className="self-center text-xs text-muted-foreground sm:col-span-2">
+                  {patient.sexo === "outro" ? 'Paciente cadastrado como "outro".' : "Sexo não cadastrado."} As fórmulas só têm
+                  coeficientes para masculino e feminino.
+                </p>
+              </div>
+            )}
+          </Bloco>
 
-          {formula === "formula_de_bolso" && campo("kcal_por_kg", "kcal por kg de peso", { placeholder: "Ex.: 30" })}
-          {(formula === "tmb_manual" || formula === "get_manual") &&
-            campo("valor_manual_kcal", formula === "tmb_manual" ? "TMB (kcal/dia)" : "GET (kcal/dia)")}
-
-          {eer ? (
-            <div className="space-y-1.5">
-              <Label className="text-xs">Nível de atividade (EER)</Label>
-              <Select value={v.nivel_eer} onValueChange={(x) => setValue("nivel_eer", x as NivelEER, { shouldDirty: true })}>
-                <SelectTrigger aria-label="Nível de atividade da EER">
-                  <SelectValue placeholder="Escolha o nível" />
-                </SelectTrigger>
-                <SelectContent>
-                  {(Object.keys(NIVEL_EER_LABELS) as NivelEER[]).map((k) => (
-                    <SelectItem key={k} value={k}>
-                      {NIVEL_EER_LABELS[k]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                A EER já dá o gasto total: o fator de atividade e o fator injúria não se aplicam. De 0 a 2 anos não usa nível
-                de atividade.
-              </p>
-            </div>
-          ) : (
-            <div className={cn("grid grid-cols-2 gap-4", !fatoresAplicam && "opacity-60")}>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Fator atividade física</Label>
-                <Select
-                  value={v.fator_atividade}
-                  disabled={!fatoresAplicam}
-                  onValueChange={(x) => setValue("fator_atividade", x, { shouldDirty: true })}
-                >
-                  <SelectTrigger aria-label="Fator atividade física">
-                    <SelectValue />
+          <Bloco titulo="2. Fórmulas padronizadas" acao={<LinkTexto onClick={() => setJanela("referencias")}>Ver referências</LinkTexto>}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <Caixa rotulo="Fórmula para cálculo teórico">
+                <Select value={v.formula} onValueChange={(x) => alterar("formula", x as FormulaEnergia)}>
+                  <SelectTrigger aria-label="Fórmula para cálculo teórico" className={selectSemBorda}>
+                    <SelectValue placeholder="Escolha sua fórmula" />
                   </SelectTrigger>
                   <SelectContent>
-                    {FATORES_ATIVIDADE_FASE16.map((f) => (
-                      <SelectItem key={f.valor} value={String(f.valor)}>
-                        {fmt(f.valor, 3)} - {f.label}
-                      </SelectItem>
-                    ))}
+                    <SelectGroup>
+                      <SelectLabel>
+                        {idade !== null && idade < 18 ? "Protocolos para crianças" : "Protocolos para adultos e idosos"}
+                      </SelectLabel>
+                      {opcoesFormula
+                        .filter((f) => !SEM_COMPARACAO.includes(f))
+                        .map((f) => (
+                          <SelectItem key={f} value={f}>
+                            {FORMULAS[f].label}
+                          </SelectItem>
+                        ))}
+                    </SelectGroup>
+                    <SelectGroup>
+                      <SelectLabel>Outros</SelectLabel>
+                      {SEM_COMPARACAO.map((f) => (
+                        <SelectItem key={f} value={f}>
+                          {FORMULAS[f].label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Fator injúria</Label>
+              </Caixa>
+
+              {eer ? (
+                <Caixa rotulo="Nível de atividade (EER)">
+                  <Select value={v.nivel_eer} onValueChange={(x) => alterar("nivel_eer", x as NivelEER)}>
+                    <SelectTrigger aria-label="Nível de atividade da EER" className={selectSemBorda}>
+                      <SelectValue placeholder="Escolha o nível" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(NIVEL_EER_LABELS) as NivelEER[]).map((k) => (
+                        <SelectItem key={k} value={k}>
+                          {NIVEL_EER_LABELS[k]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Caixa>
+              ) : (
+                <Caixa rotulo="Fator atividade física" desativada={!fatoresAplicam}>
+                  <Select value={v.fator_atividade} disabled={!fatoresAplicam} onValueChange={(x) => alterar("fator_atividade", x)}>
+                    <SelectTrigger aria-label="Fator atividade física" className={selectSemBorda}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FATORES_ATIVIDADE_FASE16.map((f) => (
+                        <SelectItem key={f.valor} value={String(f.valor)}>
+                          {fmt(f.valor, 3)} - {f.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Caixa>
+              )}
+
+              <Caixa rotulo="Fator injúria" desativada={!fatoresAplicam}>
                 <Select
                   value={v.fator_injuria_label || "nenhum"}
                   disabled={!fatoresAplicam}
                   onValueChange={(chave) => {
                     const o = INJURIA_OPCOES.find((i) => i.chave === chave);
-                    setValue("fator_injuria_label", o ? o.chave : "", { shouldDirty: true });
-                    setValue("fator_injuria", String(o ? o.valor : 1), { shouldDirty: true });
+                    alterar("fator_injuria_label", o ? o.chave : "");
+                    alterar("fator_injuria", String(o ? o.valor : 1));
                   }}
                 >
-                  <SelectTrigger aria-label="Fator injúria">
+                  <SelectTrigger aria-label="Fator injúria" className={selectSemBorda}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -424,105 +375,69 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              {!fatoresAplicam && formula && (
-                <p className="col-span-2 text-xs text-muted-foreground">Esta opção já é o gasto total: os fatores não se aplicam.</p>
+              </Caixa>
+
+              {formula === "formula_de_bolso" && (
+                <CaixaInput rotulo="kcal por kg de peso" id="kcal_por_kg" erro={erroDe("kcal_por_kg")} {...register("kcal_por_kg")} />
+              )}
+              {(formula === "tmb_manual" || formula === "get_manual") && (
+                <CaixaInput
+                  rotulo={formula === "tmb_manual" ? "TMB (kcal/dia)" : "GET (kcal/dia)"}
+                  id="valor_manual_kcal"
+                  erro={erroDe("valor_manual_kcal")}
+                  {...register("valor_manual_kcal")}
+                />
               )}
             </div>
-          )}
-        </Secao>
-
-        <Secao titulo="3. Ajustes refinados" descricao="Somados ao GET, em kcal por dia.">
-          <div className="space-y-3">
-            <p className="text-sm font-medium text-foreground">Adicional por atividade física (MET)</p>
-            {atividades.fields.length > 0 && (
-              <ul className="space-y-3">
-                {atividades.fields.map((f, i) => {
-                  const a = v.atividades_met?.[i];
-                  const gasto = a ? kcalAtividade({ met: n(a.met) ?? 0, minutos: n(a.minutos) ?? 0 }, entradas.peso_kg) : 0;
-                  return (
-                    <li key={f.id} className="grid grid-cols-[minmax(0,1fr)_5rem_5.5rem_auto] items-end gap-2">
-                      <div className="space-y-1">
-                        <Label htmlFor={`atividade-${i}-nome`} className="text-xs">
-                          Atividade
-                        </Label>
-                        <Input id={`atividade-${i}-nome`} placeholder="Ex.: Musculação" {...register(`atividades_met.${i}.nome`)} />
-                      </div>
-                      <div className="space-y-1">
-                        <Label htmlFor={`atividade-${i}-met`} className="text-xs">
-                          MET
-                        </Label>
-                        <Input id={`atividade-${i}-met`} inputMode="decimal" {...register(`atividades_met.${i}.met`)} />
-                      </div>
-                      <div className="space-y-1">
-                        <Label htmlFor={`atividade-${i}-min`} className="text-xs">
-                          Min/dia
-                        </Label>
-                        <Input id={`atividade-${i}-min`} inputMode="numeric" {...register(`atividades_met.${i}.minutos`)} />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label={`Remover ${a?.nome || "atividade"}`}
-                        onClick={() => atividades.remove(i)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      {gasto > 0 && <p className="col-span-4 -mt-1 text-xs text-muted-foreground">+ {fmt(Math.round(gasto))} kcal/dia</p>}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-            {errors.atividades_met && (
-              <p className="text-xs text-destructive" role="alert">
-                Confira as atividades: cada uma precisa de nome, MET e minutos.
+            {formula && !fatoresAplicam && (
+              <p className="text-xs text-muted-foreground">
+                {eer ? "A EER já dá o gasto total (de 0 a 2 anos, sem nível de atividade)." : "Esta opção já é o gasto total."} O
+                fator de atividade e o fator injúria não se aplicam.
               </p>
             )}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => atividades.append({ codigo: "", nome: "", met: "", minutos: "" })}
-            >
-              <Plus className="h-4 w-4" />
-              Adicionar atividade
-            </Button>
-            <p className="text-xs text-muted-foreground">Gasto = MET × peso × horas por dia.</p>
-          </div>
+          </Bloco>
 
-          <div className="space-y-2 border-t border-border pt-4">
-            <p className="text-sm font-medium text-foreground">Meta de peso (VENTA)</p>
-            <div className="grid grid-cols-2 gap-4">
-              {campo("venta_kg", "Kg a ganhar (+) ou perder (−)", { placeholder: "Ex.: -3" })}
-              {campo("venta_dias", "Em quantos dias", { placeholder: "Ex.: 90" })}
+          <Bloco titulo="3. Ajustes refinados">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <CaixaBotao
+                rotulo="Adicional calórico por MET (kcal/dia)"
+                valor={qtdAtividades ? `+${fmt(Math.round(ajusteMet))} · ${qtdAtividades} ${qtdAtividades === 1 ? "atividade" : "atividades"}` : null}
+                vazio="Programar MET"
+                onClick={() => setJanela("met")}
+              />
+              <CaixaBotao
+                rotulo="Programar peso por VENTA (kcal/dia)"
+                valor={ajusteVenta ? `${ajusteVenta > 0 ? "+" : "−"}${fmt(Math.abs(Math.round(ajusteVenta)))}` : null}
+                vazio="Programar peso"
+                onClick={() => setJanela("venta")}
+              />
+              <CaixaBotao
+                rotulo="Adicional energético de gestante"
+                valor={ajusteGestante ? `+${fmt(Math.round(ajusteGestante))}` : null}
+                vazio="Incluir adicional"
+                onClick={() => setJanela("gestante")}
+              />
             </div>
-            <p className="text-xs text-muted-foreground">
-              Valor Energético do Tecido Adiposo: 7.700 kcal por kg.
-              {venta !== 0 && ` ${venta > 0 ? "Soma" : "Tira"} ${fmt(Math.abs(Math.round(venta)))} kcal por dia.`}
-            </p>
+          </Bloco>
+
+          {mostrarObs ? (
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold text-foreground">Observações</h3>
+              <Textarea id="observacoes" aria-label="Observações" rows={3} {...register("observacoes")} />
+            </div>
+          ) : (
+            <LinkTexto onClick={() => setMostrarObs(true)}>+ Adicionar observações</LinkTexto>
+          )}
+
+          <div className="space-y-2">
+            <AutoSaveStatus estado={estado} erro={erroSalvamento} />
+            <Button type="submit" size="lg" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              Salvar e voltar
+            </Button>
           </div>
-
-          <div className="space-y-2 border-t border-border pt-4">
-            {campo("adicional_gestante_kcal", "Adicional energético de gestante (kcal/dia)", {
-              dica: "Digitado à mão. O cálculo automático entra com o acompanhamento gestacional.",
-            })}
-          </div>
-        </Secao>
-
-        <Secao titulo="Observações">
-          <Textarea id="observacoes" aria-label="Observações" rows={3} {...register("observacoes")} />
-        </Secao>
-
-        <div className="space-y-2">
-          <AutoSaveStatus estado={estado} erro={erroSalvamento} />
-          <Button type="submit" size="lg" className="w-full" disabled={loading}>
-            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-            Salvar e voltar
-          </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <div className="min-w-0 space-y-6">
         <Card>
@@ -534,7 +449,9 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
             <Linha label="TMB — Taxa Metabólica Basal" valor={resultado.motivo ? "Não calculado" : kcal(resultado.tmb)} />
             <Linha label="GET — Gasto Energético Total" valor={resultado.motivo ? "Não calculado" : kcal(resultado.get)} destaque />
             {resultado.motivo && <p className="px-1 text-sm text-muted-foreground">{resultado.motivo}</p>}
-            {!resultado.motivo && <Composicao entradas={entradas} tmb={resultado.tmb} adicionais={resultado.adicionais} fatoresAplicam={fatoresAplicam} />}
+            {!resultado.motivo && (
+              <Composicao entradas={entradas} tmb={resultado.tmb} adicionais={resultado.adicionais} fatoresAplicam={fatoresAplicam} />
+            )}
           </CardContent>
         </Card>
 
@@ -565,7 +482,7 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
                             type="button"
                             className="text-left underline-offset-4 hover:underline focus-visible:underline"
                             aria-pressed={ativa}
-                            onClick={() => setValue("formula", c.f, { shouldDirty: true })}
+                            onClick={() => alterar("formula", c.f)}
                           >
                             {FORMULAS[c.f].label}
                           </button>
@@ -590,7 +507,7 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
         </Card>
       </div>
 
-      <Dialog open={importando} onOpenChange={setImportando}>
+      <Dialog open={janela === "importar"} onOpenChange={(o) => !o && setJanela(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Importar de antropometria</DialogTitle>
@@ -622,12 +539,149 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
           )}
         </DialogContent>
       </Dialog>
+
+      {janela === "referencias" && (
+        <ReferenciasDialog onOpenChange={(o) => !o && setJanela(null)} formulaInicial={formula} opcoes={opcoesFormula} />
+      )}
+      {janela === "met" && (
+        <MetDialog
+          onOpenChange={(o) => !o && setJanela(null)}
+          atividades={entradas.atividades_met}
+          pesoKg={entradas.peso_kg}
+          onConfirmar={(lista) => {
+            alterar("atividades_met", lista);
+            setJanela(null);
+          }}
+        />
+      )}
+      {janela === "venta" && (
+        <VentaDialog
+          onOpenChange={(o) => !o && setJanela(null)}
+          kg={entradas.venta_kg ?? 0}
+          dias={entradas.venta_dias ?? 90}
+          onConfirmar={(kg, dias) => {
+            alterar("venta_kg", kg ? String(kg) : "");
+            alterar("venta_dias", kg ? String(dias) : "");
+            setJanela(null);
+          }}
+        />
+      )}
+      {janela === "gestante" && (
+        <GestanteDialog
+          onOpenChange={(o) => !o && setJanela(null)}
+          kcal={entradas.adicional_gestante_kcal}
+          onConfirmar={(valor) => {
+            alterar("adicional_gestante_kcal", valor ? String(valor) : "");
+            setJanela(null);
+          }}
+        />
+      )}
     </form>
   );
 }
 
-/** Idade usada para listar as fórmulas quando não há data de nascimento. */
-const ADULTO_PADRAO = 30;
+const selectSemBorda = "h-7 border-0 bg-transparent px-0 shadow-none focus:ring-0 focus:ring-offset-0";
+
+/** Caixa no estilo do WebDiet: rótulo pequeno em cima, valor embaixo; o foco destaca a caixa inteira. */
+function Caixa({
+  rotulo,
+  children,
+  desativada = false,
+  erro,
+  className,
+}: {
+  rotulo: string;
+  children: ReactNode;
+  desativada?: boolean;
+  erro?: string;
+  className?: string;
+}) {
+  return (
+    <div className={className}>
+      <div
+        className={cn(
+          "rounded-lg border border-input bg-background px-3 pb-1 pt-2 focus-within:ring-2 focus-within:ring-ring",
+          desativada && "opacity-50",
+          erro && "border-destructive"
+        )}
+      >
+        <p className="text-xs text-muted-foreground">{rotulo}</p>
+        {children}
+      </div>
+      {erro && (
+        <p className="mt-1 text-xs text-destructive" role="alert">
+          {erro}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function CaixaInput({
+  rotulo,
+  id,
+  erro,
+  ...input
+}: { rotulo: string; id: string; erro?: string } & React.InputHTMLAttributes<HTMLInputElement> & {
+    ref?: React.Ref<HTMLInputElement>;
+  }) {
+  return (
+    <Caixa rotulo={rotulo} erro={erro}>
+      <label htmlFor={id} className="sr-only">
+        {rotulo}
+      </label>
+      <input
+        id={id}
+        inputMode="decimal"
+        aria-invalid={erro ? true : undefined}
+        className="h-7 w-full bg-transparent text-sm text-foreground outline-none"
+        {...input}
+      />
+    </Caixa>
+  );
+}
+
+/** Caixa que abre uma janela (ajustes refinados). */
+function CaixaBotao({ rotulo, valor, vazio, onClick }: { rotulo: string; valor: string | null; vazio: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-lg border border-input bg-background px-3 pb-2 pt-2 text-left hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <span className="block text-xs text-muted-foreground">{rotulo}</span>
+      <span className={cn("block pt-1 text-sm", valor ? "font-medium text-foreground" : "text-foreground")}>{valor ?? vazio}</span>
+    </button>
+  );
+}
+
+function Bloco({ titulo, acao, children }: { titulo: string; acao?: ReactNode; children: ReactNode }) {
+  return (
+    <section className="space-y-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-base font-semibold text-foreground">{titulo}</h3>
+        {acao}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function LinkTexto({ onClick, children }: { onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:underline"
+    >
+      {children}
+    </button>
+  );
+}
+
+function Aviso({ children }: { children: ReactNode }) {
+  return <p className="rounded-md border border-accent/40 bg-accent/10 px-3 py-2 text-sm">{children}</p>;
+}
 
 function Composicao({
   entradas,
@@ -658,20 +712,5 @@ function Linha({ label, valor, destaque = false }: { label: string; valor: strin
       <span className="text-muted-foreground">{label}</span>
       <span className={cn("font-medium", destaque && "text-base text-foreground")}>{valor}</span>
     </div>
-  );
-}
-
-function Secao({ titulo, descricao, acao, children }: { titulo: string; descricao?: string; acao?: ReactNode; children: ReactNode }) {
-  return (
-    <Card>
-      <CardHeader className="flex-row flex-wrap items-start justify-between gap-2 space-y-0">
-        <div className="space-y-1.5">
-          <CardTitle className="text-base">{titulo}</CardTitle>
-          {descricao && <CardDescription>{descricao}</CardDescription>}
-        </div>
-        {acao}
-      </CardHeader>
-      <CardContent className="space-y-4">{children}</CardContent>
-    </Card>
   );
 }
