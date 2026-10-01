@@ -15,8 +15,8 @@ export interface MarkerHistoryPoint {
 }
 
 /**
- * Evolução de um marcador ao longo do tempo — mesmo padrão SVG do
- * EvolutionChart (peso/IMC do paciente), com a faixa de referência indicada
+ * Evolução de um marcador ao longo do tempo — gráfico SVG feito à mão, como
+ * os da evolução física do paciente, com a faixa de referência indicada
  * visualmente. A data usada é a da COLETA do exame (data_coleta), não a de
  * quando o marcador foi digitado no sistema.
  */

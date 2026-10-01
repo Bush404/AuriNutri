@@ -170,6 +170,28 @@ export interface AnthropometricAssessment {
   sexo_referencia: SexoParaFormula | null;
   densidade_corporal: number | null;
   updated_at: string;
+  /** Migration 0040: adulto = adultos e idosos; crianca = 0 a 19 anos (curvas da OMS). */
+  tipo: "adulto" | "crianca";
+}
+
+/** Relatório antropométrico externo anexado (Fase 15, Bloco C — migration 0040). */
+export interface AnthropometricAttachment {
+  id: string;
+  patient_id: string;
+  user_id: string;
+  data_avaliacao: string;
+  titulo: string | null;
+  observacoes: string | null;
+  /** Path no bucket privado "profissional" — nunca uma URL. */
+  arquivo_path: string;
+  arquivo_nome: string | null;
+  peso_kg: number | null;
+  percentual_gordura: number | null;
+  massa_livre_gordura_kg: number | null;
+  massa_muscular_kg: number | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
 }
 
 /** Sexo laboratorial usado nas faixas de referência — vocabulário próprio de lab_reference_ranges, distinto de Sexo (patients.sexo usa feminino/masculino/outro). */

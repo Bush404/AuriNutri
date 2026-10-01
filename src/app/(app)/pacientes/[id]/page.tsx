@@ -8,6 +8,7 @@ import type {
   Anamnesis,
   AnamnesisTemplate,
   AnthropometricAssessment,
+  AnthropometricAttachment,
   MealPlan,
   Patient,
   PatientConsent,
@@ -42,6 +43,7 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
     sendCenterContext,
     { data: billings },
     { data: anamnesisTemplates },
+    { data: attachments },
   ] = await Promise.all([
     supabase.from("patients").select("*").eq("id", params.id).single<Patient>(),
     supabase
@@ -98,6 +100,12 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
       .select("*")
       .order("nome")
       .returns<AnamnesisTemplate[]>(),
+    supabase
+      .from("anthropometric_attachments")
+      .select("*")
+      .eq("patient_id", params.id)
+      .order("data_avaliacao", { ascending: false })
+      .returns<AnthropometricAttachment[]>(),
   ]);
 
   if (!patient) {
@@ -164,6 +172,7 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
         patient={patient}
         anamneses={anamneses ?? []}
         assessments={assessments ?? []}
+        attachments={attachments ?? []}
         mealPlans={mealPlans ?? []}
         consents={consents ?? []}
         labExams={labExams ?? []}

@@ -6,6 +6,7 @@ import { anamnesisSchema, type AnamnesisInput } from "@/lib/validations/patient"
 import { assessmentSchema, CAMPOS_NUMERICOS, type AssessmentInput } from "@/lib/validations/assessment";
 import { calcularResultados, sexoDasFormulas, type MedidasAvaliacao } from "@/lib/anthropometry-results";
 import { idadeNaData, type ProtocoloDobras, type SexoParaFormula } from "@/lib/anthropometry";
+import { gorduraInfantil, idadeEmMeses, MESES_MAXIMO_INFANTIL } from "@/lib/growth/growth";
 import type { Patient } from "@/lib/types/database.types";
 import type { ActionResult } from "@/lib/actions/patients";
 import { sanitizeRichText } from "@/lib/rich-text-sanitize";
@@ -134,7 +135,45 @@ async function prepareAssessment(
   }
 
   const sexo = sexoDasFormulas(patient.sexo, data.sexo_referencia as SexoParaFormula | undefined);
+
+  if (data.tipo === "crianca") {
+    const meses = idadeEmMeses(patient.data_nascimento, data.data_avaliacao);
+    if (meses === null) {
+      return { error: "Cadastre a data de nascimento do paciente para a avaliação infantil." } as const;
+    }
+    if (meses > MESES_MAXIMO_INFANTIL) {
+      return { error: "O protocolo infantil da OMS vai até 19 anos (228 meses). Use a avaliação de adultos." } as const;
+    }
+    if (!sexo) {
+      return { error: "Escolha a base (masculino ou feminino) para as curvas de crescimento." } as const;
+    }
+    const gordura = gorduraInfantil({
+      sexo,
+      idadeAnos: Math.floor(meses / 12),
+      tricepsMm: data.dobra_triceps_mm ?? null,
+      subescapularMm: data.dobra_subescapular_mm ?? null,
+      panturrilhaMm: data.dobra_panturrilha_mm ?? null,
+    });
+    // Só as medidas do formulário infantil; o resto fica vazio.
+    const row = {
+      tipo: "crianca",
+      data_avaliacao: data.data_avaliacao,
+      peso_kg: data.peso_kg,
+      altura_cm: data.altura_cm,
+      dobra_triceps_mm: data.dobra_triceps_mm ?? null,
+      dobra_subescapular_mm: data.dobra_subescapular_mm ?? null,
+      dobra_panturrilha_mm: data.dobra_panturrilha_mm ?? null,
+      sexo_referencia: sexo,
+      protocolo_dobras: null,
+      densidade_corporal: null,
+      percentual_gordura: gordura?.ok ? Math.round(gordura.percentualGordura * 100) / 100 : null,
+      observacoes: data.observacoes || null,
+    };
+    return { row } as const;
+  }
+
   const row = {
+    tipo: "adulto",
     data_avaliacao: data.data_avaliacao,
     peso_kg: data.peso_kg,
     altura_cm: data.altura_cm,

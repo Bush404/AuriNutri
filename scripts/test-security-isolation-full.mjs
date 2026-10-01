@@ -376,6 +376,32 @@ async function main() {
       canDelete: true,
     });
 
+    const { data: anexo, error: anexoError } = await userA.client
+      .from("anthropometric_attachments")
+      .insert({
+        patient_id: patientId,
+        user_id: userA.id,
+        data_avaliacao: "2026-01-01",
+        arquivo_path: `${userA.id}/antropometria-anexos/teste.pdf`,
+      })
+      .select("id")
+      .single();
+    if (anexoError) throw new Error(`Falha ao criar relatório anexado de A: ${anexoError.message}`);
+    await checkTableIsolation(userB, {
+      table: "anthropometric_attachments",
+      id: anexo.id,
+      updateField: "observacoes",
+      updateValue: "alterado por B",
+      canDelete: true,
+    });
+    const { data: anexoRpcResult, error: anexoRpcError } = await userB.client.rpc("soft_delete_anthropometric_attachment", {
+      attachment_id: anexo.id,
+    });
+    if (!anexoRpcError && anexoRpcResult === true) {
+      breach("B CONSEGUIU excluir (RPC soft_delete_anthropometric_attachment) o relatório anexado de A");
+    }
+    pass("B não consegue excluir (RPC) o relatório anexado de A", anexoRpcError?.message ?? `retorno: ${anexoRpcResult}`);
+
     const { data: photo, error: photoError } = await userA.client
       .from("patient_photos")
       .insert({ patient_id: patientId, user_id: userA.id, data_registro: "2026-01-01", tipo: "frente", arquivo_path: null })

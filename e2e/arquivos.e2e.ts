@@ -1,34 +1,15 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { STORAGE_STATE } from "./env";
-import { criarPaciente, escolherNoSelect } from "./helpers";
+import { criarPaciente, escolherNoSelect, PDF, registrarConsentimento } from "./helpers";
 
 test.use({ storageState: STORAGE_STATE });
 
-// PNG 1×1 e um PDF mínimo válido — só para exercitar o envio ao Storage de verdade.
+// PNG 1×1 — só para exercitar o envio ao Storage de verdade (o PDF mínimo está em helpers).
 const PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
   "base64"
 );
-const PDF = Buffer.from(
-  "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj " +
-    "3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF"
-);
-
-async function registrarConsentimento(page: Page, tipoLabel: string) {
-  await page.getByRole("tab", { name: "Consentimentos" }).click();
-  const card = page
-    .locator("div")
-    .filter({ hasText: tipoLabel })
-    .filter({ has: page.getByRole("button", { name: "Registrar consentimento" }) })
-    .last();
-  await card.getByRole("button", { name: "Registrar consentimento" }).click();
-  const dialog = page.getByRole("dialog");
-  await escolherNoSelect(page, /Como foi obtido/, "Presencial");
-  await dialog.getByRole("button", { name: "Registrar", exact: true }).click();
-  await expect(dialog).toBeHidden();
-}
-
 test("consentimento → foto de evolução e exame em PDF enviados ao Storage", async ({ page }) => {
   await criarPaciente(page);
 

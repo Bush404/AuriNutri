@@ -11,6 +11,7 @@ import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { NewMealPlanDialog } from "@/components/meal-plans/new-meal-plan-dialog";
+import { NewAssessmentMenu } from "@/components/patients/new-assessment-menu";
 
 interface PatientContextPanelProps {
   patientId: string;
@@ -114,12 +115,7 @@ export function PatientContextPanel({ patientId, context, loading }: PatientCont
             Ver perfil
           </Link>
         </Button>
-        <Button variant="outline" size="sm" asChild>
-          <Link href={`/pacientes/${patientId}/avaliacoes/nova`}>
-            <Plus className="h-3.5 w-3.5" />
-            Nova avaliação
-          </Link>
-        </Button>
+        <NewAssessmentMenu patientId={patientId} variant="outline" />
         <NewMealPlanDialog
           patientId={patientId}
           trigger={

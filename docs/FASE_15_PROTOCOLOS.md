@@ -196,3 +196,14 @@ lançar no AuriNutri e no WebDiet as mesmas medidas de 2 ou 3 pacientes reais e 
 | Massa muscular | Peso − (gordura + ósseo + residual) — De Rose & Guimarães, 1980; precisa dos diâmetros do punho e do fêmur | — |
 | Compleição | **Não feita** | Fazer (qual referência?) |
 | Altura sentado | Só é guardada, não entra em cálculo | — |
+
+### Blocos B, C e D (30/09/2026) — também a confirmar
+| Item | O que foi feito | Alternativa |
+|---|---|---|
+| Curvas | OMS 2006 (0–5) e 2007 (5–19), tabelas oficiais; abaixo de 2 anos usa comprimento (deitado), de 2 em diante estatura (em pé) | — |
+| Classificação | SISVAN 2008, **com os nomes certos abaixo de 5 anos** (risco de sobrepeso / sobrepeso / obesidade) — o WebDiet usa os de 5–19 para todas as idades | Copiar o WebDiet |
+| Peso/idade | Só até 10 anos (a OMS não tem depois) | — |
+| % de gordura infantil | Slaughter, 1988; prefere tricipital + panturrilha. Meninos com tricipital + subescapular ≤ 35 mm pedem a panturrilha (a outra equação depende de maturação sexual e etnia). Calculado de 8 a 18 anos. | Perguntar a maturação sexual |
+| Classificação do % infantil | Lohman, 1987: meninos ≤6 · 6–10 · 10–20 · 20–25 · 25–31 · >31; meninas ≤12 · 12–15 · 15–25 · 25–30 · 30–36 · >36 | — |
+| Relatório anexado | Exige o consentimento de "exames" do paciente, como os exames da Fase 7 | Não exigir |
+| Evolução | 15 indicadores, até 5 por vez; % de gordura usa o do protocolo (ou o digitado em avaliação antiga), e sem ele o da bioimpedância | — |

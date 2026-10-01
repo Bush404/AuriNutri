@@ -237,7 +237,7 @@ uma vez por tempo de geração de PDF no servidor local e passou ao repetir); is
 
 ---
 
-## PHASE 15 — Antropometria profissional · `TODO` · `CRITICAL`
+## PHASE 15 — Antropometria profissional · `FEITA 30/09/2026 (local)` — falta a revisão da nutricionista · `CRITICAL`
 
 **Lista de protocolos aprovada em 30/09/2026 (decisão R4):** ver `docs/FASE_15_PROTOCOLOS.md`
 (montada a partir do WebDiet, com a fonte de cada item). Próximo passo: Bloco A.
@@ -265,27 +265,33 @@ Migration 0039 aplicada. Fórmulas em `src/lib/anthropometry.ts`, cada coeficien
 fonte publicada (fontes no topo do arquivo). **Revisão da nutricionista pendente** — ver a seção
 "Para revisar" em `docs/FASE_15_PROTOCOLOS.md`.
 
-### Bloco B — Crianças e adolescentes
+### Bloco B — Crianças e adolescentes · `FEITO 30/09/2026`
 ```
-[ ] Peso/idade, altura/idade, IMC/idade, peso/altura em percentil e escore-z
-[ ] Curvas de crescimento OMS (0–5 anos e 5–19 anos) por sexo, com o ponto do paciente no gráfico
-[ ] Idade calculada automaticamente a partir da data de nascimento e da data da avaliação
+[x] Peso/idade (até 10 anos), altura/idade, IMC/idade, peso/comprimento (<2) e peso/estatura (2–5)
+    em percentil e escore-z, classificação SISVAN (nomes certos abaixo de 5 anos)
+[x] Curvas de crescimento OMS (0–5 anos e 5–19 anos) por sexo, com os pontos do paciente no gráfico
+[x] Idade calculada automaticamente a partir da data de nascimento e da data da avaliação
+[x] % de gordura infantil (Slaughter 1988) com classificação Lohman 1987
+```
+Coeficientes LMS baixados de cdn.who.int (`src/lib/growth/who-lms-data.ts`, gerado); 11 pontos de
+controle conferidos contra os valores de −2/+2/+3 DP publicados pela OMS.
+
+### Bloco C — Anexar relatório externo · `FEITO 30/09/2026`
+```
+[x] Upload de PDF/JPEG/PNG/WEBP (bioimpedância, DEXA, laudo) com data, título e observação
+[x] Opcional: peso, % gordura, massa livre de gordura e massa muscular entram na evolução
+[x] Reaproveita o padrão de bucket privado + validação de arquivo das Fases 7/10; exige o
+    consentimento de exames (mesma regra da Fase 7)
 ```
 
-### Bloco C — Anexar relatório externo
+### Bloco D — Evolução · `FEITO 30/09/2026`
 ```
-[ ] Upload de PDF/JPEG/PNG (bioimpedância, DEXA, laudo) com data e observação
-[ ] Opcional: digitar os principais números para entrarem na evolução
-[ ] Reaproveita o padrão de bucket privado + validação de arquivo das Fases 7/10
+[x] Cada avaliação mostra seu próprio gráfico de evolução (todas as avaliações até aquela data)
+[x] Profissional escolhe até 5 indicadores (de 15), lembrados no navegador; modo tabela
+[x] PDF "Evolução física" de qualquer data, com os indicadores escolhidos, atualizado até a data
+[x] Avaliações antigas (formato atual) continuam aparecendo na evolução
 ```
-
-### Bloco D — Evolução
-```
-[ ] Cada avaliação mostra seu próprio gráfico de evolução (todas as avaliações até aquela data)
-[ ] Profissional escolhe até 5 indicadores para visualizar (peso, % gordura, massa magra, cintura...)
-[ ] PDF "Evolução física" de qualquer data, com os 5 gráficos escolhidos, atualizado até a data
-[ ] Avaliações antigas (formato atual) continuam aparecendo na evolução
-```
+Migration 0040 aplicada. Testes: 353 de unidade, E2E 17/17, isolamento 95/95.
 
 ### Critérios de aceite
 - Cada fórmula de % gordura tem teste com valor calculado à mão a partir da fórmula publicada

@@ -76,6 +76,7 @@ const optionalEnum = <T extends [string, ...string[]]>(values: T) =>
   z.preprocess((v) => (v === "" || v === null ? undefined : v), z.enum(values).optional());
 
 export const assessmentSchema = z.object({
+  tipo: z.enum(["adulto", "crianca"]).default("adulto"),
   data_avaliacao: z.string().min(1, "Informe a data da avaliação"),
   peso_kg: z.coerce.number({ invalid_type_error: "Informe o peso" }).positive("Peso deve ser maior que zero"),
   altura_cm: z.coerce

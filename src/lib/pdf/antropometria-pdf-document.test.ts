@@ -5,6 +5,7 @@ import { renderToBuffer, type DocumentProps } from "@react-pdf/renderer";
 
 import { AntropometriaPdfDocument } from "./antropometria-pdf-document";
 import { calcularResultados } from "@/lib/anthropometry-results";
+import { calcularResultadosCrianca, gorduraInfantil } from "@/lib/growth/growth";
 import { CAMPOS_NUMERICOS } from "@/lib/validations/assessment";
 import type { AnthropometricAssessment } from "@/lib/types/database.types";
 
@@ -49,16 +50,22 @@ function avaliacaoAntiga(): AnthropometricAssessment {
     protocolo_dobras: null,
     formula_densidade: "brozek",
     sexo_referencia: null,
+    tipo: "adulto",
   } as AnthropometricAssessment;
 }
 
-async function render(assessment: AnthropometricAssessment, idade: number) {
+async function render(
+  assessment: AnthropometricAssessment,
+  idade: number,
+  crianca?: Parameters<typeof AntropometriaPdfDocument>[0]["data"]["crianca"]
+) {
   const element = createElement(AntropometriaPdfDocument, {
     data: {
       profissional,
       pacienteNome: "Paciente Teste",
       geradoEm: "2026-09-30T12:00:00Z",
       assessment,
+      crianca,
       resultados: calcularResultados(assessment, { sexo: "feminino", idade }),
     },
   }) as unknown as ReactElement<DocumentProps>;
@@ -89,6 +96,17 @@ describe("AntropometriaPdfDocument — smoke test de renderização real", () =>
       40
     );
     expect(buffer.length).toBeGreaterThan(500);
+    expect(buffer.subarray(0, 5).toString("utf-8")).toBe("%PDF-");
+  });
+});
+
+describe("AntropometriaPdfDocument — criança", () => {
+  it("avaliação infantil com curvas e % de gordura gera PDF válido", async () => {
+    const a = { ...avaliacaoAntiga(), tipo: "crianca" as const, peso_kg: 40, altura_cm: 150, dobra_triceps_mm: 12, dobra_panturrilha_mm: 14 };
+    const buffer = await render(a, 12, {
+      resultados: calcularResultadosCrianca({ sexo: "feminino", meses: 149, pesoKg: 40, alturaCm: 150 }),
+      gordura: gorduraInfantil({ sexo: "feminino", idadeAnos: 12, tricepsMm: 12, subescapularMm: null, panturrilhaMm: 14 }),
+    });
     expect(buffer.subarray(0, 5).toString("utf-8")).toBe("%PDF-");
   });
 });

@@ -8,6 +8,7 @@ import { slugify } from "@/lib/pdf/generate-plan-pdf";
 import type { AnthropometricAssessment, Patient } from "@/lib/types/database.types";
 import { calcularResultados, sexoDasFormulas } from "@/lib/anthropometry-results";
 import { idadeNaData } from "@/lib/anthropometry";
+import { calcularResultadosCrianca, gorduraInfantil, idadeEmMeses } from "@/lib/growth/growth";
 
 export interface GenerateAntropometriaPdfResult {
   buffer: Buffer;
@@ -45,6 +46,27 @@ export async function generateAntropometriaPdf(
   if (!assessment) return null;
 
   const profissional = await buildProfissionalPdfHeaderData(supabase, user);
+  const sexo = sexoDasFormulas(patient.sexo, assessment.sexo_referencia);
+  const meses = idadeEmMeses(patient.data_nascimento, assessment.data_avaliacao);
+  const crianca =
+    assessment.tipo === "crianca"
+      ? {
+          resultados:
+            sexo && meses !== null
+              ? calcularResultadosCrianca({ sexo, meses, pesoKg: assessment.peso_kg, alturaCm: assessment.altura_cm })
+              : null,
+          gordura:
+            sexo && meses !== null
+              ? gorduraInfantil({
+                  sexo,
+                  idadeAnos: Math.floor(meses / 12),
+                  tricepsMm: assessment.dobra_triceps_mm,
+                  subescapularMm: assessment.dobra_subescapular_mm,
+                  panturrilhaMm: assessment.dobra_panturrilha_mm,
+                })
+              : null,
+        }
+      : undefined;
 
   const element = createElement(AntropometriaPdfDocument, {
     data: {
@@ -52,8 +74,9 @@ export async function generateAntropometriaPdf(
       pacienteNome: patient.nome,
       geradoEm: new Date().toISOString(),
       assessment,
+      crianca,
       resultados: calcularResultados(assessment, {
-        sexo: sexoDasFormulas(patient.sexo, assessment.sexo_referencia),
+        sexo,
         idade: idadeNaData(patient.data_nascimento, assessment.data_avaliacao),
       }),
     },

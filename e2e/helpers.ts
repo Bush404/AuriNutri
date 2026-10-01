@@ -76,3 +76,24 @@ export async function escolherNoSelect(page: Page, rotulo: string | RegExp, opca
   await page.getByRole("combobox", { name: rotulo }).click();
   await page.getByRole("option", { name: opcao, exact: true }).click();
 }
+
+/** PDF mínimo válido — só para exercitar o envio ao Storage de verdade. */
+export const PDF = Buffer.from(
+  "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj " +
+    "3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF"
+);
+
+/** Registra o consentimento do tipo indicado na aba Consentimentos do paciente aberto. */
+export async function registrarConsentimento(page: Page, tipoLabel: string) {
+  await page.getByRole("tab", { name: "Consentimentos" }).click();
+  const card = page
+    .locator("div")
+    .filter({ hasText: tipoLabel })
+    .filter({ has: page.getByRole("button", { name: "Registrar consentimento" }) })
+    .last();
+  await card.getByRole("button", { name: "Registrar consentimento" }).click();
+  const dialog = page.getByRole("dialog");
+  await escolherNoSelect(page, /Como foi obtido/, "Presencial");
+  await dialog.getByRole("button", { name: "Registrar", exact: true }).click();
+  await expect(dialog).toBeHidden();
+}

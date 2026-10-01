@@ -7,16 +7,22 @@ import type { AnthropometricAssessment, Patient } from "@/lib/types/database.typ
 import { calculateAge, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AssessmentForm } from "@/components/patients/assessment-form";
+import { ChildAssessmentForm, type AvaliacaoInfantilResumo } from "@/components/patients/child-assessment-form";
 
-/** Nova avaliação de adulto/idoso. Com `?de=<id>`, começa com as medidas de outra avaliação ("Duplicar"). */
+/**
+ * Nova avaliação. `?tipo=crianca` = crianças e adolescentes (curvas da OMS);
+ * sem tipo = adultos e idosos. Com `?de=<id>`, a de adulto começa com as
+ * medidas de outra avaliação ("Duplicar").
+ */
 export default async function NovaAvaliacaoPage(props: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ de?: string }>;
+  searchParams: Promise<{ de?: string; tipo?: string }>;
 }) {
   const [params, searchParams] = await Promise.all([props.params, props.searchParams]);
   const supabase = await createClient();
 
-  const [{ data: patient }, { data: origem }] = await Promise.all([
+  const infantil = searchParams.tipo === "crianca";
+  const [{ data: patient }, { data: origem }, { data: historico }] = await Promise.all([
     supabase
       .from("patients")
       .select("id, nome, sexo, data_nascimento")
@@ -30,6 +36,14 @@ export default async function NovaAvaliacaoPage(props: {
           .eq("patient_id", params.id)
           .maybeSingle<AnthropometricAssessment>()
       : Promise.resolve({ data: null }),
+    infantil
+      ? supabase
+          .from("anthropometric_assessments")
+          .select("id, data_avaliacao, peso_kg, altura_cm")
+          .eq("patient_id", params.id)
+          .eq("tipo", "crianca")
+          .returns<AvaliacaoInfantilResumo[]>()
+      : Promise.resolve({ data: [] as AvaliacaoInfantilResumo[] }),
   ]);
 
   if (!patient) notFound();
@@ -47,12 +61,16 @@ export default async function NovaAvaliacaoPage(props: {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">Nova avaliação antropométrica</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {patient.nome}
-          {idade !== null && ` · ${idade} anos`} · adulto e idoso
-          {origem && ` · a partir da avaliação de ${formatDate(origem.data_avaliacao)}`}
+          {idade !== null && ` · ${idade} anos`} · {infantil ? "criança e adolescente" : "adulto e idoso"}
+          {origem && !infantil && ` · a partir da avaliação de ${formatDate(origem.data_avaliacao)}`}
         </p>
       </div>
 
-      <AssessmentForm patient={patient} assessment={origem ?? undefined} duplicar={Boolean(origem)} />
+      {infantil ? (
+        <ChildAssessmentForm patient={patient} historico={historico ?? []} />
+      ) : (
+        <AssessmentForm patient={patient} assessment={origem ?? undefined} duplicar={Boolean(origem)} />
+      )}
     </div>
   );
 }

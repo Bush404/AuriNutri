@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ClipboardList, Plus } from "lucide-react";
+import { ClipboardList } from "lucide-react";
 
 import type {
   Anamnesis,
   AnamnesisTemplate,
   AnthropometricAssessment,
+  AnthropometricAttachment,
   MealPlan,
   Patient,
   PatientConsent,
@@ -16,13 +17,14 @@ import type {
 import { calculateAge, formatDate } from "@/lib/utils";
 import { updateSearchParams } from "@/lib/url-state";
 
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { AnamnesisTimeline } from "@/components/patients/anamnesis-timeline";
 import { AssessmentsTable } from "@/components/patients/assessments-table";
-import { EvolutionChart } from "@/components/patients/evolution-chart";
+import { AttachmentsList } from "@/components/patients/attachments-list";
+import { NewAssessmentMenu } from "@/components/patients/new-assessment-menu";
+import { EvolutionPanel } from "@/components/patients/evolution-panel";
 import { MealPlanList } from "@/components/meal-plans/meal-plan-list";
 import { PatientConsentsPanel } from "@/components/patients/patient-consents-panel";
 import { LabExamsPanel } from "@/components/patients/lab-exams-panel";
@@ -45,6 +47,7 @@ interface PatientTabsProps {
   patient: Patient;
   anamneses: Anamnesis[];
   assessments: AnthropometricAssessment[];
+  attachments: AnthropometricAttachment[];
   mealPlans: MealPlan[];
   consents: PatientConsent[];
   labExams: LabExamWithMarkers[];
@@ -59,6 +62,7 @@ export function PatientTabs({
   patient,
   anamneses,
   assessments,
+  attachments,
   mealPlans,
   consents,
   labExams,
@@ -116,16 +120,20 @@ export function PatientTabs({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle>Avaliações antropométricas</CardTitle>
-            <Button size="sm" asChild>
-              <Link href={`/pacientes/${patient.id}/avaliacoes/nova`}>
-                <Plus className="h-4 w-4" />
-                Nova avaliação
-              </Link>
-            </Button>
+            <NewAssessmentMenu
+              patientId={patient.id}
+              dataNascimento={patient.data_nascimento}
+              consentimentoAtivoExames={consentimentoAtivoExames}
+            />
           </CardHeader>
           <CardContent>
             {assessments.length > 0 ? (
-              <AssessmentsTable patientId={patient.id} dataNascimento={patient.data_nascimento} assessments={assessments} />
+              <AssessmentsTable
+                patientId={patient.id}
+                dataNascimento={patient.data_nascimento}
+                sexo={patient.sexo}
+                assessments={assessments}
+              />
             ) : (
               <EmptyState
                 icon={ClipboardList}
@@ -136,19 +144,27 @@ export function PatientTabs({
           </CardContent>
         </Card>
 
-        {/* Evolução (peso/IMC) unificada aqui — deixou de ser uma aba própria, pedido do usuário: TODO reestruturar a antropometria de verdade mais pra frente, isto aqui ainda é bem simples. */}
+        {attachments.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Relatórios anexados</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AttachmentsList patientId={patient.id} attachments={attachments} />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Evolução física (Fase 15, Bloco D): avaliações de todos os tipos + relatórios anexados. */}
         <Card>
           <CardHeader>
-            <CardTitle>Evolução</CardTitle>
+            <CardTitle>Evolução física</CardTitle>
           </CardHeader>
           <CardContent>
-            {assessments.length >= 2 ? (
-              <EvolutionChart assessments={assessments} />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Registre ao menos duas avaliações para visualizar a evolução do paciente.
-              </p>
-            )}
+            <EvolutionPanel
+              patientId={patient.id}
+              entrada={{ assessments, attachments, sexo: patient.sexo, dataNascimento: patient.data_nascimento }}
+            />
           </CardContent>
         </Card>
       </TabsContent>
