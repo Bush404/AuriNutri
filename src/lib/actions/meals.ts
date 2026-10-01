@@ -231,3 +231,37 @@ export async function duplicateMeal(planId: string, mealId: string): Promise<Act
   revalidatePath(`/planos/${planId}`);
   return { success: true, message: "Refeição duplicada." };
 }
+
+/** Nova ordem das refeições (arrastar na "Rotina do paciente"): `ids` na ordem em que devem ficar. */
+export async function reorderMeals(planId: string, ids: string[]): Promise<ActionResult> {
+  if (!ids.length || ids.length > 50) return { success: false, message: "Ordem inválida." };
+  const supabase = await createClient();
+  const resultados = await Promise.all(
+    ids.map((id, ordem) => supabase.from("meals").update({ ordem }).eq("id", id).eq("meal_plan_id", planId))
+  );
+  const erro = resultados.find((r) => r.error)?.error;
+  if (erro) return { success: false, message: erro.message };
+  revalidatePath(`/planos/${planId}`);
+  return { success: true };
+}
+
+/** "Reordenar por horário": refeições com horário primeiro, do mais cedo ao mais tarde; sem horário no fim, na ordem atual. */
+export async function reorderMealsByTime(planId: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { data: meals, error } = await supabase
+    .from("meals")
+    .select("id, horario, ordem")
+    .eq("meal_plan_id", planId)
+    .returns<{ id: string; horario: string | null; ordem: number }[]>();
+  if (error) return { success: false, message: error.message };
+  const ordenadas = (meals ?? []).slice().sort((a, b) => {
+    if (a.horario && b.horario) return a.horario.localeCompare(b.horario) || a.ordem - b.ordem;
+    if (a.horario) return -1;
+    if (b.horario) return 1;
+    return a.ordem - b.ordem;
+  });
+  return reorderMeals(
+    planId,
+    ordenadas.map((m) => m.id)
+  );
+}

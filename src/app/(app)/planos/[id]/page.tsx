@@ -10,7 +10,8 @@ import { listPlanShareLinks } from "@/lib/actions/plan-share";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MealPlanHeader } from "@/components/meal-plans/meal-plan-header";
 import { PlanSummaryBar } from "@/components/meal-plans/plan-summary-bar";
-import { MealCard, type MealWithItemsAndSubstitutions } from "@/components/meal-plans/meal-card";
+import type { MealWithItemsAndSubstitutions } from "@/components/meal-plans/meal-card";
+import { MealList } from "@/components/meal-plans/meal-list";
 import type { MealItemWithSubstitutions } from "@/components/meal-plans/meal-item-row";
 import { NewMealDialog } from "@/components/meal-plans/new-meal-dialog";
 import { NewMealFromTemplateDialog } from "@/components/meal-plans/new-meal-from-template-dialog";
@@ -109,11 +110,7 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
           Rotina do paciente
         </h2>
         {mealsWithItems.length > 0 ? (
-          <div className="space-y-2">
-            {mealsWithItems.map((meal) => (
-              <MealCard key={meal.id} planId={plan.id} meal={meal} />
-            ))}
-          </div>
+          <MealList planId={plan.id} meals={mealsWithItems} />
         ) : (
           <EmptyState
             icon={UtensilsCrossed}

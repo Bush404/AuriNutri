@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Copy, Download, Loader2, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Copy, Download, FileText, Loader2, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import type { MealPlan, PlanShareToken } from "@/lib/types/database.types";
@@ -144,6 +144,14 @@ export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, 
         </div>
 
         <div className="flex shrink-0 flex-wrap gap-2">
+          {/* Consulta rápida da anamnese sem sair do plano (Fase 17, 3.6): abre numa aba nova. */}
+          <Button variant="outline" size="sm" asChild>
+            <a href={`/pacientes/${patientId}?aba=anamnese`} target="_blank" rel="noopener noreferrer">
+              <FileText className="h-4 w-4" />
+              Ver anamnese
+            </a>
+          </Button>
+
           <Button variant="outline" size="sm" asChild>
             <a href={`/planos/${plan.id}/pdf`}>
               <Download className="h-4 w-4" />

@@ -405,8 +405,9 @@ favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fi
 **Parou aqui (01/10/2026, commit 5c33efa, publicado). Falta da Fase 17:**
 ```
 [ ] Teste da responsável: Bloco A + tela compacta
-[ ] Bloco B (resto): arrastar/reordenar refeições, "reordenar por horário", "expandir tudo",
-    atalho "ver anamnese", plano salvando sozinho (2.5)
+[x] Bloco B (resto, 02/10): arrastar refeições pela alça ou com as setas (`MealList`, `reorderMeals`),
+    "reordenar por horário" (`reorderMealsByTime`), "expandir/recolher tudo", "Ver anamnese" (aba nova);
+    2.5 "salvar sozinho" já atendido: cada ação da tela do plano grava na hora
 [ ] Bloco C: janela da refeição no formato do WebDiet; busca com filtros por fonte + medida usual;
     favoritar alimento (tabela nova + RLS); cadastrar alimento sem sair; densidade calórica e % por
     refeição; observações com texto formatado (Tiptap da Fase 14)

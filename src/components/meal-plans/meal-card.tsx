@@ -48,9 +48,22 @@ const fmt = (v: number, casas = 1) => v.toLocaleString("pt-BR", { minimumFractio
  * duplicar, favoritar (salvar como refeição favorita) e excluir. Fechada ao
  * abrir o plano; "abrir" mostra os alimentos logo abaixo.
  */
-export function MealCard({ planId, meal }: { planId: string; meal: MealWithItemsAndSubstitutions }) {
+export function MealCard({
+  planId,
+  meal,
+  aberta,
+  onAlternar,
+  alca,
+}: {
+  planId: string;
+  meal: MealWithItemsAndSubstitutions;
+  /** Controlado pela lista (para "expandir tudo"). */
+  aberta: boolean;
+  onAlternar: () => void;
+  /** Alça de arrastar, desenhada no começo da linha. */
+  alca?: ReactNode;
+}) {
   const [isPending, startTransition] = useTransition();
-  const [aberta, setAberta] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [templateOpen, setTemplateOpen] = useState(false);
   const totals = calculateMealTotals(meal.items);
@@ -114,6 +127,7 @@ export function MealCard({ planId, meal }: { planId: string; meal: MealWithItems
   return (
     <div className="rounded-lg border border-border bg-muted/40">
       <div className="flex flex-wrap items-center gap-2 p-2">
+        {alca}
         <span
           className={cn(
             "flex h-8 w-14 items-center justify-center rounded-md border border-border bg-background text-sm tabular-nums",
@@ -138,7 +152,7 @@ export function MealCard({ planId, meal }: { planId: string; meal: MealWithItems
             className="h-8"
             aria-expanded={aberta}
             aria-controls={idConteudo}
-            onClick={() => setAberta((x) => !x)}
+            onClick={onAlternar}
           >
             <ChevronDown className={cn("h-4 w-4 transition-transform", aberta && "rotate-180")} />
             {aberta ? "Fechar" : `Abrir${meal.items.length ? ` (${meal.items.length})` : ""}`}
