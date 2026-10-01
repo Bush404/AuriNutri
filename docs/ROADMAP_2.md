@@ -387,7 +387,7 @@ adicional digitado à mão).
 de medidas referidas do IBGE (POF 2008–2009, ftp.ibge.gov.br) ligada aos alimentos da TACO; a tabela de
 composição do IBGE não entra (é compilação, com valores da USDA). TBCA 7.3 só com autorização de uso
 comercial (R1). Resumo fixo no rodapé; só "Por alimentos";
-micronutrientes × DRI entram. Periodização aguarda explicação da responsável.
+micronutrientes × DRI entram. Periodização aguarda explicação da responsável. **Bloco A (planejamento) em andamento.**
 
 ### Bloco A — "Adicionar um planejamento" (substitui "Calculadora de gasto energético")
 ```
@@ -450,6 +450,17 @@ Como entra, tecnicamente, depois de liberada:
 [ ] Importar medidas caseiras das tabelas quando existirem (alimenta a Fase 17 Bloco C)
 [ ] Filtro por fonte já estará pronto (Fase 17 Bloco E): só entram os novos valores
 ```
+
+**Opção anotada em 01/10/2026 — USDA FoodData Central** (a decidir junto com a resposta da USP sobre a
+TBCA): domínio público (CC0), uso comercial livre com citação; API gratuita com chave (1.000
+consultas/hora) e download da base inteira. Não serve como fonte principal (alimentos e marcas
+americanos, nomes em inglês, medidas em unidades americanas). Serviria como **complemento** para
+alimentos que faltam na TACO e são comuns em consultório (quinoa, chia, whey, industrializados):
+importar uma seleção traduzida, com a fonte "USDA" marcada em cada alimento.
+
+**TBCA (01/10/2026):** o site diz que uso comercial exige contato com os coordenadores e que não é
+permitida a reprodução total ou parcial. E-mail de pedido de licença redigido; a responsável envia pelo
+e-mail do AuriNutri para tbca.contato@usp.br.
 **Versão da TBCA (decidido 25/09/2026):** só a **TBCA 7.3**, a versão atual. Ela aparece no filtro
 como uma única fonte; versões antigas não entram.
 
