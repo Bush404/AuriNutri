@@ -157,3 +157,77 @@ export async function deleteMeal(planId: string, mealId: string): Promise<Action
   revalidatePath(`/planos/${planId}`);
   return { success: true };
 }
+
+/**
+ * Duplicar uma refeição (Fase 17, botão da linha da refeição): a cópia entra
+ * logo abaixo da original, com os alimentos e as substituições copiados como
+ * estão — o snapshot nutricional inteiro (inclusive micronutrientes e fonte),
+ * nunca recalculado a partir do alimento atual.
+ */
+export async function duplicateMeal(planId: string, mealId: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, message: "Sessão expirada. Faça login novamente." };
+
+  type Linha = Record<string, unknown> & { id: string };
+  const { data: original } = await supabase
+    .from("meals")
+    .select("*, meal_items(*, meal_item_substitutions(*))")
+    .eq("id", mealId)
+    .eq("meal_plan_id", planId)
+    .maybeSingle<
+      Linha & { ordem: number; nome: string; meal_items: (Linha & { meal_item_substitutions: Linha[] })[] }
+    >();
+  if (!original) return { success: false, message: "Refeição não encontrada." };
+
+  // Abre espaço logo abaixo da original.
+  const { data: seguintes } = await supabase
+    .from("meals")
+    .select("id, ordem")
+    .eq("meal_plan_id", planId)
+    .gt("ordem", original.ordem)
+    .returns<{ id: string; ordem: number }[]>();
+  for (const m of seguintes ?? []) {
+    await supabase.from("meals").update({ ordem: m.ordem + 1 }).eq("id", m.id);
+  }
+
+  const semControle = <T extends Linha>(row: T, ...extras: string[]) => {
+    const copia: Record<string, unknown> = { ...row };
+    for (const k of ["id", "created_at", "updated_at", "deleted_at", ...extras]) delete copia[k];
+    return copia;
+  };
+
+  const { data: nova, error } = await supabase
+    .from("meals")
+    .insert({
+      ...semControle(original, "meal_items"),
+      nome: `${original.nome} (cópia)`.slice(0, 120),
+      ordem: original.ordem + 1,
+      user_id: user.id,
+    })
+    .select("id")
+    .single<{ id: string }>();
+  if (error || !nova) return { success: false, message: error?.message ?? "Falha ao duplicar a refeição." };
+
+  for (const item of (original.meal_items ?? []).filter((i) => !i.deleted_at)) {
+    const { data: novoItem, error: itemError } = await supabase
+      .from("meal_items")
+      .insert({ ...semControle(item, "meal_item_substitutions"), meal_id: nova.id, user_id: user.id })
+      .select("id")
+      .single<{ id: string }>();
+    if (itemError || !novoItem) return { success: false, message: itemError?.message ?? "Falha ao copiar um alimento." };
+
+    const subs = (item.meal_item_substitutions ?? []).filter((s) => !s.deleted_at);
+    if (subs.length) {
+      const { error: subError } = await supabase
+        .from("meal_item_substitutions")
+        .insert(subs.map((s) => ({ ...semControle(s), meal_item_id: novoItem.id, user_id: user.id })));
+      if (subError) return { success: false, message: subError.message };
+    }
+  }
+
+  revalidatePath(`/planos/${planId}`);
+  return { success: true, message: "Refeição duplicada." };
+}

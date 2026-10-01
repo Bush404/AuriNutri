@@ -116,7 +116,7 @@ export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, 
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <Button variant="ghost" size="sm" asChild className="-ml-3">
         <Link href={`/pacientes/${patientId}?aba=planos`}>
           <ArrowLeft className="h-4 w-4" />
@@ -127,7 +127,7 @@ export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, 
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">{plan.nome}</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">{plan.nome}</h1>
             <Badge
               variant={plan.ativo ? "success" : "outline"}
               className="cursor-pointer"

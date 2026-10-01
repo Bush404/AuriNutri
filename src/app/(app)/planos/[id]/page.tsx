@@ -9,7 +9,7 @@ import { listPlanShareLinks } from "@/lib/actions/plan-share";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { MealPlanHeader } from "@/components/meal-plans/meal-plan-header";
-import { DailyTotalsCard } from "@/components/meal-plans/daily-totals-card";
+import { PlanSummaryBar } from "@/components/meal-plans/plan-summary-bar";
 import { MealCard, type MealWithItemsAndSubstitutions } from "@/components/meal-plans/meal-card";
 import type { MealItemWithSubstitutions } from "@/components/meal-plans/meal-item-row";
 import { NewMealDialog } from "@/components/meal-plans/new-meal-dialog";
@@ -94,7 +94,8 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
   const pesoTotalG = mealsWithItems.reduce((s, m) => s + m.items.reduce((t, i) => t + Number(i.quantidade_g), 0), 0);
 
   return (
-    <div className="space-y-6">
+    // Compacto e centralizado, como no WebDiet; pb-16 deixa espaço para o resumo fixo do rodapé.
+    <div className="mx-auto max-w-5xl space-y-5 pb-16">
       <MealPlanHeader
         plan={plan}
         patientId={plan.patients.id}
@@ -103,19 +104,16 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
         shareLinks={shareLinks}
       />
 
-      <DailyTotalsCard
-        totals={totals}
-        metas={{
-          meta_kcal: plan.meta_kcal,
-          meta_proteinas_g: plan.meta_proteinas_g,
-          meta_carboidratos_g: plan.meta_carboidratos_g,
-          meta_gorduras_g: plan.meta_gorduras_g,
-        }}
-      />
-
-      <div className="space-y-4">
+      <section aria-labelledby="rotina-titulo" className="space-y-3 rounded-xl border border-border bg-card p-4">
+        <h2 id="rotina-titulo" className="text-base font-semibold text-foreground">
+          Rotina do paciente
+        </h2>
         {mealsWithItems.length > 0 ? (
-          mealsWithItems.map((meal) => <MealCard key={meal.id} planId={plan.id} meal={meal} />)
+          <div className="space-y-2">
+            {mealsWithItems.map((meal) => (
+              <MealCard key={meal.id} planId={plan.id} meal={meal} />
+            ))}
+          </div>
         ) : (
           <EmptyState
             icon={UtensilsCrossed}
@@ -124,11 +122,11 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
           />
         )}
 
-        <div className="flex flex-wrap justify-center gap-2 pt-2">
+        <div className="flex flex-wrap justify-center gap-2 pt-1">
           <NewMealDialog planId={plan.id} nextOrdem={nextMealOrdem} />
           <NewMealFromTemplateDialog planId={plan.id} nextOrdem={nextMealOrdem} templates={templates} />
         </div>
-      </div>
+      </section>
 
       <NutrientAnalysisCard
         planId={plan.id}
@@ -145,6 +143,16 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
           {fonteFooter}
         </p>
       )}
+
+      <PlanSummaryBar
+        totais={totals}
+        metas={{
+          meta_kcal: plan.meta_kcal,
+          meta_proteinas_g: plan.meta_proteinas_g,
+          meta_carboidratos_g: plan.meta_carboidratos_g,
+          meta_gorduras_g: plan.meta_gorduras_g,
+        }}
+      />
     </div>
   );
 }

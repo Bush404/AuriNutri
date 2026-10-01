@@ -396,6 +396,12 @@ cardápio" (Prescrito × Teórico × Diferença, carboidratos livres, kcal não 
 barra de distribuição calórica). A "Calculadora de gasto energético" antiga saiu do plano. Corrigido junto:
 consultas de "último peso" ignoravam avaliações sem peso só no papel (a edição da Fase 15 tinha falhado).
 
+**Bloco B, início (01/10/2026, a pedido depois do teste do A):** tela do plano compacta e centralizada
+(`max-w-5xl`); cada refeição numa linha fechada como no WebDiet (horário, nome, P/L/C, kcal, Abrir,
+Editar, Duplicar — nova `duplicateMeal`, copia snapshot e substituições —, Favoritar = refeição
+favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fixo no rodapé
+(`PlanSummaryBar`, prescrito / meta). Cores de P/L/C num lugar só (`src/lib/macro-colors.ts`).
+
 ### Bloco A — "Adicionar um planejamento" (substitui "Calculadora de gasto energético")
 ```
 [ ] Importar um cálculo salvo na Fase 16 (escolhendo a data)

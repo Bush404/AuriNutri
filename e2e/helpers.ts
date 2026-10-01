@@ -50,6 +50,8 @@ export async function adicionarRefeicao(page: Page, nome = "Café da manhã") {
   await dialog.locator('button[type="submit"]').click();
   await expect(dialog).toBeHidden();
   await expect(page.getByText(nome).first()).toBeVisible();
+  // A refeição nova aparece fechada (linha compacta, Fase 17): abre para adicionar alimentos.
+  await page.getByRole("button", { name: /^Abrir/ }).last().click();
 }
 
 /** Busca no campo "Alimento" e escolhe a primeira opção que contém `nomeOpcao`. */

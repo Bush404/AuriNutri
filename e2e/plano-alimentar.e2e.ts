@@ -37,14 +37,12 @@ test("criar alimento próprio, montar plano, conferir macros e gerar PDF", async
   // 150 g de um alimento com 200 kcal / 10 P / 20 C / 5 G por 100 g.
   await adicionarAlimentoNaRefeicao(page, nomeAlimento, nomeAlimento, 150);
 
-  const totais = page
-    .locator("div", { has: page.getByText("Total diário do plano") })
-    .filter({ hasText: "Carboidratos" })
-    .last();
-  await expect(totais).toContainText("Calorias300kcal");
-  await expect(totais).toContainText("Proteínas15.0g");
-  await expect(totais).toContainText("Carboidratos30.0g");
-  await expect(totais).toContainText("Gorduras7.5g");
+  // Resumo fixo no rodapé (Fase 17).
+  const totais = page.getByRole("region", { name: "Resumo do plano" });
+  await expect(totais).toContainText("Calorias: 300 kcal");
+  await expect(totais).toContainText("Proteínas: 15,0 g");
+  await expect(totais).toContainText("Carboidratos: 30,0 g");
+  await expect(totais).toContainText("Lipídios: 7,5 g");
 
   // O botão "Baixar PDF" aponta para esta rota; conferimos que ela devolve um PDF de verdade.
   await expect(page.getByRole("link", { name: "Baixar PDF" })).toHaveAttribute("href", `/planos/${planId}/pdf`);

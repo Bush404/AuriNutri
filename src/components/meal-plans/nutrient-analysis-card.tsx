@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 
+import { COR_MACRO } from "@/lib/macro-colors";
 import { analisarCardapio, distribuicaoCalorica, type MetasDoPlano } from "@/lib/meal-planning";
 import type { MacroTotals } from "@/lib/nutrition";
 import type { MealPlan } from "@/lib/types/database.types";
@@ -21,16 +22,11 @@ const valor = (v: number | null, unidade: string) => {
   return `${fmt(v)} g`;
 };
 
-/**
- * Cores das três fatias: os três primeiros tons da paleta categórica validada
- * (azul, laranja, verde-água — passam todas as checagens de daltonismo entre
- * si). O verde-água tem contraste < 3:1 com o fundo, por isso cada fatia leva
- * o número escrito ao lado.
- */
+/** Mesmas cores do resto do plano (src/lib/macro-colors.ts); cada fatia leva o número escrito ao lado. */
 const MACROS = [
-  { chave: "proteinas", rotulo: "Proteínas", cor: "#2a78d6" },
-  { chave: "lipidios", rotulo: "Lipídios", cor: "#eb6834" },
-  { chave: "carboidratos", rotulo: "Carboidratos", cor: "#1baf7a" },
+  { chave: "proteinas", rotulo: "Proteínas", cor: COR_MACRO.proteinas },
+  { chave: "lipidios", rotulo: "Lipídios", cor: COR_MACRO.lipidios },
+  { chave: "carboidratos", rotulo: "Carboidratos", cor: COR_MACRO.carboidratos },
 ] as const;
 
 interface Props {

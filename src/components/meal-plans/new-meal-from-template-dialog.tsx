@@ -98,7 +98,7 @@ export function NewMealFromTemplateDialog({ planId, nextOrdem, templates }: NewM
           <EmptyState
             icon={BookmarkCheck}
             title="Nenhum template salvo"
-            description='Salve uma refeição já montada como template (botão "Salvar como template" em qualquer refeição) para reutilizá-la aqui.'
+            description='Favorite uma refeição já montada (botão de estrela em qualquer refeição) para reutilizá-la aqui.'
           />
         ) : (
           <div className="space-y-1">
