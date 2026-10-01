@@ -381,7 +381,11 @@ adicional digitado à mão).
 
 ---
 
-## PHASE 17 — Plano alimentar 2.0 · `TODO` · `CRITICAL`
+## PHASE 17 — Plano alimentar 2.0 · `EM ANDAMENTO` (lista para aprovar) · `CRITICAL`
+
+**01/10/2026:** prints e PDF do WebDiet recebidos; lista para aprovação em `docs/FASE_17_PLANO.md`
+(decisão R7). Nada de código antes da aprovação. Decisão principal: a fonte das medidas caseiras
+(a TACO não tem).
 
 ### Bloco A — "Adicionar um planejamento" (substitui "Calculadora de gasto energético")
 ```
@@ -490,6 +494,7 @@ nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design 
 | # | Decisão | Bloqueia | Quem decide |
 |---|---|---|---|
 | R1 | Licença de TBCA 7.3 e Tucunduva (antigo D3) | Fase 18 | Nutricionista / jurídico |
+| R7 | Lista da Fase 17 (`docs/FASE_17_PLANO.md`), incluindo a fonte das medidas caseiras | Fase 17 | Nutricionista |
 
 ### Decididas em 01/10/2026
 - **R5 — Gasto energético:** lista aprovada em `docs/FASE_16_FORMULAS.md`. As fórmulas do WebDiet
