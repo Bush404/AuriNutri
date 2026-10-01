@@ -402,6 +402,28 @@ Editar, Duplicar — nova `duplicateMeal`, copia snapshot e substituições —,
 favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fixo no rodapé
 (`PlanSummaryBar`, prescrito / meta). Cores de P/L/C num lugar só (`src/lib/macro-colors.ts`).
 
+**Parou aqui (01/10/2026, commit 5c33efa, publicado). Falta da Fase 17:**
+```
+[ ] Teste da responsável: Bloco A + tela compacta
+[ ] Bloco B (resto): arrastar/reordenar refeições, "reordenar por horário", "expandir tudo",
+    atalho "ver anamnese", plano salvando sozinho (2.5)
+[ ] Bloco C: janela da refeição no formato do WebDiet; busca com filtros por fonte + medida usual;
+    favoritar alimento (tabela nova + RLS); cadastrar alimento sem sair; densidade calórica e % por
+    refeição; observações com texto formatado (Tiptap da Fase 14)
+[ ] Bloco D: medidas caseiras — script importando a tabela de medidas referidas do IBGE (POF
+    2008–2009, ftp.ibge.gov.br, tabelamedidas_bd.xls, ~11.800 linhas por código de alimento+preparo)
+    e ligação aos alimentos da TACO; medidas personalizadas do profissional; snapshot do item grava
+    quantidade + medida + gramas; PDF "1 Unidade(s) (50 g)"; planos antigos só em gramas iguais
+[ ] Bloco E: substitutos lado a lado, sugestões rápidas, "inverter", equivalência kcal/CHO/PTN
+[ ] Bloco F: micronutrientes × DRI (±20%, valores conferidos na fonte oficial); lista de compras;
+    opções do PDF (tabela, relatório de nutrientes, lista de compras, quebra por refeição)
+[ ] Bloco G: lista de planos (kcal e kcal/kg), favoritar plano como modelo, começar de modelo,
+    ordenar planos
+[ ] Responsável: explicar a "Periodização" do WebDiet; enviar o e-mail de licença da TBCA
+[ ] Conferir: rodar test:e2e e test:security-isolation-full (energy_calculations); duplicatePlan
+    copia os micronutrientes dos itens? (copia só colunas listadas — duplicateMeal copia tudo)
+```
+
 ### Bloco A — "Adicionar um planejamento" (substitui "Calculadora de gasto energético")
 ```
 [ ] Importar um cálculo salvo na Fase 16 (escolhendo a data)
