@@ -1,9 +1,13 @@
 # Fase 17 — Plano alimentar 2.0: lista para aprovação
 
-> **APROVADA em 01/10/2026 (R7).** Decisões: **medidas caseiras e mais alimentos pelas tabelas do IBGE
-> (POF 2008–2009)** — a de composição nutricional (~2.000 alimentos com o modo de preparo) e a de
-> medidas referidas (~11.800 medidas), que usam o mesmo código de alimento e de preparo, então a ligação
-> já vem pronta; as medidas personalizadas do profissional continuam existindo. **Resumo fixo no
+> **APROVADA em 01/10/2026 (R7).** Decisões: **medidas caseiras do IBGE ligadas aos alimentos da TACO**
+> (caminho B, decidido no mesmo dia): só a tabela de **medidas referidas** do IBGE (POF 2008–2009,
+> ~11.800 medidas, pública) entra; a tabela de composição do IBGE **não** entra como fonte de alimentos,
+> porque é uma compilação (parte dos valores vem da USDA americana) e a TACO é análise brasileira. As
+> medidas personalizadas do profissional continuam existindo. **TBCA 7.3 com as medidas dela entra
+> quando houver autorização de uso comercial** dos coordenadores (o site diz: "Para fins comerciais, é
+> necessário contatar os coordenadores... Não é permitida a reprodução total ou parcial"; contato
+> tbca.contato@usp.br) — é a pendência R1 da Fase 18. **Resumo fixo no
 > rodapé**, igual ao WebDiet. **Só "Por alimentos"** agora (equivalentes e qualitativa depois).
 > **Ficam de fora:** protocolo nutricional, análise de sintomas, foto da refeição, suplementos e os
 > modelos prontos do AuriNutri. **Micronutrientes × DRI entram**, com cada valor conferido na fonte

@@ -383,9 +383,10 @@ adicional digitado à mão).
 
 ## PHASE 17 — Plano alimentar 2.0 · `EM ANDAMENTO` · `CRITICAL`
 
-**Lista aprovada em 01/10/2026 (decisão R7):** `docs/FASE_17_PLANO.md`. Medidas caseiras e mais
-alimentos pelas tabelas do IBGE (POF 2008–2009: composição nutricional + medidas referidas, mesmo
-código de alimento/preparo — ftp.ibge.gov.br); resumo fixo no rodapé; só "Por alimentos";
+**Lista aprovada em 01/10/2026 (decisão R7):** `docs/FASE_17_PLANO.md`. Medidas caseiras: tabela
+de medidas referidas do IBGE (POF 2008–2009, ftp.ibge.gov.br) ligada aos alimentos da TACO; a tabela de
+composição do IBGE não entra (é compilação, com valores da USDA). TBCA 7.3 só com autorização de uso
+comercial (R1). Resumo fixo no rodapé; só "Por alimentos";
 micronutrientes × DRI entram. Periodização aguarda explicação da responsável.
 
 ### Bloco A — "Adicionar um planejamento" (substitui "Calculadora de gasto energético")
@@ -494,11 +495,11 @@ nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design 
 
 | # | Decisão | Bloqueia | Quem decide |
 |---|---|---|---|
-| R1 | Licença de TBCA 7.3 e Tucunduva (antigo D3) | Fase 18 | Nutricionista / jurídico |
+| R1 | Licença de TBCA 7.3 e Tucunduva (antigo D3). TBCA confirmada em 01/10/2026: uso comercial só com autorização dos coordenadores (tbca.contato@usp.br) | Fase 18 | Nutricionista / jurídico |
 
 ### Decididas em 01/10/2026
-- **R7 — Plano alimentar 2.0:** lista aprovada em `docs/FASE_17_PLANO.md`; medidas caseiras e mais
-  alimentos pelas tabelas do IBGE (POF 2008–2009); resumo no rodapé; micronutrientes × DRI.
+- **R7 — Plano alimentar 2.0:** lista aprovada em `docs/FASE_17_PLANO.md`; medidas caseiras do IBGE
+  (POF 2008–2009) ligadas à TACO; resumo no rodapé; micronutrientes × DRI.
 - **R5 — Gasto energético:** lista aprovada em `docs/FASE_16_FORMULAS.md`. As fórmulas do WebDiet
   para adultos e crianças, + Henry/Oxford (2005), + comparação lado a lado. Gestantes e lactantes
   ficam para a fase de gestantes.
