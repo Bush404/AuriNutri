@@ -416,6 +416,8 @@ próprios que ainda não foram verificados. Isso é assunto jurídico, não de e
 [ ] Carimbo aplicado nos PDFs que hoje levam assinatura (plano, recibo, evolução)
 [ ] Revisão de design do sistema inteiro: tipografia, espaçamentos, cores, ícones, estados vazios
 [ ] Aplicar a mesma identidade nos PDFs (plano, evolução, recibo)
+[ ] PDFs "Relatório" e "Evolução" da antropometria (Fase 15): manter a organização, mas com cara
+    própria do AuriNutri — hoje estão quase idênticos aos do WebDiet (pedido de 30/09/2026)
 ```
 **Por que no fim:** as telas de antropometria, cálculo energético e plano alimentar vão ser refeitas
 nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design fecha o Roadmap 2
