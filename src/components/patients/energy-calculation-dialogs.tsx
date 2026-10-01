@@ -121,7 +121,8 @@ function useCompendium() {
   return { lista, citacao };
 }
 
-const MAX_RESULTADOS = 60;
+/** Linhas desenhadas por vez; rolar até o fim da lista mostra mais (1.111 de uma vez travaria a digitação). */
+const LOTE = 100;
 
 export function MetDialog({
   onOpenChange,
@@ -136,6 +137,7 @@ export function MetDialog({
 }) {
   const { lista, citacao } = useCompendium();
   const [busca, setBusca] = useState("");
+  const [limite, setLimite] = useState(LOTE);
   // Minutos por dia digitados, por código (atividades antigas digitadas à mão ficam pelo nome).
   const chave = (a: { codigo: string; nome: string }) => a.codigo || `manual:${a.nome}`;
   const [escolhidas, setEscolhidas] = useState<Map<string, AtividadeMet & { minutosTexto: string }>>(
@@ -143,11 +145,14 @@ export function MetDialog({
   );
 
   const termos = normalizar(busca).split(/\s+/).filter(Boolean);
-  const resultados = useMemo(() => {
-    if (!lista || termos.length === 0) return [];
-    return lista.filter((a) => termos.every((t) => a.busca.includes(t))).slice(0, MAX_RESULTADOS);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- termos deriva de `busca`
-  }, [lista, busca]);
+  // Sem busca, todas as atividades (como no WebDiet); com busca, só as que contêm todas as palavras.
+  const filtradas = useMemo(() => {
+    if (!lista) return [];
+    const disponiveis = lista.filter((a) => !escolhidas.has(chave(a)));
+    return termos.length === 0 ? disponiveis : disponiveis.filter((a) => termos.every((t) => a.busca.includes(t)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- termos deriva de `busca`; escolhidas muda a lista
+  }, [lista, busca, escolhidas]);
+  const visiveis = filtradas.slice(0, limite);
 
   function definirMinutos(a: { codigo: string; nome: string; met: number }, texto: string) {
     setEscolhidas((atual) => {
@@ -207,11 +212,20 @@ export function MetDialog({
             placeholder="Busque pelo nome da atividade (ex.: musculação, caminhada, futebol)"
             className="pl-9"
             value={busca}
-            onChange={(e) => setBusca(e.target.value)}
+            onChange={(e) => {
+              setBusca(e.target.value);
+              setLimite(LOTE);
+            }}
           />
         </div>
 
-        <div className="max-h-[50vh] space-y-4 overflow-y-auto pr-1">
+        <div
+          className="max-h-[50vh] space-y-4 overflow-y-auto pr-1"
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            if (el.scrollTop + el.clientHeight >= el.scrollHeight - 200 && limite < filtradas.length) setLimite((l) => l + LOTE);
+          }}
+        >
           {escolhidas.size > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Escolhidas</p>
@@ -250,14 +264,22 @@ export function MetDialog({
 
           {!lista ? (
             <p className="text-sm text-muted-foreground">Carregando a lista de atividades…</p>
-          ) : termos.length === 0 ? (
-            escolhidas.size === 0 && (
-              <p className="text-sm text-muted-foreground">{fmt(lista.length)} atividades. Digite para buscar.</p>
-            )
-          ) : resultados.length === 0 ? (
+          ) : filtradas.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhuma atividade encontrada para &quot;{busca}&quot;.</p>
           ) : (
-            <ul className="space-y-2">{resultados.filter((a) => !escolhidas.has(chave(a))).map((a) => linha(a))}</ul>
+            <div className="space-y-2">
+              {escolhidas.size > 0 && (
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {termos.length ? "Resultados" : "Todas as atividades"}
+                </p>
+              )}
+              <ul className="space-y-2">{visiveis.map((a) => linha(a))}</ul>
+              {visiveis.length < filtradas.length && (
+                <Button type="button" variant="ghost" className="w-full" onClick={() => setLimite((l) => l + LOTE)}>
+                  Mostrar mais ({fmt(filtradas.length - visiveis.length)} restantes)
+                </Button>
+              )}
+            </div>
           )}
         </div>
 

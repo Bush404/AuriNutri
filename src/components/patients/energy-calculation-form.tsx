@@ -291,7 +291,7 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
                   <SelectTrigger aria-label="Fórmula para cálculo teórico" className={selectSemBorda}>
                     <SelectValue placeholder="Escolha sua fórmula" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent {...abrirParaBaixo}>
                     <SelectGroup>
                       <SelectLabel>
                         {idade !== null && idade < 18 ? "Protocolos para crianças" : "Protocolos para adultos e idosos"}
@@ -361,7 +361,7 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
                   <SelectTrigger aria-label="Fator injúria" className={selectSemBorda}>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent {...abrirParaBaixo}>
                     <SelectItem value="nenhum">1,000 - Não utilizar</SelectItem>
                     {FATORES_INJURIA.map((g) => (
                       <SelectGroup key={g.grupo}>
@@ -579,6 +579,13 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
     </form>
   );
 }
+
+/** Listas longas abrem sempre para baixo, com rolagem no espaço que sobra na tela. */
+const abrirParaBaixo = {
+  side: "bottom" as const,
+  avoidCollisions: false,
+  className: "max-h-[min(24rem,var(--radix-select-content-available-height))]",
+};
 
 const selectSemBorda = "h-7 border-0 bg-transparent px-0 shadow-none focus:ring-0 focus:ring-offset-0";
 
