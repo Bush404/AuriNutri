@@ -237,7 +237,7 @@ uma vez por tempo de geração de PDF no servidor local e passou ao repetir); is
 
 ---
 
-## PHASE 15 — Antropometria profissional · `FEITA 30/09/2026 (local)` — falta a revisão da nutricionista · `CRITICAL`
+## PHASE 15 — Antropometria profissional · `FEITA 30/09/2026, publicada 01/10/2026` — falta a revisão da nutricionista · `CRITICAL`
 
 **Lista de protocolos aprovada em 30/09/2026 (decisão R4):** ver `docs/FASE_15_PROTOCOLOS.md`
 (montada a partir do WebDiet, com a fonte de cada item). Próximo passo: Bloco A.
@@ -325,7 +325,7 @@ variação entre datas). Sem QR code do WebDiet (não há app do paciente).
 
 ---
 
-## PHASE 16 — Cálculo energético · `EM ANDAMENTO` · `HIGH`
+## PHASE 16 — Cálculo energético · `DONE` (01/10/2026, publicada) — falta a comparação com o WebDiet · `HIGH`
 
 Nova aba no paciente, **ao lado de Antropometria**.
 
@@ -350,8 +350,31 @@ adicional digitado à mão).
 ```
 
 ### Critérios de aceite
-- Cada fórmula tem teste com valor de referência calculado à mão.
-- A lista final de fórmulas é revisada pela nutricionista antes de implementar.
+- [x] Cada fórmula tem teste com valor de referência: sempre que possível, os exemplos publicados nas
+  próprias fontes (folheto das DRIs 2023, 16 valores da tabela da IOM 2005, exemplo da FAO 2004, EAR
+  do SACN 2011 para Henry/Oxford); as demais conferidas à mão. 42 testes em `energy-formulas.test.ts`.
+- [x] A lista final de fórmulas foi aprovada pela nutricionista antes de implementar (R5, 01/10/2026).
+
+**Como ficou (01/10/2026, commits b8745a2 → f3d8662, publicados):**
+- Fórmulas em `src/lib/energy-formulas.ts`; fontes de cada coeficiente em `docs/FASE_16_FORMULAS.md`.
+  Achado da pesquisa: duas fontes publicadas (diretriz ESPGHAN/ESPEN e uma revisão do PMC) trocam
+  meninos e meninas na tabela de Schofield só com peso (10–18 anos); vale a da FAO.
+- Migration **0042** (aplicada): `energy_calculations`, RLS exigindo que o paciente seja do próprio
+  profissional, soft delete por função, auditoria. Entrou no backup, na exclusão de conta, na
+  exportação LGPD e no teste de isolamento (que ainda não foi rodado com a tabela nova). O backup
+  também passou a incluir `anthropometric_attachments`, que faltava desde a Fase 15.
+- Tela no formato do WebDiet: caixas de 3 em 3, ajustes em janelas (MET com busca e lista completa,
+  VENTA com barras de arrastar, gestante), resultados ao vivo e comparação de todas as fórmulas.
+- Lista do MET: 2024 Adult Compendium, 1.111 atividades (`src/lib/compendium/atividades.ts`, gerado
+  do PDF oficial; METs conferidos sem nenhuma diferença). Tradução para o português feita pelo
+  AuriNutri (não existe oficial); uso comercial permitido pelos autores com citação.
+
+**Pendências:**
+- Comparar 2 ou 3 pacientes reais com o WebDiet, principalmente os **fatores injúria** (copiados do
+  WebDiet; o artigo de Long, 1979, não é de acesso livre).
+- Rodar `test:security-isolation-full` com a tabela nova.
+- Avisar os autores do Compendium (compendiumpa@gmail.com) sobre a tradução, antes do lançamento.
+- Identidade visual da tela fica para a Fase 19.
 
 ---
 
