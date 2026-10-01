@@ -149,3 +149,34 @@ adicional manual (6.3).
 |---|---|---|
 | Integração HandyMET | Produto/serviço de outra empresa | [ ] sai |
 | "Importar de acompanhamento gestacional" | Depende da fase de gestantes | [ ] depois |
+
+---
+
+## Fontes conferidas (01/10/2026, antes de programar)
+
+Cada coeficiente foi tirado da publicação original ou de documento oficial, e conferido com uma
+segunda fonte sempre que possível.
+
+| Fórmula | Onde foi conferida |
+|---|---|
+| EER 2023 (adultos, 0–18 anos, custo de crescimento) | National Academies, *DRIs for Energy* (2023), Resumo, Tabelas S-1 e S-2 (texto oficial) + folheto oficial de jan/2023 (exemplo de mulher pouco ativa e de menino de 2 anos) |
+| EER/IOM 2005 adultos | Tabela oficial do Food and Nutrition Board (IOM). Os coeficientes de atividade de homem (1,11 · 1,25 · 1,48) e de mulher (1,12 · 1,27 · 1,45) foram **recalculados a partir dos valores da própria tabela** e conferem |
+| EER/IOM 2005 crianças (0–35 meses, 3–8, 9–18) | Duas reproduções independentes, iguais entre si; coeficientes de atividade infantis 1,13 · 1,26 · 1,42 (meninos) e 1,16 · 1,31 · 1,56 (meninas) |
+| Harris-Benedict 1984 | Roza & Shizgal (1984), conferida na Universidade de Maastricht e em artigo do PMC |
+| FAO/OMS 2004 (todas as idades) | Documento oficial da FAO, *Human energy requirements*, Tabela 5.2 (são as equações de Schofield **só com peso**) |
+| Schofield 1985 infantil | Versão **com peso e altura** (a só com peso já é a FAO/OMS). ESPGHAN/ESPEN 2005 + revisão sistemática do PMC. ⚠️ As duas fontes **trocam meninos e meninas** na versão só com peso (10–18 anos); a versão com peso e altura foi testada contra a FAO e está com os sexos certos |
+| Henry/Oxford 2005 | Relatório oficial do governo britânico (SACN, 2011), Tabelas 18 e 19. Usada a versão **com peso e altura** (a recomendada pelo SACN) |
+| Henry & Rees 1991 | Tabela completa em material da UNESP; 5 das 8 equações conferidas em artigos independentes. **Não tem faixa para menores de 3 anos nem para 60 anos ou mais** |
+| Mifflin-St Jeor por MLG | Resumo original (Mifflin et al., 1990): 19,7 × MLG + 413 |
+| Cunningham 1980 | Resumo original: 500 + 22 × MLG |
+| Tinsley 2018 | Manuscrito dos autores (Univ. de Toronto): 24,8 × peso + 10 e 25,9 × MLG + 284 |
+| Katch-McArdle | 370 + 21,6 × MLG (livro-texto; igual em todas as fontes consultadas) |
+| Lista de atividades MET | *Compendium of Physical Activities*: uso **comercial permitido**, desde que cite a fonte e não altere os valores de MET |
+
+## Para revisar quando a tela estiver pronta
+
+| Item | O que foi feito | Por quê |
+|---|---|---|
+| Fatores injúria (seção 5) | Valores copiados do WebDiet | O artigo de Long (1979) não é de acesso livre; não foi possível conferir na fonte |
+| Idade nas fórmulas EER infantis | Bebês (EER 2023, 0–2 anos): idade em anos com fração (ex.: 18 meses = 1,5). Demais: anos completos | As tabelas dizem só "idade em anos" |
+| Henry/Oxford | Versão com peso e altura | Recomendada pelo SACN; o WebDiet não tem Henry/Oxford para comparar |
