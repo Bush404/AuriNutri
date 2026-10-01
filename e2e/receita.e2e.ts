@@ -36,11 +36,10 @@ test("criar receita e usá-la num plano alimentar", async ({ page }) => {
   const paciente = await criarPaciente(page);
   await criarPlano(page, paciente.id);
   await adicionarRefeicao(page, "Almoço");
-  await page.getByRole("tab", { name: "Receita" }).click();
-  await page.getByRole("combobox", { name: "Receita" }).fill(nomeReceita);
-  await page.getByRole("option").filter({ hasText: nomeReceita }).first().click();
-  await page.getByLabel("Quantidade de porções").fill("1");
-  await page.getByRole("button", { name: "Adicionar", exact: true }).click();
-  await expect(page.getByLabel("Quantidade de porções")).toHaveValue("");
+  // Busca da refeição (Fase 17): filtro Receitas, clicar no nome entra com 1 porção.
+  await page.getByRole("radio", { name: "Receitas" }).click();
+  await page.getByLabel("Buscar alimentos").fill(nomeReceita);
+  await page.getByRole("row").filter({ hasText: nomeReceita }).getByTitle("Adicionar à refeição").first().click();
+  await expect(page.getByLabel(`Quantidade de ${nomeReceita} (porções)`)).toHaveValue("1");
   await expect(textoVisivel(page, nomeReceita)).toBeVisible();
 });

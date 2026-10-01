@@ -424,8 +424,10 @@ favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fi
 [ ] Bloco G: lista de planos (kcal e kcal/kg), favoritar plano como modelo, começar de modelo,
     ordenar planos
 [ ] Responsável: explicar a "Periodização" do WebDiet; enviar o e-mail de licença da TBCA
-[ ] Conferir: rodar test:e2e (helpers ajustados ao fluxo novo; precisa da SUPABASE_SERVICE_ROLE_KEY no
-    .env.local) e test:security-isolation-full (energy_calculations, food_favorites); duplicatePlan
+[x] 02/10: test:e2e 17/17 (rodado com E2E_BASE_URL=http://localhost:3000 contra o dev já ligado; corrigidos
+    receita.e2e — busca nova — e avaliacao.e2e — seção de dobras começa fechada desde 01/10);
+    test:security-isolation-full 104/104 (+energy_calculations, +food_favorites)
+[ ] Conferir: duplicatePlan
     copia os micronutrientes dos itens? (copia só colunas listadas — duplicateMeal copia tudo)
 ```
 

@@ -44,6 +44,8 @@ test("protocolo de dobras: paciente sem sexo pede a base e o % de gordura é gra
   await page.getByLabel("Peso (kg)").fill("80");
   await page.getByLabel("Altura (cm)").fill("175");
 
+  // As seções além de "Dados básicos" começam fechadas (ajuste de 01/10/2026).
+  await page.getByRole("button", { name: "Dobras cutâneas (mm)" }).click();
   // Paciente criado sem sexo: a base das fórmulas nunca é assumida.
   await page.getByRole("radio", { name: "Guedes" }).click();
   await expect(page.getByText("Escolha a base (masculino ou feminino) para as fórmulas.")).toBeVisible();

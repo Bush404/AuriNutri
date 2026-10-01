@@ -249,6 +249,27 @@ async function main() {
     cleanup.foodId = food.id;
     await checkTableIsolation(userB, { table: "foods", id: food.id, updateField: "nome", updateValue: "alterado por B", canDelete: true });
 
+    // Fase 17 — alimentos favoritos (migration 0044). Chave composta (user_id, food_id), sem coluna id.
+    const { error: favError } = await userA.client.from("food_favorites").insert({ user_id: userA.id, food_id: food.id });
+    if (favError) throw new Error(`Falha ao favoritar alimento de A: ${favError.message}`);
+    const { data: favVistos } = await userB.client.from("food_favorites").select("food_id").eq("food_id", food.id);
+    if ((favVistos ?? []).length > 0) breach("B CONSEGUIU ver o favorito de A");
+    pass("B não vê os alimentos favoritos de A");
+    const { error: favAlheioError } = await userB.client.from("food_favorites").insert({ user_id: userB.id, food_id: food.id });
+    if (!favAlheioError) breach("B CONSEGUIU favoritar um alimento próprio de A (que não deveria enxergar)");
+    pass("B não consegue favoritar alimento próprio de A", favAlheioError.message);
+    const { error: favComoAError } = await userB.client.from("food_favorites").insert({ user_id: userA.id, food_id: food.id });
+    if (!favComoAError) breach("B CONSEGUIU gravar um favorito em nome de A");
+    pass("B não consegue gravar favorito em nome de A", favComoAError.message);
+    await userB.client.from("food_favorites").delete().eq("user_id", userA.id).eq("food_id", food.id);
+    const { data: favAindaExiste } = await admin
+      .from("food_favorites")
+      .select("food_id")
+      .eq("user_id", userA.id)
+      .eq("food_id", food.id);
+    if ((favAindaExiste ?? []).length !== 1) breach("B CONSEGUIU apagar o favorito de A");
+    pass("B não consegue apagar o favorito de A");
+
     const { data: recipe, error: recipeError } = await userA.client
       .from("recipes")
       .insert({ user_id: userA.id, nome: "Receita de teste (Fase 11)" })
