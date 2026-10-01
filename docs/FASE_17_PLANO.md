@@ -1,5 +1,15 @@
 # Fase 17 — Plano alimentar 2.0: lista para aprovação
 
+> **APROVADA em 01/10/2026 (R7).** Decisões: **medidas caseiras e mais alimentos pelas tabelas do IBGE
+> (POF 2008–2009)** — a de composição nutricional (~2.000 alimentos com o modo de preparo) e a de
+> medidas referidas (~11.800 medidas), que usam o mesmo código de alimento e de preparo, então a ligação
+> já vem pronta; as medidas personalizadas do profissional continuam existindo. **Resumo fixo no
+> rodapé**, igual ao WebDiet. **Só "Por alimentos"** agora (equivalentes e qualitativa depois).
+> **Ficam de fora:** protocolo nutricional, análise de sintomas, foto da refeição, suplementos e os
+> modelos prontos do AuriNutri. **Micronutrientes × DRI entram**, com cada valor conferido na fonte
+> oficial. **Periodização (1.5): aguardando você explicar o que faz** — até lá, fica de fora. Todo o
+> resto como sugerido.
+
 Montada em 01/10/2026 a partir dos prints e do PDF do WebDiet enviados pela responsável pelo produto
 (`C:\Users\Bush404\Pictures\planejamento alimentar WebDiet`).
 
