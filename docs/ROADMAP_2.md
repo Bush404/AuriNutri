@@ -530,6 +530,10 @@ importar uma seleção traduzida, com a fonte "USDA" marcada em cada alimento.
 **TBCA (01/10/2026):** o site diz que uso comercial exige contato com os coordenadores e que não é
 permitida a reprodução total ou parcial. E-mail de pedido de licença redigido; a responsável envia pelo
 e-mail do AuriNutri para tbca.contato@usp.br.
+**Resposta da USP (02/10/2026):** ainda não formalizam autorização para apps/softwares. A Procuradoria
+Geral e a Agência USP de Inovação estão analisando os direitos sobre os dados e a marca TBCA para criar
+um modelo institucional (licenciamento ou outra forma), sem previsão. Avisarão quando houver definição.
+Até lá a TBCA não entra no AuriNutri.
 **Versão da TBCA (decidido 25/09/2026):** só a **TBCA 7.3**, a versão atual. Ela aparece no filtro
 como uma única fonte; versões antigas não entram.
 
@@ -592,7 +596,7 @@ nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design 
 
 | # | Decisão | Bloqueia | Quem decide |
 |---|---|---|---|
-| R1 | Licença de TBCA 7.3 e Tucunduva (antigo D3). TBCA confirmada em 01/10/2026: uso comercial só com autorização dos coordenadores (tbca.contato@usp.br) | Fase 18 | Nutricionista / jurídico |
+| R1 | Licença de TBCA 7.3 e Tucunduva (antigo D3). TBCA: resposta da USP em 02/10/2026 — ainda não autorizam uso em software; Procuradoria Geral + Agência USP de Inovação definindo modelo institucional (provável licenciamento), sem prazo. Aguardar contato (tbca.contato@usp.br) | Fase 18 | Nutricionista / jurídico |
 
 ### Decididas em 01/10/2026
 - **R7 — Plano alimentar 2.0:** lista aprovada em `docs/FASE_17_PLANO.md`; medidas caseiras do IBGE
