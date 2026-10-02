@@ -534,6 +534,10 @@ e-mail do AuriNutri para tbca.contato@usp.br.
 Geral e a Agência USP de Inovação estão analisando os direitos sobre os dados e a marca TBCA para criar
 um modelo institucional (licenciamento ou outra forma), sem previsão. Avisarão quando houver definição.
 Até lá a TBCA não entra no AuriNutri.
+**Resposta enviada (02/10/2026):** interesse em adquirir a licença (inclusive paga) nos termos que a USP
+definir, compromisso de não usar os dados até a autorização e pedido para ser avisado. Contexto: em 2019 a
+USP vendia licença paga para uso da base em outras ferramentas (Jornal da USP, 30/08/2019) — provável
+origem do uso pelo WebDiet.
 **Versão da TBCA (decidido 25/09/2026):** só a **TBCA 7.3**, a versão atual. Ela aparece no filtro
 como uma única fonte; versões antigas não entram.
 
@@ -596,7 +600,7 @@ nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design 
 
 | # | Decisão | Bloqueia | Quem decide |
 |---|---|---|---|
-| R1 | Licença de TBCA 7.3 e Tucunduva (antigo D3). TBCA: resposta da USP em 02/10/2026 — ainda não autorizam uso em software; Procuradoria Geral + Agência USP de Inovação definindo modelo institucional (provável licenciamento), sem prazo. Aguardar contato (tbca.contato@usp.br) | Fase 18 | Nutricionista / jurídico |
+| R1 | Licença de TBCA 7.3 e Tucunduva (antigo D3). TBCA: resposta da USP em 02/10/2026 — ainda não autorizam uso em software; Procuradoria Geral + Agência USP de Inovação definindo modelo institucional (provável licenciamento), sem prazo. Interesse em licença (inclusive paga) enviado em 02/10/2026; aguardar contato (tbca.contato@usp.br) | Fase 18 | Nutricionista / jurídico |
 
 ### Decididas em 01/10/2026
 - **R7 — Plano alimentar 2.0:** lista aprovada em `docs/FASE_17_PLANO.md`; medidas caseiras do IBGE
