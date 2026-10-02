@@ -432,7 +432,7 @@ favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fi
     receita não inverte), substituto em medida caseira (`food-measures-db.ts` compartilhado), PDF
     "Opções de substituição" (plan-pdf-data `substituicoes`, +1 teste). Unitários 444, E2E 17/17 (o de
     plano agora adiciona sugestão e inverte). Antes os substitutos nem saíam no PDF.
-[x] Bloco F (02/10, local; falta aplicar 0046): migration 0046 (23 micros + valores_especiais +
+[x] Bloco F (02/10, local; 0046 aplicada — 27 de 31 itens com micros, todos os da TACO; E2E 17/17, isolamento 109/109): migration 0046 (23 micros + valores_especiais +
     micros_copiados em meal_items e substituições; itens antigos da TACO preenchidos da TACO). DRI:
     `src/lib/dri-tabela.ts` GERADO de NASEM 2019 Appendix J (`scripts/dri/`), `src/lib/dri.ts`
     (faseDaVida, avaliarAdequacao ±20%, UL/CDRR, nutrientesDoCardapio), `somarMicrosDosItens` (sem dado ≠ 0,
