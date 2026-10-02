@@ -20,7 +20,9 @@ test("agendar consulta, marcar como realizada e conferir a cobrança gerada", as
   await expect(dialog).toBeHidden();
 
   // Abre a consulta no calendário (o chip leva o nome do paciente no title).
+  // Fase 19: clicar na consulta mostra os detalhes no painel ao lado; "Editar" abre a janela.
   await page.getByTitle(new RegExp(paciente.nome)).filter({ visible: true }).first().click();
+  await page.getByRole("button", { name: "Editar" }).click();
   await dialog.getByRole("button", { name: "Marcar como realizado" }).click();
   await expect(page.getByText("Consulta marcada como realizada.")).toBeVisible();
   await expect(page.getByTitle(new RegExp(`${paciente.nome} \\(Realizad`)).filter({ visible: true }).first()).toBeVisible();

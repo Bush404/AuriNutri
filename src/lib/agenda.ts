@@ -86,7 +86,10 @@ export const APPOINTMENT_TIPOS: AppointmentTipo[] = [
 // destas funções precisa saber de fuso horário).
 // ============================================================================
 
+/** Indexado pelo dia da semana do JS (0 = domingo) — use com weekdayOf(). */
 export const WEEKDAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+/** Cabeçalho do calendário, na ordem exibida (semana começa na segunda). */
+export const WEEKDAY_HEADER_LABELS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
 const MONTH_LABELS = [
   "janeiro",
@@ -133,13 +136,13 @@ export function weekdayOf(dateStr: string): number {
   return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
 }
 
-/** Os 7 dias (domingo a sábado) da semana que contém `dateStr`. */
+/** Os 7 dias (segunda a domingo) da semana que contém `dateStr` (Fase 19: semana começa na segunda). */
 export function getWeekDays(dateStr: string): string[] {
-  const sunday = addDays(dateStr, -weekdayOf(dateStr));
-  return Array.from({ length: 7 }, (_, i) => addDays(sunday, i));
+  const monday = addDays(dateStr, -((weekdayOf(dateStr) + 6) % 7));
+  return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
 }
 
-/** Semanas completas (domingo a sábado) que cobrem o mês de `dateStr`. */
+/** Semanas completas (segunda a domingo) que cobrem o mês de `dateStr`. */
 export function getMonthGridWeeks(dateStr: string): string[][] {
   const { year, month } = parseDateStr(dateStr);
   const firstOfMonth = toDateStr(new Date(Date.UTC(year, month - 1, 1)));

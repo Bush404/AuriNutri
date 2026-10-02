@@ -563,6 +563,10 @@ minicalendário de 7 dias sai do painel), tendências "+N este mês"/"% vs mês 
 (src/lib/dashboard-dicas.ts; foto Unsplash de Calvin Shelwell em public/brand/banner-prato.jpg).
 Fundo do sistema passa a #F0F6F4 (medido no print); painel ocupa a altura da tela no breakpoint `desk`
 (≥1024 de largura e ≥700 de altura), com listas rolando por dentro; abaixo disso a página rola.
+Agenda refeita (02/10/2026, publicada, E2E 18/18; + Confirmar/Cancelar no painel e escolha consulta/pacote/tarefa ao clicar no espaço vazio): números do topo (src/lib/agenda-stats.ts, com testes), calendário
+do mês em pílulas, painel lateral com o dia selecionado + detalhes da consulta (Ficha/Editar/Remarcar);
+clicar no dia seleciona (não cria mais consulta); semana começa na segunda (getWeekDays); a janela
+"dia" (day-detail-dialog) foi substituída pelo painel.
 
 **Por que no fim:** as telas de antropometria, cálculo energético e plano alimentar vão ser refeitas
 nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design fecha o Roadmap 2

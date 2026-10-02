@@ -36,18 +36,24 @@ describe("addMonths", () => {
 });
 
 describe("getWeekDays", () => {
-  it("retorna os 7 dias da semana (domingo a sábado) contendo a data", () => {
+  it("retorna os 7 dias da semana (segunda a domingo) contendo a data", () => {
     // 2026-09-17 é uma quinta-feira.
     const week = getWeekDays("2026-09-17");
     expect(week).toEqual([
-      "2026-09-13",
       "2026-09-14",
       "2026-09-15",
       "2026-09-16",
       "2026-09-17",
       "2026-09-18",
       "2026-09-19",
+      "2026-09-20",
     ]);
+  });
+
+  it("domingo pertence à semana que começou na segunda anterior", () => {
+    // 2026-09-20 é domingo.
+    expect(getWeekDays("2026-09-20")[0]).toBe("2026-09-14");
+    expect(getWeekDays("2026-09-20")[6]).toBe("2026-09-20");
   });
 });
 
@@ -57,8 +63,8 @@ describe("getMonthGridWeeks", () => {
     const allDays = weeks.flat();
 
     // Setembro/2026 começa numa terça (01) e termina numa quarta (30).
-    expect(allDays[0]).toBe("2026-08-30"); // domingo antes do dia 1
-    expect(allDays[allDays.length - 1]).toBe("2026-10-03"); // sábado depois do dia 30
+    expect(allDays[0]).toBe("2026-08-31"); // segunda antes do dia 1
+    expect(allDays[allDays.length - 1]).toBe("2026-10-04"); // domingo depois do dia 30
     expect(allDays).toContain("2026-09-01");
     expect(allDays).toContain("2026-09-30");
     for (const week of weeks) {
@@ -128,7 +134,7 @@ describe("formatMonthLabel / formatWeekRangeLabel", () => {
 
   it("formata o intervalo da semana como dd/mm – dd/mm", () => {
     const week = getWeekDays("2026-09-17");
-    expect(formatWeekRangeLabel(week)).toBe("13/9 – 19/9");
+    expect(formatWeekRangeLabel(week)).toBe("14/9 – 20/9");
   });
 });
 
