@@ -29,22 +29,22 @@ Nada de código começa antes desta lista ser aprovada.
 
 | # | Item | No WebDiet | AuriNutri hoje | Decisão |
 |---|---|---|---|---|
-| 1.1 | Cada plano mostra nome, calorias totais com kcal/kg e data de criação | Sim | Nome e data | [ ] |
-| 1.2 | Chave ativo/inativo na própria linha | Sim | Já existe (botão) | [ ] |
-| 1.3 | Ações: **PDF · Editar · Duplicar · Excluir** | Sim | Já existe, em menu | [ ] |
-| 1.4 | **Favoritar** um plano inteiro, para usar como modelo em outro paciente | Sim | Só refeições favoritas | [ ] |
+| 1.1 | Cada plano mostra nome, calorias totais com kcal/kg e data de criação | Sim | Nome e data | [x] |
+| 1.2 | Chave ativo/inativo na própria linha | Sim | Já existe (botão) | [x] |
+| 1.3 | Ações: **PDF · Editar · Duplicar · Excluir** | Sim | Já existe, em menu | [x] |
+| 1.4 | **Favoritar** um plano inteiro, para usar como modelo em outro paciente | Sim | Só refeições favoritas | [x] |
 | 1.5 | ⚠️ **Periodização** — o que ela faz no WebDiet? Não apareceu nos prints | Sim | Não | [ ] |
-| 1.6 | "Ordenar dietas" (mudar a ordem da lista) | Sim | Não | [ ] |
+| 1.6 | "Ordenar dietas" (mudar a ordem da lista) | Sim | Não | [x] |
 
 ## 2. Criar um plano
 
 | # | Item | No WebDiet | Decisão |
 |---|---|---|---|
-| 2.1 | Nome + metodologia. Sugestão: **agora só "Por alimentos"**; "Por equivalentes" e "Qualitativa" ficam para depois | 3 métodos | [ ] |
-| 2.2 | Começar **em branco** ou de um **modelo** (os seus planos favoritos), com busca e "Preview" | Sim | [ ] |
+| 2.1 | Nome + metodologia. Sugestão: **agora só "Por alimentos"**; "Por equivalentes" e "Qualitativa" ficam para depois | 3 métodos | [x] |
+| 2.2 | Começar **em branco** ou de um **modelo** (os seus planos favoritos), com busca e "Preview" | Sim | [x] |
 | 2.3 | ⚠️ Modelos prontos do AuriNutri (os "WE" do WebDiet, ex.: "Cardápio 60 a 65 kg"). Sugestão: **depois**, como foi com os modelos de anamnese | Sim | [ ] |
-| 2.4 | Plano novo já vem com Café da manhã, Almoço e Jantar | Sim | [ ] |
-| 2.5 | Salvar ao abrir e salvar sozinho (como antropometria e cálculo energético) | Salva a cada ~60 s | [ ] |
+| 2.4 | Plano novo já vem com Café da manhã, Almoço e Jantar | Sim | [x] |
+| 2.5 | Salvar ao abrir e salvar sozinho (como antropometria e cálculo energético) | Salva a cada ~60 s | [x] |
 
 ## 3. Tela do plano — refeições ("Rotina do paciente")
 

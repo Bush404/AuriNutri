@@ -117,7 +117,12 @@ export interface MetasDoPlano {
  * total dos alimentos.
  */
 export function analisarCardapio(totais: MacroTotals, pesoTotalG: number, metas: MetasDoPlano): LinhaAnalise[] {
-  const linha = (parametro: string, unidade: LinhaAnalise["unidade"], prescrito: number | null, teorico: number | null) => ({
+  const linha = (
+    parametro: string,
+    unidade: LinhaAnalise["unidade"],
+    prescrito: number | null,
+    teorico: number | null,
+  ) => ({
     parametro,
     unidade,
     prescrito,
@@ -136,7 +141,12 @@ export function analisarCardapio(totais: MacroTotals, pesoTotalG: number, metas:
     linha("Fibras totais", "g", totais.fibras, null),
     linha("Carboidratos livres", "g", Math.max(0, totais.carboidratos - totais.fibras), null),
     linha("Calorias totais", "kcal", totais.calorias, metas.meta_kcal),
-    linha("Kcal não proteica / g N", "kcal", kcalNaoProteicaPorGN(totais.calorias, totais.proteinas), teoricoNaoProteica),
+    linha(
+      "Kcal não proteica / g N",
+      "kcal",
+      kcalNaoProteicaPorGN(totais.calorias, totais.proteinas),
+      teoricoNaoProteica,
+    ),
     linha("Densidade calórica", "kcal/g", pesoTotalG > 0 ? totais.calorias / pesoTotalG : null, null),
   ];
 }
@@ -175,4 +185,36 @@ export function classificarDensidade(kcal: number, pesoG: number) {
           ? { rotulo: "média", faixa: "1,5 a 4,0 kcal/g" }
           : { rotulo: "alta", faixa: "acima de 4,0 kcal/g" };
   return { valor, ...faixa };
+}
+
+// ============================================================================
+// Lista de planos do paciente (Fase 17, Bloco G)
+// ============================================================================
+
+/** Calorias de um dia do plano, pela cópia nutricional de cada item. */
+export function kcalDoPlano(
+  itens: { quantidade_g: number; porcao_referencia_g: number; calorias_kcal: number }[],
+): number {
+  return itens.reduce(
+    (s, i) => s + Number(i.calorias_kcal) * (Number(i.quantidade_g) / (Number(i.porcao_referencia_g) || 100)),
+    0,
+  );
+}
+
+/** kcal/kg do plano; nulo sem peso. */
+export function kcalPorKg(kcal: number, pesoKg: number | null): number | null {
+  return pesoKg && pesoKg > 0 ? kcal / pesoKg : null;
+}
+
+/**
+ * Ordem da lista: os que ainda não foram ordenados à mão (ordem nula) vêm
+ * primeiro, do mais novo para o mais antigo; depois, a ordem escolhida.
+ */
+export function ordenarPlanos<T extends { ordem: number | null; created_at: string }>(planos: T[]): T[] {
+  return planos.slice().sort((a, b) => {
+    if (a.ordem === null && b.ordem === null) return b.created_at.localeCompare(a.created_at);
+    if (a.ordem === null) return -1;
+    if (b.ordem === null) return 1;
+    return a.ordem - b.ordem;
+  });
 }

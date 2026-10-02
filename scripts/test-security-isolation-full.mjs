@@ -509,6 +509,17 @@ async function main() {
       .single();
     if (planError) throw new Error(`Falha ao criar plano de A: ${planError.message}`);
 
+    // Fase 17, Bloco G — plano favorito vira modelo (migration 0047): só para o próprio profissional.
+    const { error: favPlanError } = await userA.client.from("meal_plans").update({ favorito: true }).eq("id", plan.id);
+    if (favPlanError) throw new Error(`Falha ao favoritar plano de A: ${favPlanError.message}`);
+    const { data: modelosVistos } = await userB.client.from("meal_plans").select("id").eq("favorito", true);
+    if ((modelosVistos ?? []).some((m) => m.id === plan.id)) breach("B CONSEGUIU ver o plano-modelo de A");
+    pass("B não vê os planos-modelo de A");
+    await userB.client.from("meal_plans").update({ favorito: false }).eq("id", plan.id);
+    const { data: aindaFavorito } = await admin.from("meal_plans").select("favorito").eq("id", plan.id).single();
+    if (!aindaFavorito?.favorito) breach("B CONSEGUIU tirar o plano de A dos modelos");
+    pass("B não consegue alterar o modelo de A");
+
     const { data: meal, error: mealError } = await userA.client
       .from("meals")
       .insert({ meal_plan_id: plan.id, user_id: userA.id, nome: "Refeição de teste", ordem: 0 })

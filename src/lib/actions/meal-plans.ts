@@ -1,10 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { MICRONUTRIENTE_KEYS } from "@/lib/validations/food";
+import { copiarRefeicoes } from "@/lib/plan-copy";
+import { kcalDoPlano } from "@/lib/meal-planning";
+import { quantidadeDoItem } from "@/lib/household-measures";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { mealPlanSchema, planejamentoSchema, type MealPlanInput, type PlanejamentoInput } from "@/lib/validations/meal-plan";
+import {
+  mealPlanSchema,
+  planejamentoSchema,
+  type MealPlanInput,
+  type PlanejamentoInput,
+} from "@/lib/validations/meal-plan";
 import { distribuirMacros } from "@/lib/meal-planning";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { Meal, MealItem, MealPlan } from "@/lib/types/database.types";
@@ -44,9 +51,171 @@ export async function createMealPlan(patientId: string, input: MealPlanInput): P
     return { success: false, message: error.message };
   }
 
+  // Plano em branco já vem com as três refeições básicas (Fase 17, Bloco G — como no WebDiet).
+  const { error: refeicoesError } = await supabase
+    .from("meals")
+    .insert(REFEICOES_PADRAO.map((r, ordem) => ({ ...r, ordem, meal_plan_id: data.id, user_id: user.id })));
+  if (refeicoesError) {
+    return { success: false, message: refeicoesError.message };
+  }
+
   revalidatePath(`/pacientes/${patientId}`);
   revalidatePath("/planos");
   redirect(`/planos/${data.id}`);
+}
+
+const REFEICOES_PADRAO = [
+  { nome: "Café da manhã", horario: "07:00" },
+  { nome: "Almoço", horario: "12:00" },
+  { nome: "Jantar", horario: "19:00" },
+];
+
+/**
+ * "Começar de um modelo" (Fase 17, Bloco G): plano novo para o paciente com
+ * as refeições, alimentos e substitutos de um plano favorito (de qualquer
+ * paciente do mesmo profissional — a RLS só deixa ler os próprios). O
+ * planejamento teórico NÃO vem: as metas eram do outro paciente.
+ */
+export async function criarPlanoDeModelo(
+  patientId: string,
+  modeloId: string,
+  input: MealPlanInput,
+): Promise<ActionResult> {
+  const parsed = mealPlanSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: "Verifique os dados do plano." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { success: false, message: "Sessão expirada. Faça login novamente." };
+  }
+
+  const { data: modelo } = await supabase
+    .from("meal_plans")
+    .select("id, observacoes")
+    .eq("id", modeloId)
+    .eq("favorito", true)
+    .maybeSingle<{ id: string; observacoes: string | null }>();
+  if (!modelo) {
+    return { success: false, message: "Modelo não encontrado." };
+  }
+
+  const { data, error } = await supabase
+    .from("meal_plans")
+    .insert({
+      patient_id: patientId,
+      user_id: user.id,
+      nome: parsed.data.nome,
+      data_inicio: parsed.data.data_inicio,
+      observacoes: parsed.data.observacoes || modelo.observacoes,
+    })
+    .select("id")
+    .single<{ id: string }>();
+  if (error || !data) {
+    return { success: false, message: error?.message ?? "Falha ao criar o plano." };
+  }
+
+  const erroCopia = await copiarRefeicoes(supabase, user.id, modelo.id, data.id);
+  if (erroCopia) {
+    return { success: false, message: erroCopia };
+  }
+
+  revalidatePath(`/pacientes/${patientId}`);
+  revalidatePath("/planos");
+  redirect(`/planos/${data.id}`);
+}
+
+/** Estrela do plano: favorito = modelo para outros pacientes. */
+export async function alternarPlanoFavorito(
+  planId: string,
+  favorito: boolean,
+  patientId: string,
+): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("meal_plans").update({ favorito }).eq("id", planId);
+  if (error) return { success: false, message: error.message };
+  revalidatePath(`/pacientes/${patientId}`);
+  return { success: true, message: favorito ? "Plano salvo como modelo." : "Plano tirado dos modelos." };
+}
+
+/** "Ordenar planos": `ids` na ordem em que devem aparecer na aba do paciente. */
+export async function reordenarPlanos(patientId: string, ids: string[]): Promise<ActionResult> {
+  if (!ids.length || ids.length > 200) return { success: false, message: "Ordem inválida." };
+  const supabase = await createClient();
+  const resultados = await Promise.all(
+    ids.map((id, ordem) => supabase.from("meal_plans").update({ ordem }).eq("id", id).eq("patient_id", patientId)),
+  );
+  const erro = resultados.find((r) => r.error)?.error;
+  if (erro) return { success: false, message: erro.message };
+  revalidatePath(`/pacientes/${patientId}`);
+  return { success: true };
+}
+
+export interface ModeloDePlano {
+  id: string;
+  nome: string;
+  paciente: string;
+  kcal: number;
+  refeicoes: number;
+}
+
+/** Os planos favoritos do profissional, para "De um modelo". */
+export async function listarModelosDePlano(): Promise<ModeloDePlano[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("meal_plans")
+    .select("id, nome, patients(nome), meals(id, meal_items(quantidade_g, porcao_referencia_g, calorias_kcal))")
+    .eq("favorito", true)
+    .order("nome")
+    .returns<
+      {
+        id: string;
+        nome: string;
+        patients: { nome: string } | null;
+        meals: { id: string; meal_items: Pick<MealItem, "quantidade_g" | "porcao_referencia_g" | "calorias_kcal">[] }[];
+      }[]
+    >();
+  return (data ?? []).map((p) => ({
+    id: p.id,
+    nome: p.nome,
+    paciente: p.patients?.nome ?? "",
+    kcal: kcalDoPlano(p.meals.flatMap((m) => m.meal_items)),
+    refeicoes: p.meals.length,
+  }));
+}
+
+export interface PreviaDoModelo {
+  refeicoes: { nome: string; horario: string | null; itens: { nome: string; quantidade: string }[] }[];
+}
+
+/** "Preview" do modelo: as refeições e os alimentos, sem abrir o plano. */
+export async function previaDoModelo(modeloId: string): Promise<PreviaDoModelo> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("meals")
+    .select(
+      "nome, horario, ordem, meal_items(nome_alimento, quantidade_g, quantidade_porcoes, medida_nome, medida_gramas, medida_quantidade, ordem)",
+    )
+    .eq("meal_plan_id", modeloId)
+    .order("ordem")
+    .returns<(Pick<Meal, "nome" | "horario" | "ordem"> & { meal_items: MealItem[] })[]>();
+  return {
+    refeicoes: (data ?? []).map((m) => ({
+      nome: m.nome,
+      horario: m.horario,
+      itens: (m.meal_items ?? [])
+        .slice()
+        .sort((a, b) => a.ordem - b.ordem)
+        .map((i) => ({
+          nome: i.nome_alimento,
+          quantidade: i.quantidade_porcoes !== null ? `${i.quantidade_porcoes} porção(ões)` : quantidadeDoItem(i),
+        })),
+    })),
+  };
 }
 
 export async function updateMealPlan(planId: string, input: MealPlanInput): Promise<ActionResult> {
@@ -153,11 +322,7 @@ export async function removerPlanejamentoTeorico(planId: string): Promise<Action
   return { success: true, message: "Planejamento teórico removido." };
 }
 
-export async function toggleMealPlanStatus(
-  planId: string,
-  ativo: boolean,
-  patientId?: string
-): Promise<ActionResult> {
+export async function toggleMealPlanStatus(planId: string, ativo: boolean, patientId?: string): Promise<ActionResult> {
   const supabase = await createClient();
   const { error } = await supabase.from("meal_plans").update({ ativo }).eq("id", planId);
 
@@ -172,7 +337,7 @@ export async function toggleMealPlanStatus(
 }
 
 /**
- * Duplica um plano inteiro (plano + refeições + itens) para o mesmo
+ * Duplica um plano inteiro (plano + refeições + itens + substitutos) para o mesmo
  * paciente. DECISÃO: copia os snapshots nutricionais VERBATIM — nunca
  * rebusca os valores atuais do alimento em `foods`. O profissional edita
  * depois o que quiser na cópia, sem afetar o plano original.
@@ -195,17 +360,6 @@ export async function duplicateMealPlan(planId: string): Promise<ActionResult> {
 
   if (planError || !originalPlan) {
     return { success: false, message: "Plano não encontrado." };
-  }
-
-  const { data: originalMeals, error: mealsError } = await supabase
-    .from("meals")
-    .select("*, meal_items(*)")
-    .eq("meal_plan_id", planId)
-    .order("ordem", { ascending: true })
-    .returns<Array<Meal & { meal_items: MealItem[] }>>();
-
-  if (mealsError) {
-    return { success: false, message: mealsError.message };
   }
 
   const { data: newPlan, error: newPlanError } = await supabase
@@ -234,66 +388,10 @@ export async function duplicateMealPlan(planId: string): Promise<ActionResult> {
     return { success: false, message: newPlanError?.message ?? "Falha ao duplicar o plano." };
   }
 
-  for (const meal of originalMeals ?? []) {
-    const { data: newMeal, error: newMealError } = await supabase
-      .from("meals")
-      .insert({
-        meal_plan_id: newPlan.id,
-        user_id: user.id,
-        nome: meal.nome,
-        horario: meal.horario,
-        observacoes: meal.observacoes,
-        ordem: meal.ordem,
-      })
-      .select("id")
-      .single<{ id: string }>();
-
-    if (newMealError || !newMeal) {
-      return { success: false, message: newMealError?.message ?? "Falha ao duplicar uma refeição." };
-    }
-
-    const items = (meal.meal_items ?? []).slice().sort((a, b) => a.ordem - b.ordem);
-    if (items.length === 0) continue;
-
-    // Snapshot copiado verbatim — inclusive fonte_alimento e
-    // fonte_descricao_alimento, para a atribuição da TACO continuar correta
-    // na cópia mesmo que o alimento/receita original seja editado depois.
-    // recipe_id/quantidade_porcoes/fontes_ingredientes_receita também
-    // precisam ser copiados (não só food_id): um item de receita não tem
-    // food_id, e o CHECK meal_items_food_or_recipe_check exige exatamente
-    // um dos dois preenchidos.
-    const { error: itemsError } = await supabase.from("meal_items").insert(
-      items.map((item) => ({
-        meal_id: newMeal.id,
-        food_id: item.food_id,
-        recipe_id: item.recipe_id,
-        user_id: user.id,
-        quantidade_g: item.quantidade_g,
-        quantidade_porcoes: item.quantidade_porcoes,
-        ordem: item.ordem,
-        nome_alimento: item.nome_alimento,
-        fonte_alimento: item.fonte_alimento,
-        fonte_descricao_alimento: item.fonte_descricao_alimento,
-        porcao_referencia_g: item.porcao_referencia_g,
-        calorias_kcal: item.calorias_kcal,
-        proteinas_g: item.proteinas_g,
-        carboidratos_g: item.carboidratos_g,
-        gorduras_g: item.gorduras_g,
-        fibras_g: item.fibras_g,
-        fontes_ingredientes_receita: item.fontes_ingredientes_receita,
-        medida_nome: item.medida_nome,
-        medida_gramas: item.medida_gramas,
-        medida_quantidade: item.medida_quantidade,
-        // Micronutrientes (migration 0046) — mesma cópia, para a análise de DRI da cópia bater.
-        ...Object.fromEntries(MICRONUTRIENTE_KEYS.map((k) => [k, item[k] ?? null])),
-        valores_especiais: item.valores_especiais ?? null,
-        micros_copiados: item.micros_copiados ?? false,
-      }))
-    );
-
-    if (itemsError) {
-      return { success: false, message: itemsError.message };
-    }
+  // Refeições, alimentos e substitutos, com a cópia nutricional como está (src/lib/plan-copy.ts).
+  const erroCopia = await copiarRefeicoes(supabase, user.id, planId, newPlan.id);
+  if (erroCopia) {
+    return { success: false, message: erroCopia };
   }
 
   revalidatePath(`/pacientes/${originalPlan.patient_id}`);

@@ -440,8 +440,13 @@ favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fi
     receitas pelos ingredientes, `src/lib/shopping-list.ts`), PdfOptionsDialog → /planos/[id]/pdf?estilo=
     lista&nutrientes=1&compras=1&dias=7&quebra=1&condicao=…; PDF ganhou páginas de nutrientes e compras.
     Corrigido: regex de observação HTML no PDF (`[sS]` → `[\s\S]`, desde o Bloco C). Unitários 458.
-[ ] Bloco G: lista de planos (kcal e kcal/kg), favoritar plano como modelo, começar de modelo,
-    ordenar planos
+[x] Bloco G (02/10, local; falta aplicar 0047): migration 0047 (meal_plans.favorito, .ordem). MealPlanList
+    refeita (kcal via `kcalDoPlano`, kcal/kg com planejamento_peso_kg ou último peso, ações na linha,
+    setas → `reordenarPlanos`, `ordenarPlanos` nulos primeiro), `alternarPlanoFavorito`,
+    NewMealPlanDialog Em branco | De um modelo (`listarModelosDePlano`, `previaDoModelo`,
+    `criarPlanoDeModelo` — sem planejamento teórico), `createMealPlan` cria Café da manhã/Almoço/Jantar.
+    `src/lib/plan-copy.ts` (`copiarRefeicoes`, todas as colunas) usado por duplicar e modelo — corrige:
+    duplicar plano não copiava substitutos. Isolamento +2 (modelos). E2E novo plano-modelo.e2e.ts.
 [ ] Responsável: explicar a "Periodização" do WebDiet; enviar o e-mail de licença da TBCA
 [x] 02/10: test:e2e 17/17 (rodado com E2E_BASE_URL=http://localhost:3000 contra o dev já ligado; corrigidos
     receita.e2e — busca nova — e avaliacao.e2e — seção de dobras começa fechada desde 01/10);

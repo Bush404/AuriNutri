@@ -363,6 +363,10 @@ export interface MealPlan {
   planejamento_lipidios: number | null;
   planejamento_carboidratos: number | null;
   planejamento_calculo_id: string | null;
+  /** Plano favorito = modelo para outros pacientes (migration 0047, Fase 17 Bloco G). */
+  favorito: boolean;
+  /** Ordem manual na lista do paciente; nulo = sem ordem manual. */
+  ordem: number | null;
   created_at: string;
   updated_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */

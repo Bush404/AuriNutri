@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Pencil } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
+import { kcalDoPlano, ordenarPlanos } from "@/lib/meal-planning";
 import { getInitials, calculateAge } from "@/lib/utils";
 import type {
   Anamnesis,
@@ -26,6 +27,10 @@ import { Badge } from "@/components/ui/badge";
 import { PatientTabs } from "@/components/patients/patient-tabs";
 import { ExportPatientButton } from "@/components/patients/export-patient-button";
 import { PatientSendDialog } from "@/components/patients/patient-send-dialog";
+
+type PlanoComItens = MealPlan & {
+  meals: { meal_items: { quantidade_g: number; porcao_referencia_g: number; calorias_kcal: number }[] }[];
+};
 
 export default async function PacienteDetalhePage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -61,12 +66,13 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
       .eq("patient_id", params.id)
       .order("data_avaliacao", { ascending: false })
       .returns<AnthropometricAssessment[]>(),
+    // Com os itens só para as calorias de cada plano na lista (Fase 17, Bloco G).
     supabase
       .from("meal_plans")
-      .select("*")
+      .select("*, meals(meal_items(quantidade_g, porcao_referencia_g, calorias_kcal))")
       .eq("patient_id", params.id)
       .order("created_at", { ascending: false })
-      .returns<MealPlan[]>(),
+      .returns<PlanoComItens[]>(),
     supabase
       .from("patient_consents")
       .select("*")
@@ -91,17 +97,13 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
     supabase
       .from("patient_billings")
       .select(
-        "*, payments(*), appointments!patient_billings_appointment_id_fkey(id, status, data_hora), pacote_consultas:appointments!appointments_patient_billing_id_fkey(id, status, data_hora, duracao_min)"
+        "*, payments(*), appointments!patient_billings_appointment_id_fkey(id, status, data_hora), pacote_consultas:appointments!appointments_patient_billing_id_fkey(id, status, data_hora, duracao_min)",
       )
       .eq("patient_id", params.id)
       .order("created_at", { ascending: false })
       .order("data_vencimento", { foreignTable: "payments", ascending: true })
       .returns<PatientBillingWithPayments[]>(),
-    supabase
-      .from("anamnesis_templates")
-      .select("*")
-      .order("nome")
-      .returns<AnamnesisTemplate[]>(),
+    supabase.from("anamnesis_templates").select("*").order("nome").returns<AnamnesisTemplate[]>(),
     supabase
       .from("anthropometric_attachments")
       .select("*")
@@ -183,7 +185,12 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
         assessments={assessments ?? []}
         attachments={attachments ?? []}
         calculos={calculos ?? []}
-        mealPlans={mealPlans ?? []}
+        mealPlans={ordenarPlanos(
+          (mealPlans ?? []).map(({ meals, ...plano }) => ({
+            ...plano,
+            kcal: kcalDoPlano((meals ?? []).flatMap((m) => m.meal_items ?? [])),
+          })),
+        )}
         consents={consents ?? []}
         labExams={labExams ?? []}
         consentimentoAtivoExames={consentimentoAtivoExames}

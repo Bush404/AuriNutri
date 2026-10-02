@@ -25,7 +25,7 @@ import { AnamnesisTimeline } from "@/components/patients/anamnesis-timeline";
 import { NewAssessmentMenu } from "@/components/patients/new-assessment-menu";
 import { AssessmentsList } from "@/components/patients/assessments-list";
 import { EnergyCalculationsPanel } from "@/components/patients/energy-calculations-panel";
-import { MealPlanList } from "@/components/meal-plans/meal-plan-list";
+import { MealPlanList, type PlanoNaLista } from "@/components/meal-plans/meal-plan-list";
 import { PatientConsentsPanel } from "@/components/patients/patient-consents-panel";
 import { LabExamsPanel } from "@/components/patients/lab-exams-panel";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
@@ -50,7 +50,7 @@ interface PatientTabsProps {
   assessments: AnthropometricAssessment[];
   attachments: AnthropometricAttachment[];
   calculos: EnergyCalculation[];
-  mealPlans: MealPlan[];
+  mealPlans: PlanoNaLista[];
   consents: PatientConsent[];
   labExams: LabExamWithMarkers[];
   consentimentoAtivoExames: boolean;
@@ -159,7 +159,11 @@ export function PatientTabs({
             <CardTitle>Planos alimentares</CardTitle>
           </CardHeader>
           <CardContent>
-            <MealPlanList patientId={patient.id} mealPlans={mealPlans} />
+            <MealPlanList
+              patientId={patient.id}
+              mealPlans={mealPlans}
+              pesoKg={assessments.find((a) => a.peso_kg !== null)?.peso_kg ?? null}
+            />
           </CardContent>
         </Card>
       </TabsContent>
