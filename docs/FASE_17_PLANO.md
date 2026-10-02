@@ -113,18 +113,18 @@ antigos (só em gramas) continuam iguais. → [ ]
 | 7.4 | Gráfico de rosca com o % de proteínas, lipídios e carboidratos | Sim | Não | [ ] |
 | 7.5 | **Barra fixa** com o resumo (proteínas, lipídios, carboidratos, kcal) sempre visível | Rodapé | Não | [ ] |
 | 7.6 | ⚠️ Onde fica o resumo fixo? O roadmap previa **painel à direita** no computador. O WebDiet usa **uma barra no rodapé**. Sugestão: **rodapé, igual ao WebDiet**, no computador e no celular | — | — | [ ] |
-| 7.7 | "Ver todos os nutrientes": micronutrientes do cardápio × **DRI**, com adequação (dentro/fora de ±20%) | Sim | Não | [ ] |
-| 7.8 | ⚠️ Valores de referência (DRI) por sexo e idade, conferidos na fonte oficial como nas fases 15 e 16 | Sim | — | [ ] |
+| 7.7 | "Ver todos os nutrientes": micronutrientes do cardápio × **DRI**, com adequação (dentro/fora de ±20%) | Sim | Não | [x] |
+| 7.8 | ⚠️ Valores de referência (DRI) por sexo e idade, conferidos na fonte oficial como nas fases 15 e 16 | Sim | — | [x] |
 
 ## 8. Finalização e PDF
 
 | # | Item | No WebDiet | AuriNutri hoje | Decisão |
 |---|---|---|---|---|
-| 8.1 | **Lista de compras** gerada dos alimentos do plano | Sim | Não | [ ] |
+| 8.1 | **Lista de compras** gerada dos alimentos do plano | Sim | Não | [x] |
 | 8.2 | Anexar receitas ao plano | Sim | Receitas já entram como alimento | [ ] |
 | 8.3 | Suplementos e produtos — sugestão: **depois** | Sim | Não | [ ] |
-| 8.4 | Ao gerar o PDF, escolher: estilo tabela, relatório de macro/micronutrientes, lista de compras, quebra de página por refeição | Sim | PDF fixo | [ ] |
-| 8.5 | PDF: refeições com "1 Unidade(s) (50 g)", substituições, página de nutrientes por refeição + micronutrientes, página de lista de compras | Sim | Parcial | [ ] |
+| 8.4 | Ao gerar o PDF, escolher: estilo tabela, relatório de macro/micronutrientes, lista de compras, quebra de página por refeição | Sim | PDF fixo | [x] |
+| 8.5 | PDF: refeições com "1 Unidade(s) (50 g)", substituições, página de nutrientes por refeição + micronutrientes, página de lista de compras | Sim | Parcial | [x] |
 | 8.6 | "Liberar para paciente" — sai (não temos app do paciente; o envio continua pela Central de Envio) | App | — | [ ] |
 | 8.7 | QR code do app no rodapé do PDF — sai (sem app) | Sim | — | [ ] |
 | 8.8 | Identidade visual do PDF — fica para a Fase 19 | — | — | [ ] |

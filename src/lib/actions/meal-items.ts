@@ -11,7 +11,7 @@ import {
 import type { ActionResult } from "@/lib/actions/patients";
 import type { Food, Recipe, RecipeIngredient } from "@/lib/types/database.types";
 import { buscarMedida, camposDaMedida } from "@/lib/food-measures-db";
-import { buildFoodSnapshot, buildRecipeSnapshot } from "@/lib/nutrition";
+import { buildFoodSnapshotParaItem, buildRecipeSnapshot } from "@/lib/nutrition";
 
 export async function addMealItem(
   planId: string,
@@ -63,7 +63,7 @@ export async function addMealItem(
     user_id: user.id,
     ...quantidade,
     ordem,
-    ...buildFoodSnapshot(food),
+    ...buildFoodSnapshotParaItem(food),
   });
 
   if (error) {

@@ -74,10 +74,32 @@ test("criar alimento próprio, montar plano, conferir macros e gerar PDF", async
   await expect(page.getByText("= 150 g")).toBeVisible();
   await expect(totais).toContainText("Calorias: 300 kcal");
 
-  // O botão "Baixar PDF" aponta para esta rota; conferimos que ela devolve um PDF de verdade.
-  await expect(page.getByRole("link", { name: "Baixar PDF" })).toHaveAttribute("href", `/planos/${planId}/pdf`);
-  const resposta = await page.request.get(`/planos/${planId}/pdf`);
-  expect(resposta.status()).toBe(200);
-  expect(resposta.headers()["content-type"]).toContain("application/pdf");
-  expect((await resposta.body()).subarray(0, 4).toString()).toBe("%PDF");
+  // "Baixar PDF" abre as opções (Fase 17, Bloco F); conferimos o PDF simples e o completo.
+  await page.getByRole("button", { name: "Baixar PDF" }).click();
+  const opcoes = page.getByRole("dialog", { name: "Baixar PDF do plano" });
+  const baixar = opcoes.getByRole("link", { name: "Baixar" });
+  await expect(baixar).toHaveAttribute("href", `/planos/${planId}/pdf`);
+  await opcoes.getByLabel(/Relatório de nutrientes/).click();
+  await opcoes.getByLabel(/Lista de compras/).click();
+  await expect(baixar).toHaveAttribute("href", `/planos/${planId}/pdf?nutrientes=1&compras=1&dias=7`);
+  for (const url of [
+    `/planos/${planId}/pdf`,
+    `/planos/${planId}/pdf?nutrientes=1&compras=1&dias=7&quebra=1&estilo=lista`,
+  ]) {
+    const resposta = await page.request.get(url);
+    expect(resposta.status()).toBe(200);
+    expect(resposta.headers()["content-type"]).toContain("application/pdf");
+    expect((await resposta.body()).subarray(0, 4).toString()).toBe("%PDF");
+  }
+  await page.keyboard.press("Escape");
+
+  // Lista de compras na tela: 3 potes por dia × 7 dias.
+  await page.getByRole("button", { name: "Lista de compras" }).click();
+  const compras = page.getByRole("dialog", { name: "Lista de compras" });
+  await expect(compras.getByRole("listitem").filter({ hasText: nomeAlimento })).toContainText("21 × pote E2E (1,1 kg)");
+  await page.keyboard.press("Escape");
+
+  // Micronutrientes × DRI.
+  await page.getByRole("button", { name: "Ver todos os nutrientes" }).click();
+  await expect(page.getByRole("dialog", { name: "Micronutrientes do cardápio" })).toBeVisible();
 });

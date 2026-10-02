@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { mealSchema, type MealInput } from "@/lib/validations/meal-plan";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { Food } from "@/lib/types/database.types";
-import { buildFoodSnapshot } from "@/lib/nutrition";
+import { buildFoodSnapshotParaItem } from "@/lib/nutrition";
 
 export async function createMeal(planId: string, input: MealInput, ordem: number): Promise<ActionResult> {
   const parsed = mealSchema.safeParse(input);
@@ -126,7 +126,7 @@ export async function createMealFromTemplate(
       user_id: user.id,
       quantidade_g: item.quantidade_g,
       ordem: index,
-      ...buildFoodSnapshot(item.foods),
+      ...buildFoodSnapshotParaItem(item.foods),
     }));
 
   if (rows.length > 0) {

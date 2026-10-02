@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { MealItem } from "@/lib/types/database.types";
 import { calculatePlanTotals, type MealWithItems } from "@/lib/nutrition";
-import { buildPlanPdfViewModel, observacaoParaPdf } from "./plan-pdf-data";
+import { buildPlanPdfViewModel, observacaoParaPdf, opcoesDoPdf, OPCOES_PADRAO } from "./plan-pdf-data";
 
 function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
   return {
@@ -258,6 +258,26 @@ describe("observacaoParaPdf (Fase 17: observação da refeição com texto forma
       "Atenção\n• Sem açúcar\n• Beber água"
     );
     expect(observacaoParaPdf("<p></p>")).toBeNull();
+    // Começando por lista (antes a detecção de HTML falhava aqui).
+    expect(observacaoParaPdf("<ul><li><p>Água</p></li></ul>")).toBe("• Água");
     expect(observacaoParaPdf(null)).toBeNull();
+  });
+});
+
+describe("opcoesDoPdf (Fase 17, Bloco F)", () => {
+  it("sem nada na URL = PDF de sempre", () => {
+    expect(opcoesDoPdf(new URLSearchParams())).toEqual(OPCOES_PADRAO);
+  });
+
+  it("lê as escolhas e ignora valores inválidos", () => {
+    expect(opcoesDoPdf(new URLSearchParams("estilo=lista&nutrientes=1&compras=1&dias=15&quebra=1&condicao=gestante"))).toEqual({
+      estilo: "lista",
+      nutrientes: true,
+      compras: true,
+      dias: 15,
+      quebraPorRefeicao: true,
+      condicao: "gestante",
+    });
+    expect(opcoesDoPdf(new URLSearchParams("estilo=x&dias=999&condicao=y"))).toEqual(OPCOES_PADRAO);
   });
 });

@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { mealItemSubstitutionSchema, type MealItemSubstitutionInput } from "@/lib/validations/meal-plan";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { Food, MealItem, MealItemSubstitution } from "@/lib/types/database.types";
-import { buildFoodSnapshot, calculateMealItemMacros, type MacroTotals } from "@/lib/nutrition";
+import { buildFoodSnapshotParaItem, calculateMealItemMacros, type MacroTotals } from "@/lib/nutrition";
+import { MICRONUTRIENTE_KEYS } from "@/lib/validations/food";
 import { buscarMedida, camposDaMedida, medidasPorAlimento } from "@/lib/food-measures-db";
 import { medidaUsual } from "@/lib/household-measures";
 import {
@@ -72,7 +73,7 @@ export async function addMealItemSubstitution(
     user_id: user.id,
     ...quantidade,
     ordem: count ?? 0,
-    ...buildFoodSnapshot(food),
+    ...buildFoodSnapshotParaItem(food),
   });
 
   if (error) {
@@ -198,6 +199,9 @@ const CAMPOS_TROCA = [
   "medida_nome",
   "medida_gramas",
   "medida_quantidade",
+  ...MICRONUTRIENTE_KEYS,
+  "valores_especiais",
+  "micros_copiados",
 ] as const;
 
 function campos(origem: Record<string, unknown>) {

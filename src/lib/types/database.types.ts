@@ -382,7 +382,41 @@ export interface Meal {
   deleted_at: string | null;
 }
 
-export interface MealItem {
+/**
+ * Micronutrientes copiados no item do plano (migration 0046, Fase 17 Bloco F) —
+ * mesmas colunas de RecipeIngredient, por porcao_referencia_g. Opcionais no tipo
+ * porque itens antigos (e consultas que não pedem essas colunas) não os têm;
+ * micros_copiados = false significa "item sem micronutrientes".
+ */
+export interface MicrosDoItem {
+  umidade_g?: number | null;
+  cinzas_g?: number | null;
+  colesterol_mg?: number | null;
+  calcio_mg?: number | null;
+  magnesio_mg?: number | null;
+  manganes_mg?: number | null;
+  fosforo_mg?: number | null;
+  ferro_mg?: number | null;
+  sodio_mg?: number | null;
+  potassio_mg?: number | null;
+  cobre_mg?: number | null;
+  zinco_mg?: number | null;
+  retinol_mcg?: number | null;
+  re_mcg?: number | null;
+  rae_mcg?: number | null;
+  tiamina_mg?: number | null;
+  riboflavina_mg?: number | null;
+  piridoxina_mg?: number | null;
+  niacina_mg?: number | null;
+  vitamina_c_mg?: number | null;
+  gordura_saturada_g?: number | null;
+  gordura_monoinsaturada_g?: number | null;
+  gordura_poliinsaturada_g?: number | null;
+  valores_especiais?: Partial<Record<string, ValorEspecial>> | null;
+  micros_copiados?: boolean;
+}
+
+export interface MealItem extends MicrosDoItem {
   id: string;
   meal_id: string;
   /** Referência de rastreabilidade; pode ser NULL se o alimento original foi excluído, ou se o item é uma receita (ver recipe_id). Mutuamente exclusivo com recipe_id. */
@@ -637,7 +671,7 @@ export interface Task {
   deleted_at: string | null;
 }
 
-export interface MealItemSubstitution {
+export interface MealItemSubstitution extends MicrosDoItem {
   id: string;
   meal_item_id: string;
   food_id: string | null;

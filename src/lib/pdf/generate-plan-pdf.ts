@@ -2,10 +2,11 @@ import { createElement, type ReactElement } from "react";
 import { renderToBuffer, type DocumentProps } from "@react-pdf/renderer";
 import type { createClient } from "@/lib/supabase/server";
 
-import { buildPlanPdfViewModel } from "@/lib/pdf/plan-pdf-data";
+import { buildPlanPdfViewModel, OPCOES_PADRAO, type PlanPdfOpcoes } from "@/lib/pdf/plan-pdf-data";
+import { entradasDaListaDeCompras } from "@/lib/shopping-list-data";
 import { PlanPdfDocument } from "@/lib/pdf/plan-pdf-document";
 import { buildProfissionalPdfHeaderData } from "@/lib/pdf/profissional-header";
-import type { Meal, MealItem, MealItemSubstitution, MealPlan } from "@/lib/types/database.types";
+import type { Meal, MealItem, MealItemSubstitution, MealPlan, Sexo } from "@/lib/types/database.types";
 
 export function slugify(value: string) {
   return value
@@ -16,7 +17,10 @@ export function slugify(value: string) {
     .replace(/(^-+|-+$)/g, "");
 }
 
-type PlanWithPatient = MealPlan & { patient_id: string; patients: { nome: string } };
+type PlanWithPatient = MealPlan & {
+  patient_id: string;
+  patients: { nome: string; sexo: Sexo | null; data_nascimento: string | null };
+};
 type MealRow = Meal & { meal_items: (MealItem & { meal_item_substitutions: MealItemSubstitution[] })[] };
 
 export interface GeneratePlanPdfResult {
@@ -32,15 +36,19 @@ export interface GeneratePlanPdfResult {
  *
  * Retorna null se o plano não existe OU não pertence ao usuário autenticado
  * (a query já é implicitamente restrita pela RLS de meal_plans).
+ *
+ * `opcoes` (Fase 17, Bloco F): estilo, relatório de nutrientes, lista de
+ * compras, uma refeição por página. Sem opções = o PDF de sempre.
  */
 export async function generatePlanPdf(
   supabase: Awaited<ReturnType<typeof createClient>>,
   user: { id: string; email?: string | null },
   planId: string,
+  opcoes: PlanPdfOpcoes = OPCOES_PADRAO,
 ): Promise<GeneratePlanPdfResult | null> {
   const { data: plan } = await supabase
     .from("meal_plans")
-    .select("*, patients(nome)")
+    .select("*, patients(nome, sexo, data_nascimento)")
     .eq("id", planId)
     .single<PlanWithPatient>();
 
@@ -68,6 +76,14 @@ export async function generatePlanPdf(
     pacienteNome: plan.patients.nome,
     plano: plan,
     refeicoes,
+    opcoes,
+    paciente: plan.patients,
+    entradasListaDeCompras: opcoes.compras
+      ? await entradasDaListaDeCompras(
+          supabase,
+          refeicoes.flatMap((r) => r.items),
+        )
+      : undefined,
   });
 
   // @react-pdf/renderer tipa renderToBuffer para aceitar só um elemento

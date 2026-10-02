@@ -1,4 +1,6 @@
 import { quantidadeDoItem } from "@/lib/household-measures";
+import { nutrientesDoCardapio, type Condicao, type NutrientesDoCardapio } from "@/lib/dri";
+import { montarListaDeCompras, type EntradaListaDeCompras, type GrupoListaDeCompras } from "@/lib/shopping-list";
 import {
   buildFonteFooter,
   calculateMealTotals,
@@ -20,11 +22,11 @@ import { richTextToPlainText } from "@/lib/rich-text";
  */
 export function observacaoParaPdf(texto: string | null): string | null {
   if (!texto) return null;
-  if (!/<[a-z][sS]*>/i.test(texto)) return texto;
+  if (!/<[a-z][\s\S]*>/i.test(texto)) return texto;
   const plano = richTextToPlainText(texto.replace(/<li[^>]*>/gi, "• "));
   return plano || null;
 }
-import type { ItemFonte, MealItem, MealItemSubstitution, MealPlan } from "@/lib/types/database.types";
+import type { ItemFonte, MealItem, MealItemSubstitution, MealPlan, Sexo } from "@/lib/types/database.types";
 
 /**
  * Monta todos os dados que o PDF do plano precisa exibir. NENHUM total é
@@ -80,7 +82,52 @@ export interface PlanPdfComparativos {
   gorduras: GoalComparison | null;
 }
 
+/**
+ * O que entra no PDF (Fase 17, Bloco F), escolhido na hora de baixar. O padrão
+ * é o PDF de sempre — é o que a Central de Envio usa.
+ */
+export interface PlanPdfOpcoes {
+  /** "tabela": alimento, quantidade e macros; "lista": só alimento e quantidade (para o paciente). */
+  estilo: "tabela" | "lista";
+  /** Página com macros por refeição e micronutrientes × DRI. */
+  nutrientes: boolean;
+  /** Página com a lista de compras. */
+  compras: boolean;
+  /** Dias da lista de compras. */
+  dias: number;
+  /** Cada refeição começa numa página nova. */
+  quebraPorRefeicao: boolean;
+  /** Gestante/lactante, para a faixa da DRI. */
+  condicao: Condicao;
+}
+
+export const OPCOES_PADRAO: PlanPdfOpcoes = {
+  estilo: "tabela",
+  nutrientes: false,
+  compras: false,
+  dias: 7,
+  quebraPorRefeicao: false,
+  condicao: "nenhuma",
+};
+
+/** Lê as opções da URL de download (?estilo=lista&nutrientes=1&compras=1&dias=7&quebra=1&condicao=gestante). */
+export function opcoesDoPdf(params: URLSearchParams): PlanPdfOpcoes {
+  const dias = Number(params.get("dias"));
+  const condicao = params.get("condicao");
+  return {
+    estilo: params.get("estilo") === "lista" ? "lista" : "tabela",
+    nutrientes: params.get("nutrientes") === "1",
+    compras: params.get("compras") === "1",
+    dias: Number.isInteger(dias) && dias >= 1 && dias <= 31 ? dias : OPCOES_PADRAO.dias,
+    quebraPorRefeicao: params.get("quebra") === "1",
+    condicao: condicao === "gestante" || condicao === "lactante" ? condicao : "nenhuma",
+  };
+}
+
 export interface PlanPdfViewModel {
+  opcoes: PlanPdfOpcoes;
+  nutrientes: NutrientesDoCardapio | null;
+  listaDeCompras: GrupoListaDeCompras[] | null;
   profissional: PlanPdfProfissional;
   pacienteNome: string;
   plano: {
@@ -111,6 +158,13 @@ export interface BuildPlanPdfViewModelInput {
     | "meta_gorduras_g"
   >;
   refeicoes: MealWithItems[];
+  opcoes?: PlanPdfOpcoes;
+  /** Para a faixa da DRI do relatório de nutrientes. */
+  paciente?: { sexo: Sexo | null; data_nascimento: string | null };
+  /** Já montadas no servidor (precisa do banco para receitas e grupos). */
+  entradasListaDeCompras?: EntradaListaDeCompras[];
+  /** Data de referência para a idade (padrão: hoje). */
+  hoje?: string;
 }
 
 /** Substitutos do item na ordem em que foram cadastrados, como texto do PDF. */
@@ -126,6 +180,10 @@ export function buildPlanPdfViewModel({
   pacienteNome,
   plano,
   refeicoes,
+  opcoes = OPCOES_PADRAO,
+  paciente,
+  entradasListaDeCompras,
+  hoje = new Date().toISOString().slice(0, 10),
 }: BuildPlanPdfViewModelInput): PlanPdfViewModel {
   const refeicoesOrdenadas = refeicoes.slice().sort((a, b) => a.ordem - b.ordem);
 
@@ -158,6 +216,16 @@ export function buildPlanPdfViewModel({
   );
 
   return {
+    opcoes,
+    nutrientes: opcoes.nutrientes
+      ? nutrientesDoCardapio(
+          refeicoes.flatMap((r) => r.items),
+          paciente,
+          opcoes.condicao,
+          hoje,
+        )
+      : null,
+    listaDeCompras: opcoes.compras ? montarListaDeCompras(entradasListaDeCompras ?? [], opcoes.dias) : null,
     profissional,
     pacienteNome,
     plano: {

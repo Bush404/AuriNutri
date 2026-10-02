@@ -86,4 +86,41 @@ describe("PlanPdfDocument — smoke test de renderização real", () => {
     expect(buffer.length).toBeGreaterThan(500);
     expect(buffer.subarray(0, 5).toString("utf-8")).toBe("%PDF-");
   });
+
+  it("com todas as opções (Fase 17, Bloco F): estilo lista, quebra, nutrientes e lista de compras", async () => {
+    const viewModel = buildPlanPdfViewModel({
+      profissional: {
+        nome: "Dra. Teste",
+        crn: null,
+        crnUf: null,
+        especialidade: null,
+        telefone: null,
+        endereco: null,
+        corMarca: null,
+        logoUrl: null,
+        assinaturaUrl: null,
+      },
+      pacienteNome: "Paciente Teste",
+      plano: {
+        nome: "Plano",
+        data_inicio: "2026-01-01",
+        observacoes: null,
+        meta_kcal: null,
+        meta_proteinas_g: null,
+        meta_carboidratos_g: null,
+        meta_gorduras_g: null,
+      },
+      refeicoes: [makeMeal(), makeMeal({ id: "meal-2", nome: "Almoço", ordem: 1 })],
+      opcoes: { estilo: "lista", nutrientes: true, compras: true, dias: 7, quebraPorRefeicao: true, condicao: "nenhuma" },
+      paciente: { sexo: "feminino", data_nascimento: "1995-05-10" },
+      entradasListaDeCompras: [{ chave: "arroz", nome: "Arroz", grupo: "Cereais e derivados", gramas: 100 }],
+      hoje: "2026-10-02",
+    });
+    expect(viewModel.nutrientes?.faixa).toBe("Mulher, 31–50 anos");
+    expect(viewModel.listaDeCompras?.[0].itens[0].texto).toBe("700 g");
+
+    const element = createElement(PlanPdfDocument, { data: viewModel }) as unknown as ReactElement<DocumentProps>;
+    const buffer = await renderToBuffer(element);
+    expect(buffer.subarray(0, 5).toString("utf-8")).toBe("%PDF-");
+  });
 });

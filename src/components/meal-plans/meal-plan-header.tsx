@@ -5,28 +5,23 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Copy, Download, FileText, Loader2, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Copy, FileText, Loader2, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import type { MealPlan, PlanShareToken } from "@/lib/types/database.types";
+import type { MealPlan, PlanShareToken, Sexo } from "@/lib/types/database.types";
 import { mealPlanSchema, type MealPlanInput } from "@/lib/validations/meal-plan";
 import { updateMealPlan, deleteMealPlan, duplicateMealPlan, toggleMealPlanStatus } from "@/lib/actions/meal-plans";
 import { formatDate } from "@/lib/utils";
 import { SharePlanDialog } from "@/components/meal-plans/share-plan-dialog";
+import { PdfOptionsDialog } from "@/components/meal-plans/pdf-options-dialog";
+import { ShoppingListDialog } from "@/components/meal-plans/shopping-list-dialog";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,10 +39,19 @@ interface MealPlanHeaderProps {
   patientId: string;
   patientName: string;
   patientTelefone: string | null;
+  /** Para a opção gestante/lactante do relatório de nutrientes do PDF. */
+  patientSexo: Sexo | null;
   shareLinks: PlanShareToken[];
 }
 
-export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, shareLinks }: MealPlanHeaderProps) {
+export function MealPlanHeader({
+  plan,
+  patientId,
+  patientName,
+  patientTelefone,
+  patientSexo,
+  shareLinks,
+}: MealPlanHeaderProps) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -128,11 +132,7 @@ export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, 
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl font-semibold tracking-tight text-foreground">{plan.nome}</h1>
-            <Badge
-              variant={plan.ativo ? "success" : "outline"}
-              className="cursor-pointer"
-              onClick={handleToggleStatus}
-            >
+            <Badge variant={plan.ativo ? "success" : "outline"} className="cursor-pointer" onClick={handleToggleStatus}>
               {plan.ativo ? "Ativo" : "Inativo"}
             </Badge>
           </div>
@@ -152,12 +152,8 @@ export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, 
             </a>
           </Button>
 
-          <Button variant="outline" size="sm" asChild>
-            <a href={`/planos/${plan.id}/pdf`}>
-              <Download className="h-4 w-4" />
-              Baixar PDF
-            </a>
-          </Button>
+          <PdfOptionsDialog planId={plan.id} sexo={patientSexo} />
+          <ShoppingListDialog planId={plan.id} />
 
           <SharePlanDialog
             planId={plan.id}
@@ -187,7 +183,11 @@ export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, 
                 <div className="space-y-2">
                   <Label htmlFor="nome">Nome do plano</Label>
                   <Input id="nome" aria-required="true" {...register("nome")} />
-                  {errors.nome && <p className="text-xs text-destructive" role="alert">{errors.nome.message}</p>}
+                  {errors.nome && (
+                    <p className="text-xs text-destructive" role="alert">
+                      {errors.nome.message}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="data_inicio">Data de início</Label>
@@ -250,8 +250,8 @@ export function MealPlanHeader({ plan, patientId, patientName, patientTelefone, 
               <AlertDialogHeader>
                 <AlertDialogTitle>Excluir plano alimentar</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Tem certeza que deseja excluir <strong>{plan.nome}</strong>? Todas as refeições e itens
-                  cadastrados neste plano serão excluídos permanentemente.
+                  Tem certeza que deseja excluir <strong>{plan.nome}</strong>? Todas as refeições e itens cadastrados
+                  neste plano serão excluídos permanentemente.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

@@ -432,8 +432,14 @@ favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fi
     receita não inverte), substituto em medida caseira (`food-measures-db.ts` compartilhado), PDF
     "Opções de substituição" (plan-pdf-data `substituicoes`, +1 teste). Unitários 444, E2E 17/17 (o de
     plano agora adiciona sugestão e inverte). Antes os substitutos nem saíam no PDF.
-[ ] Bloco F: micronutrientes × DRI (±20%, valores conferidos na fonte oficial); lista de compras;
-    opções do PDF (tabela, relatório de nutrientes, lista de compras, quebra por refeição)
+[x] Bloco F (02/10, local; falta aplicar 0046): migration 0046 (23 micros + valores_especiais +
+    micros_copiados em meal_items e substituições; itens antigos da TACO preenchidos da TACO). DRI:
+    `src/lib/dri-tabela.ts` GERADO de NASEM 2019 Appendix J (`scripts/dri/`), `src/lib/dri.ts`
+    (faseDaVida, avaliarAdequacao ±20%, UL/CDRR, nutrientesDoCardapio), `somarMicrosDosItens` (sem dado ≠ 0,
+    traço = 0), docs/FASE_17_DRI.md. UI: MicronutrientsDialog, ShoppingListDialog (`listaDeComprasDoPlano`,
+    receitas pelos ingredientes, `src/lib/shopping-list.ts`), PdfOptionsDialog → /planos/[id]/pdf?estilo=
+    lista&nutrientes=1&compras=1&dias=7&quebra=1&condicao=…; PDF ganhou páginas de nutrientes e compras.
+    Corrigido: regex de observação HTML no PDF (`[sS]` → `[\s\S]`, desde o Bloco C). Unitários 458.
 [ ] Bloco G: lista de planos (kcal e kcal/kg), favoritar plano como modelo, começar de modelo,
     ordenar planos
 [ ] Responsável: explicar a "Periodização" do WebDiet; enviar o e-mail de licença da TBCA

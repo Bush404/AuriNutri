@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { generatePlanPdf } from "@/lib/pdf/generate-plan-pdf";
+import { opcoesDoPdf } from "@/lib/pdf/plan-pdf-data";
 import { withinRateLimit } from "@/lib/rate-limit";
 
-export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const supabase = await createClient();
 
@@ -17,10 +18,12 @@ export async function GET(_request: Request, props: { params: Promise<{ id: stri
   }
 
   if (!(await withinRateLimit(supabase, "gerar_pdf"))) {
-    return new NextResponse("Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.", { status: 429 });
+    return new NextResponse("Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.", {
+      status: 429,
+    });
   }
 
-  const result = await generatePlanPdf(supabase, user, params.id);
+  const result = await generatePlanPdf(supabase, user, params.id, opcoesDoPdf(new URL(request.url).searchParams));
 
   if (!result) {
     return new NextResponse("Plano não encontrado.", { status: 404 });

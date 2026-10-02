@@ -6,14 +6,16 @@ import { Plus } from "lucide-react";
 import { COR_MACRO } from "@/lib/macro-colors";
 import { analisarCardapio, distribuicaoCalorica, type MetasDoPlano } from "@/lib/meal-planning";
 import type { MacroTotals } from "@/lib/nutrition";
-import type { MealPlan } from "@/lib/types/database.types";
+import type { MealItem, MealPlan, Sexo } from "@/lib/types/database.types";
 import { cn } from "@/lib/utils";
 
 import { PlanejamentoDialog, type CalculoParaImportar } from "@/components/meal-plans/planejamento-dialog";
+import { MicronutrientsDialog } from "@/components/meal-plans/micronutrients-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const fmt = (v: number, casas = 1) => v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
+const fmt = (v: number, casas = 1) =>
+  v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
 
 const valor = (v: number | null, unidade: string) => {
   if (v === null) return "—";
@@ -49,10 +51,23 @@ interface Props {
   pesoPaciente: number | null;
   calculos: CalculoParaImportar[];
   patientId: string;
+  /** Todos os itens do plano, para os micronutrientes × DRI (Fase 17, Bloco F). */
+  itens: MealItem[];
+  paciente: { sexo: Sexo | null; data_nascimento: string | null };
 }
 
 /** "Análise de nutrientes do cardápio" (Fase 17, Bloco A): Prescrito × Teórico × Diferença + distribuição calórica. */
-export function NutrientAnalysisCard({ planId, plan, totais, pesoTotalG, pesoPaciente, calculos, patientId }: Props) {
+export function NutrientAnalysisCard({
+  planId,
+  plan,
+  totais,
+  pesoTotalG,
+  pesoPaciente,
+  calculos,
+  patientId,
+  itens,
+  paciente,
+}: Props) {
   const [planejando, setPlanejando] = useState(false);
   const metas: MetasDoPlano = plan;
   const temTeorico = plan.meta_kcal !== null;
@@ -88,19 +103,31 @@ export function NutrientAnalysisCard({ planId, plan, totais, pesoTotalG, pesoPac
                       )}
                     </td>
                     <td className="py-1.5 pr-3 text-right tabular-nums">{valor(l.prescrito, l.unidade)}</td>
-                    <td className="py-1.5 pr-3 text-right tabular-nums text-muted-foreground">{valor(l.teorico, l.unidade)}</td>
+                    <td className="py-1.5 pr-3 text-right tabular-nums text-muted-foreground">
+                      {valor(l.teorico, l.unidade)}
+                    </td>
                     <td className={cn("py-1.5 text-right tabular-nums", l.diferenca ? "font-medium" : "")}>
-                      {l.diferenca === null ? "—" : `${l.diferenca > 0 ? "+" : l.diferenca < 0 ? "−" : ""}${valor(Math.abs(l.diferenca), l.unidade)}`}
+                      {l.diferenca === null
+                        ? "—"
+                        : `${l.diferenca > 0 ? "+" : l.diferenca < 0 ? "−" : ""}${valor(Math.abs(l.diferenca), l.unidade)}`}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <Button type="button" variant={temTeorico ? "outline" : "default"} size="sm" onClick={() => setPlanejando(true)}>
-            {!temTeorico && <Plus className="h-4 w-4" />}
-            {temTeorico ? "Editar planejamento teórico" : "Adicionar planejamento teórico"}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant={temTeorico ? "outline" : "default"}
+              size="sm"
+              onClick={() => setPlanejando(true)}
+            >
+              {!temTeorico && <Plus className="h-4 w-4" />}
+              {temTeorico ? "Editar planejamento teórico" : "Adicionar planejamento teórico"}
+            </Button>
+            <MicronutrientsDialog itens={itens} paciente={paciente} />
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -119,7 +146,7 @@ export function NutrientAnalysisCard({ planId, plan, totais, pesoTotalG, pesoPac
                     style={{ width: `${dist[m.chave].pct}%`, backgroundColor: m.cor }}
                     title={`${m.rotulo}: ${fmt(Math.round(dist[m.chave].kcal), 0)} kcal (${fmt(dist[m.chave].pct)}%)`}
                   />
-                ) : null
+                ) : null,
               )}
             </div>
           ) : (
@@ -128,7 +155,11 @@ export function NutrientAnalysisCard({ planId, plan, totais, pesoTotalG, pesoPac
           <div className="grid grid-cols-2 gap-2">
             {MACROS.map((m) => (
               <div key={m.chave} className="flex gap-2 rounded-md bg-muted/50 px-3 py-2">
-                <span className="mt-1 h-3 w-3 shrink-0 rounded-sm" style={{ backgroundColor: m.cor }} aria-hidden="true" />
+                <span
+                  className="mt-1 h-3 w-3 shrink-0 rounded-sm"
+                  style={{ backgroundColor: m.cor }}
+                  aria-hidden="true"
+                />
                 <div className="text-sm">
                   <p className="text-muted-foreground">{m.rotulo}</p>
                   <p className="font-medium tabular-nums text-foreground">

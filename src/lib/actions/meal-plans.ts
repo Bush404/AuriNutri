@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { MICRONUTRIENTE_KEYS } from "@/lib/validations/food";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { mealPlanSchema, planejamentoSchema, type MealPlanInput, type PlanejamentoInput } from "@/lib/validations/meal-plan";
@@ -283,6 +284,10 @@ export async function duplicateMealPlan(planId: string): Promise<ActionResult> {
         medida_nome: item.medida_nome,
         medida_gramas: item.medida_gramas,
         medida_quantidade: item.medida_quantidade,
+        // Micronutrientes (migration 0046) — mesma cópia, para a análise de DRI da cópia bater.
+        ...Object.fromEntries(MICRONUTRIENTE_KEYS.map((k) => [k, item[k] ?? null])),
+        valores_especiais: item.valores_especiais ?? null,
+        micros_copiados: item.micros_copiados ?? false,
       }))
     );
 

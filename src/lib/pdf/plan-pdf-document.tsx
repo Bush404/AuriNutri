@@ -3,6 +3,7 @@ import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/render
 import { formatDate } from "@/lib/utils";
 import { FONTE_LABELS } from "@/lib/nutrition";
 import type { PlanPdfViewModel } from "@/lib/pdf/plan-pdf-data";
+import type { Situacao } from "@/lib/dri";
 
 /**
  * Componente puramente visual — recebe o PlanPdfViewModel já pronto (todo o
@@ -69,7 +70,186 @@ const styles = StyleSheet.create({
   footerAssinatura: { alignItems: "center", marginTop: 8 },
   assinaturaImg: { width: 100, height: 36, objectFit: "contain" },
   assinaturaNome: { fontSize: 8, color: "#5f6f68", marginTop: 2 },
+  secaoTitulo: { fontSize: 14, fontWeight: 700, marginBottom: 4 },
+  secaoSubtitulo: { fontSize: 9, color: "#5f6f68", marginBottom: 10 },
+  colNutriente: { flex: 2.6 },
+  colNumero: { flex: 1.2, textAlign: "right" },
+  colSituacao: { flex: 1.4, textAlign: "right" },
+  nota: { fontSize: 8, color: "#5f6f68", marginTop: 6 },
+  grupoCompras: { fontSize: 11, fontWeight: 700, marginTop: 10, marginBottom: 4 },
+  linhaCompras: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 2,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#e2eae6",
+  },
+  situacaoAbaixo: { color: "#a35a15" },
+  situacaoAcima: { color: "#a35a15" },
+  situacaoOk: { color: "#124532" },
 });
+
+const fmt = (v: number, casas: number) =>
+  v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
+const casasDe = (v: number) => (v >= 100 ? 0 : v >= 10 ? 1 : 2);
+
+const ROTULO_SITUACAO: Record<Situacao, string> = {
+  abaixo: "Abaixo",
+  adequado: "Adequado",
+  acima: "Acima",
+  so_limite: "—",
+  sem_dado: "Sem dado",
+};
+
+function Rodape({ data }: { data: PlanPdfViewModel }) {
+  const { profissional } = data;
+  return (
+    <View style={styles.footer} fixed>
+      {data.fonteFooter && <Text style={styles.footerFonte}>{data.fonteFooter}</Text>}
+      {profissional.assinaturaUrl && (
+        <View style={styles.footerAssinatura}>
+          {/* eslint-disable-next-line jsx-a11y/alt-text -- Image aqui é o componente do @react-pdf/renderer (PDF), não <img> do DOM; não tem prop alt. */}
+          <Image src={profissional.assinaturaUrl} style={styles.assinaturaImg} />
+          <Text style={styles.assinaturaNome}>{profissional.nome}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+/** Página "Relatório de nutrientes": macros por refeição + micronutrientes × DRI (Fase 17, Bloco F). */
+function PaginaNutrientes({ data }: { data: PlanPdfViewModel }) {
+  const n = data.nutrientes;
+  if (!n) return null;
+  return (
+    <Page size="A4" style={[styles.page, { paddingBottom: 90 }]} wrap>
+      <Text style={styles.secaoTitulo}>Relatório de nutrientes</Text>
+      <Text style={styles.secaoSubtitulo}>
+        {data.pacienteNome}
+        {n.faixa ? ` · Referência: ${n.faixa}` : ""}
+      </Text>
+
+      <Text style={styles.grupoCompras}>Por refeição</Text>
+      <View style={styles.tableHeaderRow}>
+        <Text style={[styles.tableHeaderText, styles.colNutriente]}>Refeição</Text>
+        <Text style={[styles.tableHeaderText, styles.colNumero]}>Kcal</Text>
+        <Text style={[styles.tableHeaderText, styles.colNumero]}>Prot. (g)</Text>
+        <Text style={[styles.tableHeaderText, styles.colNumero]}>Carb. (g)</Text>
+        <Text style={[styles.tableHeaderText, styles.colNumero]}>Gord. (g)</Text>
+        <Text style={[styles.tableHeaderText, styles.colNumero]}>Fibras (g)</Text>
+      </View>
+      {[
+        ...data.refeicoes.map((m) => ({ id: m.id, nome: m.nome, t: m.totais })),
+        { id: "total", nome: "Total do dia", t: data.totais },
+      ].map((r) => (
+        <View key={r.id} style={styles.tableRow}>
+          <Text style={[styles.colNutriente, r.id === "total" ? { fontWeight: 700 } : {}]}>{r.nome}</Text>
+          <Text style={styles.colNumero}>{fmt(r.t.calorias, 0)}</Text>
+          <Text style={styles.colNumero}>{fmt(r.t.proteinas, 1)}</Text>
+          <Text style={styles.colNumero}>{fmt(r.t.carboidratos, 1)}</Text>
+          <Text style={styles.colNumero}>{fmt(r.t.gorduras, 1)}</Text>
+          <Text style={styles.colNumero}>{fmt(r.t.fibras, 1)}</Text>
+        </View>
+      ))}
+
+      <Text style={styles.grupoCompras}>Micronutrientes × recomendação diária (DRI)</Text>
+      {n.linhas.length === 0 ? (
+        <Text style={styles.nota}>
+          Cadastre o sexo e a data de nascimento do paciente para comparar com a recomendação da faixa de idade.
+        </Text>
+      ) : (
+        <>
+          <View style={styles.tableHeaderRow}>
+            <Text style={[styles.tableHeaderText, styles.colNutriente]}>Nutriente</Text>
+            <Text style={[styles.tableHeaderText, styles.colNumero]}>No cardápio</Text>
+            <Text style={[styles.tableHeaderText, styles.colNumero]}>Recomendação</Text>
+            <Text style={[styles.tableHeaderText, styles.colNumero]}>% da rec.</Text>
+            <Text style={[styles.tableHeaderText, styles.colNumero]}>Limite (UL)</Text>
+            <Text style={[styles.tableHeaderText, styles.colSituacao]}>Situação</Text>
+          </View>
+          {n.linhas.map((l) => (
+            <View key={l.chave} style={styles.tableRow} wrap={false}>
+              <Text style={styles.colNutriente}>
+                {l.rotulo} ({l.unidade})
+              </Text>
+              <Text style={styles.colNumero}>
+                {l.consumo === null ? "—" : fmt(l.consumo, casasDe(l.consumo))}
+                {l.consumo !== null && l.itensSemDado > 0 ? "*" : ""}
+              </Text>
+              <Text style={styles.colNumero}>
+                {l.recomendacao === null ? "—" : `${fmt(l.recomendacao, casasDe(l.recomendacao))} ${l.tipo}`}
+              </Text>
+              <Text style={styles.colNumero}>{l.percentual === null ? "—" : `${fmt(l.percentual, 0)}%`}</Text>
+              <Text style={styles.colNumero}>
+                {l.limite === null ? "—" : fmt(l.limite, casasDe(l.limite))}
+                {l.chave === "sodio_mg" && l.limite !== null ? " CDRR" : ""}
+              </Text>
+              <Text
+                style={[
+                  styles.colSituacao,
+                  l.acimaDoLimite || l.situacao === "abaixo" || l.situacao === "acima"
+                    ? styles.situacaoAbaixo
+                    : l.situacao === "adequado"
+                      ? styles.situacaoOk
+                      : {},
+                ]}
+              >
+                {l.acimaDoLimite ? "Acima do limite" : ROTULO_SITUACAO[l.situacao]}
+              </Text>
+            </View>
+          ))}
+        </>
+      )}
+      <View style={[styles.tableRow, { marginTop: 6 }]}>
+        <Text style={styles.nota}>
+          Sem DRI:{" "}
+          {n.semReferencia
+            .map((s) => `${s.rotulo} ${s.valor === null ? "—" : fmt(s.valor, casasDe(s.valor))} ${s.unidade}`)
+            .join(" · ")}
+        </Text>
+      </View>
+      <Text style={styles.nota}>
+        Adequado = entre 80% e 120% da recomendação (RDA ou AI). Limite = UL; no sódio, a CDRR (“reduzir se acima de”).
+        Fonte: National Academies, Dietary Reference Intakes Summary Tables (2019).
+        {n.linhas.some((l) => l.itensSemDado > 0)
+          ? " * Total parcial: algum alimento do cardápio não tem esse dado na tabela de origem."
+          : ""}
+        {n.itensSemMicros > 0
+          ? ` ${n.itensSemMicros} alimento(s) do cardápio sem micronutrientes (alimentos próprios ou receitas adicionados antes de 02/10/2026).`
+          : ""}
+      </Text>
+      <Rodape data={data} />
+    </Page>
+  );
+}
+
+/** Página "Lista de compras" (Fase 17, Bloco F). */
+function PaginaCompras({ data }: { data: PlanPdfViewModel }) {
+  const lista = data.listaDeCompras;
+  if (!lista) return null;
+  return (
+    <Page size="A4" style={[styles.page, { paddingBottom: 90 }]} wrap>
+      <Text style={styles.secaoTitulo}>Lista de compras</Text>
+      <Text style={styles.secaoSubtitulo}>
+        Para {data.opcoes.dias} {data.opcoes.dias === 1 ? "dia" : "dias"} do plano · {data.pacienteNome}. Quantidades do
+        alimento como prescrito (ex.: arroz cozido); os substitutos não entram.
+      </Text>
+      {lista.length === 0 && <Text style={styles.nota}>O plano ainda não tem alimentos.</Text>}
+      {lista.map((g) => (
+        <View key={g.grupo} wrap={false}>
+          <Text style={styles.grupoCompras}>{g.grupo}</Text>
+          {g.itens.map((i) => (
+            <View key={i.nome} style={styles.linhaCompras}>
+              <Text>☐ {i.nome}</Text>
+              <Text>{i.texto}</Text>
+            </View>
+          ))}
+        </View>
+      ))}
+      <Rodape data={data} />
+    </Page>
+  );
+}
 
 function TotalComparativo({
   label,
@@ -108,6 +288,7 @@ function TotalComparativo({
 
 export function PlanPdfDocument({ data }: { data: PlanPdfViewModel }) {
   const { profissional } = data;
+  const tabela = data.opcoes.estilo === "tabela";
 
   return (
     <Document title={`Plano alimentar - ${data.pacienteNome}`} author={profissional.nome} creator="AuriNutri">
@@ -142,8 +323,8 @@ export function PlanPdfDocument({ data }: { data: PlanPdfViewModel }) {
           </View>
         )}
 
-        {data.refeicoes.map((meal) => (
-          <View key={meal.id} style={styles.mealCard} wrap={false}>
+        {data.refeicoes.map((meal, indice) => (
+          <View key={meal.id} style={styles.mealCard} wrap={false} break={data.opcoes.quebraPorRefeicao && indice > 0}>
             <View style={styles.mealHeaderRow}>
               <Text style={styles.mealNome}>{meal.nome}</Text>
               {meal.horario && <Text style={styles.mealHorario}>{meal.horario.slice(0, 5)}</Text>}
@@ -153,10 +334,14 @@ export function PlanPdfDocument({ data }: { data: PlanPdfViewModel }) {
             <View style={styles.tableHeaderRow}>
               <Text style={[styles.tableHeaderText, styles.colAlimento]}>Alimento</Text>
               <Text style={[styles.tableHeaderText, styles.colQtd]}>Qtd.</Text>
-              <Text style={[styles.tableHeaderText, styles.colMacro]}>Kcal</Text>
-              <Text style={[styles.tableHeaderText, styles.colMacro]}>Prot.</Text>
-              <Text style={[styles.tableHeaderText, styles.colMacro]}>Carb.</Text>
-              <Text style={[styles.tableHeaderText, styles.colMacro]}>Gord.</Text>
+              {tabela && (
+                <>
+                  <Text style={[styles.tableHeaderText, styles.colMacro]}>Kcal</Text>
+                  <Text style={[styles.tableHeaderText, styles.colMacro]}>Prot.</Text>
+                  <Text style={[styles.tableHeaderText, styles.colMacro]}>Carb.</Text>
+                  <Text style={[styles.tableHeaderText, styles.colMacro]}>Gord.</Text>
+                </>
+              )}
             </View>
 
             {meal.itens.map((item, index) => (
@@ -166,10 +351,14 @@ export function PlanPdfDocument({ data }: { data: PlanPdfViewModel }) {
                     {item.nomeAlimento} ({FONTE_LABELS[item.fonteAlimento]})
                   </Text>
                   <Text style={styles.colQtd}>{item.quantidadeTexto}</Text>
-                  <Text style={styles.colMacro}>{item.macros.calorias.toFixed(0)}</Text>
-                  <Text style={styles.colMacro}>{item.macros.proteinas.toFixed(1)}</Text>
-                  <Text style={styles.colMacro}>{item.macros.carboidratos.toFixed(1)}</Text>
-                  <Text style={styles.colMacro}>{item.macros.gorduras.toFixed(1)}</Text>
+                  {tabela && (
+                    <>
+                      <Text style={styles.colMacro}>{item.macros.calorias.toFixed(0)}</Text>
+                      <Text style={styles.colMacro}>{item.macros.proteinas.toFixed(1)}</Text>
+                      <Text style={styles.colMacro}>{item.macros.carboidratos.toFixed(1)}</Text>
+                      <Text style={styles.colMacro}>{item.macros.gorduras.toFixed(1)}</Text>
+                    </>
+                  )}
                 </View>
                 {item.substituicoes.length > 0 && (
                   <Text style={styles.substituicoes}>Opções de substituição: {item.substituicoes.join(" · ")}</Text>
@@ -177,72 +366,69 @@ export function PlanPdfDocument({ data }: { data: PlanPdfViewModel }) {
               </View>
             ))}
 
-            <View style={styles.mealTotalRow}>
-              <Text style={styles.mealTotalText}>Total: {meal.totais.calorias.toFixed(0)} kcal</Text>
-              <Text style={styles.mealTotalText}>P {meal.totais.proteinas.toFixed(1)}g</Text>
-              <Text style={styles.mealTotalText}>C {meal.totais.carboidratos.toFixed(1)}g</Text>
-              <Text style={styles.mealTotalText}>G {meal.totais.gorduras.toFixed(1)}g</Text>
-            </View>
+            {tabela && (
+              <View style={styles.mealTotalRow}>
+                <Text style={styles.mealTotalText}>Total: {meal.totais.calorias.toFixed(0)} kcal</Text>
+                <Text style={styles.mealTotalText}>P {meal.totais.proteinas.toFixed(1)}g</Text>
+                <Text style={styles.mealTotalText}>C {meal.totais.carboidratos.toFixed(1)}g</Text>
+                <Text style={styles.mealTotalText}>G {meal.totais.gorduras.toFixed(1)}g</Text>
+              </View>
+            )}
           </View>
         ))}
 
-        <View style={styles.totaisSection}>
-          <Text style={styles.totaisTitulo}>Total diário do plano</Text>
-          <View style={styles.totaisGrid}>
-            <TotalComparativo
-              label="Calorias"
-              valor={data.totais.calorias}
-              unidade="kcal"
-              decimais={0}
-              meta={data.metas.meta_kcal}
-              comparativo={data.comparativos.calorias}
-            />
-            <TotalComparativo
-              label="Proteínas"
-              valor={data.totais.proteinas}
-              unidade="g"
-              decimais={1}
-              meta={data.metas.meta_proteinas_g}
-              comparativo={data.comparativos.proteinas}
-            />
-            <TotalComparativo
-              label="Carboidratos"
-              valor={data.totais.carboidratos}
-              unidade="g"
-              decimais={1}
-              meta={data.metas.meta_carboidratos_g}
-              comparativo={data.comparativos.carboidratos}
-            />
-            <TotalComparativo
-              label="Gorduras"
-              valor={data.totais.gorduras}
-              unidade="g"
-              decimais={1}
-              meta={data.metas.meta_gorduras_g}
-              comparativo={data.comparativos.gorduras}
-            />
-            <TotalComparativo
-              label="Fibras"
-              valor={data.totais.fibras}
-              unidade="g"
-              decimais={1}
-              meta={null}
-              comparativo={null}
-            />
-          </View>
-        </View>
-
-        <View style={styles.footer} fixed>
-          {data.fonteFooter && <Text style={styles.footerFonte}>{data.fonteFooter}</Text>}
-          {profissional.assinaturaUrl && (
-            <View style={styles.footerAssinatura}>
-              {/* eslint-disable-next-line jsx-a11y/alt-text -- ver comentário equivalente acima, no logo. */}
-              <Image src={profissional.assinaturaUrl} style={styles.assinaturaImg} />
-              <Text style={styles.assinaturaNome}>{profissional.nome}</Text>
+        {tabela && (
+          <View style={styles.totaisSection}>
+            <Text style={styles.totaisTitulo}>Total diário do plano</Text>
+            <View style={styles.totaisGrid}>
+              <TotalComparativo
+                label="Calorias"
+                valor={data.totais.calorias}
+                unidade="kcal"
+                decimais={0}
+                meta={data.metas.meta_kcal}
+                comparativo={data.comparativos.calorias}
+              />
+              <TotalComparativo
+                label="Proteínas"
+                valor={data.totais.proteinas}
+                unidade="g"
+                decimais={1}
+                meta={data.metas.meta_proteinas_g}
+                comparativo={data.comparativos.proteinas}
+              />
+              <TotalComparativo
+                label="Carboidratos"
+                valor={data.totais.carboidratos}
+                unidade="g"
+                decimais={1}
+                meta={data.metas.meta_carboidratos_g}
+                comparativo={data.comparativos.carboidratos}
+              />
+              <TotalComparativo
+                label="Gorduras"
+                valor={data.totais.gorduras}
+                unidade="g"
+                decimais={1}
+                meta={data.metas.meta_gorduras_g}
+                comparativo={data.comparativos.gorduras}
+              />
+              <TotalComparativo
+                label="Fibras"
+                valor={data.totais.fibras}
+                unidade="g"
+                decimais={1}
+                meta={null}
+                comparativo={null}
+              />
             </View>
-          )}
-        </View>
+          </View>
+        )}
+
+        <Rodape data={data} />
       </Page>
+      <PaginaNutrientes data={data} />
+      <PaginaCompras data={data} />
     </Document>
   );
 }

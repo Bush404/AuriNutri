@@ -109,6 +109,7 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
         patientId={plan.patients.id}
         patientName={plan.patients.nome}
         patientTelefone={plan.patients.telefone}
+        patientSexo={plan.patients.sexo}
         shareLinks={shareLinks}
       />
 
@@ -137,6 +138,8 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
       <NutrientAnalysisCard
         planId={plan.id}
         patientId={plan.patients.id}
+        itens={mealsWithItems.flatMap((m) => m.items)}
+        paciente={{ sexo: plan.patients.sexo, data_nascimento: plan.patients.data_nascimento }}
         plan={plan}
         totais={totals}
         pesoTotalG={pesoTotalG}

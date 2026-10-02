@@ -1,4 +1,13 @@
-import type { Food, Meal, MealItem, FonteAlimento, ItemFonte, Recipe, RecipeIngredient } from "@/lib/types/database.types";
+import type {
+  Food,
+  Meal,
+  MealItem,
+  MicrosDoItem,
+  FonteAlimento,
+  ItemFonte,
+  Recipe,
+  RecipeIngredient,
+} from "@/lib/types/database.types";
 import { MICRONUTRIENTE_KEYS, type MicronutrienteKey } from "@/lib/validations/food";
 
 export interface MacroTotals {
@@ -76,7 +85,13 @@ export function calculateFoodMacros(food: Food, quantidadeGramas: number): Macro
 /** Campos de snapshot nutricional compartilhados por meal_items e meal_item_substitutions. */
 export type NutritionSnapshot = Pick<
   MealItem,
-  "porcao_referencia_g" | "quantidade_g" | "calorias_kcal" | "proteinas_g" | "carboidratos_g" | "gorduras_g" | "fibras_g"
+  | "porcao_referencia_g"
+  | "quantidade_g"
+  | "calorias_kcal"
+  | "proteinas_g"
+  | "carboidratos_g"
+  | "gorduras_g"
+  | "fibras_g"
 >;
 
 /**
@@ -108,7 +123,7 @@ export function sumMacros(items: MacroTotals[]): MacroTotals {
       gorduras: acc.gorduras + item.gorduras,
       fibras: acc.fibras + item.fibras,
     }),
-    { ...ZERO_MACROS }
+    { ...ZERO_MACROS },
   );
 }
 
@@ -132,8 +147,8 @@ export function calculatePlanTotals(meals: { items: MealItem[] }[]): MacroTotals
 export function collectFontesUsadas(meals: { items: MealItem[] }[]): FonteAlimento[] {
   return meals.flatMap((meal) =>
     meal.items.flatMap((item) =>
-      item.fonte_alimento === "receita" ? (item.fontes_ingredientes_receita ?? []) : [item.fonte_alimento]
-    )
+      item.fonte_alimento === "receita" ? (item.fontes_ingredientes_receita ?? []) : [item.fonte_alimento],
+    ),
   );
 }
 
@@ -196,6 +211,15 @@ export function buildFoodSnapshotWithMicros(food: Food) {
 }
 
 /**
+ * Snapshot de um alimento para um item do plano ou substituto (Fase 17,
+ * Bloco F): macros + micronutrientes + valores_especiais, marcado como
+ * `micros_copiados` para a análise de DRI saber que o item tem o dado.
+ */
+export function buildFoodSnapshotParaItem(food: Food) {
+  return { ...buildFoodSnapshotWithMicros(food), micros_copiados: true };
+}
+
+/**
  * Gramas de `food` necessárias para chegar perto de `targetKcal` — usado
  * para sugerir a quantidade de um alimento substituto com aporte calórico
  * semelhante ao do item original. Retorna null quando o alimento não tem
@@ -230,7 +254,12 @@ const TOLERANCIA_PERCENTUAL_META = 5;
  * irrisória. Usado tanto na tela (DailyTotalsCard) quanto no PDF do plano —
  * mesma função, mesmo resultado nos dois lugares.
  */
-export function compareToGoal(total: number, meta: number | null, unit: string, decimals: number): GoalComparison | null {
+export function compareToGoal(
+  total: number,
+  meta: number | null,
+  unit: string,
+  decimals: number,
+): GoalComparison | null {
   if (meta === null || meta === undefined) return null;
 
   const diff = total - meta;
@@ -367,7 +396,7 @@ export function calculateRecipePer100g(ingredients: RecipeIngredient[], rendimen
 export function calculateRecipeEffectivePerPortion(
   ingredients: RecipeIngredient[],
   numeroPorcoes: number,
-  valoresSobrescritos: Partial<Record<string, number>>
+  valoresSobrescritos: Partial<Record<string, number>>,
 ): MacroTotals {
   const calculado = calculateRecipePerPortion(ingredients, numeroPorcoes).macros;
   const comOverride = (campo: keyof MacroTotals): number => {
@@ -406,6 +435,16 @@ export function buildRecipeSnapshot(recipe: Recipe, ingredients: RecipeIngredien
   const macros = calculateRecipeEffectivePerPortion(ingredients, numeroPorcoes, recipe.valores_sobrescritos);
   const fontesIngredientes = Array.from(new Set(ingredients.map((i) => i.fonte_alimento)));
 
+  // Micronutrientes por porção (Fase 17, Bloco F): soma do que os ingredientes
+  // têm; nulo só quando NENHUM ingrediente tem o dado. Total parcial (alguns sem
+  // o dado) entra como está — é o melhor valor conhecido da receita.
+  const microsPorPorcao = calculateRecipePerPortion(ingredients, numeroPorcoes).micros;
+  const micros: Partial<Record<MicronutrienteKey, number | null>> = {};
+  for (const key of MICRONUTRIENTE_KEYS) {
+    const m = microsPorPorcao[key];
+    micros[key] = m.ingredientesSemDado >= ingredients.length ? null : m.valor;
+  }
+
   return {
     nome_alimento: recipe.nome,
     fonte_alimento: "receita" as const,
@@ -417,5 +456,39 @@ export function buildRecipeSnapshot(recipe: Recipe, ingredients: RecipeIngredien
     gorduras_g: macros.gorduras,
     fibras_g: macros.fibras,
     fontes_ingredientes_receita: fontesIngredientes,
+    ...micros,
+    valores_especiais: {},
+    micros_copiados: true,
   };
+}
+
+// ============================================================================
+// MICRONUTRIENTES DO CARDÁPIO (Fase 17, Bloco F)
+// ============================================================================
+
+/** Item com micronutrientes copiados (meal_items / substitutos), por porcao_referencia_g. */
+export type ItemComMicros = Pick<MealItem, "quantidade_g" | "porcao_referencia_g"> & MicrosDoItem;
+
+/**
+ * Soma um micronutriente sobre os itens, na quantidade de cada um. Item sem o
+ * dado não vira 0: conta em `ingredientesSemDado` (aqui = itens) e o total fica
+ * `parcial`. Traço ("traco") conta como 0 conhecido — a quantidade é desprezível.
+ */
+export function somarMicrosDosItens(itens: ItemComMicros[]): MicronutrientTotals {
+  const totais = {} as MicronutrientTotals;
+  for (const key of MICRONUTRIENTE_KEYS) {
+    let valor = 0;
+    let semDado = 0;
+    for (const item of itens) {
+      const bruto = item[key];
+      if (!item.micros_copiados || bruto === null || bruto === undefined) {
+        if (item.micros_copiados && item.valores_especiais?.[key] === "traco") continue;
+        semDado += 1;
+        continue;
+      }
+      valor += Number(bruto) * (Number(item.quantidade_g) / (Number(item.porcao_referencia_g) || 100));
+    }
+    totais[key] = { valor, parcial: semDado > 0, ingredientesSemDado: semDado };
+  }
+  return totais;
 }
