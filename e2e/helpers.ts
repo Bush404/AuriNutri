@@ -77,10 +77,10 @@ export async function adicionarAlimentoNaRefeicao(page: Page, busca: string, nom
   const nome = (await resultado.innerText()).trim();
   await resultado.click();
   // Alimento com medida caseira (Fase 17, Bloco D) entra em "1 medida"; o teste trabalha em gramas.
-  await expect(page.getByLabel(new RegExp(`^Quantidade de ${escaparRegex(nome)} \\(`))).toBeVisible();
-  const unidade = page.getByLabel(`Unidade de ${nome}`);
+  await expect(page.getByLabel(new RegExp(`^Quantidade de ${escaparRegex(nome)} \\(`)).filter({ visible: true })).toBeVisible();
+  const unidade = page.getByLabel(`Unidade de ${nome}`).filter({ visible: true });
   if ((await unidade.count()) > 0 && (await unidade.inputValue()) !== "g") await unidade.selectOption("g");
-  const quantidade = page.getByLabel(`Quantidade de ${nome} (g)`);
+  const quantidade = page.getByLabel(`Quantidade de ${nome} (g)`).filter({ visible: true });
   await expect(quantidade).toBeVisible();
   await quantidade.fill(String(gramas));
   await quantidade.press("Tab");

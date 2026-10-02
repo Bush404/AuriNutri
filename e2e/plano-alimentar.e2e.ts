@@ -45,14 +45,14 @@ test("criar alimento próprio, montar plano, conferir macros e gerar PDF", async
   await expect(totais).toContainText("Lipídios: 7,5 g");
 
   // Medida caseira própria (Fase 17, Bloco D): "pote" de 50 g; 3 potes = 150 g, mesmos totais.
-  await page.getByLabel(`Unidade de ${nomeAlimento}`).selectOption("__gerenciar");
+  await page.getByLabel(`Unidade de ${nomeAlimento}`).filter({ visible: true }).selectOption("__gerenciar");
   const medidas = page.getByRole("dialog", { name: "Medidas caseiras" });
   await medidas.getByLabel("Nome").fill("pote E2E");
   await medidas.getByLabel("Gramas").fill("50");
   await medidas.getByRole("button", { name: "Criar" }).click();
   await expect(medidas).toBeHidden();
   await expect(totais).toContainText("Calorias: 100 kcal");
-  const potes = page.getByLabel(`Quantidade de ${nomeAlimento} (medidas)`);
+  const potes = page.getByLabel(`Quantidade de ${nomeAlimento} (medidas)`).filter({ visible: true });
   await potes.fill("3");
   await potes.press("Tab");
   await expect(page.getByText("= 150 g")).toBeVisible();

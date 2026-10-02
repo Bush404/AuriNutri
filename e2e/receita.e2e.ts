@@ -40,6 +40,6 @@ test("criar receita e usá-la num plano alimentar", async ({ page }) => {
   await page.getByRole("radio", { name: "Receitas" }).click();
   await page.getByLabel("Buscar alimentos").fill(nomeReceita);
   await page.getByRole("row").filter({ hasText: nomeReceita }).getByTitle("Adicionar à refeição").first().click();
-  await expect(page.getByLabel(`Quantidade de ${nomeReceita} (porções)`)).toHaveValue("1");
+  await expect(page.getByLabel(`Quantidade de ${nomeReceita} (porções)`).filter({ visible: true })).toHaveValue("1");
   await expect(textoVisivel(page, nomeReceita)).toBeVisible();
 });

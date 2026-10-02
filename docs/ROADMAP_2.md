@@ -414,7 +414,8 @@ favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fi
     observações em texto formatado com salvamento automático (`atualizarObservacoesRefeicao`, PDF via
     `observacaoParaPdf`, +1 teste). Sai o formulário antigo (add-meal-item-form, recipe-combobox).
     "Medida usual" na busca fica para o Bloco D.
-[x] Bloco D (02/10, código pronto; falta aplicar 0045 e rodar `npm run import:medidas`): migration 0045
+[x] Bloco D (02/10; 0045 aplicada, `npm run import:medidas` rodado: 1.922 medidas; E2E 17/17 com
+    locators `.filter({ visible: true })` — o cartão do celular agora repete os rótulos; isolamento 109/109): migration 0045
     (`food_measures` IBGE com user_id nulo + do profissional, RLS; meal_items e substituições ganham
     medida_nome/medida_gramas/medida_quantidade como snapshot); ligação TACO→IBGE revisada à mão em
     `scripts/import-medidas/medidas-ibge-taco.json` (315 alimentos, 1.922 medidas; geradores em
