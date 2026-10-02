@@ -97,11 +97,11 @@ antigos (só em gramas) continuam iguais. → [ ]
 
 | # | Item | No WebDiet | AuriNutri hoje | Decisão |
 |---|---|---|---|---|
-| 6.1 | Por alimento: buscar o substituto e ver lado a lado (medida caseira, gramas, macros) | Sim | Já existe (sem comparação) | [ ] |
-| 6.2 | Quantidade equivalente sugerida (por kcal, carboidrato ou proteína) | Não aparece | Já existe por kcal | [ ] |
-| 6.3 | "Sugestões rápidas" (ex.: pão → pão de forma integral, tapioca) | Sim | Não | [ ] |
-| 6.4 | "Inverter" (o substituto vira o principal) | Sim | Não | [ ] |
-| 6.5 | No PDF: "Opções de substituição para Pão francês: Goma de tapioca — 1 colher de sopa rasa (15 g)" | Sim | Já existe | [ ] |
+| 6.1 | Por alimento: buscar o substituto e ver lado a lado (medida caseira, gramas, macros) | Sim | Já existe (sem comparação) | [x] |
+| 6.2 | Quantidade equivalente sugerida (por kcal, carboidrato ou proteína) | Não aparece | Já existe por kcal | [x] |
+| 6.3 | "Sugestões rápidas" (ex.: pão → pão de forma integral, tapioca) | Sim | Não | [x] |
+| 6.4 | "Inverter" (o substituto vira o principal) | Sim | Não | [x] |
+| 6.5 | No PDF: "Opções de substituição para Pão francês: Goma de tapioca — 1 colher de sopa rasa (15 g)" | Sim | Já existe | [x] |
 
 ## 7. Análise do cardápio e planejamento
 

@@ -424,7 +424,14 @@ favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fi
     duplicatePlan copia a medida; isolamento ganhou food_measures; E2E cria medida própria.
     Substitutos em medida caseira ficam para o Bloco E (colunas já existem). Modelos de refeição
     (meal_template_items) seguem só em gramas.
-[ ] Bloco E: substitutos lado a lado, sugestões rápidas, "inverter", equivalência kcal/CHO/PTN
+[x] Bloco E (02/10, local): `MealItemSubstitutionsDialog` refeito — tabela Original × substitutos com
+    diferenças, critério kcal/CHO/PTN (`src/lib/substitutions.ts`: gramasEquivalentes,
+    arredondarQuantidade de ½ em ½ medida, pontuacaoSugestao = diferença de macros relativa + 0,25·|log2
+    peso| − 0,1 mesmo alimento-base, ehIngrediente, mesmoEstado; +13 testes), `sugerirSubstitutos` (mesma
+    categoria TACO, até 6, peso entre ¼ e 4× o original), `inverterSubstituto` (troca snapshot + medida;
+    receita não inverte), substituto em medida caseira (`food-measures-db.ts` compartilhado), PDF
+    "Opções de substituição" (plan-pdf-data `substituicoes`, +1 teste). Unitários 444, E2E 17/17 (o de
+    plano agora adiciona sugestão e inverte). Antes os substitutos nem saíam no PDF.
 [ ] Bloco F: micronutrientes × DRI (±20%, valores conferidos na fonte oficial); lista de compras;
     opções do PDF (tabela, relatório de nutrientes, lista de compras, quebra por refeição)
 [ ] Bloco G: lista de planos (kcal e kcal/kg), favoritar plano como modelo, começar de modelo,

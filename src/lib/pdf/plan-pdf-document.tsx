@@ -23,13 +23,28 @@ const styles = StyleSheet.create({
   mealNome: { fontSize: 12, fontWeight: 700 },
   mealHorario: { fontSize: 9, color: "#5f6f68" },
   mealObservacoes: { fontSize: 9, color: "#5f6f68", marginBottom: 6, fontStyle: "italic" },
-  tableHeaderRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#e2eae6", paddingBottom: 3, marginBottom: 3 },
+  tableHeaderRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2eae6",
+    paddingBottom: 3,
+    marginBottom: 3,
+  },
   tableRow: { flexDirection: "row", paddingVertical: 2 },
   colAlimento: { flex: 3 },
+  substituicoes: { fontSize: 8, color: "#5f6f68", paddingLeft: 8, marginBottom: 3 },
   colQtd: { flex: 1.8, textAlign: "right" },
   colMacro: { flex: 1, textAlign: "right" },
   tableHeaderText: { fontSize: 8, color: "#5f6f68", textTransform: "uppercase" },
-  mealTotalRow: { flexDirection: "row", justifyContent: "flex-end", gap: 12, marginTop: 6, paddingTop: 4, borderTopWidth: 1, borderTopColor: "#e2eae6" },
+  mealTotalRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+    marginTop: 6,
+    paddingTop: 4,
+    borderTopWidth: 1,
+    borderTopColor: "#e2eae6",
+  },
   mealTotalText: { fontSize: 9, fontWeight: 700 },
   totaisSection: { marginTop: 8, marginBottom: 16, padding: 12, backgroundColor: "#eaf5f0", borderRadius: 4 },
   totaisTitulo: { fontSize: 12, fontWeight: 700, marginBottom: 8 },
@@ -41,7 +56,15 @@ const styles = StyleSheet.create({
   comparativoOk: { fontSize: 8, color: "#124532", marginTop: 2 },
   comparativoAviso: { fontSize: 8, color: "#a35a15", marginTop: 2 },
   observacoesPlano: { marginBottom: 16, fontSize: 9, color: "#33413b" },
-  footer: { position: "absolute", bottom: 24, left: 32, right: 32, borderTopWidth: 1, borderTopColor: "#e2eae6", paddingTop: 8 },
+  footer: {
+    position: "absolute",
+    bottom: 24,
+    left: 32,
+    right: 32,
+    borderTopWidth: 1,
+    borderTopColor: "#e2eae6",
+    paddingTop: 8,
+  },
   footerFonte: { fontSize: 7, color: "#5f6f68", textAlign: "center" },
   footerAssinatura: { alignItems: "center", marginTop: 8 },
   assinaturaImg: { width: 100, height: 36, objectFit: "contain" },
@@ -87,11 +110,7 @@ export function PlanPdfDocument({ data }: { data: PlanPdfViewModel }) {
   const { profissional } = data;
 
   return (
-    <Document
-      title={`Plano alimentar - ${data.pacienteNome}`}
-      author={profissional.nome}
-      creator="AuriNutri"
-    >
+    <Document title={`Plano alimentar - ${data.pacienteNome}`} author={profissional.nome} creator="AuriNutri">
       <Page size="A4" style={styles.page} wrap>
         <View style={styles.headerRow}>
           <View>
@@ -102,9 +121,7 @@ export function PlanPdfDocument({ data }: { data: PlanPdfViewModel }) {
                 {profissional.crnUf ? `/${profissional.crnUf}` : ""}
               </Text>
             )}
-            {profissional.especialidade && (
-              <Text style={styles.profissionalDetalhe}>{profissional.especialidade}</Text>
-            )}
+            {profissional.especialidade && <Text style={styles.profissionalDetalhe}>{profissional.especialidade}</Text>}
             {profissional.telefone && <Text style={styles.profissionalDetalhe}>{profissional.telefone}</Text>}
             {profissional.endereco && <Text style={styles.profissionalDetalhe}>{profissional.endereco}</Text>}
           </View>
@@ -143,15 +160,20 @@ export function PlanPdfDocument({ data }: { data: PlanPdfViewModel }) {
             </View>
 
             {meal.itens.map((item, index) => (
-              <View key={index} style={styles.tableRow}>
-                <Text style={styles.colAlimento}>
-                  {item.nomeAlimento} ({FONTE_LABELS[item.fonteAlimento]})
-                </Text>
-                <Text style={styles.colQtd}>{item.quantidadeTexto}</Text>
-                <Text style={styles.colMacro}>{item.macros.calorias.toFixed(0)}</Text>
-                <Text style={styles.colMacro}>{item.macros.proteinas.toFixed(1)}</Text>
-                <Text style={styles.colMacro}>{item.macros.carboidratos.toFixed(1)}</Text>
-                <Text style={styles.colMacro}>{item.macros.gorduras.toFixed(1)}</Text>
+              <View key={index} wrap={false}>
+                <View style={styles.tableRow}>
+                  <Text style={styles.colAlimento}>
+                    {item.nomeAlimento} ({FONTE_LABELS[item.fonteAlimento]})
+                  </Text>
+                  <Text style={styles.colQtd}>{item.quantidadeTexto}</Text>
+                  <Text style={styles.colMacro}>{item.macros.calorias.toFixed(0)}</Text>
+                  <Text style={styles.colMacro}>{item.macros.proteinas.toFixed(1)}</Text>
+                  <Text style={styles.colMacro}>{item.macros.carboidratos.toFixed(1)}</Text>
+                  <Text style={styles.colMacro}>{item.macros.gorduras.toFixed(1)}</Text>
+                </View>
+                {item.substituicoes.length > 0 && (
+                  <Text style={styles.substituicoes}>Opções de substituição: {item.substituicoes.join(" · ")}</Text>
+                )}
               </View>
             ))}
 

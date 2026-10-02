@@ -9,7 +9,8 @@ import {
   type MealItemRecipeInput,
 } from "@/lib/validations/meal-plan";
 import type { ActionResult } from "@/lib/actions/patients";
-import type { Food, FoodMeasure, Recipe, RecipeIngredient } from "@/lib/types/database.types";
+import type { Food, Recipe, RecipeIngredient } from "@/lib/types/database.types";
+import { buscarMedida, camposDaMedida } from "@/lib/food-measures-db";
 import { buildFoodSnapshot, buildRecipeSnapshot } from "@/lib/nutrition";
 
 export async function addMealItem(
@@ -198,29 +199,6 @@ export async function updateMealItemPortions(
 
   revalidatePath(`/planos/${planId}`);
   return { success: true };
-}
-
-type SupabaseServer = Awaited<ReturnType<typeof createClient>>;
-
-/** Medida que o profissional enxerga (IBGE ou dele) e que é mesmo deste alimento. */
-async function buscarMedida(supabase: SupabaseServer, medidaId: string, foodId: string) {
-  const { data } = await supabase
-    .from("food_measures")
-    .select("*")
-    .eq("id", medidaId)
-    .eq("food_id", foodId)
-    .maybeSingle<FoodMeasure>();
-  return data;
-}
-
-function camposDaMedida(medida: { nome: string; gramas: number }, medidaQuantidade: number) {
-  const gramas = Number(medida.gramas);
-  return {
-    medida_nome: medida.nome,
-    medida_gramas: gramas,
-    medida_quantidade: medidaQuantidade,
-    quantidade_g: Math.round(medidaQuantidade * gramas * 100) / 100,
-  };
 }
 
 /**

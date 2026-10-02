@@ -8,6 +8,7 @@ import { sanitizeRichText } from "@/lib/rich-text-sanitize";
 import { isRichTextEmpty } from "@/lib/rich-text";
 import type { ActionResult } from "@/lib/actions/patients";
 import { medidaUsual } from "@/lib/household-measures";
+import { medidasPorAlimento } from "@/lib/food-measures-db";
 import type { Food, FoodMeasure } from "@/lib/types/database.types";
 
 export type FiltroBusca = "todos" | "favoritos" | "meus" | "receitas" | "taco";
@@ -99,16 +100,10 @@ export async function buscarAlimentosRefeicao(termo: string, filtro: FiltroBusca
 
 /** Preenche a medida caseira usual de cada alimento do resultado (IBGE ou do profissional, pela RLS). */
 async function comMedidaUsual(supabase: Awaited<ReturnType<typeof createClient>>, lista: ResultadoBusca[]) {
-  const ids = lista.filter((r) => r.tipo === "alimento").map((r) => r.id);
-  if (ids.length === 0) return lista;
-  const { data } = await supabase
-    .from("food_measures")
-    .select("*")
-    .in("food_id", ids)
-    .order("gramas")
-    .order("created_at")
-    .returns<FoodMeasure[]>();
-  const porAlimento = agruparMedidas(data ?? []);
+  const porAlimento = await medidasPorAlimento(
+    supabase,
+    lista.filter((r) => r.tipo === "alimento").map((r) => r.id),
+  );
   return lista.map((r) => {
     if (r.tipo !== "alimento") return r;
     const m = medidaUsual(porAlimento[r.id] ?? []);
@@ -116,26 +111,10 @@ async function comMedidaUsual(supabase: Awaited<ReturnType<typeof createClient>>
   });
 }
 
-function agruparMedidas(medidas: FoodMeasure[]) {
-  const porAlimento: Record<string, FoodMeasure[]> = {};
-  for (const m of medidas) (porAlimento[m.food_id] ??= []).push(m);
-  return porAlimento;
-}
-
-/** Medidas caseiras dos alimentos de um plano, por alimento (para o seletor de cada item). */
+/** Medidas caseiras dos alimentos pedidos, por alimento (seletor de cada item; substitutos). */
 export async function medidasDosAlimentos(foodIds: string[]): Promise<Record<string, FoodMeasure[]>> {
-  if (foodIds.length === 0) return {};
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("food_measures")
-    .select("*")
-    .in("food_id", [...new Set(foodIds)])
-    .order("gramas")
-    .order("created_at")
-    .returns<FoodMeasure[]>();
-  return agruparMedidas(data ?? []);
+  return medidasPorAlimento(await createClient(), foodIds.slice(0, 500));
 }
-
 /** Estrela da busca: favoritar ou desfavoritar um alimento (migration 0044). */
 export async function alternarFavoritoAlimento(foodId: string, favoritar: boolean): Promise<ActionResult> {
   const supabase = await createClient();

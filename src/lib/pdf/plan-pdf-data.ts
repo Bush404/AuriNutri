@@ -24,7 +24,7 @@ export function observacaoParaPdf(texto: string | null): string | null {
   const plano = richTextToPlainText(texto.replace(/<li[^>]*>/gi, "• "));
   return plano || null;
 }
-import type { ItemFonte, MealPlan } from "@/lib/types/database.types";
+import type { ItemFonte, MealItem, MealItemSubstitution, MealPlan } from "@/lib/types/database.types";
 
 /**
  * Monta todos os dados que o PDF do plano precisa exibir. NENHUM total é
@@ -60,6 +60,8 @@ export interface PlanPdfItem {
   /** Texto da coluna Qtd.: "2 porção(ões)", "1 unidade média (50 g)" (Fase 17, Bloco D) ou "120 g". */
   quantidadeTexto: string;
   macros: MacroTotals;
+  /** Fase 17, Bloco E: "Goma de tapioca — 1 colher de sopa rasa (15 g)". */
+  substituicoes: string[];
 }
 
 export interface PlanPdfMeal {
@@ -100,9 +102,23 @@ export interface BuildPlanPdfViewModelInput {
   pacienteNome: string;
   plano: Pick<
     MealPlan,
-    "nome" | "data_inicio" | "observacoes" | "meta_kcal" | "meta_proteinas_g" | "meta_carboidratos_g" | "meta_gorduras_g"
+    | "nome"
+    | "data_inicio"
+    | "observacoes"
+    | "meta_kcal"
+    | "meta_proteinas_g"
+    | "meta_carboidratos_g"
+    | "meta_gorduras_g"
   >;
   refeicoes: MealWithItems[];
+}
+
+/** Substitutos do item na ordem em que foram cadastrados, como texto do PDF. */
+function substituicoesDoItem(item: MealItem & { meal_item_substitutions?: MealItemSubstitution[] }): string[] {
+  return (item.meal_item_substitutions ?? [])
+    .slice()
+    .sort((a, b) => a.ordem - b.ordem)
+    .map((s) => `${s.nome_alimento} — ${quantidadeDoItem(s)}`);
 }
 
 export function buildPlanPdfViewModel({
@@ -129,6 +145,7 @@ export function buildPlanPdfViewModel({
         quantidadeTexto:
           item.quantidade_porcoes !== null ? `${item.quantidade_porcoes} porção(ões)` : quantidadeDoItem(item),
         macros: calculateMealItemMacros(item),
+        substituicoes: substituicoesDoItem(item),
       })),
     totais: calculateMealTotals(meal.items),
   }));
@@ -137,7 +154,7 @@ export function buildPlanPdfViewModel({
   const fonteFooter = buildFonteFooter(collectFontesUsadas(refeicoes));
 
   const temMeta = Boolean(
-    plano.meta_kcal || plano.meta_proteinas_g || plano.meta_carboidratos_g || plano.meta_gorduras_g
+    plano.meta_kcal || plano.meta_proteinas_g || plano.meta_carboidratos_g || plano.meta_gorduras_g,
   );
 
   return {

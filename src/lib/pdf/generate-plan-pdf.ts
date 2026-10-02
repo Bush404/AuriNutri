@@ -5,7 +5,7 @@ import type { createClient } from "@/lib/supabase/server";
 import { buildPlanPdfViewModel } from "@/lib/pdf/plan-pdf-data";
 import { PlanPdfDocument } from "@/lib/pdf/plan-pdf-document";
 import { buildProfissionalPdfHeaderData } from "@/lib/pdf/profissional-header";
-import type { Meal, MealItem, MealPlan } from "@/lib/types/database.types";
+import type { Meal, MealItem, MealItemSubstitution, MealPlan } from "@/lib/types/database.types";
 
 export function slugify(value: string) {
   return value
@@ -17,7 +17,7 @@ export function slugify(value: string) {
 }
 
 type PlanWithPatient = MealPlan & { patient_id: string; patients: { nome: string } };
-type MealRow = Meal & { meal_items: MealItem[] };
+type MealRow = Meal & { meal_items: (MealItem & { meal_item_substitutions: MealItemSubstitution[] })[] };
 
 export interface GeneratePlanPdfResult {
   buffer: Buffer;
@@ -36,7 +36,7 @@ export interface GeneratePlanPdfResult {
 export async function generatePlanPdf(
   supabase: Awaited<ReturnType<typeof createClient>>,
   user: { id: string; email?: string | null },
-  planId: string
+  planId: string,
 ): Promise<GeneratePlanPdfResult | null> {
   const { data: plan } = await supabase
     .from("meal_plans")
@@ -52,7 +52,7 @@ export async function generatePlanPdf(
     buildProfissionalPdfHeaderData(supabase, user),
     supabase
       .from("meals")
-      .select("*, meal_items(*)")
+      .select("*, meal_items(*, meal_item_substitutions(*))")
       .eq("meal_plan_id", planId)
       .order("ordem", { ascending: true })
       .returns<MealRow[]>(),

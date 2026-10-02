@@ -213,6 +213,44 @@ describe("buildPlanPdfViewModel — os totais do PDF são os MESMOS da tela", ()
   });
 });
 
+describe("buildPlanPdfViewModel — medida caseira e substitutos (Fase 17, Blocos D e E)", () => {
+  it("quantidade em medida caseira e substitutos embaixo do item", () => {
+    const item = {
+      ...makeMealItem({ medida_nome: "colher de sopa cheia", medida_gramas: 25, medida_quantidade: 4, quantidade_g: 100 }),
+      meal_item_substitutions: [
+        {
+          ...makeMealItem({ id: "sub-2", ordem: 1, nome_alimento: "Batata, inglesa, cozida", quantidade_g: 150 }),
+          meal_item_id: "item-1",
+        },
+        {
+          ...makeMealItem({
+            id: "sub-1",
+            ordem: 0,
+            nome_alimento: "Tapioca",
+            medida_nome: "colher de sopa rasa",
+            medida_gramas: 15,
+            medida_quantidade: 2,
+            quantidade_g: 30,
+          }),
+          meal_item_id: "item-1",
+        },
+      ],
+    };
+    const viewModel = buildPlanPdfViewModel({
+      profissional: PROFISSIONAL_BASE,
+      pacienteNome: "Paciente Teste",
+      plano: PLANO_BASE,
+      refeicoes: [makeMeal({ items: [item] })],
+    });
+    const pdfItem = viewModel.refeicoes[0].itens[0];
+    expect(pdfItem.quantidadeTexto).toBe("4 × colher de sopa cheia (100 g)");
+    expect(pdfItem.substituicoes).toEqual([
+      "Tapioca — 2 × colher de sopa rasa (30 g)",
+      "Batata, inglesa, cozida — 150 g",
+    ]);
+  });
+});
+
 describe("observacaoParaPdf (Fase 17: observação da refeição com texto formatado)", () => {
   it("texto simples antigo passa igual; HTML vira texto com marcadores de lista", () => {
     expect(observacaoParaPdf("Comer devagar")).toBe("Comer devagar");

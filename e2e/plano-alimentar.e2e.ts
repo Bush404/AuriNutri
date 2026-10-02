@@ -11,7 +11,23 @@ test("cadastrar paciente, criar plano, adicionar refeição e alimento TACO", as
   await expect(page.getByText(paciente.nome).first()).toBeVisible();
   await criarPlano(page, paciente.id);
   await adicionarRefeicao(page);
-  await adicionarAlimentoNaRefeicao(page, "arroz", /arroz/i, 100);
+  const nome = await adicionarAlimentoNaRefeicao(page, "arroz", /arroz/i, 100);
+
+  // Substitutos (Fase 17, Bloco E): sugestão rápida do mesmo grupo, depois "inverter".
+  await page
+    .getByRole("button", { name: `Substitutos de ${nome}` })
+    .filter({ visible: true })
+    .click();
+  const janela = page.getByRole("dialog", { name: `Substitutos de ${nome}` });
+  const sugestao = janela.getByTitle("Adicionar como substituto").first();
+  await expect(sugestao).toBeVisible();
+  const nomeSubstituto = ((await sugestao.innerText()).split(" — ")[0] ?? "").trim();
+  await sugestao.click();
+  const inverter = janela.getByRole("button", { name: `Inverter: ${nomeSubstituto} vira o alimento do plano` });
+  await expect(inverter).toBeVisible();
+  await inverter.click();
+  await expect(page.getByRole("dialog", { name: `Substitutos de ${nomeSubstituto}` })).toBeVisible();
+  await expect(page.getByRole("dialog")).toContainText(nome);
 });
 
 test("criar alimento próprio, montar plano, conferir macros e gerar PDF", async ({ page }) => {
