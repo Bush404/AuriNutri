@@ -538,6 +538,13 @@ Até lá a TBCA não entra no AuriNutri.
 definir, compromisso de não usar os dados até a autorização e pedido para ser avisado. Contexto: em 2019 a
 USP vendia licença paga para uso da base em outras ferramentas (Jornal da USP, 30/08/2019) — provável
 origem do uso pelo WebDiet.
+
+**Tucunduva (02/10/2026):** obra *Tabela de Composição de Alimentos: Suporte para Decisão Nutricional*
+(Profa. Sonia Tucunduva Philippi, FSP-USP; Editora Manole, 8ª ed. 2023). Comprar o livro não dá direito
+de usar os dados em software — precisa licença. A autora já licenciou a base para software (Virtual Nutri
+Plus). Pedido de licença enviado a falecom@manole.com.br em 02/10/2026 (base em arquivo digital, condições,
+valor, forma de citação). Resposta automática: responsável (vendas) de férias até 05/10. Sem retorno até
+~16/10: ligar (11) 4196-6000 e pedir o setor de direitos autorais.
 **Versão da TBCA (decidido 25/09/2026):** só a **TBCA 7.3**, a versão atual. Ela aparece no filtro
 como uma única fonte; versões antigas não entram.
 
@@ -600,7 +607,7 @@ nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design 
 
 | # | Decisão | Bloqueia | Quem decide |
 |---|---|---|---|
-| R1 | Licença de TBCA 7.3 e Tucunduva (antigo D3). TBCA: resposta da USP em 02/10/2026 — ainda não autorizam uso em software; Procuradoria Geral + Agência USP de Inovação definindo modelo institucional (provável licenciamento), sem prazo. Interesse em licença (inclusive paga) enviado em 02/10/2026; aguardar contato (tbca.contato@usp.br) | Fase 18 | Nutricionista / jurídico |
+| R1 | Licença de TBCA 7.3 e Tucunduva (antigo D3). TBCA: resposta da USP em 02/10/2026 — ainda não autorizam uso em software; Procuradoria Geral + Agência USP de Inovação definindo modelo institucional (provável licenciamento), sem prazo. Interesse em licença (inclusive paga) enviado em 02/10/2026; aguardar contato (tbca.contato@usp.br). Tucunduva: pedido enviado à Editora Manole em 02/10/2026, aguardando resposta | Fase 18 | Nutricionista / jurídico |
 
 ### Decididas em 01/10/2026
 - **R7 — Plano alimentar 2.0:** lista aprovada em `docs/FASE_17_PLANO.md`; medidas caseiras do IBGE
