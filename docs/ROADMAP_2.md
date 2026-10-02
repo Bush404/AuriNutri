@@ -552,7 +552,7 @@ próprios que ainda não foram verificados. Isso é assunto jurídico, não de e
 [ ] PDFs "Relatório" e "Evolução" da antropometria (Fase 15): manter a organização, mas com cara
     própria do AuriNutri — hoje estão quase idênticos aos do WebDiet (pedido de 30/09/2026)
 ```
-**Bloco A — design system (publicado 02/10/2026; falta revisão tela a tela, PDFs e carimbo):** tokens centralizados em `globals.css`
+**Bloco A — design system (publicado 02/10/2026, E2E 18/18; falta revisão tela a tela, PDFs e carimbo):** tokens centralizados em `globals.css`
 + `tailwind.config.ts` (paleta oficial #07583F/#063F31/#78C51C/#A5D51F/#FF8A00, fundo #F8FAF9),
 componentes base (Button/Card/Input/Select/Textarea/Badge), StatCard/PageHeader, sidebar em grupos,
 hierarquia do painel. Nenhuma função, rota, ação ou consulta muda. A 19 começou antes da 18
