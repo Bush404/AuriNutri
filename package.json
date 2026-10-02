@@ -28,7 +28,8 @@
     "test:e2e": "playwright test",
     "delete-account": "node scripts/delete-account.mjs",
     "test:e2e:prod": "playwright test",
-    "import:medidas": "node scripts/import-medidas/import.mjs"
+    "import:medidas": "node scripts/import-medidas/import.mjs",
+    "import:usda": "node scripts/import-usda/import.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -79,6 +80,7 @@
     "csv-parse": "^5.5.6",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.6",
+    "exceljs": "^4.4.0",
     "jsdom": "^30.0.1",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",

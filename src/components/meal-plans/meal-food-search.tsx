@@ -24,6 +24,7 @@ const FILTROS: { valor: FiltroBusca; rotulo: string; icone?: boolean }[] = [
   { valor: "meus", rotulo: "Seus alimentos" },
   { valor: "receitas", rotulo: "Receitas" },
   { valor: "taco", rotulo: "TACO" },
+  { valor: "usda", rotulo: "USDA" },
 ];
 
 const fmt = (v: number, casas = 1) =>

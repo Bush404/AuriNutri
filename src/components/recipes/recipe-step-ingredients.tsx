@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { FoodCombobox } from "@/components/meal-plans/food-combobox";
+import { FONTE_LABELS } from "@/lib/nutrition";
 
 interface RecipeStepIngredientsProps {
   recipeId: string;
@@ -123,8 +124,8 @@ export function RecipeStepIngredients({ recipeId, ingredients, onNext, onBack }:
             <div key={ingrediente.id} className="flex items-center justify-between gap-3 px-3 py-2">
               <div className="flex min-w-0 items-center gap-2">
                 <span className="truncate text-sm font-medium text-foreground">{ingrediente.nome_alimento}</span>
-                <Badge variant={ingrediente.fonte_alimento === "taco" ? "secondary" : "outline"} className="shrink-0">
-                  {ingrediente.fonte_alimento === "taco" ? "TACO" : "Personalizado"}
+                <Badge variant={ingrediente.fonte_alimento === "personalizado" ? "outline" : "secondary"} className="shrink-0">
+                  {FONTE_LABELS[ingrediente.fonte_alimento]}
                 </Badge>
                 <span className="shrink-0 text-xs text-muted-foreground">{ingrediente.quantidade_g}g</span>
               </div>

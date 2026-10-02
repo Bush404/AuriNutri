@@ -539,6 +539,18 @@ definir, compromisso de não usar os dados até a autorização e pedido para se
 USP vendia licença paga para uso da base em outras ferramentas (Jornal da USP, 30/08/2019) — provável
 origem do uso pelo WebDiet.
 
+**USDA (decidido 02/10/2026):** entra já, traduzida, com bastante opção — inclusive alimentos que já
+existem na TACO, para o nutricionista escolher a fonte. Ficam fora só os tipicamente americanos (fast-food,
+marcas, alimentos indígenas do Alasca, papinhas, pratos prontos, caça, graus comerciais da carne).
+SR Legacy (abril/2018): nomes adaptados ao jeito brasileiro/modelo TACO (pedido de 02/10: "só traduzir
+causa confusão") por scripts/import-usda/padronizar.mjs; variações americanas juntadas em uma só →
+4.356 alimentos (de 7.793). Base: dicionário de partes
+(scripts/import-usda/traducao/), planilha de revisão scripts/import-usda/revisao-usda.xlsx. Revisão aprovada em 02/10/2026. Código pronto: migration 0048 (fonte usda em foods,
+snapshots e food_measures; foods.codigo_usda), filtro USDA na busca, selos e citação no PDF por fonte
+(buildFonteFooter), página Fontes, medidas caseiras traduzidas (scripts/import-usda/medidas.mjs) e
+`npm run import:usda` (simula; `-- --gravar` grava). Concluído em 02/10/2026: 0048 aplicada, 4.356 alimentos + 4.041 medidas importados, E2E 19/19,
+isolamento 111/111.
+
 **Tucunduva (02/10/2026):** obra *Tabela de Composição de Alimentos: Suporte para Decisão Nutricional*
 (Profa. Sonia Tucunduva Philippi, FSP-USP; Editora Manole, 8ª ed. 2023). Comprar o livro não dá direito
 de usar os dados em software — precisa licença. A autora já licenciou a base para software (Virtual Nutri
@@ -602,6 +614,15 @@ nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design 
 ```
 
 ---
+
+## Para corrigir (anotado em 02/10/2026)
+
+- **Busca de alimentos do plano esconde resultados:** filtro USDA + "leite" mostra até batata, mas não
+  "Leite, de vaca, integral". Pista: `buscarAlimentosRefeicao` usa `ilike %termo%` + `order(nome)` +
+  `limit(30)`, então nomes que só contêm o termo ("Batata, amassada, com leite...") ocupam as vagas.
+  Corrigir priorizando quem começa com o termo.
+- **TACO com valores zerados:** ex. "Leite, de vaca, integral" todo em 0. Pente fino na importação da
+  TACO (scripts/import-taco) e conferência de todos os alimentos.
 
 ## Decisões pendentes
 

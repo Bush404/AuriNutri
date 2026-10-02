@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Food, MealItem, Recipe, RecipeIngredient } from "@/lib/types/database.types";
 import {
   buildFonteFooter,
+  origemDoAlimento,
   buildRecipeSnapshot,
   calculateFoodMacros,
   calculateMealItemMacros,
@@ -311,6 +312,35 @@ describe("buildFonteFooter", () => {
   it("nunca atribui um alimento personalizado à TACO", () => {
     const footer = buildFonteFooter(["personalizado", "personalizado"]);
     expect(footer).toBeNull();
+  });
+
+  it("atribui à USDA quando só alimentos USDA foram usados (Fase 18)", () => {
+    const footer = buildFonteFooter(["usda"]);
+    expect(footer).toMatch(/USDA FoodData Central/);
+    expect(footer).toMatch(/Department of Agriculture/);
+    expect(footer).not.toMatch(/TACO/);
+  });
+
+  it("cita TACO e USDA juntas quando o plano usa as duas", () => {
+    const footer = buildFonteFooter(["taco", "usda"]);
+    expect(footer).toMatch(/TACO/);
+    expect(footer).toMatch(/USDA/);
+    expect(footer).not.toMatch(/profissional responsável/);
+  });
+
+  it("cita a USDA e o profissional quando mistura USDA e personalizados, sem citar a TACO", () => {
+    const footer = buildFonteFooter(["usda", "personalizado"]);
+    expect(footer).toMatch(/USDA/);
+    expect(footer).toMatch(/profissional responsável/);
+    expect(footer).not.toMatch(/TACO/);
+  });
+});
+
+describe("origemDoAlimento", () => {
+  it("separa TACO, USDA e alimento próprio", () => {
+    expect(origemDoAlimento({ is_global: true, fonte: "taco" })).toBe("TACO");
+    expect(origemDoAlimento({ is_global: true, fonte: "usda" })).toBe("USDA");
+    expect(origemDoAlimento({ is_global: false, fonte: "personalizado" })).toBe("Seu alimento");
   });
 });
 

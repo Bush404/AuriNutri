@@ -133,7 +133,8 @@
     <span><b>4</b> fases concluídas e publicadas (13, 14, 15 e 16)</span>
     <span><b>1</b> publicada, aguardando o seu teste (17)</span>
     <span><b>2</b> em andamento (12 e 19)</span>
-    <span><b>1</b> bloqueada (licenças)</span>
+    <span>Fase 18: USDA concluída; TBCA e Tucunduva aguardando licença</span>
+    <span>TBCA e Tucunduva aguardando licença</span>
     <span><b>1</b> decisão pendente</span>
   </div>
 </section>
@@ -333,8 +334,8 @@
 <details class="phase">
   <summary class="ph-head">
     <span class="mark">18</span>
-    <span class="ph-title"><span class="n">PHASE 18 · BLOQUEADA</span><div class="t">Tabelas de alimentos (TBCA 7.3, Tucunduva)</div></span>
-    <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-low">Blocked</span><span class="caret">▶</span></span>
+    <span class="ph-title"><span class="n">PHASE 18 · USDA CONCLUÍDA · TBCA/TUCUNDUVA AGUARDANDO LICENÇA</span><div class="t">Tabelas de alimentos (TBCA 7.3, Tucunduva)</div></span>
+    <span class="ph-meta"><span class="chip c-medium">Medium</span><span class="chip c-done">USDA concluída · TBCA/Tucunduva aguardam</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
     <p class="obj"><b>Objetivo:</b> completar a base de alimentos. Parada até as licenças serem resolvidas; entra em qualquer ponto depois da Fase 17.</p>
@@ -346,7 +347,11 @@
       <li class="ok">TBCA: licença pedida aos coordenadores; resposta em 02/10/2026 — a USP ainda não autoriza uso em software: Procuradoria Geral e Agência USP de Inovação estão definindo um modelo (provável licenciamento), sem previsão. Avisarão quando houver definição.</li>
       <li class="ok">TBCA: resposta enviada em 02/10/2026 — interesse em adquirir a licença (inclusive paga) quando o modelo sair, compromisso de não usar os dados até lá e pedido para ser avisado</li>
       <li class="ok">Tucunduva: pedido de licença da base enviado à Editora Manole em 02/10/2026 (falecom@manole.com.br; obra da Profa. Sonia Tucunduva Philippi, 8ª ed. 2023). Resposta automática: responsável de férias até 05/10 — aguardar até ~16/10; sem retorno, ligar (11) 4196-6000 e pedir o setor de direitos autorais</li>
-      <li>Opção a decidir: USDA FoodData Central como complemento (domínio público, uso comercial livre; alimentos americanos e em inglês — só uma seleção traduzida do que falta na TACO, como quinoa, chia e whey)</li>
+      <li class="ok">USDA aprovada (02/10/2026): domínio público, entra traduzida; repetidos com a TACO entram também, para o nutricionista escolher a fonte; só o que é tipicamente americano fica de fora</li>
+      <li class="ok">USDA: alimentos selecionados (de 7.793) com nomes adaptados ao jeito brasileiro e ao modelo da TACO (cortes brasileiros, com/sem gordura, preparo da TACO); variações americanas juntadas em uma só — 4.356 alimentos, planilha de revisão pronta (scripts/import-usda/revisao-usda.xlsx)</li>
+      <li class="ok">USDA: planilha revisada e aprovada (02/10/2026)</li>
+      <li class="ok">USDA: código pronto — fonte "USDA" no sistema, filtro "USDA" na busca da refeição, selo de origem certo, citação no rodapé do PDF, página Fontes de dados, 4.041 medidas caseiras traduzidas (xícara, colher, unidade...), importador (migration 0048)</li>
+      <li class="ok">USDA no banco (02/10/2026): migration 0048 aplicada, 4.356 alimentos e 4.041 medidas caseiras importados; E2E 19/19 (inclui busca pelo filtro USDA), isolamento 111/111</li>
     </ul>
     <div class="risk"><b>Bloqueio jurídico</b>
       A TACO autoriza reprodução com citação. A Tucunduva é um livro comercial e provavelmente exige licença. Os termos da TBCA 7.3 ainda não foram verificados.</div>
@@ -381,6 +386,14 @@
   </div>
 </details>
 
+<section class="decisions" style="margin-bottom:16px">
+  <h2 class="section" style="margin-bottom:10px">Para corrigir (anotado em 02/10/2026)</h2>
+  <ul class="tasks">
+    <li><b>Busca de alimentos do plano esconde resultados.</b> Ex.: filtro USDA + "leite" mostra até batata, mas não o "Leite, de vaca, integral". Pista: a busca acha o termo em qualquer parte do nome, ordena por ordem alfabética e corta em 30 — "Batata, amassada, com leite..." ocupa as vagas. Corrigir priorizando quem começa com o termo.</li>
+    <li><b>Alimentos da TACO com valores zerados.</b> Ex.: "Leite, de vaca, integral" aparece todo em 0. Passar um pente fino na importação da TACO (scripts/import-taco) e conferir todos os alimentos.</li>
+  </ul>
+</section>
+
 <section class="decisions">
   <h2 class="section" style="margin-bottom:10px">Decisões</h2>
   <p style="font-size:12.5px;color:var(--muted);margin-bottom:10px">
@@ -391,6 +404,7 @@
     <br>Decidida em 02/10/2026 — <b>Periodização</b> do plano fica para depois, junto com o portal do paciente (só faz sentido com app do paciente).
     <br>Decidida em 02/10/2026 — <b>Logo oficial</b> (símbolo do A com folha) substitui a provisória; o slogan só aparece no login e em materiais, nunca dentro do sistema. Fase 19 começa antes da 18, que segue bloqueada pela licença.
     <br>Decidida em 02/10/2026 — <b>Painel</b>: só a agenda de hoje (o minicalendário de 7 dias saiu do painel e segue na Agenda); sem barra de busca; sino fica "Em breve" até existirem notificações; banner vira "Dica do AuriNutri" (um recurso por dia). Fundo do sistema #F0F6F4 (medido no layout de referência) e painel cabendo inteiro na tela do computador, sem rolar. <b>Agenda</b>: as duas referências juntas (mês + painel do dia/consulta), sem aba "Dia"; semana começa na segunda; números do topo com comparação.
+    <br>Decidida em 02/10/2026 — <b>USDA</b> entra já (Fase 18 adiantada enquanto TBCA e Tucunduva aguardam licença), com bastante opção: alimentos repetidos com a TACO também entram.
     <br>Decidida em 01/10/2026 — <b>R5</b>: fórmulas do WebDiet + Henry/Oxford e comparação lado a lado; gestantes e lactantes ficam para a fase de gestantes.
   </p>
   <table>

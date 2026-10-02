@@ -283,7 +283,8 @@ export interface LabMarker {
   created_at: string;
 }
 
-export type FonteAlimento = "taco" | "personalizado";
+/** Origem do alimento: bases globais (TACO, USDA — Fase 18) ou cadastro do profissional. */
+export type FonteAlimento = "taco" | "usda" | "personalizado";
 
 /** Fonte de um item de refeição — como FonteAlimento, mais 'receita' (o item veio de uma receita, não de um alimento avulso). */
 export type ItemFonte = FonteAlimento | "receita";
@@ -293,7 +294,7 @@ export type ValorEspecial = "traco" | "nao_analisado" | "nao_informado";
 
 export interface Food {
   id: string;
-  /** NULL para alimentos globais (TACO); dono do alimento quando personalizado. */
+  /** NULL para alimentos globais (TACO, USDA); dono do alimento quando personalizado. */
   user_id: string | null;
   nome: string;
   categoria: string;
@@ -466,7 +467,7 @@ export interface FoodMeasure {
   user_id: string | null;
   nome: string;
   gramas: number;
-  fonte: "ibge" | "personalizado";
+  fonte: "ibge" | "usda" | "personalizado";
   created_at: string;
 }
 

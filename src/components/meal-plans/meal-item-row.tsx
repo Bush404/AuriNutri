@@ -23,7 +23,7 @@ export function MealItemRow({ planId, item }: { planId: string; item: MealItemWi
       <TableCell>
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium text-foreground">{item.nome_alimento}</p>
-          <Badge variant={item.fonte_alimento === "taco" ? "secondary" : "outline"} className="shrink-0">
+          <Badge variant={item.fonte_alimento === "taco" || item.fonte_alimento === "usda" ? "secondary" : "outline"} className="shrink-0">
             {FONTE_LABELS[item.fonte_alimento]}
           </Badge>
         </div>

@@ -26,7 +26,7 @@ export function MealItemCard({ planId, item }: { planId: string; item: MealItemW
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-sm font-medium text-foreground">{item.nome_alimento}</p>
-          <Badge variant={item.fonte_alimento === "taco" ? "secondary" : "outline"} className="shrink-0">
+          <Badge variant={item.fonte_alimento === "taco" || item.fonte_alimento === "usda" ? "secondary" : "outline"} className="shrink-0">
             {FONTE_LABELS[item.fonte_alimento]}
           </Badge>
         </div>

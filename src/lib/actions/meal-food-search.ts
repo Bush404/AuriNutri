@@ -8,10 +8,11 @@ import { sanitizeRichText } from "@/lib/rich-text-sanitize";
 import { isRichTextEmpty } from "@/lib/rich-text";
 import type { ActionResult } from "@/lib/actions/patients";
 import { medidaUsual } from "@/lib/household-measures";
+import { origemDoAlimento } from "@/lib/nutrition";
 import { medidasPorAlimento } from "@/lib/food-measures-db";
 import type { Food, FoodMeasure } from "@/lib/types/database.types";
 
-export type FiltroBusca = "todos" | "favoritos" | "meus" | "receitas" | "taco";
+export type FiltroBusca = "todos" | "favoritos" | "meus" | "receitas" | "taco" | "usda";
 
 /** Uma linha da busca da refeição: alimento (valores da porção de referência) ou receita (por porção). */
 export type ResultadoBusca =
@@ -19,7 +20,7 @@ export type ResultadoBusca =
       tipo: "alimento";
       id: string;
       nome: string;
-      origem: "TACO" | "Seu alimento";
+      origem: "TACO" | "USDA" | "Seu alimento";
       porcaoG: number;
       kcal: number;
       proteinas: number;
@@ -46,11 +47,11 @@ export async function buscarAlimentosRefeicao(termo: string, filtro: FiltroBusca
   const { data: favs } = await supabase.from("food_favorites").select("food_id").returns<{ food_id: string }[]>();
   const favoritos = new Set((favs ?? []).map((f) => f.food_id));
 
-  const alimentos = async (origem: "meus" | "taco" | "favoritos", limite: number) => {
+  const alimentos = async (origem: "meus" | "taco" | "usda" | "favoritos", limite: number) => {
     if (origem === "favoritos" && favoritos.size === 0) return [];
     let q = supabase.from("foods").select("*").order("nome").limit(limite);
     if (origem === "meus") q = q.eq("is_global", false);
-    if (origem === "taco") q = q.eq("is_global", true);
+    if (origem === "taco" || origem === "usda") q = q.eq("is_global", true).eq("fonte", origem);
     if (origem === "favoritos") q = q.in("id", [...favoritos]);
     if (busca) q = q.ilike("nome", `%${busca}%`);
     const { data } = await q.returns<Food[]>();
@@ -58,7 +59,7 @@ export async function buscarAlimentosRefeicao(termo: string, filtro: FiltroBusca
       tipo: "alimento",
       id: f.id,
       nome: f.nome,
-      origem: f.is_global ? "TACO" : "Seu alimento",
+      origem: origemDoAlimento(f),
       porcaoG: Number(f.porcao_referencia_g),
       kcal: Number(f.calorias_kcal ?? 0),
       proteinas: Number(f.proteinas_g ?? 0),
@@ -83,11 +84,19 @@ export async function buscarAlimentosRefeicao(termo: string, filtro: FiltroBusca
         return alimentos("meus", LIMITE);
       case "taco":
         return alimentos("taco", LIMITE);
+      case "usda":
+        return alimentos("usda", LIMITE);
       case "receitas":
         return receitas(LIMITE);
       case "todos": {
-        const [meus, taco, recs] = await Promise.all([alimentos("meus", 10), alimentos("taco", 20), receitas(5)]);
-        const lista = [...meus, ...taco, ...recs];
+        // A TACO vem antes da USDA: é a referência brasileira.
+        const [meus, taco, usda, recs] = await Promise.all([
+          alimentos("meus", 10),
+          alimentos("taco", 20),
+          alimentos("usda", 10),
+          receitas(5),
+        ]);
+        const lista = [...meus, ...taco, ...usda, ...recs];
         // Favoritos no topo, mantendo a ordem do resto.
         return [
           ...lista.filter((r) => r.tipo === "alimento" && r.favorito),

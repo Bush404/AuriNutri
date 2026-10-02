@@ -31,3 +31,7 @@ supabase/.temp/
 /e2e/.auth/
 /test-results/
 /playwright-report/
+
+# USDA (Fase 18): base original baixada e lista intermediária — regeneráveis
+/scripts/import-usda/fonte/
+/scripts/import-usda/candidatos.json

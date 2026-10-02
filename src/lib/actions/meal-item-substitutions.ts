@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { mealItemSubstitutionSchema, type MealItemSubstitutionInput } from "@/lib/validations/meal-plan";
 import type { ActionResult } from "@/lib/actions/patients";
 import type { Food, MealItem, MealItemSubstitution } from "@/lib/types/database.types";
-import { buildFoodSnapshotParaItem, calculateMealItemMacros, type MacroTotals } from "@/lib/nutrition";
+import { buildFoodSnapshotParaItem, calculateMealItemMacros, origemDoAlimento, type MacroTotals } from "@/lib/nutrition";
 import { MICRONUTRIENTE_KEYS } from "@/lib/validations/food";
 import { buscarMedida, camposDaMedida, medidasPorAlimento } from "@/lib/food-measures-db";
 import { medidaUsual } from "@/lib/household-measures";
@@ -99,7 +99,7 @@ export async function deleteMealItemSubstitution(planId: string, substitutionId:
 export interface SugestaoSubstituto {
   foodId: string;
   nome: string;
-  origem: "TACO" | "Seu alimento";
+  origem: "TACO" | "USDA" | "Seu alimento";
   medida: { id: string; nome: string; gramas: number } | null;
   medidaQuantidade: number | null;
   gramas: number;
@@ -174,7 +174,7 @@ export async function sugerirSubstitutos(
     return {
       foodId: food.id,
       nome: food.nome,
-      origem: food.is_global ? "TACO" : "Seu alimento",
+      origem: origemDoAlimento(food),
       medida: m ? { id: m.id, nome: m.nome, gramas: Number(m.gramas) } : null,
       medidaQuantidade: arredondado.medidaQuantidade,
       gramas: arredondado.gramas,

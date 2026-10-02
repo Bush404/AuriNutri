@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { FONTE_LABELS } from "@/lib/nutrition";
 
 interface FoodComboboxProps {
   value: Food | null;
@@ -97,7 +98,7 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
         <span className="flex items-center gap-2 truncate">
           <span className="truncate font-medium text-foreground">{value.nome}</span>
           <Badge variant={value.is_global ? "secondary" : "outline"} className="shrink-0">
-            {value.is_global ? "TACO" : "Personalizado"}
+            {FONTE_LABELS[value.fonte]}
           </Badge>
         </span>
         {!disabled && (

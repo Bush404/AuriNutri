@@ -8,7 +8,7 @@
 export interface MedidaBasica {
   nome: string;
   gramas: number;
-  fonte?: "ibge" | "personalizado";
+  fonte?: "ibge" | "usda" | "personalizado";
 }
 
 // Ordem de preferência para a medida que já vem escolhida ao adicionar o alimento.

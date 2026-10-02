@@ -30,6 +30,17 @@ test("cadastrar paciente, criar plano, adicionar refeição e alimento TACO", as
   await expect(page.getByRole("dialog")).toContainText(nome);
 });
 
+// Fase 18: alimento da USDA pelo filtro próprio, com o selo da fonte no item.
+test("filtrar pela USDA e adicionar um alimento da USDA na refeição", async ({ page }) => {
+  const paciente = await criarPaciente(page);
+  await criarPlano(page, paciente.id);
+  await adicionarRefeicao(page);
+  await page.getByRole("radio", { name: "USDA" }).click();
+  const nome = await adicionarAlimentoNaRefeicao(page, "quinoa", /Quinoa, cozida/, 100);
+  const item = page.locator("div, tr", { hasText: nome }).filter({ visible: true }).last();
+  await expect(item.getByText("USDA", { exact: true })).toBeVisible();
+});
+
 test("criar alimento próprio, montar plano, conferir macros e gerar PDF", async ({ page }) => {
   const nomeAlimento = unico("Alimento E2E");
 

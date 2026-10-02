@@ -29,37 +29,52 @@ export const ZERO_MACROS: MacroTotals = {
 /** Textos de atribuição de fonte, usados na UI e em relatórios/PDFs. Indexável tanto por FonteAlimento quanto por ItemFonte (que a inclui). */
 export const FONTE_LABELS: Record<ItemFonte, string> = {
   taco: "TACO",
+  usda: "USDA",
   personalizado: "Personalizado",
   receita: "Receita",
 };
 
 export const FONTE_DESCRICAO_PADRAO: Record<FonteAlimento, string> = {
   taco: "Tabela Brasileira de Composição de Alimentos (TACO) — NEPA/UNICAMP, 4ª edição ampliada e revisada.",
+  usda: "USDA FoodData Central — SR Legacy (abril/2018), U.S. Department of Agriculture, Agricultural Research Service.",
   personalizado: "Cadastro próprio do nutricionista.",
 };
+
+export const USDA_ATRIBUICAO_LONGA =
+  "USDA FoodData Central (SR Legacy, abril/2018), U.S. Department of Agriculture, Agricultural Research Service — fdc.nal.usda.gov.";
 
 export const TACO_ATRIBUICAO_LONGA =
   "Tabela Brasileira de Composição de Alimentos (TACO), elaborada pelo NEPA — Núcleo de Estudos e Pesquisas em Alimentação, Universidade Estadual de Campinas (UNICAMP), 4ª edição ampliada e revisada.";
 
+/** Rótulo de origem de um alimento na busca e nas substituições. */
+export function origemDoAlimento(f: Pick<Food, "is_global" | "fonte">): "TACO" | "USDA" | "Seu alimento" {
+  if (!f.is_global) return "Seu alimento";
+  return f.fonte === "usda" ? "USDA" : "TACO";
+}
+
 /**
  * Gera a nota de rodapé apropriada para um plano/relatório, considerando as
- * fontes realmente utilizadas nos itens (TACO, personalizado, ou ambos).
- * Nunca atribui um alimento personalizado à TACO.
+ * fontes realmente utilizadas nos itens (TACO, USDA, personalizado).
+ * Nunca atribui um alimento a uma base que ele não usa.
  */
 export function buildFonteFooter(fontesUsadas: FonteAlimento[]): string | null {
   const unicas = Array.from(new Set(fontesUsadas));
   if (unicas.length === 0) return null;
 
   const usaTaco = unicas.includes("taco");
+  const usaUsda = unicas.includes("usda");
   const usaPersonalizado = unicas.includes("personalizado");
 
-  if (usaTaco && usaPersonalizado) {
-    return "Os valores nutricionais apresentados neste documento utilizam como referência dados da Tabela Brasileira de Composição de Alimentos (TACO — NEPA/UNICAMP) e/ou alimentos cadastrados pelo profissional responsável.";
-  }
-  if (usaTaco) {
-    return `Dados nutricionais baseados na ${TACO_ATRIBUICAO_LONGA}`;
-  }
-  return null; // Só alimentos personalizados: nenhuma atribuição externa necessária.
+  if (!usaTaco && !usaUsda) return null; // Só alimentos personalizados: nenhuma atribuição externa necessária.
+  if (usaTaco && !usaUsda && !usaPersonalizado) return `Dados nutricionais baseados na ${TACO_ATRIBUICAO_LONGA}`;
+  if (usaUsda && !usaTaco && !usaPersonalizado) return `Dados nutricionais baseados na ${USDA_ATRIBUICAO_LONGA}`;
+
+  const bases = [
+    usaTaco ? "da Tabela Brasileira de Composição de Alimentos (TACO — NEPA/UNICAMP)" : null,
+    usaUsda ? "da USDA FoodData Central (U.S. Department of Agriculture)" : null,
+  ].filter(Boolean);
+  const proprio = usaPersonalizado ? " e/ou alimentos cadastrados pelo profissional responsável" : "";
+  return `Os valores nutricionais apresentados neste documento utilizam como referência dados ${bases.join(" e ")}${proprio}.`;
 }
 
 /**

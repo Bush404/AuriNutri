@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import type { Food } from "@/lib/types/database.types";
-import { formatNutrientValue, FONTE_DESCRICAO_PADRAO } from "@/lib/nutrition";
+import { formatNutrientValue, FONTE_DESCRICAO_PADRAO, FONTE_LABELS } from "@/lib/nutrition";
 
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -65,7 +65,7 @@ export function FoodDetailDialog({ food, trigger }: FoodDetailDialogProps) {
           <div className="flex items-center gap-2">
             <DialogTitle>{food.nome}</DialogTitle>
             <Badge variant={food.is_global ? "secondary" : "outline"}>
-              {food.is_global ? "TACO" : "Personalizado"}
+              {FONTE_LABELS[food.fonte]}
             </Badge>
           </div>
         </DialogHeader>

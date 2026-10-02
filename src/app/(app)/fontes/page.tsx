@@ -38,15 +38,40 @@ export default function FontesDeDadosPage() {
       </Card>
 
       <Card>
+        <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50">
+            <BookOpen className="h-5 w-5 text-primary-600" />
+          </div>
+          <CardTitle className="text-base">Base USDA</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <p>
+            Como complemento à TACO, a AuriNutri disponibiliza alimentos da{" "}
+            <strong className="text-foreground">USDA FoodData Central</strong>, base SR Legacy (abril de
+            2018), do <strong className="text-foreground">U.S. Department of Agriculture</strong>,
+            Agricultural Research Service — dados de domínio público (fdc.nal.usda.gov).
+          </p>
+          <p>
+            Os nomes foram traduzidos e adaptados pela AuriNutri ao uso brasileiro e ao padrão da TACO
+            (cortes de carne brasileiros, por exemplo), e as medidas caseiras convertidas para xícaras e
+            colheres. Os valores nutricionais são os da USDA, sem alteração. Por serem dados de outro
+            país, podem diferir de alimentos equivalentes produzidos no Brasil: quando houver o mesmo
+            alimento na TACO, ela é a referência brasileira. A AuriNutri não é afiliada nem endossada
+            pelo USDA.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardHeader>
           <CardTitle className="text-base">Alimentos personalizados</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            Além da base TACO, cada nutricionista pode cadastrar seus próprios alimentos —
+            Além das bases TACO e USDA, cada nutricionista pode cadastrar seus próprios alimentos —
             incluindo produtos industrializados, marcas específicas e receitas próprias. Esses
             valores nutricionais são de responsabilidade exclusiva do profissional que os cadastrou
-            e não são atribuídos à TACO em nenhuma hipótese.
+            e não são atribuídos à TACO nem à USDA em nenhuma hipótese.
           </p>
         </CardContent>
       </Card>
