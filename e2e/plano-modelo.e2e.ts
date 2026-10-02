@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { STORAGE_STATE } from "./env";
-import { adicionarAlimentoNaRefeicao, criarPaciente, criarPlano, unico } from "./helpers";
+import { adicionarAlimentoNaRefeicao, criarPaciente, criarPlano, textoVisivel, unico } from "./helpers";
 
 test.use({ storageState: STORAGE_STATE });
 
@@ -38,5 +38,5 @@ test("favoritar plano como modelo e começar o plano de outro paciente a partir 
   await expect(page).toHaveURL(/\/planos\/[0-9a-f-]{36}$/);
   await expect(page.getByText(`Paciente: ${pacienteB.nome}`)).toBeVisible();
   await page.getByRole("button", { name: /^Abrir/ }).first().click();
-  await expect(page.getByText(alimento).first()).toBeVisible();
+  await expect(textoVisivel(page, alimento)).toBeVisible();
 });

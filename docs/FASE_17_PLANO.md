@@ -33,7 +33,7 @@ Nada de código começa antes desta lista ser aprovada.
 | 1.2 | Chave ativo/inativo na própria linha | Sim | Já existe (botão) | [x] |
 | 1.3 | Ações: **PDF · Editar · Duplicar · Excluir** | Sim | Já existe, em menu | [x] |
 | 1.4 | **Favoritar** um plano inteiro, para usar como modelo em outro paciente | Sim | Só refeições favoritas | [x] |
-| 1.5 | ⚠️ **Periodização** — o que ela faz no WebDiet? Não apareceu nos prints | Sim | Não | [ ] |
+| 1.5 | ⚠️ **Periodização** — o que ela faz no WebDiet? Não apareceu nos prints | Sim | Não | [x] depois — só faz sentido com o portal do paciente (deixa o plano visível no app entre datas) |
 | 1.6 | "Ordenar dietas" (mudar a ordem da lista) | Sim | Não | [x] |
 
 ## 2. Criar um plano
