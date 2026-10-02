@@ -270,6 +270,39 @@ async function main() {
     if ((favAindaExiste ?? []).length !== 1) breach("B CONSEGUIU apagar o favorito de A");
     pass("B não consegue apagar o favorito de A");
 
+    // Fase 17, Bloco D — medidas caseiras (migration 0045): as do IBGE (user_id nulo) só entram pela
+    // chave de serviço; as do profissional só ele vê e apaga.
+    const { data: medidaA, error: medidaError } = await userA.client
+      .from("food_measures")
+      .insert({ food_id: food.id, user_id: userA.id, nome: "pote (teste)", gramas: 80, fonte: "personalizado" })
+      .select("id")
+      .single();
+    if (medidaError) throw new Error(`Falha ao criar medida caseira de A: ${medidaError.message}`);
+    const { data: medidasVistas } = await userB.client.from("food_measures").select("id").eq("id", medidaA.id);
+    if ((medidasVistas ?? []).length > 0) breach("B CONSEGUIU ver a medida caseira de A");
+    pass("B não vê as medidas caseiras de A");
+    const { error: medidaAlheiaError } = await userB.client
+      .from("food_measures")
+      .insert({ food_id: food.id, user_id: userB.id, nome: "invasão", gramas: 10, fonte: "personalizado" });
+    if (!medidaAlheiaError) breach("B CONSEGUIU criar medida para um alimento próprio de A");
+    pass("B não consegue criar medida para alimento próprio de A", medidaAlheiaError.message);
+    const { error: medidaIbgeError } = await userB.client
+      .from("food_measures")
+      .insert({ food_id: food.id, user_id: null, nome: "falsa do IBGE", gramas: 10, fonte: "ibge" });
+    if (!medidaIbgeError) breach("B CONSEGUIU gravar uma medida como se fosse do IBGE");
+    pass("B não consegue gravar medida como se fosse do IBGE", medidaIbgeError.message);
+    await userB.client.from("food_measures").delete().eq("id", medidaA.id);
+    const { data: medidaAindaExiste } = await admin.from("food_measures").select("id").eq("id", medidaA.id);
+    if ((medidaAindaExiste ?? []).length !== 1) breach("B CONSEGUIU apagar a medida caseira de A");
+    pass("B não consegue apagar a medida caseira de A");
+    const { data: umaIbge } = await admin.from("food_measures").select("id").eq("fonte", "ibge").limit(1);
+    if (umaIbge?.length) {
+      await userB.client.from("food_measures").delete().eq("id", umaIbge[0].id);
+      const { data: ibgeAindaExiste } = await admin.from("food_measures").select("id").eq("id", umaIbge[0].id);
+      if ((ibgeAindaExiste ?? []).length !== 1) breach("B CONSEGUIU apagar uma medida do IBGE");
+      pass("B não consegue apagar medidas do IBGE");
+    }
+
     const { data: recipe, error: recipeError } = await userA.client
       .from("recipes")
       .insert({ user_id: userA.id, nome: "Receita de teste (Fase 11)" })

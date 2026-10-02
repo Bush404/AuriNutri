@@ -280,6 +280,9 @@ export async function duplicateMealPlan(planId: string): Promise<ActionResult> {
         gorduras_g: item.gorduras_g,
         fibras_g: item.fibras_g,
         fontes_ingredientes_receita: item.fontes_ingredientes_receita,
+        medida_nome: item.medida_nome,
+        medida_gramas: item.medida_gramas,
+        medida_quantidade: item.medida_quantidade,
       }))
     );
 

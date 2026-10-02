@@ -6,12 +6,14 @@ import { calculatePlanTotals, collectFontesUsadas, buildFonteFooter } from "@/li
 import type { Meal, MealItemSubstitution, MealPlan, Sexo } from "@/lib/types/database.types";
 import { listMealTemplates } from "@/lib/actions/meal-templates";
 import { listPlanShareLinks } from "@/lib/actions/plan-share";
+import { medidasDosAlimentos } from "@/lib/actions/meal-food-search";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { MealPlanHeader } from "@/components/meal-plans/meal-plan-header";
 import { PlanSummaryBar } from "@/components/meal-plans/plan-summary-bar";
 import type { MealWithItemsAndSubstitutions } from "@/components/meal-plans/meal-card";
 import { MealList } from "@/components/meal-plans/meal-list";
+import { MedidasProvider } from "@/components/meal-plans/medidas-context";
 import type { MealItemWithSubstitutions } from "@/components/meal-plans/meal-item-row";
 import { NewMealDialog } from "@/components/meal-plans/new-meal-dialog";
 import { NewMealFromTemplateDialog } from "@/components/meal-plans/new-meal-from-template-dialog";
@@ -56,8 +58,12 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
   }
 
   // Peso mais recente (padrão do planejamento — avaliação recém-aberta, ainda sem
-  // peso, não conta) e os cálculos energéticos salvos (Fase 16) para importar.
-  const [{ data: latestAssessment }, { data: calculos }] = await Promise.all([
+  // peso, não conta), os cálculos energéticos salvos (Fase 16) para importar e
+  // as medidas caseiras dos alimentos do plano (Fase 17, Bloco D).
+  const foodIds = (meals ?? [])
+    .flatMap((m) => (m.meal_items ?? []).map((i) => i.food_id))
+    .filter((id): id is string => !!id);
+  const [{ data: latestAssessment }, { data: calculos }, medidas] = await Promise.all([
     supabase
       .from("anthropometric_assessments")
       .select("peso_kg")
@@ -74,6 +80,7 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
       .order("data_calculo", { ascending: false })
       .order("created_at", { ascending: false })
       .returns<CalculoParaImportar[]>(),
+    medidasDosAlimentos(foodIds),
   ]);
 
   const mealsWithItems: MealWithItemsAndSubstitutions[] = (meals ?? []).map((meal) => ({
@@ -110,7 +117,9 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
           Rotina do paciente
         </h2>
         {mealsWithItems.length > 0 ? (
-          <MealList planId={plan.id} meals={mealsWithItems} />
+          <MedidasProvider medidas={medidas}>
+            <MealList planId={plan.id} meals={mealsWithItems} />
+          </MedidasProvider>
         ) : (
           <EmptyState
             icon={UtensilsCrossed}
@@ -136,9 +145,7 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
       />
 
       {fonteFooter && (
-        <p className="border-t border-border pt-4 text-center text-xs text-muted-foreground">
-          {fonteFooter}
-        </p>
+        <p className="border-t border-border pt-4 text-center text-xs text-muted-foreground">{fonteFooter}</p>
       )}
 
       <PlanSummaryBar

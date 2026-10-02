@@ -1,0 +1,10210 @@
+[
+ {
+  "codigo_taco": 1,
+  "taco": "Arroz, integral, cozido",
+  "ibge": "6300201|99",
+  "ibge_nome": "ARROZ INTEGRAL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 5
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 10
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 20
+   },
+   {
+    "nome": "1/2 prato fundo raso",
+    "gramas": 50
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 59
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 63
+   },
+   {
+    "nome": "prato fundo raso",
+    "gramas": 100
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 117
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 198
+   },
+   {
+    "nome": "prato fundo cheio",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 3,
+  "taco": "Arroz, tipo 1, cozido",
+  "ibge": "6300101|99",
+  "ibge_nome": "ARROZ (POLIDO, PARBOILIZADO) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/8 colher de sopa cheia",
+    "gramas": 3.1
+   },
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 6.3
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 12.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 45
+   },
+   {
+    "nome": "1/2 prato fundo raso",
+    "gramas": 50
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 85
+   },
+   {
+    "nome": "prato fundo raso",
+    "gramas": 100
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 100
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 125
+   },
+   {
+    "nome": "prato fundo cheio",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 5,
+  "taco": "Arroz, tipo 2, cozido",
+  "ibge": "6300101|99",
+  "ibge_nome": "ARROZ (POLIDO, PARBOILIZADO) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/8 colher de sopa cheia",
+    "gramas": 3.1
+   },
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 6.3
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 12.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 45
+   },
+   {
+    "nome": "1/2 prato fundo raso",
+    "gramas": 50
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 85
+   },
+   {
+    "nome": "prato fundo raso",
+    "gramas": 100
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 100
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 125
+   },
+   {
+    "nome": "prato fundo cheio",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 7,
+  "taco": "Aveia, flocos, crua",
+  "ibge": "6500401|99",
+  "ibge_nome": "AVEIA EM FLOCOS — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/2 colher de chá cheia",
+    "gramas": 1
+   },
+   {
+    "nome": "colher de chá cheia",
+    "gramas": 2
+   },
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 7
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 15
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 30
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 37.5
+   }
+  ]
+ },
+ {
+  "codigo_taco": 8,
+  "taco": "Biscoito, doce, maisena",
+  "ibge": "8002301|99",
+  "ibge_nome": "BISCOITO DOCE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 5
+   },
+   {
+    "nome": "punhado",
+    "gramas": 17
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 35
+   },
+   {
+    "nome": "pacote",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 9,
+  "taco": "Biscoito, doce, recheado com chocolate",
+  "ibge": "8004801|99",
+  "ibge_nome": "BISCOITO RECHEADO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 13
+   },
+   {
+    "nome": "punhado",
+    "gramas": 17
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 34
+   },
+   {
+    "nome": "pacote",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 10,
+  "taco": "Biscoito, doce, recheado com morango",
+  "ibge": "8004801|99",
+  "ibge_nome": "BISCOITO RECHEADO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 13
+   },
+   {
+    "nome": "punhado",
+    "gramas": 17
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 34
+   },
+   {
+    "nome": "pacote",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 13,
+  "taco": "Biscoito, salgado, cream cracker",
+  "ibge": "8002201|99",
+  "ibge_nome": "BISCOITO SALGADO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 5
+   },
+   {
+    "nome": "punhado",
+    "gramas": 17
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 32.5
+   },
+   {
+    "nome": "pacote",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 15,
+  "taco": "Bolo, pronto, aipim",
+  "ibge": "8002701|99",
+  "ibge_nome": "BOLO DE AIPIM — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 80
+   }
+  ]
+ },
+ {
+  "codigo_taco": 16,
+  "taco": "Bolo, pronto, chocolate",
+  "ibge": "8003801|99",
+  "ibge_nome": "BOLO DE CHOCOLATE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 35
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 17,
+  "taco": "Bolo, pronto, coco",
+  "ibge": "8004101|99",
+  "ibge_nome": "BOLO DE COCO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 18,
+  "taco": "Bolo, pronto, milho",
+  "ibge": "8002601|99",
+  "ibge_nome": "BOLO DE MILHO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 21,
+  "taco": "Cereais, milho, flocos, com sal",
+  "ibge": "6500903|99",
+  "ibge_nome": "CEREAL MATINAL DE MILHO EM FLOCOS — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 4
+   },
+   {
+    "nome": "1/4 xícara",
+    "gramas": 7.5
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 8
+   },
+   {
+    "nome": "punhado",
+    "gramas": 9
+   },
+   {
+    "nome": "pacote pequeno",
+    "gramas": 20
+   },
+   {
+    "nome": "copo pequeno cheio",
+    "gramas": 25
+   },
+   {
+    "nome": "copo duplo cheio",
+    "gramas": 29.5
+   },
+   {
+    "nome": "xícara",
+    "gramas": 30
+   },
+   {
+    "nome": "1/2 xícara",
+    "gramas": 30
+   },
+   {
+    "nome": "porção",
+    "gramas": 30
+   },
+   {
+    "nome": "2 xícaras",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 22,
+  "taco": "Cereais, milho, flocos, sem sal",
+  "ibge": "6500903|99",
+  "ibge_nome": "CEREAL MATINAL DE MILHO EM FLOCOS — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 4
+   },
+   {
+    "nome": "1/4 xícara",
+    "gramas": 7.5
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 8
+   },
+   {
+    "nome": "punhado",
+    "gramas": 9
+   },
+   {
+    "nome": "pacote pequeno",
+    "gramas": 20
+   },
+   {
+    "nome": "copo pequeno cheio",
+    "gramas": 25
+   },
+   {
+    "nome": "copo duplo cheio",
+    "gramas": 29.5
+   },
+   {
+    "nome": "xícara",
+    "gramas": 30
+   },
+   {
+    "nome": "1/2 xícara",
+    "gramas": 30
+   },
+   {
+    "nome": "porção",
+    "gramas": 30
+   },
+   {
+    "nome": "2 xícaras",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 25,
+  "taco": "Cereal matinal, milho",
+  "ibge": "6500903|99",
+  "ibge_nome": "CEREAL MATINAL DE MILHO EM FLOCOS — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 4
+   },
+   {
+    "nome": "1/4 xícara",
+    "gramas": 7.5
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 8
+   },
+   {
+    "nome": "punhado",
+    "gramas": 9
+   },
+   {
+    "nome": "pacote pequeno",
+    "gramas": 20
+   },
+   {
+    "nome": "copo pequeno cheio",
+    "gramas": 25
+   },
+   {
+    "nome": "copo duplo cheio",
+    "gramas": 29.5
+   },
+   {
+    "nome": "xícara",
+    "gramas": 30
+   },
+   {
+    "nome": "1/2 xícara",
+    "gramas": 30
+   },
+   {
+    "nome": "porção",
+    "gramas": 30
+   },
+   {
+    "nome": "2 xícaras",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 26,
+  "taco": "Cereal matinal, milho, açúcar",
+  "ibge": "6500903|99",
+  "ibge_nome": "CEREAL MATINAL DE MILHO EM FLOCOS — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 4
+   },
+   {
+    "nome": "1/4 xícara",
+    "gramas": 7.5
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 8
+   },
+   {
+    "nome": "punhado",
+    "gramas": 9
+   },
+   {
+    "nome": "pacote pequeno",
+    "gramas": 20
+   },
+   {
+    "nome": "copo pequeno cheio",
+    "gramas": 25
+   },
+   {
+    "nome": "copo duplo cheio",
+    "gramas": 29.5
+   },
+   {
+    "nome": "xícara",
+    "gramas": 30
+   },
+   {
+    "nome": "1/2 xícara",
+    "gramas": 30
+   },
+   {
+    "nome": "porção",
+    "gramas": 30
+   },
+   {
+    "nome": "2 xícaras",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 29,
+  "taco": "Curau, milho verde",
+  "ibge": "8501904|99",
+  "ibge_nome": "CURAU — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 150
+   },
+   {
+    "nome": "1/2 prato raso",
+    "gramas": 150
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 300
+   },
+   {
+    "nome": "prato fundo cheio",
+    "gramas": 500
+   }
+  ]
+ },
+ {
+  "codigo_taco": 33,
+  "taco": "Farinha, de milho, amarela",
+  "ibge": "6500603|99",
+  "ibge_nome": "FARINHA DE MILHO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa",
+    "gramas": 3
+   },
+   {
+    "nome": "1/2 colher de sopa",
+    "gramas": 6
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 12
+   },
+   {
+    "nome": "2 colheres de sopa",
+    "gramas": 24
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 42
+   },
+   {
+    "nome": "4 colheres de sopa",
+    "gramas": 48
+   }
+  ]
+ },
+ {
+  "codigo_taco": 36,
+  "taco": "Farinha, láctea, de cereais",
+  "ibge": "6502001|99",
+  "ibge_nome": "FARINHA LACTEA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/2 colheres de sopa cheia",
+    "gramas": 10
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 20
+   },
+   {
+    "nome": "porção rótulo",
+    "gramas": 30
+   },
+   {
+    "nome": "diluição para o preparo de vitamina em 1 copo americano",
+    "gramas": 31.3
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 40
+   },
+   {
+    "nome": "diluição para o preparo de vitamina em 1 xícara de 200ml",
+    "gramas": 41.7
+   },
+   {
+    "nome": "diluição para o preparo de vitamina em 1 copo médio",
+    "gramas": 50
+   },
+   {
+    "nome": "diluição para o preparo de vitamina em 1 caneca de 300ml",
+    "gramas": 62.5
+   },
+   {
+    "nome": "diluição para o preparo de vitamina em 1 copo grande",
+    "gramas": 62.5
+   },
+   {
+    "nome": "4 colheres de sopa cheias",
+    "gramas": 80
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 195
+   },
+   {
+    "nome": "prato fundo cheio",
+    "gramas": 375
+   }
+  ]
+ },
+ {
+  "codigo_taco": 39,
+  "taco": "Macarrão, instantâneo",
+  "ibge": "6504802|99",
+  "ibge_nome": "MACARRAO INSTANTANEO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "garfada",
+    "gramas": 30
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 50
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 105
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 110
+   },
+   {
+    "nome": "pegador",
+    "gramas": 110
+   },
+   {
+    "nome": "prato raso cheio",
+    "gramas": 320
+   },
+   {
+    "nome": "prato fundo cheio",
+    "gramas": 400
+   }
+  ]
+ },
+ {
+  "codigo_taco": 44,
+  "taco": "Milho, verde, cru",
+  "ibge": "6300701|1",
+  "ibge_nome": "MILHO EM GRAO — CRU(A)",
+  "medidas": [
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 17
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 24
+   }
+  ]
+ },
+ {
+  "codigo_taco": 51,
+  "taco": "Pão, milho, forma",
+  "ibge": "8001101|99",
+  "ibge_nome": "PAO DE MILHO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/2 unidade",
+    "gramas": 35
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 70
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 70
+   }
+  ]
+ },
+ {
+  "codigo_taco": 52,
+  "taco": "Pão, trigo, forma, integral",
+  "ibge": "8001401|99",
+  "ibge_nome": "PAO INTEGRAL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 25
+   }
+  ]
+ },
+ {
+  "codigo_taco": 53,
+  "taco": "Pão, trigo, francês",
+  "ibge": "8000105|99",
+  "ibge_nome": "PAO DE SAL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/3 unidade",
+    "gramas": 16.7
+   },
+   {
+    "nome": "1/2 unidade",
+    "gramas": 25
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "unidade",
+    "gramas": 50
+   }
+  ]
+ },
+ {
+  "codigo_taco": 56,
+  "taco": "Pastel, de carne, frito",
+  "ibge": "8500202|99",
+  "ibge_nome": "PASTEL (QUEIJO, CARNE, PALMITO, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 8
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 16
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 32
+   }
+  ]
+ },
+ {
+  "codigo_taco": 58,
+  "taco": "Pastel, de queijo, frito",
+  "ibge": "8500202|99",
+  "ibge_nome": "PASTEL (QUEIJO, CARNE, PALMITO, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 8
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 16
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 32
+   }
+  ]
+ },
+ {
+  "codigo_taco": 62,
+  "taco": "Polenta, pré-cozida",
+  "ibge": "8500218|99",
+  "ibge_nome": "POLENTA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 17.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 60
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 105
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 150
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 150
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 300
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 500
+   }
+  ]
+ },
+ {
+  "codigo_taco": 63,
+  "taco": "Torrada, pão francês",
+  "ibge": "8001901|99",
+  "ibge_nome": "TORRADA DE QUALQUER PAO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 8
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 40
+   },
+   {
+    "nome": "pacote",
+    "gramas": 160
+   }
+  ]
+ },
+ {
+  "codigo_taco": 64,
+  "taco": "Abóbora, cabotian, cozida",
+  "ibge": "6703901|2",
+  "ibge_nome": "ABOBORA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 9
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 18
+   },
+   {
+    "nome": "pedaço pequeno",
+    "gramas": 30
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 36
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 50
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 70
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 72
+   },
+   {
+    "nome": "escumadeira média cheia picada",
+    "gramas": 100
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 100
+   },
+   {
+    "nome": "pires",
+    "gramas": 140
+   },
+   {
+    "nome": "pires",
+    "gramas": 280
+   }
+  ]
+ },
+ {
+  "codigo_taco": 68,
+  "taco": "Abóbora, moranga, refogada",
+  "ibge": "6703901|7",
+  "ibge_nome": "ABOBORA — REFOGADO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço pequeno",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 50
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 60
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 70
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 105
+   },
+   {
+    "nome": "pires",
+    "gramas": 280
+   }
+  ]
+ },
+ {
+  "codigo_taco": 70,
+  "taco": "Abobrinha, italiana, cozida",
+  "ibge": "6703701|2",
+  "ibge_nome": "ABOBRINHA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 15
+   },
+   {
+    "nome": "pedaço",
+    "gramas": 17
+   },
+   {
+    "nome": "rodela",
+    "gramas": 18
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 57
+   },
+   {
+    "nome": "fatia",
+    "gramas": 61
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade",
+    "gramas": 335
+   }
+  ]
+ },
+ {
+  "codigo_taco": 72,
+  "taco": "Abobrinha, italiana, refogada",
+  "ibge": "6703701|7",
+  "ibge_nome": "ABOBRINHA — REFOGADO(A)",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 7.5
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 15
+   },
+   {
+    "nome": "pedaço",
+    "gramas": 17
+   },
+   {
+    "nome": "rodela",
+    "gramas": 18
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 57
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade",
+    "gramas": 335
+   }
+  ]
+ },
+ {
+  "codigo_taco": 74,
+  "taco": "Acelga, crua",
+  "ibge": "6701501|1",
+  "ibge_nome": "ACELGA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia picada",
+    "gramas": 6
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 10
+   },
+   {
+    "nome": "folha média",
+    "gramas": 10
+   },
+   {
+    "nome": "prato raso picada",
+    "gramas": 60
+   },
+   {
+    "nome": "porção",
+    "gramas": 60
+   },
+   {
+    "nome": "prato raso raso picada",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 75,
+  "taco": "Agrião, cru",
+  "ibge": "6701301|1",
+  "ibge_nome": "AGRIAO — CRU(A)",
+  "medidas": [
+   {
+    "nome": "ramo médio",
+    "gramas": 5
+   },
+   {
+    "nome": "colher de sopa cheia picado",
+    "gramas": 7
+   },
+   {
+    "nome": "pires cheio picado",
+    "gramas": 10
+   },
+   {
+    "nome": "garfada",
+    "gramas": 30
+   },
+   {
+    "nome": "porção média",
+    "gramas": 37.5
+   },
+   {
+    "nome": "prato raso cheio picado",
+    "gramas": 80
+   }
+  ]
+ },
+ {
+  "codigo_taco": 77,
+  "taco": "Alface, americana, crua",
+  "ibge": "6700101|99",
+  "ibge_nome": "ALFACE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia picada",
+    "gramas": 2
+   },
+   {
+    "nome": "1/2 colher de sopa cheia picada",
+    "gramas": 4
+   },
+   {
+    "nome": "colher de sopa cheia picada",
+    "gramas": 8
+   },
+   {
+    "nome": "folha média",
+    "gramas": 10
+   },
+   {
+    "nome": "2 colheres de sopa cheias picada",
+    "gramas": 16
+   },
+   {
+    "nome": "2 colheres de sopa cheia picada",
+    "gramas": 16
+   },
+   {
+    "nome": "pires de folha",
+    "gramas": 20
+   },
+   {
+    "nome": "pires cheio picada",
+    "gramas": 20
+   },
+   {
+    "nome": "porção média",
+    "gramas": 27
+   },
+   {
+    "nome": "prato de sobremesa cheio picada",
+    "gramas": 30
+   },
+   {
+    "nome": "4 colheres de sopa cheia picada",
+    "gramas": 32
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 50
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 60
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 130
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 78,
+  "taco": "Alface, crespa, crua",
+  "ibge": "6700101|99",
+  "ibge_nome": "ALFACE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia picada",
+    "gramas": 2
+   },
+   {
+    "nome": "1/2 colher de sopa cheia picada",
+    "gramas": 4
+   },
+   {
+    "nome": "colher de sopa cheia picada",
+    "gramas": 8
+   },
+   {
+    "nome": "folha média",
+    "gramas": 10
+   },
+   {
+    "nome": "2 colheres de sopa cheias picada",
+    "gramas": 16
+   },
+   {
+    "nome": "2 colheres de sopa cheia picada",
+    "gramas": 16
+   },
+   {
+    "nome": "pires de folha",
+    "gramas": 20
+   },
+   {
+    "nome": "pires cheio picada",
+    "gramas": 20
+   },
+   {
+    "nome": "porção média",
+    "gramas": 27
+   },
+   {
+    "nome": "prato de sobremesa cheio picada",
+    "gramas": 30
+   },
+   {
+    "nome": "4 colheres de sopa cheia picada",
+    "gramas": 32
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 50
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 60
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 130
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 79,
+  "taco": "Alface, lisa, crua",
+  "ibge": "6700101|99",
+  "ibge_nome": "ALFACE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia picada",
+    "gramas": 2
+   },
+   {
+    "nome": "1/2 colher de sopa cheia picada",
+    "gramas": 4
+   },
+   {
+    "nome": "colher de sopa cheia picada",
+    "gramas": 8
+   },
+   {
+    "nome": "folha média",
+    "gramas": 10
+   },
+   {
+    "nome": "2 colheres de sopa cheias picada",
+    "gramas": 16
+   },
+   {
+    "nome": "2 colheres de sopa cheia picada",
+    "gramas": 16
+   },
+   {
+    "nome": "pires de folha",
+    "gramas": 20
+   },
+   {
+    "nome": "pires cheio picada",
+    "gramas": 20
+   },
+   {
+    "nome": "porção média",
+    "gramas": 27
+   },
+   {
+    "nome": "prato de sobremesa cheio picada",
+    "gramas": 30
+   },
+   {
+    "nome": "4 colheres de sopa cheia picada",
+    "gramas": 32
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 50
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 60
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 130
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 80,
+  "taco": "Alface, roxa, crua",
+  "ibge": "6700101|99",
+  "ibge_nome": "ALFACE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia picada",
+    "gramas": 2
+   },
+   {
+    "nome": "1/2 colher de sopa cheia picada",
+    "gramas": 4
+   },
+   {
+    "nome": "colher de sopa cheia picada",
+    "gramas": 8
+   },
+   {
+    "nome": "folha média",
+    "gramas": 10
+   },
+   {
+    "nome": "2 colheres de sopa cheias picada",
+    "gramas": 16
+   },
+   {
+    "nome": "2 colheres de sopa cheia picada",
+    "gramas": 16
+   },
+   {
+    "nome": "pires de folha",
+    "gramas": 20
+   },
+   {
+    "nome": "pires cheio picada",
+    "gramas": 20
+   },
+   {
+    "nome": "porção média",
+    "gramas": 27
+   },
+   {
+    "nome": "prato de sobremesa cheio picada",
+    "gramas": 30
+   },
+   {
+    "nome": "4 colheres de sopa cheia picada",
+    "gramas": 32
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 50
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 60
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 130
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 82,
+  "taco": "Alho, cru",
+  "ibge": "6706201|99",
+  "ibge_nome": "ALHO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 4.4
+   }
+  ]
+ },
+ {
+  "codigo_taco": 83,
+  "taco": "Alho-poró, cru",
+  "ibge": "6706301|99",
+  "ibge_nome": "ALHO PORO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "2 colheres de sopa",
+    "gramas": 15
+   }
+  ]
+ },
+ {
+  "codigo_taco": 84,
+  "taco": "Almeirão, cru",
+  "ibge": "6701601|1",
+  "ibge_nome": "ALMEIRAO — CRU(A)",
+  "medidas": [
+   {
+    "nome": "folha",
+    "gramas": 12
+   },
+   {
+    "nome": "2 folhas",
+    "gramas": 24
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 25
+   },
+   {
+    "nome": "porção média",
+    "gramas": 27
+   },
+   {
+    "nome": "2 pires de folha",
+    "gramas": 48
+   },
+   {
+    "nome": "2 colheres de sopa",
+    "gramas": 50
+   }
+  ]
+ },
+ {
+  "codigo_taco": 85,
+  "taco": "Almeirão, refogado",
+  "ibge": "6701601|7",
+  "ibge_nome": "ALMEIRAO — REFOGADO(A)",
+  "medidas": [
+   {
+    "nome": "2 folhas",
+    "gramas": 24
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 25
+   },
+   {
+    "nome": "porção média",
+    "gramas": 27
+   },
+   {
+    "nome": "2 colheres de sopa",
+    "gramas": 50
+   }
+  ]
+ },
+ {
+  "codigo_taco": 86,
+  "taco": "Batata, baroa, cozida",
+  "ibge": "6400802|2",
+  "ibge_nome": "BATATA (NAO ESPECIFICADA) — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 7.5
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 15
+   },
+   {
+    "nome": "pedaço pequeno",
+    "gramas": 16
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 60
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 70
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 70
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 80
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 90
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 100
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 87,
+  "taco": "Batata, baroa, crua",
+  "ibge": "6400802|1",
+  "ibge_nome": "BATATA (NAO ESPECIFICADA) — CRU(A)",
+  "medidas": [
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 90
+   }
+  ]
+ },
+ {
+  "codigo_taco": 88,
+  "taco": "Batata, doce, cozida",
+  "ibge": "6400401|2",
+  "ibge_nome": "BATATA DOCE — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 42
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 70
+   },
+   {
+    "nome": "colher de servir",
+    "gramas": 100
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 150
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 177.5
+   },
+   {
+    "nome": "75% unidade média",
+    "gramas": 266.3
+   },
+   {
+    "nome": "3 colheres de servir",
+    "gramas": 300
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 355
+   }
+  ]
+ },
+ {
+  "codigo_taco": 90,
+  "taco": "Batata, frita, tipo chips, industrializada",
+  "ibge": "6400802|5",
+  "ibge_nome": "BATATA (NAO ESPECIFICADA) — FRITO(A)",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 12.5
+   },
+   {
+    "nome": "pedaço pequeno",
+    "gramas": 16
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "1/2 prato de sobremesa",
+    "gramas": 39
+   },
+   {
+    "nome": "punhadinho",
+    "gramas": 45
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 50
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 65
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 70
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 78
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 110
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 91,
+  "taco": "Batata, inglesa, cozida",
+  "ibge": "6400101|2",
+  "ibge_nome": "BATATA INGLESA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 7.5
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 15
+   },
+   {
+    "nome": "pedaço pequeno",
+    "gramas": 16
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 60
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 70
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 70
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 80
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 90
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 100
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 92,
+  "taco": "Batata, inglesa, crua",
+  "ibge": "6400101|1",
+  "ibge_nome": "BATATA INGLESA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 90
+   }
+  ]
+ },
+ {
+  "codigo_taco": 93,
+  "taco": "Batata, inglesa, frita",
+  "ibge": "6400101|5",
+  "ibge_nome": "BATATA INGLESA — FRITO(A)",
+  "medidas": [
+   {
+    "nome": "pedaço pequeno",
+    "gramas": 16
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "1/2 prato de sobremesa",
+    "gramas": 39
+   },
+   {
+    "nome": "punhadinho",
+    "gramas": 45
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 50
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 65
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 70
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 78
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 110
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 140
+   },
+   {
+    "nome": "2 pratos de sobremesa",
+    "gramas": 156
+   }
+  ]
+ },
+ {
+  "codigo_taco": 94,
+  "taco": "Batata, inglesa, sauté",
+  "ibge": "6400101|99",
+  "ibge_nome": "BATATA INGLESA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 95,
+  "taco": "Berinjela, cozida",
+  "ibge": "6705401|2",
+  "ibge_nome": "BERINJELA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 12.5
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 20
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 60
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 75
+   },
+   {
+    "nome": "pires de chá cheio",
+    "gramas": 110
+   },
+   {
+    "nome": "75% da unidade média",
+    "gramas": 112.5
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 125
+   }
+  ]
+ },
+ {
+  "codigo_taco": 96,
+  "taco": "Berinjela, crua",
+  "ibge": "6705401|99",
+  "ibge_nome": "BERINJELA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade grande",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 97,
+  "taco": "Beterraba, cozida",
+  "ibge": "6401101|2",
+  "ibge_nome": "BETERRABA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 10
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 12
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 20
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 38
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 43
+   },
+   {
+    "nome": "escumadeira média rasa picada",
+    "gramas": 45
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 62.5
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 75
+   },
+   {
+    "nome": "2 colheres de arroz cheia",
+    "gramas": 76
+   },
+   {
+    "nome": "1/2 prato de sobremesa",
+    "gramas": 84
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 125
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 168
+   }
+  ]
+ },
+ {
+  "codigo_taco": 98,
+  "taco": "Beterraba, crua",
+  "ibge": "6401101|1",
+  "ibge_nome": "BETERRABA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheia ralada",
+    "gramas": 8
+   },
+   {
+    "nome": "colher de sopa cheia ralada",
+    "gramas": 16
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 42
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 140
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 168
+   }
+  ]
+ },
+ {
+  "codigo_taco": 99,
+  "taco": "Biscoito, polvilho doce",
+  "ibge": "8002212|99",
+  "ibge_nome": "BISCOITO DE POLVILHO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade rosca",
+    "gramas": 3
+   },
+   {
+    "nome": "pacote rosca",
+    "gramas": 30
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 30
+   }
+  ]
+ },
+ {
+  "codigo_taco": 100,
+  "taco": "Brócolis, cozido",
+  "ibge": "6701704|2",
+  "ibge_nome": "BROCOLIS — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheia picado",
+    "gramas": 5
+   },
+   {
+    "nome": "colher de sopa cheia picado",
+    "gramas": 10
+   },
+   {
+    "nome": "2 colheres de sopa cheia picado",
+    "gramas": 20
+   },
+   {
+    "nome": "4 colheres de sopa cheia picado",
+    "gramas": 40
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 60
+   },
+   {
+    "nome": "ramo médio",
+    "gramas": 60
+   },
+   {
+    "nome": "pires",
+    "gramas": 75
+   }
+  ]
+ },
+ {
+  "codigo_taco": 102,
+  "taco": "Cará, cozido",
+  "ibge": "6400701|2",
+  "ibge_nome": "CARA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia picado",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço pequeno",
+    "gramas": 30
+   },
+   {
+    "nome": "colher de arroz cheia picado",
+    "gramas": 60
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 100
+   },
+   {
+    "nome": "2 colheres de arroz cheias picado",
+    "gramas": 120
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 126
+   }
+  ]
+ },
+ {
+  "codigo_taco": 106,
+  "taco": "Catalonha, refogada",
+  "ibge": "6705801|7",
+  "ibge_nome": "CATALONHA — REFOGADO(A)",
+  "medidas": [
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 42
+   }
+  ]
+ },
+ {
+  "codigo_taco": 107,
+  "taco": "Cebola, crua",
+  "ibge": "6705701|1",
+  "ibge_nome": "CEBOLA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 2.5
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 5
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 6
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 10
+   },
+   {
+    "nome": "1/4 unidade média",
+    "gramas": 17.5
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 20
+   },
+   {
+    "nome": "2 colheres de sopa cheia",
+    "gramas": 20
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 30
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 70
+   }
+  ]
+ },
+ {
+  "codigo_taco": 108,
+  "taco": "Cebolinha, crua",
+  "ibge": "6701101|99",
+  "ibge_nome": "CEBOLINHA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa",
+    "gramas": 2.3
+   },
+   {
+    "nome": "ramo",
+    "gramas": 6.2
+   }
+  ]
+ },
+ {
+  "codigo_taco": 109,
+  "taco": "Cenoura, cozida",
+  "ibge": "6401201|2",
+  "ibge_nome": "CENOURA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "fatia",
+    "gramas": 5
+   },
+   {
+    "nome": "colher sopa cheia picado",
+    "gramas": 25
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 35
+   },
+   {
+    "nome": "colher arroz cheia picado",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 46
+   },
+   {
+    "nome": "escumadeira média rasa picado",
+    "gramas": 48
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 50
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 110,
+  "taco": "Cenoura, crua",
+  "ibge": "6401201|1",
+  "ibge_nome": "CENOURA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheia ralada",
+    "gramas": 6
+   },
+   {
+    "nome": "colher de sopa cheia ralada",
+    "gramas": 12
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 38
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 55
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 60
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 120
+   }
+  ]
+ },
+ {
+  "codigo_taco": 111,
+  "taco": "Chicória, crua",
+  "ibge": "6700301|1",
+  "ibge_nome": "CHICORIA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "folha média",
+    "gramas": 12
+   },
+   {
+    "nome": "2 folhas médias",
+    "gramas": 24
+   }
+  ]
+ },
+ {
+  "codigo_taco": 112,
+  "taco": "Chuchu, cozido",
+  "ibge": "6704101|2",
+  "ibge_nome": "CHUCHU — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 10
+   },
+   {
+    "nome": "pedaço pequeno",
+    "gramas": 15
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 20
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço",
+    "gramas": 30
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 45
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 57
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 110
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 115
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 145
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 230
+   }
+  ]
+ },
+ {
+  "codigo_taco": 118,
+  "taco": "Couve-flor, cozida",
+  "ibge": "6700601|2",
+  "ibge_nome": "COUVE FLOR — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "1/2 colheres de sopa cheia",
+    "gramas": 12.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "ramo pequeno",
+    "gramas": 30
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 50
+   },
+   {
+    "nome": "2 colheres de sopa cheia",
+    "gramas": 50
+   },
+   {
+    "nome": "ramo médio",
+    "gramas": 60
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 69
+   },
+   {
+    "nome": "4 colheres de sopa cheia",
+    "gramas": 100
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 120,
+  "taco": "Espinafre, Nova Zelândia, refogado",
+  "ibge": "6700701|7",
+  "ibge_nome": "ESPINAFRE — REFOGADO(A)",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 12.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "2 colheres de sopa cheia",
+    "gramas": 50
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 67
+   }
+  ]
+ },
+ {
+  "codigo_taco": 121,
+  "taco": "Farinha, de mandioca, crua",
+  "ibge": "6501401|99",
+  "ibge_nome": "FARINHA DE MANDIOCA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de café",
+    "gramas": 3
+   },
+   {
+    "nome": "colher de chá cheia",
+    "gramas": 5
+   },
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 10
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 16
+   },
+   {
+    "nome": "punhado",
+    "gramas": 23
+   },
+   {
+    "nome": "colher de arroz",
+    "gramas": 33
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 40
+   },
+   {
+    "nome": "1/3 copo pequeno",
+    "gramas": 42.3
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 101
+   },
+   {
+    "nome": "concha",
+    "gramas": 110
+   },
+   {
+    "nome": "copo pequeno",
+    "gramas": 127
+   },
+   {
+    "nome": "tigela",
+    "gramas": 148
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 148
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 150
+   },
+   {
+    "nome": "caneca",
+    "gramas": 171
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 172
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 271
+   }
+  ]
+ },
+ {
+  "codigo_taco": 122,
+  "taco": "Farinha, de mandioca, torrada",
+  "ibge": "6501401|99",
+  "ibge_nome": "FARINHA DE MANDIOCA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de café",
+    "gramas": 3
+   },
+   {
+    "nome": "colher de chá cheia",
+    "gramas": 5
+   },
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 10
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 16
+   },
+   {
+    "nome": "punhado",
+    "gramas": 23
+   },
+   {
+    "nome": "colher de arroz",
+    "gramas": 33
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 40
+   },
+   {
+    "nome": "1/3 copo pequeno",
+    "gramas": 42.3
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 101
+   },
+   {
+    "nome": "concha",
+    "gramas": 110
+   },
+   {
+    "nome": "copo pequeno",
+    "gramas": 127
+   },
+   {
+    "nome": "tigela",
+    "gramas": 148
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 148
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 150
+   },
+   {
+    "nome": "caneca",
+    "gramas": 171
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 172
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 271
+   }
+  ]
+ },
+ {
+  "codigo_taco": 127,
+  "taco": "Jiló, cru",
+  "ibge": "6704201|1",
+  "ibge_nome": "JILO — CRU(A)",
+  "medidas": [
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 95
+   }
+  ]
+ },
+ {
+  "codigo_taco": 128,
+  "taco": "Jurubeba, crua",
+  "ibge": "6808201|99",
+  "ibge_nome": "JURUBEBA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 10
+   }
+  ]
+ },
+ {
+  "codigo_taco": 129,
+  "taco": "Mandioca, cozida",
+  "ibge": "6400601|2",
+  "ibge_nome": "MANDIOCA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia picado",
+    "gramas": 30
+   },
+   {
+    "nome": "colher de arroz cheia picado",
+    "gramas": 60
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 100
+   },
+   {
+    "nome": "2 colheres de arroz cheias picado",
+    "gramas": 120
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 128
+   }
+  ]
+ },
+ {
+  "codigo_taco": 132,
+  "taco": "Mandioca, frita",
+  "ibge": "6400601|5",
+  "ibge_nome": "MANDIOCA — FRITO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia picado",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 45
+   },
+   {
+    "nome": "punhadinho",
+    "gramas": 45
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 60
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 70
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 80
+   },
+   {
+    "nome": "porção",
+    "gramas": 80
+   },
+   {
+    "nome": "escumadeira média cheia picada",
+    "gramas": 95
+   }
+  ]
+ },
+ {
+  "codigo_taco": 135,
+  "taco": "Mostarda, folha, crua",
+  "ibge": "6700801|1",
+  "ibge_nome": "MOSTARDA (VERDURA) — CRU(A)",
+  "medidas": [
+   {
+    "nome": "folha",
+    "gramas": 10
+   }
+  ]
+ },
+ {
+  "codigo_taco": 136,
+  "taco": "Nhoque, batata, cozido",
+  "ibge": "8500905|99",
+  "ibge_nome": "NHOQUE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 138,
+  "taco": "Palmito, juçara, em conserva",
+  "ibge": "7700501|99",
+  "ibge_nome": "PALMITO EM CONSERVA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa rasa picado",
+    "gramas": 15
+   },
+   {
+    "nome": "2 colheres de sopa rasa picado",
+    "gramas": 30
+   },
+   {
+    "nome": "2 colheres de sopa rasas picado",
+    "gramas": 30
+   },
+   {
+    "nome": "porção rótulo",
+    "gramas": 50
+   },
+   {
+    "nome": "4 colheres de sopa rasa picado",
+    "gramas": 60
+   },
+   {
+    "nome": "75% unidade média",
+    "gramas": 75
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 139,
+  "taco": "Palmito, pupunha, em conserva",
+  "ibge": "7700501|99",
+  "ibge_nome": "PALMITO EM CONSERVA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa rasa picado",
+    "gramas": 15
+   },
+   {
+    "nome": "2 colheres de sopa rasa picado",
+    "gramas": 30
+   },
+   {
+    "nome": "2 colheres de sopa rasas picado",
+    "gramas": 30
+   },
+   {
+    "nome": "porção rótulo",
+    "gramas": 50
+   },
+   {
+    "nome": "4 colheres de sopa rasa picado",
+    "gramas": 60
+   },
+   {
+    "nome": "75% unidade média",
+    "gramas": 75
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 140,
+  "taco": "Pão, de queijo, assado",
+  "ibge": "8000801|99",
+  "ibge_nome": "PAO DE QUEIJO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 10
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 20
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 58
+   }
+  ]
+ },
+ {
+  "codigo_taco": 142,
+  "taco": "Pepino, cru",
+  "ibge": "6704001|99",
+  "ibge_nome": "PEPINO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia pequena",
+    "gramas": 3
+   },
+   {
+    "nome": "1/4 colher de sopa cheia picado",
+    "gramas": 4.5
+   },
+   {
+    "nome": "1/2 colher de sopa cheia picado",
+    "gramas": 9
+   },
+   {
+    "nome": "colher de sopa cheia picado",
+    "gramas": 18
+   },
+   {
+    "nome": "2 colheres de sopa cheias picado",
+    "gramas": 36
+   },
+   {
+    "nome": "2 colheres de sopa cheia picada",
+    "gramas": 36
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 50
+   },
+   {
+    "nome": "75% unidade média",
+    "gramas": 75
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 143,
+  "taco": "Pimentão, amarelo, cru",
+  "ibge": "6704501|99",
+  "ibge_nome": "PIMENTAO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 6
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 13
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 26
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 27.5
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 38
+   },
+   {
+    "nome": "4 colheres de sopa cheia",
+    "gramas": 52
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 55
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 56
+   }
+  ]
+ },
+ {
+  "codigo_taco": 144,
+  "taco": "Pimentão, verde, cru",
+  "ibge": "6704501|99",
+  "ibge_nome": "PIMENTAO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 6
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 13
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 26
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 27.5
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 38
+   },
+   {
+    "nome": "4 colheres de sopa cheia",
+    "gramas": 52
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 55
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 56
+   }
+  ]
+ },
+ {
+  "codigo_taco": 145,
+  "taco": "Pimentão, vermelho, cru",
+  "ibge": "6704501|99",
+  "ibge_nome": "PIMENTAO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 6
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 13
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 26
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 27.5
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 38
+   },
+   {
+    "nome": "4 colheres de sopa cheia",
+    "gramas": 52
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 55
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 56
+   }
+  ]
+ },
+ {
+  "codigo_taco": 147,
+  "taco": "Quiabo, cru",
+  "ibge": "6705001|1",
+  "ibge_nome": "QUIABO — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 18
+   }
+  ]
+ },
+ {
+  "codigo_taco": 148,
+  "taco": "Rabanete, cru",
+  "ibge": "6401001|1",
+  "ibge_nome": "RABANETE — CRU(A)",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 4
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 11
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 12.5
+   },
+   {
+    "nome": "2 colheres de sopa",
+    "gramas": 22
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 25
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 90
+   }
+  ]
+ },
+ {
+  "codigo_taco": 149,
+  "taco": "Repolho, branco, cru",
+  "ibge": "6700901|1",
+  "ibge_nome": "REPOLHO — CRU(A)",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 2.5
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 10
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "folha média",
+    "gramas": 26
+   },
+   {
+    "nome": "2 colheres de arroz cheia",
+    "gramas": 50
+   },
+   {
+    "nome": "porção",
+    "gramas": 60
+   },
+   {
+    "nome": "pires cheio",
+    "gramas": 100
+   },
+   {
+    "nome": "2 pires cheios",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 150,
+  "taco": "Repolho, roxo, cru",
+  "ibge": "6700901|1",
+  "ibge_nome": "REPOLHO — CRU(A)",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 2.5
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 10
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "folha média",
+    "gramas": 26
+   },
+   {
+    "nome": "2 colheres de arroz cheia",
+    "gramas": 50
+   },
+   {
+    "nome": "porção",
+    "gramas": 60
+   },
+   {
+    "nome": "pires cheio",
+    "gramas": 100
+   },
+   {
+    "nome": "2 pires cheios",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 151,
+  "taco": "Repolho, roxo, refogado",
+  "ibge": "6700901|7",
+  "ibge_nome": "REPOLHO — REFOGADO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 18
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 20
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 45
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 45
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "prato de sobremesa cheio",
+    "gramas": 150
+   }
+  ]
+ },
+ {
+  "codigo_taco": 152,
+  "taco": "Rúcula, crua",
+  "ibge": "6702001|99",
+  "ibge_nome": "RUCULA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "ramo",
+    "gramas": 6
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 8
+   },
+   {
+    "nome": "2 colheres de sopa cheia",
+    "gramas": 16
+   },
+   {
+    "nome": "pires cheio picada",
+    "gramas": 20
+   },
+   {
+    "nome": "porção média",
+    "gramas": 27
+   },
+   {
+    "nome": "prato de sobremesa cheia picada",
+    "gramas": 30
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 60
+   },
+   {
+    "nome": "prato raso cheia picada",
+    "gramas": 80
+   }
+  ]
+ },
+ {
+  "codigo_taco": 161,
+  "taco": "Tomate, salada",
+  "ibge": "6705101|99",
+  "ibge_nome": "TOMATE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia em tiras",
+    "gramas": 7.5
+   },
+   {
+    "nome": "1/2 colher de sopa cheia em tiras",
+    "gramas": 15
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 15
+   },
+   {
+    "nome": "colher de sopa cheia em tiras",
+    "gramas": 30
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 50
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 50
+   },
+   {
+    "nome": "2 colheres de sopa cheias em tiras",
+    "gramas": 60
+   },
+   {
+    "nome": "2 colheres de sopa cheia em tiras",
+    "gramas": 60
+   },
+   {
+    "nome": "pires pequeno",
+    "gramas": 60
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 80
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "4 colheres de sopa cheia em tiras",
+    "gramas": 120
+   }
+  ]
+ },
+ {
+  "codigo_taco": 163,
+  "taco": "Abacate, cru",
+  "ibge": "6802701|99",
+  "ibge_nome": "ABACATE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheio picado",
+    "gramas": 22.5
+   },
+   {
+    "nome": "colher de sopa cheio picado",
+    "gramas": 45
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 45
+   },
+   {
+    "nome": "2 colheres de sopa cheio picado",
+    "gramas": 90
+   },
+   {
+    "nome": "1/2 prato raso",
+    "gramas": 175
+   },
+   {
+    "nome": "copo duplo cheio picado",
+    "gramas": 200
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 215
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 370
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 430
+   }
+  ]
+ },
+ {
+  "codigo_taco": 164,
+  "taco": "Abacaxi, cru",
+  "ibge": "6802601|99",
+  "ibge_nome": "ABACAXI — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1 cubo",
+    "gramas": 11
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 75
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "porção guia alimenar",
+    "gramas": 130
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 375
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 480
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 750
+   }
+  ]
+ },
+ {
+  "codigo_taco": 166,
+  "taco": "Abiu, cru",
+  "ibge": "6808001|99",
+  "ibge_nome": "ABIU — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 50
+   }
+  ]
+ },
+ {
+  "codigo_taco": 169,
+  "taco": "Acerola, crua",
+  "ibge": "6807701|99",
+  "ibge_nome": "ACEROLA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 12
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 224
+   }
+  ]
+ },
+ {
+  "codigo_taco": 172,
+  "taco": "Ameixa, crua",
+  "ibge": "6804301|99",
+  "ibge_nome": "AMEIXA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa",
+    "gramas": 25
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 30
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 34
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 42
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "4 colheres de sopa",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   }
+  ]
+ },
+ {
+  "codigo_taco": 174,
+  "taco": "Atemóia, crua",
+  "ibge": "6805401|99",
+  "ibge_nome": "ATEMOIA (FRUTA) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 227
+   }
+  ]
+ },
+ {
+  "codigo_taco": 175,
+  "taco": "Banana, da terra, crua",
+  "ibge": "6801101|1",
+  "ibge_nome": "BANANA (OURO, PRATA, D´AGUA, DA TERRA, ETC) — CRU(A)",
+  "medidas": [
+   {
+    "nome": "pedaço",
+    "gramas": 16
+   },
+   {
+    "nome": "fatia",
+    "gramas": 26
+   },
+   {
+    "nome": "1/2 unidade",
+    "gramas": 37.5
+   },
+   {
+    "nome": "75% da unidade média",
+    "gramas": 56.3
+   },
+   {
+    "nome": "unidade",
+    "gramas": 75
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 86
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 170
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 235
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 326
+   }
+  ]
+ },
+ {
+  "codigo_taco": 177,
+  "taco": "Banana, figo, crua",
+  "ibge": "6801101|1",
+  "ibge_nome": "BANANA (OURO, PRATA, D´AGUA, DA TERRA, ETC) — CRU(A)",
+  "medidas": [
+   {
+    "nome": "pedaço",
+    "gramas": 16
+   },
+   {
+    "nome": "fatia",
+    "gramas": 26
+   },
+   {
+    "nome": "1/2 unidade",
+    "gramas": 37.5
+   },
+   {
+    "nome": "75% da unidade média",
+    "gramas": 56.3
+   },
+   {
+    "nome": "unidade",
+    "gramas": 75
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 86
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 170
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 235
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 326
+   }
+  ]
+ },
+ {
+  "codigo_taco": 178,
+  "taco": "Banana, maçã, crua",
+  "ibge": "6801101|1",
+  "ibge_nome": "BANANA (OURO, PRATA, D´AGUA, DA TERRA, ETC) — CRU(A)",
+  "medidas": [
+   {
+    "nome": "pedaço",
+    "gramas": 16
+   },
+   {
+    "nome": "fatia",
+    "gramas": 26
+   },
+   {
+    "nome": "1/2 unidade",
+    "gramas": 37.5
+   },
+   {
+    "nome": "75% da unidade média",
+    "gramas": 56.3
+   },
+   {
+    "nome": "unidade",
+    "gramas": 75
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 86
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 170
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 235
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 326
+   }
+  ]
+ },
+ {
+  "codigo_taco": 179,
+  "taco": "Banana, nanica, crua",
+  "ibge": "6801101|1",
+  "ibge_nome": "BANANA (OURO, PRATA, D´AGUA, DA TERRA, ETC) — CRU(A)",
+  "medidas": [
+   {
+    "nome": "pedaço",
+    "gramas": 16
+   },
+   {
+    "nome": "fatia",
+    "gramas": 26
+   },
+   {
+    "nome": "1/2 unidade",
+    "gramas": 37.5
+   },
+   {
+    "nome": "75% da unidade média",
+    "gramas": 56.3
+   },
+   {
+    "nome": "unidade",
+    "gramas": 75
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 86
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 170
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 235
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 326
+   }
+  ]
+ },
+ {
+  "codigo_taco": 180,
+  "taco": "Banana, ouro, crua",
+  "ibge": "6801101|1",
+  "ibge_nome": "BANANA (OURO, PRATA, D´AGUA, DA TERRA, ETC) — CRU(A)",
+  "medidas": [
+   {
+    "nome": "pedaço",
+    "gramas": 16
+   },
+   {
+    "nome": "fatia",
+    "gramas": 26
+   },
+   {
+    "nome": "1/2 unidade",
+    "gramas": 37.5
+   },
+   {
+    "nome": "75% da unidade média",
+    "gramas": 56.3
+   },
+   {
+    "nome": "unidade",
+    "gramas": 75
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 86
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 170
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 235
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 326
+   }
+  ]
+ },
+ {
+  "codigo_taco": 181,
+  "taco": "Banana, pacova, crua",
+  "ibge": "6801101|1",
+  "ibge_nome": "BANANA (OURO, PRATA, D´AGUA, DA TERRA, ETC) — CRU(A)",
+  "medidas": [
+   {
+    "nome": "pedaço",
+    "gramas": 16
+   },
+   {
+    "nome": "fatia",
+    "gramas": 26
+   },
+   {
+    "nome": "1/2 unidade",
+    "gramas": 37.5
+   },
+   {
+    "nome": "75% da unidade média",
+    "gramas": 56.3
+   },
+   {
+    "nome": "unidade",
+    "gramas": 75
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 86
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 170
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 235
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 326
+   }
+  ]
+ },
+ {
+  "codigo_taco": 182,
+  "taco": "Banana, prata, crua",
+  "ibge": "6801101|1",
+  "ibge_nome": "BANANA (OURO, PRATA, D´AGUA, DA TERRA, ETC) — CRU(A)",
+  "medidas": [
+   {
+    "nome": "pedaço",
+    "gramas": 16
+   },
+   {
+    "nome": "fatia",
+    "gramas": 26
+   },
+   {
+    "nome": "1/2 unidade",
+    "gramas": 37.5
+   },
+   {
+    "nome": "75% da unidade média",
+    "gramas": 56.3
+   },
+   {
+    "nome": "unidade",
+    "gramas": 75
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 86
+   },
+   {
+    "nome": "prato de sobremesa",
+    "gramas": 170
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 235
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 326
+   }
+  ]
+ },
+ {
+  "codigo_taco": 183,
+  "taco": "Cacau, cru",
+  "ibge": "6806301|99",
+  "ibge_nome": "CACAU — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 91.2
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   }
+  ]
+ },
+ {
+  "codigo_taco": 184,
+  "taco": "Cajá-Manga, cru",
+  "ibge": "6804601|99",
+  "ibge_nome": "CAJA MANGA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 55
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   }
+  ]
+ },
+ {
+  "codigo_taco": 186,
+  "taco": "Caju, cru",
+  "ibge": "6804401|99",
+  "ibge_nome": "CAJU — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 80
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 90
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 tulipa",
+    "gramas": 120.8
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   }
+  ]
+ },
+ {
+  "codigo_taco": 189,
+  "taco": "Caqui, chocolate, cru",
+  "ibge": "6802801|99",
+  "ibge_nome": "CAQUI — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 unidade média",
+    "gramas": 27.5
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 55
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 85
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 110
+   }
+  ]
+ },
+ {
+  "codigo_taco": 190,
+  "taco": "Carambola, crua",
+  "ibge": "6804801|99",
+  "ibge_nome": "CARAMBOLA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 6
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 75
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   },
+   {
+    "nome": "porção",
+    "gramas": 130
+   }
+  ]
+ },
+ {
+  "codigo_taco": 191,
+  "taco": "Ciriguela, crua",
+  "ibge": "6806901|99",
+  "ibge_nome": "CIRIGUELA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "75% unidade média",
+    "gramas": 5.6
+   },
+   {
+    "nome": "unidade",
+    "gramas": 10
+   },
+   {
+    "nome": "porção",
+    "gramas": 50
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   }
+  ]
+ },
+ {
+  "codigo_taco": 192,
+  "taco": "Cupuaçu, cru",
+  "ibge": "6807301|99",
+  "ibge_nome": "CUPUACU — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa",
+    "gramas": 20
+   },
+   {
+    "nome": "porção",
+    "gramas": 60
+   },
+   {
+    "nome": "3 colheres de sopa",
+    "gramas": 60
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 tulipa",
+    "gramas": 120.8
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   }
+  ]
+ },
+ {
+  "codigo_taco": 194,
+  "taco": "Figo, cru",
+  "ibge": "6802901|99",
+  "ibge_nome": "FIGO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 55
+   },
+   {
+    "nome": "porção",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 196,
+  "taco": "Fruta-pão, crua",
+  "ibge": "6805901|99",
+  "ibge_nome": "FRUTA PAO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "porção",
+    "gramas": 35
+   },
+   {
+    "nome": "4 colheres de sopa",
+    "gramas": 70
+   }
+  ]
+ },
+ {
+  "codigo_taco": 197,
+  "taco": "Goiaba, branca, com casca, crua",
+  "ibge": "6804201|99",
+  "ibge_nome": "GOIABA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 unidade média",
+    "gramas": 42.5
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 50
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 85
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 170
+   }
+  ]
+ },
+ {
+  "codigo_taco": 200,
+  "taco": "Goiaba, vermelha, com casca, crua",
+  "ibge": "6804201|99",
+  "ibge_nome": "GOIABA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 unidade média",
+    "gramas": 42.5
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 50
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 85
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 170
+   }
+  ]
+ },
+ {
+  "codigo_taco": 201,
+  "taco": "Graviola, crua",
+  "ibge": "6805001|99",
+  "ibge_nome": "GRAVIOLA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 unidade",
+    "gramas": 56.8
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "porção",
+    "gramas": 70
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 tulipa",
+    "gramas": 120.8
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   },
+   {
+    "nome": "unidade",
+    "gramas": 227
+   }
+  ]
+ },
+ {
+  "codigo_taco": 204,
+  "taco": "Jaca, crua",
+  "ibge": "6804101|99",
+  "ibge_nome": "JACA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "bago",
+    "gramas": 12
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 132
+   },
+   {
+    "nome": "1/2 prato raso",
+    "gramas": 150
+   }
+  ]
+ },
+ {
+  "codigo_taco": 205,
+  "taco": "Jambo, cru",
+  "ibge": "6805301|99",
+  "ibge_nome": "JAMBO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 40
+   }
+  ]
+ },
+ {
+  "codigo_taco": 206,
+  "taco": "Jamelão, cru",
+  "ibge": "6810201|99",
+  "ibge_nome": "JAMELAO (JAMBURAO) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 5
+   }
+  ]
+ },
+ {
+  "codigo_taco": 207,
+  "taco": "Kiwi, cru",
+  "ibge": "6807801|99",
+  "ibge_nome": "KIWI — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "rodela",
+    "gramas": 11
+   },
+   {
+    "nome": "1/4 unidade média",
+    "gramas": 23.5
+   },
+   {
+    "nome": "75% unidade média",
+    "gramas": 57
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 94
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   }
+  ]
+ },
+ {
+  "codigo_taco": 208,
+  "taco": "Laranja, baía, crua",
+  "ibge": "6801801|99",
+  "ibge_nome": "LARANJA (PERA, SELETA, LIMA, DA TERRA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "gomo",
+    "gramas": 18
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 90
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 144
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 180
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 210,
+  "taco": "Laranja, da terra, crua",
+  "ibge": "6801801|99",
+  "ibge_nome": "LARANJA (PERA, SELETA, LIMA, DA TERRA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "gomo",
+    "gramas": 18
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 90
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 144
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 180
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 212,
+  "taco": "Laranja, lima, crua",
+  "ibge": "6801801|99",
+  "ibge_nome": "LARANJA (PERA, SELETA, LIMA, DA TERRA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "gomo",
+    "gramas": 18
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 90
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 144
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 180
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 214,
+  "taco": "Laranja, pêra, crua",
+  "ibge": "6801801|99",
+  "ibge_nome": "LARANJA (PERA, SELETA, LIMA, DA TERRA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "gomo",
+    "gramas": 18
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 90
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 144
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 180
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 216,
+  "taco": "Laranja, valência, crua",
+  "ibge": "6801801|99",
+  "ibge_nome": "LARANJA (PERA, SELETA, LIMA, DA TERRA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "gomo",
+    "gramas": 18
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 90
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 144
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 180
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 220,
+  "taco": "Limão, tahiti, cru",
+  "ibge": "6802001|99",
+  "ibge_nome": "LIMAO (COMUM, GALEGO, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/5 unidade",
+    "gramas": 16.8
+   },
+   {
+    "nome": "1/2 unidade",
+    "gramas": 42
+   },
+   {
+    "nome": "1 unidade para o preparo de um copo médio",
+    "gramas": 84
+   },
+   {
+    "nome": "unidade",
+    "gramas": 84
+   },
+   {
+    "nome": "1 unidade para o preparo de um copo grande",
+    "gramas": 105
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 252
+   }
+  ]
+ },
+ {
+  "codigo_taco": 221,
+  "taco": "Maçã, Argentina, com casca, crua",
+  "ibge": "6803001|99",
+  "ibge_nome": "MACA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 unidade média",
+    "gramas": 37.5
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 75
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 90
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 130
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 150
+   }
+  ]
+ },
+ {
+  "codigo_taco": 222,
+  "taco": "Maçã, Fuji, com casca, crua",
+  "ibge": "6803001|99",
+  "ibge_nome": "MACA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 unidade média",
+    "gramas": 37.5
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 75
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 90
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 130
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 150
+   }
+  ]
+ },
+ {
+  "codigo_taco": 225,
+  "taco": "Mamão, Formosa, cru",
+  "ibge": "6803101|99",
+  "ibge_nome": "MAMAO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 40
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "pedaço pequeno",
+    "gramas": 120
+   },
+   {
+    "nome": "2 colheres de arroz cheia",
+    "gramas": 140
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 155
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 160
+   },
+   {
+    "nome": "copo pequeno picado",
+    "gramas": 165
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 170
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 270
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 310
+   }
+  ]
+ },
+ {
+  "codigo_taco": 226,
+  "taco": "Mamão, Papaia, cru",
+  "ibge": "6803101|99",
+  "ibge_nome": "MAMAO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 40
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "pedaço pequeno",
+    "gramas": 120
+   },
+   {
+    "nome": "2 colheres de arroz cheia",
+    "gramas": 140
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 155
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 160
+   },
+   {
+    "nome": "copo pequeno picado",
+    "gramas": 165
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 170
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 270
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 310
+   }
+  ]
+ },
+ {
+  "codigo_taco": 228,
+  "taco": "Manga, Haden, crua",
+  "ibge": "6803201|99",
+  "ibge_nome": "MANGA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia",
+    "gramas": 22
+   },
+   {
+    "nome": "2 fatias",
+    "gramas": 44
+   },
+   {
+    "nome": "espada pequena",
+    "gramas": 60
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 110
+   },
+   {
+    "nome": "espada média",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 229,
+  "taco": "Manga, Palmer, crua",
+  "ibge": "6803201|99",
+  "ibge_nome": "MANGA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia",
+    "gramas": 22
+   },
+   {
+    "nome": "2 fatias",
+    "gramas": 44
+   },
+   {
+    "nome": "espada pequena",
+    "gramas": 60
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 110
+   },
+   {
+    "nome": "espada média",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 231,
+  "taco": "Manga, Tommy Atkins, crua",
+  "ibge": "6803201|99",
+  "ibge_nome": "MANGA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia",
+    "gramas": 22
+   },
+   {
+    "nome": "2 fatias",
+    "gramas": 44
+   },
+   {
+    "nome": "espada pequena",
+    "gramas": 60
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 110
+   },
+   {
+    "nome": "espada média",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 232,
+  "taco": "Maracujá, cru",
+  "ibge": "6803301|99",
+  "ibge_nome": "MARACUJA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 45
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   }
+  ]
+ },
+ {
+  "codigo_taco": 235,
+  "taco": "Melancia, crua",
+  "ibge": "6803401|99",
+  "ibge_nome": "MELANCIA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 150
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 200
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 296
+   }
+  ]
+ },
+ {
+  "codigo_taco": 236,
+  "taco": "Melão, cru",
+  "ibge": "6803501|99",
+  "ibge_nome": "MELAO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 fatia média",
+    "gramas": 22.5
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 230
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 330
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 660
+   }
+  ]
+ },
+ {
+  "codigo_taco": 237,
+  "taco": "Mexerica, Murcote, crua",
+  "ibge": "6802202|99",
+  "ibge_nome": "MEXERICA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/8 da unidade média",
+    "gramas": 16.9
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 100
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 135
+   }
+  ]
+ },
+ {
+  "codigo_taco": 238,
+  "taco": "Mexerica, Rio, crua",
+  "ibge": "6802202|99",
+  "ibge_nome": "MEXERICA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/8 da unidade média",
+    "gramas": 16.9
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 100
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 135
+   }
+  ]
+ },
+ {
+  "codigo_taco": 239,
+  "taco": "Morango, cru",
+  "ibge": "6805201|99",
+  "ibge_nome": "MORANGO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 7
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 12
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 120
+   },
+   {
+    "nome": "10 unidades médias",
+    "gramas": 120
+   }
+  ]
+ },
+ {
+  "codigo_taco": 240,
+  "taco": "Nêspera, crua",
+  "ibge": "6805801|99",
+  "ibge_nome": "NESPERA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 27
+   }
+  ]
+ },
+ {
+  "codigo_taco": 242,
+  "taco": "Pêra, Park, crua",
+  "ibge": "6803601|99",
+  "ibge_nome": "PERA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 unidade média",
+    "gramas": 32.5
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 65
+   },
+   {
+    "nome": "1/2 unidade",
+    "gramas": 65
+   },
+   {
+    "nome": "75% unidade média",
+    "gramas": 97.5
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 130
+   }
+  ]
+ },
+ {
+  "codigo_taco": 243,
+  "taco": "Pêra, Williams, crua",
+  "ibge": "6803601|99",
+  "ibge_nome": "PERA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 unidade média",
+    "gramas": 32.5
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 65
+   },
+   {
+    "nome": "1/2 unidade",
+    "gramas": 65
+   },
+   {
+    "nome": "75% unidade média",
+    "gramas": 97.5
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 130
+   }
+  ]
+ },
+ {
+  "codigo_taco": 244,
+  "taco": "Pêssego, Aurora, cru",
+  "ibge": "6803701|99",
+  "ibge_nome": "PESSEGO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 unidade média",
+    "gramas": 15
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 32
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 60
+   },
+   {
+    "nome": "1 unidade",
+    "gramas": 80
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 226
+   }
+  ]
+ },
+ {
+  "codigo_taco": 246,
+  "taco": "Pinha, crua",
+  "ibge": "6803802|99",
+  "ibge_nome": "PINHA (FRUTA DE CONDE) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "75% unidade média",
+    "gramas": 45
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 247,
+  "taco": "Pitanga, crua",
+  "ibge": "6806801|99",
+  "ibge_nome": "PITANGA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 10
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 249,
+  "taco": "Romã, crua",
+  "ibge": "6807601|99",
+  "ibge_nome": "ROMA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 70
+   }
+  ]
+ },
+ {
+  "codigo_taco": 250,
+  "taco": "Tamarindo, cru",
+  "ibge": "6806201|99",
+  "ibge_nome": "TAMARINDO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 8.1
+   },
+   {
+    "nome": "porção",
+    "gramas": 25
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   }
+  ]
+ },
+ {
+  "codigo_taco": 251,
+  "taco": "Tangerina, Poncã, crua",
+  "ibge": "6802201|99",
+  "ibge_nome": "TANGERINA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/8 da unidade média",
+    "gramas": 16.9
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 67.5
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "unidade pequena",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 135
+   }
+  ]
+ },
+ {
+  "codigo_taco": 253,
+  "taco": "Tucumã, cru",
+  "ibge": "6601108|99",
+  "ibge_nome": "TUCUMA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 11.7
+   }
+  ]
+ },
+ {
+  "codigo_taco": 254,
+  "taco": "Umbu, cru",
+  "ibge": "6807101|99",
+  "ibge_nome": "UMBU — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade grande",
+    "gramas": 33.3
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 62.5
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 100
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 125
+   }
+  ]
+ },
+ {
+  "codigo_taco": 256,
+  "taco": "Uva, Itália, crua",
+  "ibge": "6803901|99",
+  "ibge_nome": "UVA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 4
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 8
+   },
+   {
+    "nome": "1/2 tigela",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 99.2
+   },
+   {
+    "nome": "tigela",
+    "gramas": 140
+   },
+   {
+    "nome": "cacho pequeno",
+    "gramas": 170
+   }
+  ]
+ },
+ {
+  "codigo_taco": 257,
+  "taco": "Uva, Rubi, crua",
+  "ibge": "6803901|99",
+  "ibge_nome": "UVA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 4
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 8
+   },
+   {
+    "nome": "1/2 tigela",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 99.2
+   },
+   {
+    "nome": "tigela",
+    "gramas": 140
+   },
+   {
+    "nome": "cacho pequeno",
+    "gramas": 170
+   }
+  ]
+ },
+ {
+  "codigo_taco": 260,
+  "taco": "Azeite, de oliva, extra virgem",
+  "ibge": "8400101|99",
+  "ibge_nome": "AZEITE DE OLIVA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de café",
+    "gramas": 1
+   },
+   {
+    "nome": "colher de chá",
+    "gramas": 2
+   },
+   {
+    "nome": "colher de sobremesa",
+    "gramas": 5
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 7.6
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 8
+   },
+   {
+    "nome": "2 colheres de sopa",
+    "gramas": 16
+   }
+  ]
+ },
+ {
+  "codigo_taco": 261,
+  "taco": "Manteiga, com sal",
+  "ibge": "7901501|99",
+  "ibge_nome": "MANTEIGA COM OU SEM SAL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/2 colher de chá cheia",
+    "gramas": 4
+   },
+   {
+    "nome": "ponta de faca",
+    "gramas": 5
+   },
+   {
+    "nome": "colher de chá cheia",
+    "gramas": 8
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 9.8
+   },
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 23
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 32
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 64
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 155
+   }
+  ]
+ },
+ {
+  "codigo_taco": 262,
+  "taco": "Manteiga, sem sal",
+  "ibge": "7901501|99",
+  "ibge_nome": "MANTEIGA COM OU SEM SAL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/2 colher de chá cheia",
+    "gramas": 4
+   },
+   {
+    "nome": "ponta de faca",
+    "gramas": 5
+   },
+   {
+    "nome": "colher de chá cheia",
+    "gramas": 8
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 9.8
+   },
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 23
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 32
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 64
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 155
+   }
+  ]
+ },
+ {
+  "codigo_taco": 272,
+  "taco": "Óleo, de soja",
+  "ibge": "8400301|99",
+  "ibge_nome": "OLEO DE SOJA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de café",
+    "gramas": 1
+   },
+   {
+    "nome": "colher de chá",
+    "gramas": 2
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 8
+   },
+   {
+    "nome": "4 colheres de sopa",
+    "gramas": 32
+   }
+  ]
+ },
+ {
+  "codigo_taco": 284,
+  "taco": "Camarão, Rio Grande, grande, cozido",
+  "ibge": "7260101|2",
+  "ibge_nome": "CAMARAO — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 20
+   },
+   {
+    "nome": "unidade grande",
+    "gramas": 30
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "2 colheres de sopa cheia",
+    "gramas": 40
+   },
+   {
+    "nome": "2 colheres de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 190
+   }
+  ]
+ },
+ {
+  "codigo_taco": 286,
+  "taco": "Camarão, Sete Barbas, sem cabeça, com casca, frito",
+  "ibge": "7260101|5",
+  "ibge_nome": "CAMARAO — FRITO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 20
+   },
+   {
+    "nome": "unidade grande",
+    "gramas": 30
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "2 colheres de sopa cheia",
+    "gramas": 40
+   },
+   {
+    "nome": "2 colheres de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 104
+   }
+  ]
+ },
+ {
+  "codigo_taco": 287,
+  "taco": "Caranguejo, cozido",
+  "ibge": "7262101|2",
+  "ibge_nome": "CARANGUEJO — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 20
+   },
+   {
+    "nome": "unidade",
+    "gramas": 45
+   }
+  ]
+ },
+ {
+  "codigo_taco": 323,
+  "taco": "Apresuntado",
+  "ibge": "8103601|99",
+  "ibge_nome": "APRESUNTADO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 15
+   }
+  ]
+ },
+ {
+  "codigo_taco": 326,
+  "taco": "Carne, bovina, acém, moído, cozido",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 327,
+  "taco": "Carne, bovina, acém, moído, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 328,
+  "taco": "Carne, bovina, acém, sem gordura, cozido",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 329,
+  "taco": "Carne, bovina, acém, sem gordura, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 332,
+  "taco": "Carne, bovina, bucho, cozido",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 333,
+  "taco": "Carne, bovina, bucho, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 334,
+  "taco": "Carne, bovina, capa de contra-filé, com gordura, crua",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 335,
+  "taco": "Carne, bovina, capa de contra-filé, com gordura, grelhada",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 336,
+  "taco": "Carne, bovina, capa de contra-filé, sem gordura, crua",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 337,
+  "taco": "Carne, bovina, capa de contra-filé, sem gordura, grelhada",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 338,
+  "taco": "Carne, bovina, charque, cozido",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 339,
+  "taco": "Carne, bovina, charque, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 340,
+  "taco": "Carne, bovina, contra-filé, à milanesa",
+  "ibge": "7109101|99",
+  "ibge_nome": "CARNE BOVINA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 341,
+  "taco": "Carne, bovina, contra-filé de costela, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 342,
+  "taco": "Carne, bovina, contra-filé de costela, grelhado",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 343,
+  "taco": "Carne, bovina, contra-filé, com gordura, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 344,
+  "taco": "Carne, bovina, contra-filé, com gordura, grelhado",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 345,
+  "taco": "Carne, bovina, contra-filé, sem gordura, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 346,
+  "taco": "Carne, bovina, contra-filé, sem gordura, grelhado",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 347,
+  "taco": "Carne, bovina, costela, assada",
+  "ibge": "7109101|4",
+  "ibge_nome": "CARNE BOVINA — ASSADO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 348,
+  "taco": "Carne, bovina, costela, crua",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 349,
+  "taco": "Carne, bovina, coxão duro, sem gordura, cozido",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 350,
+  "taco": "Carne, bovina, coxão duro, sem gordura, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 351,
+  "taco": "Carne, bovina, coxão mole, sem gordura, cozido",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 352,
+  "taco": "Carne, bovina, coxão mole, sem gordura, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 353,
+  "taco": "Carne, bovina, cupim, assado",
+  "ibge": "7109101|4",
+  "ibge_nome": "CARNE BOVINA — ASSADO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 354,
+  "taco": "Carne, bovina, cupim, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 355,
+  "taco": "Carne, bovina, fígado, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 356,
+  "taco": "Carne, bovina, fígado, grelhado",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 357,
+  "taco": "Carne, bovina, filé mingnon, sem gordura, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 358,
+  "taco": "Carne, bovina, filé mingnon, sem gordura, grelhado",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 359,
+  "taco": "Carne, bovina, flanco, sem gordura, cozido",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 360,
+  "taco": "Carne, bovina, flanco, sem gordura, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 361,
+  "taco": "Carne, bovina, fraldinha, com gordura, cozida",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 362,
+  "taco": "Carne, bovina, fraldinha, com gordura, crua",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 363,
+  "taco": "Carne, bovina, lagarto, cozido",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 364,
+  "taco": "Carne, bovina, lagarto, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 365,
+  "taco": "Carne, bovina, língua, cozida",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 366,
+  "taco": "Carne, bovina, língua, crua",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 367,
+  "taco": "Carne, bovina, maminha, crua",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 368,
+  "taco": "Carne, bovina, maminha, grelhada",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 369,
+  "taco": "Carne, bovina, miolo de alcatra, sem gordura, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 370,
+  "taco": "Carne, bovina, miolo de alcatra, sem gordura, grelhado",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 371,
+  "taco": "Carne, bovina, músculo, sem gordura, cozido",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 372,
+  "taco": "Carne, bovina, músculo, sem gordura, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 373,
+  "taco": "Carne, bovina, paleta, com gordura, crua",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 374,
+  "taco": "Carne, bovina, paleta, sem gordura, cozida",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 375,
+  "taco": "Carne, bovina, paleta, sem gordura, crua",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 376,
+  "taco": "Carne, bovina, patinho, sem gordura, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 377,
+  "taco": "Carne, bovina, patinho, sem gordura, grelhado",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 378,
+  "taco": "Carne, bovina, peito, sem gordura, cozido",
+  "ibge": "7109101|2",
+  "ibge_nome": "CARNE BOVINA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 pedaços médios",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   },
+   {
+    "nome": "2 colheres de arroz cheias",
+    "gramas": 140
+   },
+   {
+    "nome": "4 pedaços médios",
+    "gramas": 140
+   }
+  ]
+ },
+ {
+  "codigo_taco": 379,
+  "taco": "Carne, bovina, peito, sem gordura, cru",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 380,
+  "taco": "Carne, bovina, picanha, com gordura, crua",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 381,
+  "taco": "Carne, bovina, picanha, com gordura, grelhada",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 382,
+  "taco": "Carne, bovina, picanha, sem gordura, crua",
+  "ibge": "7109101|1",
+  "ibge_nome": "CARNE BOVINA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 383,
+  "taco": "Carne, bovina, picanha, sem gordura, grelhada",
+  "ibge": "7109101|3",
+  "ibge_nome": "CARNE BOVINA — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 35
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 75
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 90
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   },
+   {
+    "nome": "3 pedaços médios",
+    "gramas": 105
+   }
+  ]
+ },
+ {
+  "codigo_taco": 384,
+  "taco": "Carne, bovina, seca, cozida",
+  "ibge": "8100101|2",
+  "ibge_nome": "CARNE SECA — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 18
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 28
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 40
+   },
+   {
+    "nome": "2 colheres de arroz cheia",
+    "gramas": 56
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 65
+   }
+  ]
+ },
+ {
+  "codigo_taco": 388,
+  "taco": "Croquete, de carne, frito",
+  "ibge": "8500203|99",
+  "ibge_nome": "CROQUETE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 10
+   },
+   {
+    "nome": "unidade grande",
+    "gramas": 55
+   },
+   {
+    "nome": "2 unidades grandes",
+    "gramas": 110
+   }
+  ]
+ },
+ {
+  "codigo_taco": 390,
+  "taco": "Empada, de frango, pré-cozida",
+  "ibge": "8500206|99",
+  "ibge_nome": "EMPADA (QUEIJO, CARNE, CAMARAO, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 12
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 27.5
+   },
+   {
+    "nome": "unidade",
+    "gramas": 55
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 110
+   }
+  ]
+ },
+ {
+  "codigo_taco": 392,
+  "taco": "Frango, caipira, inteiro, com pele, cozido",
+  "ibge": "7800103|2",
+  "ibge_nome": "FRANGO INTEIRO — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "pescoço médio",
+    "gramas": 10
+   },
+   {
+    "nome": "asa média",
+    "gramas": 40
+   },
+   {
+    "nome": "coxa grande",
+    "gramas": 55
+   },
+   {
+    "nome": "costela média",
+    "gramas": 60
+   },
+   {
+    "nome": "sobrecoxa média",
+    "gramas": 65
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   },
+   {
+    "nome": "peito médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 393,
+  "taco": "Frango, caipira, inteiro, sem pele, cozido",
+  "ibge": "7800103|2",
+  "ibge_nome": "FRANGO INTEIRO — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "pescoço médio",
+    "gramas": 10
+   },
+   {
+    "nome": "asa média",
+    "gramas": 40
+   },
+   {
+    "nome": "coxa grande",
+    "gramas": 55
+   },
+   {
+    "nome": "costela média",
+    "gramas": 60
+   },
+   {
+    "nome": "sobrecoxa média",
+    "gramas": 65
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   },
+   {
+    "nome": "peito médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 396,
+  "taco": "Frango, coxa, com pele, assada",
+  "ibge": "7800302|4",
+  "ibge_nome": "FRANGO EM PEDACOS — ASSADO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia desfiado",
+    "gramas": 20
+   },
+   {
+    "nome": "asa média",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "coxa grande",
+    "gramas": 55
+   },
+   {
+    "nome": "costela média",
+    "gramas": 60
+   },
+   {
+    "nome": "sobrecoxa média",
+    "gramas": 65
+   },
+   {
+    "nome": "4 colheres de sopa cheia desfiado",
+    "gramas": 80
+   },
+   {
+    "nome": "filé médio",
+    "gramas": 100
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   },
+   {
+    "nome": "peito médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 398,
+  "taco": "Frango, coxa, sem pele, cozida",
+  "ibge": "7800103|2",
+  "ibge_nome": "FRANGO INTEIRO — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "pescoço médio",
+    "gramas": 10
+   },
+   {
+    "nome": "asa média",
+    "gramas": 40
+   },
+   {
+    "nome": "coxa grande",
+    "gramas": 55
+   },
+   {
+    "nome": "costela média",
+    "gramas": 60
+   },
+   {
+    "nome": "sobrecoxa média",
+    "gramas": 65
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   },
+   {
+    "nome": "peito médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 403,
+  "taco": "Frango, inteiro, sem pele, assado",
+  "ibge": "7800103|4",
+  "ibge_nome": "FRANGO INTEIRO — ASSADO(A)",
+  "medidas": [
+   {
+    "nome": "asa média",
+    "gramas": 40
+   },
+   {
+    "nome": "coxa grande",
+    "gramas": 55
+   },
+   {
+    "nome": "sobrecoxa média",
+    "gramas": 65
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   },
+   {
+    "nome": "peito médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 404,
+  "taco": "Frango, inteiro, sem pele, cozido",
+  "ibge": "7800103|2",
+  "ibge_nome": "FRANGO INTEIRO — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "pescoço médio",
+    "gramas": 10
+   },
+   {
+    "nome": "asa média",
+    "gramas": 40
+   },
+   {
+    "nome": "coxa grande",
+    "gramas": 55
+   },
+   {
+    "nome": "costela média",
+    "gramas": 60
+   },
+   {
+    "nome": "sobrecoxa média",
+    "gramas": 65
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   },
+   {
+    "nome": "peito médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 406,
+  "taco": "Frango, peito, com pele, assado",
+  "ibge": "7800302|4",
+  "ibge_nome": "FRANGO EM PEDACOS — ASSADO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia desfiado",
+    "gramas": 20
+   },
+   {
+    "nome": "asa média",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "coxa grande",
+    "gramas": 55
+   },
+   {
+    "nome": "costela média",
+    "gramas": 60
+   },
+   {
+    "nome": "sobrecoxa média",
+    "gramas": 65
+   },
+   {
+    "nome": "4 colheres de sopa cheia desfiado",
+    "gramas": 80
+   },
+   {
+    "nome": "filé médio",
+    "gramas": 100
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   },
+   {
+    "nome": "peito médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 408,
+  "taco": "Frango, peito, sem pele, cozido",
+  "ibge": "7800103|2",
+  "ibge_nome": "FRANGO INTEIRO — COZIDO(A)",
+  "medidas": [
+   {
+    "nome": "pescoço médio",
+    "gramas": 10
+   },
+   {
+    "nome": "asa média",
+    "gramas": 40
+   },
+   {
+    "nome": "coxa grande",
+    "gramas": 55
+   },
+   {
+    "nome": "costela média",
+    "gramas": 60
+   },
+   {
+    "nome": "sobrecoxa média",
+    "gramas": 65
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   },
+   {
+    "nome": "peito médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 410,
+  "taco": "Frango, peito, sem pele, grelhado",
+  "ibge": "7800302|3",
+  "ibge_nome": "FRANGO EM PEDACOS — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia desfiado",
+    "gramas": 20
+   },
+   {
+    "nome": "asa média",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "coxa grande",
+    "gramas": 55
+   },
+   {
+    "nome": "sobrecoxa média",
+    "gramas": 65
+   },
+   {
+    "nome": "filé médio",
+    "gramas": 100
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   },
+   {
+    "nome": "peito médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 411,
+  "taco": "Frango, sobrecoxa, com pele, assada",
+  "ibge": "7800302|4",
+  "ibge_nome": "FRANGO EM PEDACOS — ASSADO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia desfiado",
+    "gramas": 20
+   },
+   {
+    "nome": "asa média",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "coxa grande",
+    "gramas": 55
+   },
+   {
+    "nome": "costela média",
+    "gramas": 60
+   },
+   {
+    "nome": "sobrecoxa média",
+    "gramas": 65
+   },
+   {
+    "nome": "4 colheres de sopa cheia desfiado",
+    "gramas": 80
+   },
+   {
+    "nome": "filé médio",
+    "gramas": 100
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   },
+   {
+    "nome": "peito médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 413,
+  "taco": "Frango, sobrecoxa, sem pele, assada",
+  "ibge": "7800302|4",
+  "ibge_nome": "FRANGO EM PEDACOS — ASSADO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia desfiado",
+    "gramas": 20
+   },
+   {
+    "nome": "asa média",
+    "gramas": 40
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "coxa grande",
+    "gramas": 55
+   },
+   {
+    "nome": "costela média",
+    "gramas": 60
+   },
+   {
+    "nome": "sobrecoxa média",
+    "gramas": 65
+   },
+   {
+    "nome": "4 colheres de sopa cheia desfiado",
+    "gramas": 80
+   },
+   {
+    "nome": "filé médio",
+    "gramas": 100
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   },
+   {
+    "nome": "peito médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 418,
+  "taco": "Lingüiça, frango, crua",
+  "ibge": "8102207|1",
+  "ibge_nome": "LINGUICA DE FRANGO — CRU(A)",
+  "medidas": [
+   {
+    "nome": "gomo/fatia média",
+    "gramas": 10
+   },
+   {
+    "nome": "1/2 gomo",
+    "gramas": 30
+   }
+  ]
+ },
+ {
+  "codigo_taco": 419,
+  "taco": "Lingüiça, frango, frita",
+  "ibge": "8102207|5",
+  "ibge_nome": "LINGUICA DE FRANGO — FRITO(A)",
+  "medidas": [
+   {
+    "nome": "gomo/fatia média",
+    "gramas": 10
+   },
+   {
+    "nome": "1/2 gomo",
+    "gramas": 30
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "gomo",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 420,
+  "taco": "Lingüiça, frango, grelhada",
+  "ibge": "8102207|3",
+  "ibge_nome": "LINGUICA DE FRANGO — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "gomo/fatia média",
+    "gramas": 10
+   },
+   {
+    "nome": "gomo",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 421,
+  "taco": "Lingüiça, porco, crua",
+  "ibge": "8102204|1",
+  "ibge_nome": "LINGUICA (SUINA, BOVINA, MISTA, ETC) — CRU(A)",
+  "medidas": [
+   {
+    "nome": "gomo/fatia média",
+    "gramas": 10
+   },
+   {
+    "nome": "gomo",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 422,
+  "taco": "Lingüiça, porco, frita",
+  "ibge": "8102204|5",
+  "ibge_nome": "LINGUICA (SUINA, BOVINA, MISTA, ETC) — FRITO(A)",
+  "medidas": [
+   {
+    "nome": "gomo/fatia média",
+    "gramas": 10
+   },
+   {
+    "nome": "colher de sopa cheia picada",
+    "gramas": 22
+   },
+   {
+    "nome": "colher de arroz cheia picada",
+    "gramas": 36
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "gomo",
+    "gramas": 60
+   },
+   {
+    "nome": "2 colheres de arroz cheia picada",
+    "gramas": 72
+   }
+  ]
+ },
+ {
+  "codigo_taco": 423,
+  "taco": "Lingüiça, porco, grelhada",
+  "ibge": "8102204|3",
+  "ibge_nome": "LINGUICA (SUINA, BOVINA, MISTA, ETC) — GRELHADO(A)/BRASA/CHURRASCO",
+  "medidas": [
+   {
+    "nome": "gomo/fatia média",
+    "gramas": 10
+   },
+   {
+    "nome": "unidade",
+    "gramas": 46
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "gomo",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 424,
+  "taco": "Mortadela",
+  "ibge": "8102601|99",
+  "ibge_nome": "MORTADELA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 15
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 62
+   }
+  ]
+ },
+ {
+  "codigo_taco": 438,
+  "taco": "Presunto, com capa de gordura",
+  "ibge": "8102901|99",
+  "ibge_nome": "PRESUNTO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 15
+   }
+  ]
+ },
+ {
+  "codigo_taco": 439,
+  "taco": "Presunto, sem capa de gordura",
+  "ibge": "8102901|99",
+  "ibge_nome": "PRESUNTO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 15
+   }
+  ]
+ },
+ {
+  "codigo_taco": 440,
+  "taco": "Quibe, assado",
+  "ibge": "8500211|99",
+  "ibge_nome": "QUIBE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 12
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 50
+   }
+  ]
+ },
+ {
+  "codigo_taco": 442,
+  "taco": "Quibe, frito",
+  "ibge": "8500211|99",
+  "ibge_nome": "QUIBE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 12
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 50
+   }
+  ]
+ },
+ {
+  "codigo_taco": 443,
+  "taco": "Salame",
+  "ibge": "8102701|99",
+  "ibge_nome": "SALAME — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 20
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 62
+   }
+  ]
+ },
+ {
+  "codigo_taco": 444,
+  "taco": "Toucinho, cru",
+  "ibge": "7103801|99",
+  "ibge_nome": "TOUCINHO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 7.5
+   }
+  ]
+ },
+ {
+  "codigo_taco": 445,
+  "taco": "Toucinho, frito",
+  "ibge": "7103801|99",
+  "ibge_nome": "TOUCINHO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 7.5
+   }
+  ]
+ },
+ {
+  "codigo_taco": 446,
+  "taco": "Bebida láctea, pêssego",
+  "ibge": "7901303|99",
+  "ibge_nome": "BEBIDA LACTEA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "copo de cafezinho",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 447,
+  "taco": "Creme de Leite",
+  "ibge": "7901001|99",
+  "ibge_nome": "CREME DE LEITE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/2 colher de chá cheia",
+    "gramas": 2.5
+   },
+   {
+    "nome": "colher de chá cheia",
+    "gramas": 5
+   },
+   {
+    "nome": "passada de faca",
+    "gramas": 12.5
+   },
+   {
+    "nome": "colher de sopa rasa",
+    "gramas": 15
+   },
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 20
+   },
+   {
+    "nome": "2 colheres de sopa rasas",
+    "gramas": 30
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   }
+  ]
+ },
+ {
+  "codigo_taco": 448,
+  "taco": "Iogurte, natural",
+  "ibge": "7901204|99",
+  "ibge_nome": "IOGURTE NATURAL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa rasa",
+    "gramas": 15
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "unidade",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 449,
+  "taco": "Iogurte, natural, desnatado",
+  "ibge": "7901204|99",
+  "ibge_nome": "IOGURTE NATURAL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa rasa",
+    "gramas": 15
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "unidade",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 450,
+  "taco": "Iogurte, sabor abacaxi",
+  "ibge": "7901201|99",
+  "ibge_nome": "IOGURTE DE QUALQUER SABOR — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa rasa",
+    "gramas": 15
+   },
+   {
+    "nome": "copo de cafezinho",
+    "gramas": 50
+   },
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 165
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "unidade",
+    "gramas": 200
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "garrafa de 275ml",
+    "gramas": 275
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 500ml",
+    "gramas": 500
+   },
+   {
+    "nome": "garrafa de 600ml",
+    "gramas": 600
+   },
+   {
+    "nome": "garrafa de 1l",
+    "gramas": 1000
+   }
+  ]
+ },
+ {
+  "codigo_taco": 451,
+  "taco": "Iogurte, sabor morango",
+  "ibge": "7901201|99",
+  "ibge_nome": "IOGURTE DE QUALQUER SABOR — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa rasa",
+    "gramas": 15
+   },
+   {
+    "nome": "copo de cafezinho",
+    "gramas": 50
+   },
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 165
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "unidade",
+    "gramas": 200
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "garrafa de 275ml",
+    "gramas": 275
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 500ml",
+    "gramas": 500
+   },
+   {
+    "nome": "garrafa de 600ml",
+    "gramas": 600
+   },
+   {
+    "nome": "garrafa de 1l",
+    "gramas": 1000
+   }
+  ]
+ },
+ {
+  "codigo_taco": 452,
+  "taco": "Iogurte, sabor pêssego",
+  "ibge": "7901201|99",
+  "ibge_nome": "IOGURTE DE QUALQUER SABOR — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa rasa",
+    "gramas": 15
+   },
+   {
+    "nome": "copo de cafezinho",
+    "gramas": 50
+   },
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 165
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "unidade",
+    "gramas": 200
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "garrafa de 275ml",
+    "gramas": 275
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 500ml",
+    "gramas": 500
+   },
+   {
+    "nome": "garrafa de 600ml",
+    "gramas": 600
+   },
+   {
+    "nome": "garrafa de 1l",
+    "gramas": 1000
+   }
+  ]
+ },
+ {
+  "codigo_taco": 453,
+  "taco": "Leite, condensado",
+  "ibge": "7900901|99",
+  "ibge_nome": "LEITE CONDENSADO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de chá",
+    "gramas": 2
+   },
+   {
+    "nome": "colher de sobremesa",
+    "gramas": 10
+   },
+   {
+    "nome": "passada de faca",
+    "gramas": 12.5
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 15
+   },
+   {
+    "nome": "2 colheres de sopa",
+    "gramas": 30
+   },
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "lata de 250ml",
+    "gramas": 250
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   },
+   {
+    "nome": "lata de 350ml",
+    "gramas": 350
+   },
+   {
+    "nome": "lata",
+    "gramas": 395
+   }
+  ]
+ },
+ {
+  "codigo_taco": 454,
+  "taco": "Leite, de cabra",
+  "ibge": "7900301|99",
+  "ibge_nome": "LEITE DE CABRA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   }
+  ]
+ },
+ {
+  "codigo_taco": 455,
+  "taco": "Leite, de vaca, achocolatado",
+  "ibge": "7903102|99",
+  "ibge_nome": "LEITE ACHOCOLATADO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "copo de cafezinho",
+    "gramas": 50
+   },
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 456,
+  "taco": "Leite, de vaca, desnatado, pó",
+  "ibge": "7900710|99",
+  "ibge_nome": "LEITE EM PO DESNATADO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sobremesa cheia",
+    "gramas": 1.8
+   },
+   {
+    "nome": "1/2 colher de sobremesa cheia",
+    "gramas": 3.5
+   },
+   {
+    "nome": "diluição para o preparo de 1 xícara de café",
+    "gramas": 4.2
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 10
+   },
+   {
+    "nome": "diluição para o preparado de 1 copo americano",
+    "gramas": 12.5
+   },
+   {
+    "nome": "diluição para o preparo de 1 xícara de chá",
+    "gramas": 16.7
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 20
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 20
+   },
+   {
+    "nome": "diluição para o preparado de 1 copo grande",
+    "gramas": 25
+   }
+  ]
+ },
+ {
+  "codigo_taco": 457,
+  "taco": "Leite, de vaca, desnatado, UHT",
+  "ibge": "7903601|99",
+  "ibge_nome": "LEITE DE VACA DESNATADO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 270
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 458,
+  "taco": "Leite, de vaca, integral",
+  "ibge": "7900101|99",
+  "ibge_nome": "LEITE DE VACA INTEGRAL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "copo de cafezinho",
+    "gramas": 50
+   },
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 182
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 500ml",
+    "gramas": 500
+   }
+  ]
+ },
+ {
+  "codigo_taco": 459,
+  "taco": "Leite, de vaca, integral, pó",
+  "ibge": "7900601|99",
+  "ibge_nome": "LEITE EM PO INTEGRAL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sobremesa cheia",
+    "gramas": 2.3
+   },
+   {
+    "nome": "1/2 colher de sobremesa cheia",
+    "gramas": 4.5
+   },
+   {
+    "nome": "diluição para o preparo de 1 xícara de café",
+    "gramas": 6.7
+   },
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 9
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 16
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 20
+   },
+   {
+    "nome": "diluição para o preparo de 1 xícara de chá",
+    "gramas": 26.7
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 32
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 32
+   },
+   {
+    "nome": "diluição para o preparo de 1 tulipa",
+    "gramas": 38.7
+   },
+   {
+    "nome": "diluição para o preparo de 1 caneca de 300ml",
+    "gramas": 40
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 40
+   },
+   {
+    "nome": "4 colheres de sopa cheia",
+    "gramas": 64
+   }
+  ]
+ },
+ {
+  "codigo_taco": 460,
+  "taco": "Leite, fermentado",
+  "ibge": "7901304|99",
+  "ibge_nome": "LEITE FERMENTADO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 80
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 461,
+  "taco": "Queijo, minas, frescal",
+  "ibge": "7902001|99",
+  "ibge_nome": "QUEIJO DE MINAS — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 45
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   }
+  ]
+ },
+ {
+  "codigo_taco": 462,
+  "taco": "Queijo, minas, meia cura",
+  "ibge": "7902001|99",
+  "ibge_nome": "QUEIJO DE MINAS — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 45
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   }
+  ]
+ },
+ {
+  "codigo_taco": 467,
+  "taco": "Queijo, prato",
+  "ibge": "7901701|99",
+  "ibge_nome": "QUEIJO PRATO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 15
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 30
+   }
+  ]
+ },
+ {
+  "codigo_taco": 469,
+  "taco": "Queijo, ricota",
+  "ibge": "7902201|99",
+  "ibge_nome": "QUEIJO RICOTA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "ponta de faca",
+    "gramas": 6
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 35
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 44
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 471,
+  "taco": "Café, infusão 10%",
+  "ibge": "8501302|99",
+  "ibge_nome": "CAFE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "copo de cafezinho",
+    "gramas": 50
+   },
+   {
+    "nome": "dose de aguardente",
+    "gramas": 50
+   },
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "taça",
+    "gramas": 150
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 350ml",
+    "gramas": 350
+   },
+   {
+    "nome": "garrafa de 400ml",
+    "gramas": 400
+   },
+   {
+    "nome": "garrafa de 1l",
+    "gramas": 1000
+   }
+  ]
+ },
+ {
+  "codigo_taco": 474,
+  "taco": "Cerveja, pilsen 2",
+  "ibge": "8300101|99",
+  "ibge_nome": "CERVEJA (COM OU SEM ALCOOL) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "dose de aguardente",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "taça",
+    "gramas": 150
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "garrafa de 250ml",
+    "gramas": 250
+   },
+   {
+    "nome": "lata de 250ml",
+    "gramas": 250
+   },
+   {
+    "nome": "garrafa de 275ml",
+    "gramas": 275
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "garrafa de 290ml",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 320ml",
+    "gramas": 320
+   },
+   {
+    "nome": "garrafa de 330ml",
+    "gramas": 330
+   },
+   {
+    "nome": "lata de 335ml",
+    "gramas": 335
+   },
+   {
+    "nome": "lata de 340ml",
+    "gramas": 340
+   },
+   {
+    "nome": "garrafa de 350ml",
+    "gramas": 350
+   },
+   {
+    "nome": "lata de 350ml",
+    "gramas": 350
+   },
+   {
+    "nome": "lata de 354ml",
+    "gramas": 354
+   },
+   {
+    "nome": "garrafa de 355ml",
+    "gramas": 355
+   },
+   {
+    "nome": "garrafa de 400ml",
+    "gramas": 400
+   },
+   {
+    "nome": "garrafa de 450ml",
+    "gramas": 450
+   },
+   {
+    "nome": "lata de 473ml",
+    "gramas": 473
+   },
+   {
+    "nome": "garrafa de 500ml",
+    "gramas": 500
+   },
+   {
+    "nome": "garrafa de 510ml",
+    "gramas": 510
+   },
+   {
+    "nome": "garrafa de 591ml",
+    "gramas": 591
+   },
+   {
+    "nome": "garrafa de 600ml",
+    "gramas": 600
+   },
+   {
+    "nome": "garrafa de 650ml",
+    "gramas": 650
+   },
+   {
+    "nome": "garrafa de 900ml",
+    "gramas": 900
+   },
+   {
+    "nome": "garrafa de 1l",
+    "gramas": 1000
+   },
+   {
+    "nome": "garrafa de 2,25l",
+    "gramas": 2250
+   }
+  ]
+ },
+ {
+  "codigo_taco": 476,
+  "taco": "Chá, mate, infusão 5%",
+  "ibge": "8206301|99",
+  "ibge_nome": "CHA (PRETO, CAMOMILA, ERVA CIDREIRA, CAPIM LIMAO, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "copo de cafezinho",
+    "gramas": 50
+   },
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "taça",
+    "gramas": 150
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   },
+   {
+    "nome": "lata de 335ml",
+    "gramas": 335
+   },
+   {
+    "nome": "lata de 350ml",
+    "gramas": 350
+   },
+   {
+    "nome": "garrafa de 500ml",
+    "gramas": 500
+   }
+  ]
+ },
+ {
+  "codigo_taco": 477,
+  "taco": "Chá, preto, infusão 5%",
+  "ibge": "8206301|99",
+  "ibge_nome": "CHA (PRETO, CAMOMILA, ERVA CIDREIRA, CAPIM LIMAO, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "copo de cafezinho",
+    "gramas": 50
+   },
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "taça",
+    "gramas": 150
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   },
+   {
+    "nome": "lata de 335ml",
+    "gramas": 335
+   },
+   {
+    "nome": "lata de 350ml",
+    "gramas": 350
+   },
+   {
+    "nome": "garrafa de 500ml",
+    "gramas": 500
+   }
+  ]
+ },
+ {
+  "codigo_taco": 480,
+  "taco": "Refrigerante, tipo cola",
+  "ibge": "8200101|99",
+  "ibge_nome": "REFRIGERANTE DE COLA TRADICIONAL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "copo de cafezinho",
+    "gramas": 50
+   },
+   {
+    "nome": "dose de aguardente",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "taça",
+    "gramas": 150
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "garrafa de 237ml",
+    "gramas": 237
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "garrafa de 248ml",
+    "gramas": 248
+   },
+   {
+    "nome": "garrafa de 250ml",
+    "gramas": 250
+   },
+   {
+    "nome": "lata de 250ml",
+    "gramas": 250
+   },
+   {
+    "nome": "garrafa de 275ml",
+    "gramas": 275
+   },
+   {
+    "nome": "garrafa de 284ml",
+    "gramas": 284
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "garrafa de 290ml",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 330ml",
+    "gramas": 330
+   },
+   {
+    "nome": "lata de 335ml",
+    "gramas": 335
+   },
+   {
+    "nome": "lata de 340ml",
+    "gramas": 340
+   },
+   {
+    "nome": "garrafa de 350ml",
+    "gramas": 350
+   },
+   {
+    "nome": "lata de 350ml",
+    "gramas": 350
+   },
+   {
+    "nome": "lata de 354ml",
+    "gramas": 354
+   },
+   {
+    "nome": "garrafa de 500ml",
+    "gramas": 500
+   },
+   {
+    "nome": "garrafa de 600ml",
+    "gramas": 600
+   },
+   {
+    "nome": "garrafa de 650ml",
+    "gramas": 650
+   },
+   {
+    "nome": "garrafa de 900ml",
+    "gramas": 900
+   },
+   {
+    "nome": "garrafa de 980ml",
+    "gramas": 980
+   },
+   {
+    "nome": "garrafa de 1l",
+    "gramas": 1000
+   }
+  ]
+ },
+ {
+  "codigo_taco": 481,
+  "taco": "Refrigerante, tipo guaraná",
+  "ibge": "8200301|99",
+  "ibge_nome": "REFRIGERANTE DE GUARANA TRADICIONAL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "garrafa de 200ml",
+    "gramas": 200
+   },
+   {
+    "nome": "garrafa de 237ml",
+    "gramas": 237
+   },
+   {
+    "nome": "copo de requeijão",
+    "gramas": 240
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   },
+   {
+    "nome": "garrafa de 250ml",
+    "gramas": 250
+   },
+   {
+    "nome": "lata de 250ml",
+    "gramas": 250
+   },
+   {
+    "nome": "garrafa de 275ml",
+    "gramas": 275
+   },
+   {
+    "nome": "garrafa de 284ml",
+    "gramas": 284
+   },
+   {
+    "nome": "copo tulipa",
+    "gramas": 290
+   },
+   {
+    "nome": "garrafa de 290ml",
+    "gramas": 290
+   },
+   {
+    "nome": "caneca de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   },
+   {
+    "nome": "garrafa de 300ml",
+    "gramas": 300
+   },
+   {
+    "nome": "lata de 335ml",
+    "gramas": 335
+   },
+   {
+    "nome": "garrafa de 350ml",
+    "gramas": 350
+   },
+   {
+    "nome": "lata de 350ml",
+    "gramas": 350
+   },
+   {
+    "nome": "garrafa de 500ml",
+    "gramas": 500
+   },
+   {
+    "nome": "garrafa de 600ml",
+    "gramas": 600
+   },
+   {
+    "nome": "garrafa de 650ml",
+    "gramas": 650
+   },
+   {
+    "nome": "garrafa de 900ml",
+    "gramas": 900
+   },
+   {
+    "nome": "garrafa de 1l",
+    "gramas": 1000
+   },
+   {
+    "nome": "garrafa de 2l",
+    "gramas": 2000
+   }
+  ]
+ },
+ {
+  "codigo_taco": 485,
+  "taco": "Ovo, de codorna, inteiro, cru",
+  "ibge": "7803501|1",
+  "ibge_nome": "OVO DE CODORNA — CRU(A)",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 10
+   }
+  ]
+ },
+ {
+  "codigo_taco": 488,
+  "taco": "Ovo, de galinha, inteiro, cozido/10minutos",
+  "ibge": "7803301|99",
+  "ibge_nome": "OVO DE GALINHA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 45
+   }
+  ]
+ },
+ {
+  "codigo_taco": 489,
+  "taco": "Ovo, de galinha, inteiro, cru",
+  "ibge": "7803301|99",
+  "ibge_nome": "OVO DE GALINHA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 45
+   }
+  ]
+ },
+ {
+  "codigo_taco": 490,
+  "taco": "Ovo, de galinha, inteiro, frito",
+  "ibge": "7803301|5",
+  "ibge_nome": "OVO DE GALINHA — FRITO(A)",
+  "medidas": [
+   {
+    "nome": "fatia média",
+    "gramas": 10
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 15
+   },
+   {
+    "nome": "1/2 unidade média",
+    "gramas": 25
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 45
+   },
+   {
+    "nome": "escumadeira média rasa",
+    "gramas": 45
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 50
+   }
+  ]
+ },
+ {
+  "codigo_taco": 491,
+  "taco": "Achocolatado, pó",
+  "ibge": "6900821|99",
+  "ibge_nome": "ACHOCOLATADO EM PO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de café cheia",
+    "gramas": 2
+   },
+   {
+    "nome": "colher de chá cheia",
+    "gramas": 4
+   },
+   {
+    "nome": "diluição para o preparo de 1 xícara de café",
+    "gramas": 6.7
+   },
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 11
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 16
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo americano",
+    "gramas": 20
+   },
+   {
+    "nome": "porção rótulo",
+    "gramas": 20
+   },
+   {
+    "nome": "diluição para o preparo de 1 garrafa de 200ml",
+    "gramas": 26.7
+   },
+   {
+    "nome": "diluição para o preparo de 1 xícara de chá",
+    "gramas": 26.7
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 30
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo médio",
+    "gramas": 32
+   },
+   {
+    "nome": "diluição para o preparo de 1 caneca de 300ml",
+    "gramas": 40
+   },
+   {
+    "nome": "diluição para o preparo de 1 copo grande",
+    "gramas": 40
+   }
+  ]
+ },
+ {
+  "codigo_taco": 492,
+  "taco": "Açúcar, cristal",
+  "ibge": "6906602|99",
+  "ibge_nome": "ACUCAR — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de café cheia",
+    "gramas": 2
+   },
+   {
+    "nome": "colher de chá cheia",
+    "gramas": 5
+   },
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 16
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 24
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 28
+   },
+   {
+    "nome": "copo pequeno nivelado",
+    "gramas": 160
+   },
+   {
+    "nome": "copo duplo nivelado",
+    "gramas": 219
+   }
+  ]
+ },
+ {
+  "codigo_taco": 493,
+  "taco": "Açúcar, mascavo",
+  "ibge": "6900304|99",
+  "ibge_nome": "ACUCAR MASCAVO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 19
+   }
+  ]
+ },
+ {
+  "codigo_taco": 494,
+  "taco": "Açúcar, refinado",
+  "ibge": "6906602|99",
+  "ibge_nome": "ACUCAR — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de café cheia",
+    "gramas": 2
+   },
+   {
+    "nome": "colher de chá cheia",
+    "gramas": 5
+   },
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 16
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 24
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 28
+   },
+   {
+    "nome": "copo pequeno nivelado",
+    "gramas": 160
+   },
+   {
+    "nome": "copo duplo nivelado",
+    "gramas": 219
+   }
+  ]
+ },
+ {
+  "codigo_taco": 498,
+  "taco": "Chocolate, meio amargo",
+  "ibge": "8507601|99",
+  "ibge_nome": "CHOCOLATE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "tablete",
+    "gramas": 6.3
+   },
+   {
+    "nome": "porção",
+    "gramas": 25
+   },
+   {
+    "nome": "unidade",
+    "gramas": 170
+   }
+  ]
+ },
+ {
+  "codigo_taco": 501,
+  "taco": "Doce, de leite, cremoso",
+  "ibge": "6904201|99",
+  "ibge_nome": "DOCE A BASE DE LEITE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de café cheia",
+    "gramas": 8
+   },
+   {
+    "nome": "colher de chá cheia",
+    "gramas": 12
+   },
+   {
+    "nome": "passada de faca",
+    "gramas": 12.5
+   },
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 40
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "1/3 copo pequeno",
+    "gramas": 73.3
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 80
+   },
+   {
+    "nome": "2 colheres de sopa cheia",
+    "gramas": 80
+   },
+   {
+    "nome": "1/2 copo pequeno",
+    "gramas": 110
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 130
+   },
+   {
+    "nome": "copo pequeno",
+    "gramas": 220
+   },
+   {
+    "nome": "copo duplo",
+    "gramas": 270
+   }
+  ]
+ },
+ {
+  "codigo_taco": 502,
+  "taco": "Geléia, mocotó, natural",
+  "ibge": "6901101|99",
+  "ibge_nome": "GELEIA DE MOCOTO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "porção rótulo",
+    "gramas": 20
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 34
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 200
+   },
+   {
+    "nome": "copo",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 504,
+  "taco": "Maria mole",
+  "ibge": "6903001|99",
+  "ibge_nome": "MARIA MOLE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia pequena",
+    "gramas": 90
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 130
+   }
+  ]
+ },
+ {
+  "codigo_taco": 505,
+  "taco": "Maria mole, coco queimado",
+  "ibge": "6903001|99",
+  "ibge_nome": "MARIA MOLE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "fatia pequena",
+    "gramas": 90
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 130
+   }
+  ]
+ },
+ {
+  "codigo_taco": 506,
+  "taco": "Marmelada",
+  "ibge": "6901206|99",
+  "ibge_nome": "MARMELADA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "passada de faca",
+    "gramas": 12.5
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 45
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 60
+   }
+  ]
+ },
+ {
+  "codigo_taco": 507,
+  "taco": "Mel, de abelha",
+  "ibge": "6901602|99",
+  "ibge_nome": "MEL — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de café",
+    "gramas": 2
+   },
+   {
+    "nome": "colher de chá",
+    "gramas": 3
+   },
+   {
+    "nome": "colher de sobremesa",
+    "gramas": 9
+   },
+   {
+    "nome": "passada de faca",
+    "gramas": 12.5
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 15
+   },
+   {
+    "nome": "2 colheres de sopa",
+    "gramas": 30
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 37.5
+   },
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "xícara de chá",
+    "gramas": 200
+   },
+   {
+    "nome": "copo médio",
+    "gramas": 240
+   }
+  ]
+ },
+ {
+  "codigo_taco": 508,
+  "taco": "Melado",
+  "ibge": "6901501|99",
+  "ibge_nome": "MELADO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de café",
+    "gramas": 2
+   },
+   {
+    "nome": "colher de chá",
+    "gramas": 3
+   },
+   {
+    "nome": "colher de sobremesa",
+    "gramas": 9
+   },
+   {
+    "nome": "passada de faca",
+    "gramas": 12.5
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 15
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   }
+  ]
+ },
+ {
+  "codigo_taco": 509,
+  "taco": "Quindim",
+  "ibge": "6904105|99",
+  "ibge_nome": "QUINDIM — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade pequena",
+    "gramas": 20
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 35
+   }
+  ]
+ },
+ {
+  "codigo_taco": 510,
+  "taco": "Rapadura",
+  "ibge": "6900401|99",
+  "ibge_nome": "RAPADURA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 27
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 55
+   }
+  ]
+ },
+ {
+  "codigo_taco": 522,
+  "taco": "Chantilly, spray, com gordura vegetal",
+  "ibge": "7901101|99",
+  "ibge_nome": "CHANTILLY — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "porção rótulo",
+    "gramas": 30
+   }
+  ]
+ },
+ {
+  "codigo_taco": 523,
+  "taco": "Leite, de coco",
+  "ibge": "7003801|99",
+  "ibge_nome": "LEITE DE COCO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa",
+    "gramas": 5
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 20
+   },
+   {
+    "nome": "xícara de café",
+    "gramas": 50
+   },
+   {
+    "nome": "4 colheres de sopa",
+    "gramas": 80
+   },
+   {
+    "nome": "copo americano",
+    "gramas": 150
+   },
+   {
+    "nome": "copo grande",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 525,
+  "taco": "Acarajé",
+  "ibge": "8500209|99",
+  "ibge_nome": "ACARAJE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade média",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 526,
+  "taco": "Arroz carreteiro",
+  "ibge": "8579002|99",
+  "ibge_nome": "ARROZ CARRETEIRO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/2 colher de arroz cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 60
+   },
+   {
+    "nome": "prato fundo raso",
+    "gramas": 100
+   },
+   {
+    "nome": "2 colheres de arroz cheia",
+    "gramas": 120
+   },
+   {
+    "nome": "porção",
+    "gramas": 180
+   },
+   {
+    "nome": "prato fundo cheio",
+    "gramas": 200
+   }
+  ]
+ },
+ {
+  "codigo_taco": 527,
+  "taco": "Baião de dois, arroz e feijão-de-corda",
+  "ibge": "8503501|99",
+  "ibge_nome": "BAIAO DE DOIS — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa",
+    "gramas": 5.3
+   },
+   {
+    "nome": "1/2 colher de sopa",
+    "gramas": 10.5
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 21
+   },
+   {
+    "nome": "2 colheres de sopa",
+    "gramas": 42
+   },
+   {
+    "nome": "colher de arroz",
+    "gramas": 55
+   },
+   {
+    "nome": "concha",
+    "gramas": 95
+   },
+   {
+    "nome": "escumadeira média",
+    "gramas": 111
+   },
+   {
+    "nome": "2 escumadeiras média",
+    "gramas": 222
+   }
+  ]
+ },
+ {
+  "codigo_taco": 532,
+  "taco": "Charuto, de repolho",
+  "ibge": "8505201|99",
+  "ibge_nome": "CHARUTO DE REPOLHO PRONTO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 30
+   }
+  ]
+ },
+ {
+  "codigo_taco": 533,
+  "taco": "Cuscuz, de milho, cozido com sal",
+  "ibge": "6902901|99",
+  "ibge_nome": "CUSCUZ — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/8 colher de sopa",
+    "gramas": 1.5
+   },
+   {
+    "nome": "1/4 colher de sopa",
+    "gramas": 3
+   },
+   {
+    "nome": "1/2 colher de sopa",
+    "gramas": 6
+   },
+   {
+    "nome": "colher de sopa",
+    "gramas": 12
+   },
+   {
+    "nome": "2 colheres de sopa",
+    "gramas": 24
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 42
+   },
+   {
+    "nome": "4 colheres de sopa",
+    "gramas": 48
+   },
+   {
+    "nome": "1/2 pedaço médio",
+    "gramas": 67.5
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 135
+   },
+   {
+    "nome": "fatia média",
+    "gramas": 180
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 180
+   }
+  ]
+ },
+ {
+  "codigo_taco": 534,
+  "taco": "Cuscuz, paulista",
+  "ibge": "8505801|99",
+  "ibge_nome": "CUSCUZ PAULISTA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 60
+   },
+   {
+    "nome": "pedaço médio",
+    "gramas": 150
+   },
+   {
+    "nome": "prato raso",
+    "gramas": 300
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 500
+   }
+  ]
+ },
+ {
+  "codigo_taco": 540,
+  "taco": "Feijoada",
+  "ibge": "7701901|99",
+  "ibge_nome": "FEIJOADA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "porção rótulo",
+    "gramas": 120
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 225
+   },
+   {
+    "nome": "lata",
+    "gramas": 830
+   }
+  ]
+ },
+ {
+  "codigo_taco": 543,
+  "taco": "Maniçoba",
+  "ibge": "8507201|99",
+  "ibge_nome": "MANICOBA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 225
+   }
+  ]
+ },
+ {
+  "codigo_taco": 544,
+  "taco": "Quibebe",
+  "ibge": "8506701|99",
+  "ibge_nome": "QUIBEBE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sobremesa cheia",
+    "gramas": 24
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 545,
+  "taco": "Salada, de legumes, com maionese",
+  "ibge": "8500802|99",
+  "ibge_nome": "SALADA DE MAIONESE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 9.5
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 19
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 38
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 70
+   },
+   {
+    "nome": "2 colheres de sopa cheia",
+    "gramas": 76
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 90
+   }
+  ]
+ },
+ {
+  "codigo_taco": 547,
+  "taco": "Salpicão, de frango",
+  "ibge": "8504801|99",
+  "ibge_nome": "SALPICAO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 6.3
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 25
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 40
+   },
+   {
+    "nome": "escumadeira média cheia",
+    "gramas": 50
+   },
+   {
+    "nome": "2 colheres de sopa cheia",
+    "gramas": 50
+   }
+  ]
+ },
+ {
+  "codigo_taco": 550,
+  "taco": "Tacacá",
+  "ibge": "8502401|99",
+  "ibge_nome": "TACACA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "cumbuca",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 553,
+  "taco": "Vaca atolada",
+  "ibge": "8508301|99",
+  "ibge_nome": "VACA ATOLADA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 40
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 130
+   },
+   {
+    "nome": "prato fundo",
+    "gramas": 520
+   }
+  ]
+ },
+ {
+  "codigo_taco": 554,
+  "taco": "Vatapá",
+  "ibge": "8502801|99",
+  "ibge_nome": "VATAPA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa",
+    "gramas": 25
+   },
+   {
+    "nome": "2 colheres de sopa cheia",
+    "gramas": 50
+   },
+   {
+    "nome": "colher de arroz",
+    "gramas": 77
+   },
+   {
+    "nome": "concha",
+    "gramas": 150
+   },
+   {
+    "nome": "2 conchas",
+    "gramas": 300
+   }
+  ]
+ },
+ {
+  "codigo_taco": 559,
+  "taco": "Ervilha, em vagem",
+  "ibge": "6705501|7",
+  "ibge_nome": "ERVILHA EM VAGEM — REFOGADO(A)",
+  "medidas": [
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 30
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 44
+   }
+  ]
+ },
+ {
+  "codigo_taco": 561,
+  "taco": "Feijão, carioca, cozido",
+  "ibge": "6303102|99",
+  "ibge_nome": "FEIJAO (PRETO, MULATINHO, ROXO, ROSINHA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 4.3
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 8.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 17
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 140
+   },
+   {
+    "nome": "2 conchas média cheias",
+    "gramas": 280
+   }
+  ]
+ },
+ {
+  "codigo_taco": 563,
+  "taco": "Feijão, fradinho, cozido",
+  "ibge": "6303102|99",
+  "ibge_nome": "FEIJAO (PRETO, MULATINHO, ROXO, ROSINHA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 4.3
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 8.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 17
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 140
+   },
+   {
+    "nome": "2 conchas média cheias",
+    "gramas": 280
+   }
+  ]
+ },
+ {
+  "codigo_taco": 565,
+  "taco": "Feijão, jalo, cozido",
+  "ibge": "6303102|99",
+  "ibge_nome": "FEIJAO (PRETO, MULATINHO, ROXO, ROSINHA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 4.3
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 8.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 17
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 140
+   },
+   {
+    "nome": "2 conchas média cheias",
+    "gramas": 280
+   }
+  ]
+ },
+ {
+  "codigo_taco": 567,
+  "taco": "Feijão, preto, cozido",
+  "ibge": "6303102|99",
+  "ibge_nome": "FEIJAO (PRETO, MULATINHO, ROXO, ROSINHA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 4.3
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 8.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 17
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 140
+   },
+   {
+    "nome": "2 conchas média cheias",
+    "gramas": 280
+   }
+  ]
+ },
+ {
+  "codigo_taco": 569,
+  "taco": "Feijão, rajado, cozido",
+  "ibge": "6303102|99",
+  "ibge_nome": "FEIJAO (PRETO, MULATINHO, ROXO, ROSINHA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 4.3
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 8.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 17
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 140
+   },
+   {
+    "nome": "2 conchas média cheias",
+    "gramas": 280
+   }
+  ]
+ },
+ {
+  "codigo_taco": 571,
+  "taco": "Feijão, rosinha, cozido",
+  "ibge": "6303102|99",
+  "ibge_nome": "FEIJAO (PRETO, MULATINHO, ROXO, ROSINHA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 4.3
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 8.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 17
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 140
+   },
+   {
+    "nome": "2 conchas média cheias",
+    "gramas": 280
+   }
+  ]
+ },
+ {
+  "codigo_taco": 573,
+  "taco": "Feijão, roxo, cozido",
+  "ibge": "6303102|99",
+  "ibge_nome": "FEIJAO (PRETO, MULATINHO, ROXO, ROSINHA, ETC) — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "1/4 colher de sopa cheia",
+    "gramas": 4.3
+   },
+   {
+    "nome": "1/2 colher de sopa cheia",
+    "gramas": 8.5
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 17
+   },
+   {
+    "nome": "colher de arroz cheia",
+    "gramas": 35
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 50
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 140
+   },
+   {
+    "nome": "2 conchas média cheias",
+    "gramas": 280
+   }
+  ]
+ },
+ {
+  "codigo_taco": 577,
+  "taco": "Lentilha, cozida",
+  "ibge": "6302901|99",
+  "ibge_nome": "LENTILHA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "colher de sopa",
+    "gramas": 18
+   },
+   {
+    "nome": "colher de arroz",
+    "gramas": 32
+   },
+   {
+    "nome": "porção guia alimentar",
+    "gramas": 48
+   },
+   {
+    "nome": "concha média cheia",
+    "gramas": 160
+   },
+   {
+    "nome": "2 conchas média cheias",
+    "gramas": 320
+   }
+  ]
+ },
+ {
+  "codigo_taco": 579,
+  "taco": "Paçoca, amendoim",
+  "ibge": "6903203|99",
+  "ibge_nome": "PACOCA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 30
+   },
+   {
+    "nome": "porção",
+    "gramas": 32
+   },
+   {
+    "nome": "colher de sopa cheia",
+    "gramas": 50
+   },
+   {
+    "nome": "2 colheres de sopa cheias",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 580,
+  "taco": "Pé-de-moleque, amendoim",
+  "ibge": "6903202|99",
+  "ibge_nome": "PE DE MOLEQUE — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 17
+   },
+   {
+    "nome": "porção",
+    "gramas": 40
+   }
+  ]
+ },
+ {
+  "codigo_taco": 590,
+  "taco": "Coco, cru",
+  "ibge": "6602401|99",
+  "ibge_nome": "COCO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "pedaço médio",
+    "gramas": 40
+   },
+   {
+    "nome": "pacote",
+    "gramas": 100
+   }
+  ]
+ },
+ {
+  "codigo_taco": 595,
+  "taco": "Pinhão, cozido",
+  "ibge": "6600401|99",
+  "ibge_nome": "PINHAO — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 4
+   }
+  ]
+ },
+ {
+  "codigo_taco": 596,
+  "taco": "Pupunha, cozida",
+  "ibge": "6601805|99",
+  "ibge_nome": "PUPUNHA — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "75% unidade média",
+    "gramas": 16.9
+   },
+   {
+    "nome": "unidade média",
+    "gramas": 22.5
+   },
+   {
+    "nome": "porção",
+    "gramas": 45
+   }
+  ]
+ },
+ {
+  "codigo_taco": 597,
+  "taco": "Noz, crua",
+  "ibge": "6601501|99",
+  "ibge_nome": "NOZ — NAO SE APLICA",
+  "medidas": [
+   {
+    "nome": "unidade",
+    "gramas": 5
+   },
+   {
+    "nome": "porção",
+    "gramas": 25
+   }
+  ]
+ }
+]

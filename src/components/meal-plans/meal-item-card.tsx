@@ -5,10 +5,10 @@ import { Loader2, Trash2 } from "lucide-react";
 import { formatMacro, FONTE_LABELS } from "@/lib/nutrition";
 import { useMealItemEditor, type MealItemWithSubstitutions } from "@/components/meal-plans/use-meal-item-editor";
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MealItemSubstitutionsDialog } from "@/components/meal-plans/meal-item-substitutions-dialog";
+import { MealItemQuantity } from "@/components/meal-plans/meal-item-quantity";
 
 /**
  * Versão em cartão de um item de refeição, usada só no celular (< sm) — ver
@@ -18,10 +18,8 @@ import { MealItemSubstitutionsDialog } from "@/components/meal-plans/meal-item-s
  * empilha tudo em vez de esconder, sem precisar rolar de lado.
  */
 export function MealItemCard({ planId, item }: { planId: string; item: MealItemWithSubstitutions }) {
-  const { isReceita, quantidade, setQuantidade, isPending, macros, handleBlur, handleDelete } = useMealItemEditor(
-    planId,
-    item
-  );
+  const editor = useMealItemEditor(planId, item);
+  const { isPending, macros, handleDelete } = editor;
 
   return (
     <div className="space-y-2 rounded-md border border-border p-3">
@@ -35,18 +33,7 @@ export function MealItemCard({ planId, item }: { planId: string; item: MealItemW
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1">
-          <Input
-            value={quantidade}
-            onChange={(e) => setQuantidade(e.target.value)}
-            onBlur={handleBlur}
-            type="number"
-            step={isReceita ? "0.5" : "0.1"}
-            className="h-8 w-20"
-            disabled={isPending}
-          />
-          <span className="text-xs text-muted-foreground">{isReceita ? "porção(ões)" : "g"}</span>
-        </div>
+        <MealItemQuantity planId={planId} item={item} editor={editor} />
         <span className="text-sm font-medium text-foreground">{formatMacro(macros.calorias, " kcal")}</span>
       </div>
 

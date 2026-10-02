@@ -31,7 +31,7 @@ if (existsSync(envPath)) {
 const BUCKETS = ["profissional", "planos", "receitas", "fotos-evolucao", "documentos"];
 // Toda tabela com user_id (as 28 do teste de isolamento + as que ficaram fora dele).
 const TABELAS = [
-  "patients", "anamnesis", "anamnesis_templates", "anthropometric_assessments", "anthropometric_attachments", "energy_calculations", "foods", "recipes", "recipe_ingredients",
+  "patients", "anamnesis", "anamnesis_templates", "anthropometric_assessments", "anthropometric_attachments", "energy_calculations", "foods", "food_favorites", "food_measures", "recipes", "recipe_ingredients",
   "meal_plans", "meals", "meal_items", "meal_templates", "meal_template_items", "meal_item_substitutions",
   "appointments", "tasks", "patient_consents", "lab_exams", "lab_markers", "patient_photos",
   "expenses", "expense_occurrences", "patient_billings", "payments", "library_materials", "feedback",

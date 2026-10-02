@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   tableHeaderRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#e2eae6", paddingBottom: 3, marginBottom: 3 },
   tableRow: { flexDirection: "row", paddingVertical: 2 },
   colAlimento: { flex: 3 },
-  colQtd: { flex: 1, textAlign: "right" },
+  colQtd: { flex: 1.8, textAlign: "right" },
   colMacro: { flex: 1, textAlign: "right" },
   tableHeaderText: { fontSize: 8, color: "#5f6f68", textTransform: "uppercase" },
   mealTotalRow: { flexDirection: "row", justifyContent: "flex-end", gap: 12, marginTop: 6, paddingTop: 4, borderTopWidth: 1, borderTopColor: "#e2eae6" },
@@ -147,9 +147,7 @@ export function PlanPdfDocument({ data }: { data: PlanPdfViewModel }) {
                 <Text style={styles.colAlimento}>
                   {item.nomeAlimento} ({FONTE_LABELS[item.fonteAlimento]})
                 </Text>
-                <Text style={styles.colQtd}>
-                  {item.quantidadePorcoes !== null ? `${item.quantidadePorcoes} porção(ões)` : `${item.quantidadeG}g`}
-                </Text>
+                <Text style={styles.colQtd}>{item.quantidadeTexto}</Text>
                 <Text style={styles.colMacro}>{item.macros.calorias.toFixed(0)}</Text>
                 <Text style={styles.colMacro}>{item.macros.proteinas.toFixed(1)}</Text>
                 <Text style={styles.colMacro}>{item.macros.carboidratos.toFixed(1)}</Text>

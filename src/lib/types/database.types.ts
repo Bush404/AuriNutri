@@ -410,9 +410,26 @@ export interface MealItem {
   fibras_g: number;
   /** Só para itens de receita: snapshot do conjunto de fontes (taco/personalizado) usadas pelos ingredientes no momento da inclusão — usado na atribuição de fonte do plano/PDF. */
   fontes_ingredientes_receita: FonteAlimento[] | null;
+  /** Medida caseira escolhida (migration 0045) — cópia; as três ficam nulas quando o item é em gramas. */
+  medida_nome: string | null;
+  /** Gramas de 1 medida no momento da escolha. */
+  medida_gramas: number | null;
+  /** Quantas medidas; quantidade_g = medida_quantidade × medida_gramas. */
+  medida_quantidade: number | null;
   created_at: string;
   /** Soft delete: não-nulo = excluído (invisível via RLS). */
   deleted_at: string | null;
+}
+
+/** Medida caseira de um alimento (migration 0045): do IBGE (user_id nulo) ou do profissional. */
+export interface FoodMeasure {
+  id: string;
+  food_id: string;
+  user_id: string | null;
+  nome: string;
+  gramas: number;
+  fonte: "ibge" | "personalizado";
+  created_at: string;
 }
 
 export interface Recipe {
@@ -636,6 +653,12 @@ export interface MealItemSubstitution {
   carboidratos_g: number;
   gorduras_g: number;
   fibras_g: number;
+  /** Medida caseira escolhida (migration 0045) — cópia; as três ficam nulas quando o item é em gramas. */
+  medida_nome: string | null;
+  /** Gramas de 1 medida no momento da escolha. */
+  medida_gramas: number | null;
+  /** Quantas medidas; quantidade_g = medida_quantidade × medida_gramas. */
+  medida_quantidade: number | null;
   created_at: string;
 }
 

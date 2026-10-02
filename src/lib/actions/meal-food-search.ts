@@ -7,7 +7,8 @@ import { searchRecipesForPicker } from "@/lib/actions/recipes";
 import { sanitizeRichText } from "@/lib/rich-text-sanitize";
 import { isRichTextEmpty } from "@/lib/rich-text";
 import type { ActionResult } from "@/lib/actions/patients";
-import type { Food } from "@/lib/types/database.types";
+import { medidaUsual } from "@/lib/household-measures";
+import type { Food, FoodMeasure } from "@/lib/types/database.types";
 
 export type FiltroBusca = "todos" | "favoritos" | "meus" | "receitas" | "taco";
 
@@ -24,6 +25,8 @@ export type ResultadoBusca =
       lipidios: number;
       carboidratos: number;
       favorito: boolean;
+      /** Medida caseira usual (Fase 17, Bloco D) — é com ela que o alimento entra na refeição. */
+      medida: { id: string; nome: string; gramas: number } | null;
     }
   | { tipo: "receita"; id: string; nome: string; origem: "Receita" };
 
@@ -50,45 +53,87 @@ export async function buscarAlimentosRefeicao(termo: string, filtro: FiltroBusca
     if (origem === "favoritos") q = q.in("id", [...favoritos]);
     if (busca) q = q.ilike("nome", `%${busca}%`);
     const { data } = await q.returns<Food[]>();
-    return (data ?? []).map(
-      (f): ResultadoBusca => ({
-        tipo: "alimento",
-        id: f.id,
-        nome: f.nome,
-        origem: f.is_global ? "TACO" : "Seu alimento",
-        porcaoG: Number(f.porcao_referencia_g),
-        kcal: Number(f.calorias_kcal ?? 0),
-        proteinas: Number(f.proteinas_g ?? 0),
-        lipidios: Number(f.gorduras_g ?? 0),
-        carboidratos: Number(f.carboidratos_g ?? 0),
-        favorito: favoritos.has(f.id),
-      })
-    );
+    return (data ?? []).map((f): ResultadoBusca => ({
+      tipo: "alimento",
+      id: f.id,
+      nome: f.nome,
+      origem: f.is_global ? "TACO" : "Seu alimento",
+      porcaoG: Number(f.porcao_referencia_g),
+      kcal: Number(f.calorias_kcal ?? 0),
+      proteinas: Number(f.proteinas_g ?? 0),
+      lipidios: Number(f.gorduras_g ?? 0),
+      carboidratos: Number(f.carboidratos_g ?? 0),
+      favorito: favoritos.has(f.id),
+      medida: null,
+    }));
   };
   const receitas = async (limite: number) =>
     (await searchRecipesForPicker(busca))
       .slice(0, limite)
       .map((r): ResultadoBusca => ({ tipo: "receita", id: r.id, nome: r.nome, origem: "Receita" }));
 
-  switch (filtro) {
-    case "favoritos":
-      return alimentos("favoritos", LIMITE);
-    case "meus":
-      return alimentos("meus", LIMITE);
-    case "taco":
-      return alimentos("taco", LIMITE);
-    case "receitas":
-      return receitas(LIMITE);
-    case "todos": {
-      const [meus, taco, recs] = await Promise.all([alimentos("meus", 10), alimentos("taco", 20), receitas(5)]);
-      const lista = [...meus, ...taco, ...recs];
-      // Favoritos no topo, mantendo a ordem do resto.
-      return [
-        ...lista.filter((r) => r.tipo === "alimento" && r.favorito),
-        ...lista.filter((r) => !(r.tipo === "alimento" && r.favorito)),
-      ];
+  return comMedidaUsual(supabase, await porFiltro());
+
+  async function porFiltro(): Promise<ResultadoBusca[]> {
+    switch (filtro) {
+      case "favoritos":
+        return alimentos("favoritos", LIMITE);
+      case "meus":
+        return alimentos("meus", LIMITE);
+      case "taco":
+        return alimentos("taco", LIMITE);
+      case "receitas":
+        return receitas(LIMITE);
+      case "todos": {
+        const [meus, taco, recs] = await Promise.all([alimentos("meus", 10), alimentos("taco", 20), receitas(5)]);
+        const lista = [...meus, ...taco, ...recs];
+        // Favoritos no topo, mantendo a ordem do resto.
+        return [
+          ...lista.filter((r) => r.tipo === "alimento" && r.favorito),
+          ...lista.filter((r) => !(r.tipo === "alimento" && r.favorito)),
+        ];
+      }
     }
   }
+}
+
+/** Preenche a medida caseira usual de cada alimento do resultado (IBGE ou do profissional, pela RLS). */
+async function comMedidaUsual(supabase: Awaited<ReturnType<typeof createClient>>, lista: ResultadoBusca[]) {
+  const ids = lista.filter((r) => r.tipo === "alimento").map((r) => r.id);
+  if (ids.length === 0) return lista;
+  const { data } = await supabase
+    .from("food_measures")
+    .select("*")
+    .in("food_id", ids)
+    .order("gramas")
+    .order("created_at")
+    .returns<FoodMeasure[]>();
+  const porAlimento = agruparMedidas(data ?? []);
+  return lista.map((r) => {
+    if (r.tipo !== "alimento") return r;
+    const m = medidaUsual(porAlimento[r.id] ?? []);
+    return m ? { ...r, medida: { id: m.id, nome: m.nome, gramas: Number(m.gramas) } } : r;
+  });
+}
+
+function agruparMedidas(medidas: FoodMeasure[]) {
+  const porAlimento: Record<string, FoodMeasure[]> = {};
+  for (const m of medidas) (porAlimento[m.food_id] ??= []).push(m);
+  return porAlimento;
+}
+
+/** Medidas caseiras dos alimentos de um plano, por alimento (para o seletor de cada item). */
+export async function medidasDosAlimentos(foodIds: string[]): Promise<Record<string, FoodMeasure[]>> {
+  if (foodIds.length === 0) return {};
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("food_measures")
+    .select("*")
+    .in("food_id", [...new Set(foodIds)])
+    .order("gramas")
+    .order("created_at")
+    .returns<FoodMeasure[]>();
+  return agruparMedidas(data ?? []);
 }
 
 /** Estrela da busca: favoritar ou desfavoritar um alimento (migration 0044). */
@@ -100,7 +145,9 @@ export async function alternarFavoritoAlimento(foodId: string, favoritar: boolea
   if (!user) return { success: false, message: "Sessão expirada. Faça login novamente." };
 
   const { error } = favoritar
-    ? await supabase.from("food_favorites").upsert({ user_id: user.id, food_id: foodId }, { onConflict: "user_id,food_id" })
+    ? await supabase
+        .from("food_favorites")
+        .upsert({ user_id: user.id, food_id: foodId }, { onConflict: "user_id,food_id" })
     : await supabase.from("food_favorites").delete().eq("user_id", user.id).eq("food_id", foodId);
   if (error) return { success: false, message: error.message };
   return { success: true };
@@ -110,7 +157,11 @@ export async function alternarFavoritoAlimento(foodId: string, favoritar: boolea
  * Observações da refeição com texto formatado (Fase 17, 4.8; mesmo editor da
  * anamnese, Fase 14). O HTML é limpo aqui no servidor antes de gravar.
  */
-export async function atualizarObservacoesRefeicao(planId: string, mealId: string, html: string): Promise<ActionResult> {
+export async function atualizarObservacoesRefeicao(
+  planId: string,
+  mealId: string,
+  html: string,
+): Promise<ActionResult> {
   if (html.length > 20000) return { success: false, message: "Observação longa demais." };
   const limpo = sanitizeRichText(html);
   const supabase = await createClient();

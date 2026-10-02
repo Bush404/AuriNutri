@@ -414,10 +414,15 @@ favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fi
     observações em texto formatado com salvamento automático (`atualizarObservacoesRefeicao`, PDF via
     `observacaoParaPdf`, +1 teste). Sai o formulário antigo (add-meal-item-form, recipe-combobox).
     "Medida usual" na busca fica para o Bloco D.
-[ ] Bloco D: medidas caseiras — script importando a tabela de medidas referidas do IBGE (POF
-    2008–2009, ftp.ibge.gov.br, tabelamedidas_bd.xls, ~11.800 linhas por código de alimento+preparo)
-    e ligação aos alimentos da TACO; medidas personalizadas do profissional; snapshot do item grava
-    quantidade + medida + gramas; PDF "1 Unidade(s) (50 g)"; planos antigos só em gramas iguais
+[x] Bloco D (02/10, código pronto; falta aplicar 0045 e rodar `npm run import:medidas`): migration 0045
+    (`food_measures` IBGE com user_id nulo + do profissional, RLS; meal_items e substituições ganham
+    medida_nome/medida_gramas/medida_quantidade como snapshot); ligação TACO→IBGE revisada à mão em
+    `scripts/import-medidas/medidas-ibge-taco.json` (315 alimentos, 1.922 medidas; geradores em
+    `gerar/`, ver README); `MealItemQuantity` (gramas ou medida + criar/excluir medida própria),
+    busca adiciona na `medidaUsual`, PDF via `quantidadeDoItem` (+9 testes, 431 no total);
+    duplicatePlan copia a medida; isolamento ganhou food_measures; E2E cria medida própria.
+    Substitutos em medida caseira ficam para o Bloco E (colunas já existem). Modelos de refeição
+    (meal_template_items) seguem só em gramas.
 [ ] Bloco E: substitutos lado a lado, sugestões rápidas, "inverter", equivalência kcal/CHO/PTN
 [ ] Bloco F: micronutrientes × DRI (±20%, valores conferidos na fonte oficial); lista de compras;
     opções do PDF (tabela, relatório de nutrientes, lista de compras, quebra por refeição)
@@ -427,8 +432,8 @@ favorita, Excluir); o cartão "Total diário do plano" saiu e entrou o resumo fi
 [x] 02/10: test:e2e 17/17 (rodado com E2E_BASE_URL=http://localhost:3000 contra o dev já ligado; corrigidos
     receita.e2e — busca nova — e avaliacao.e2e — seção de dobras começa fechada desde 01/10);
     test:security-isolation-full 104/104 (+energy_calculations, +food_favorites)
-[ ] Conferir: duplicatePlan
-    copia os micronutrientes dos itens? (copia só colunas listadas — duplicateMeal copia tudo)
+[x] Conferido: meal_items não tem colunas de micronutrientes (só macros); duplicatePlan copia tudo
+    que o item tem. Guardar micros no item entra no Bloco F (micros × DRI).
 ```
 
 ### Bloco A — "Adicionar um planejamento" (substitui "Calculadora de gasto energético")

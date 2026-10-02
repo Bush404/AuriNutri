@@ -20,6 +20,8 @@ export function adminClient() {
  * Várias telas renderizam tabela (desktop) e cartões (celular) com o mesmo
  * conteúdo; só um fica visível. Este localizador ignora a cópia escondida.
  */
+const escaparRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export function textoVisivel(page: Page, texto: string | RegExp) {
   return page.getByText(texto, { exact: typeof texto === "string" }).filter({ visible: true }).first();
 }
@@ -74,6 +76,10 @@ export async function adicionarAlimentoNaRefeicao(page: Page, busca: string, nom
   await expect(resultado).toBeVisible();
   const nome = (await resultado.innerText()).trim();
   await resultado.click();
+  // Alimento com medida caseira (Fase 17, Bloco D) entra em "1 medida"; o teste trabalha em gramas.
+  await expect(page.getByLabel(new RegExp(`^Quantidade de ${escaparRegex(nome)} \\(`))).toBeVisible();
+  const unidade = page.getByLabel(`Unidade de ${nome}`);
+  if ((await unidade.count()) > 0 && (await unidade.inputValue()) !== "g") await unidade.selectOption("g");
   const quantidade = page.getByLabel(`Quantidade de ${nome} (g)`);
   await expect(quantidade).toBeVisible();
   await quantidade.fill(String(gramas));

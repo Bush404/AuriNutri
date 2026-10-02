@@ -6,19 +6,17 @@ import { formatMacro, FONTE_LABELS } from "@/lib/nutrition";
 import { useMealItemEditor, type MealItemWithSubstitutions } from "@/components/meal-plans/use-meal-item-editor";
 
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MealItemSubstitutionsDialog } from "@/components/meal-plans/meal-item-substitutions-dialog";
+import { MealItemQuantity } from "@/components/meal-plans/meal-item-quantity";
 
 export type { MealItemWithSubstitutions };
 
 /** Linha da tabela — usada em telas sm+ (ver MealItemCard para o equivalente em cartão, usado no celular). */
 export function MealItemRow({ planId, item }: { planId: string; item: MealItemWithSubstitutions }) {
-  const { isReceita, quantidade, setQuantidade, isPending, macros, handleBlur, handleDelete } = useMealItemEditor(
-    planId,
-    item
-  );
+  const editor = useMealItemEditor(planId, item);
+  const { isPending, macros, handleDelete } = editor;
 
   return (
     <TableRow>
@@ -30,20 +28,8 @@ export function MealItemRow({ planId, item }: { planId: string; item: MealItemWi
           </Badge>
         </div>
       </TableCell>
-      <TableCell className="w-24">
-        <div className="flex items-center gap-1">
-          <Input
-            value={quantidade}
-            onChange={(e) => setQuantidade(e.target.value)}
-            onBlur={handleBlur}
-            type="number"
-            step={isReceita ? "0.5" : "0.1"}
-            className="h-8 w-20"
-            aria-label={`Quantidade de ${item.nome_alimento} (${isReceita ? "porções" : "g"})`}
-            disabled={isPending}
-          />
-          <span className="text-xs text-muted-foreground">{isReceita ? "porção(ões)" : "g"}</span>
-        </div>
+      <TableCell>
+        <MealItemQuantity planId={planId} item={item} editor={editor} />
       </TableCell>
       <TableCell className="text-sm">{formatMacro(macros.calorias, " kcal")}</TableCell>
       <TableCell className="text-sm text-muted-foreground">{formatMacro(macros.proteinas)}</TableCell>

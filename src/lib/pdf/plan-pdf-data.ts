@@ -1,3 +1,4 @@
+import { quantidadeDoItem } from "@/lib/household-measures";
 import {
   buildFonteFooter,
   calculateMealTotals,
@@ -56,6 +57,8 @@ export interface PlanPdfItem {
   quantidadeG: number;
   /** Só para item de receita — quando presente, a UI exibe porções em vez de gramas. */
   quantidadePorcoes: number | null;
+  /** Texto da coluna Qtd.: "2 porção(ões)", "1 unidade média (50 g)" (Fase 17, Bloco D) ou "120 g". */
+  quantidadeTexto: string;
   macros: MacroTotals;
 }
 
@@ -123,6 +126,8 @@ export function buildPlanPdfViewModel({
         fonteAlimento: item.fonte_alimento,
         quantidadeG: item.quantidade_g,
         quantidadePorcoes: item.quantidade_porcoes,
+        quantidadeTexto:
+          item.quantidade_porcoes !== null ? `${item.quantidade_porcoes} porção(ões)` : quantidadeDoItem(item),
         macros: calculateMealItemMacros(item),
       })),
     totais: calculateMealTotals(meal.items),

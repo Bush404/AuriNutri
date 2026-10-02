@@ -40,6 +40,8 @@ const TABLES = [
   "anthropometric_attachments",
   "energy_calculations",
   "foods",
+  "food_favorites",
+  "food_measures",
   "meal_plans",
   "meals",
   "meal_items",

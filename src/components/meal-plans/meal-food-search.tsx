@@ -11,6 +11,7 @@ import {
   type ResultadoBusca,
 } from "@/lib/actions/meal-food-search";
 import { addMealItem, addMealItemRecipe } from "@/lib/actions/meal-items";
+import { formatarMedida } from "@/lib/household-measures";
 import { cn } from "@/lib/utils";
 
 import { FoodFormDialog } from "@/components/foods/food-form-dialog";
@@ -25,13 +26,15 @@ const FILTROS: { valor: FiltroBusca; rotulo: string; icone?: boolean }[] = [
   { valor: "taco", rotulo: "TACO" },
 ];
 
-const fmt = (v: number, casas = 1) => v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
+const fmt = (v: number, casas = 1) =>
+  v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
 
 /**
  * Buscador de alimentos da refeição (Fase 17, Bloco C), no formato do WebDiet:
  * filtros por fonte, resultados com origem, porção e macros, estrela de
- * favorito. Clicar num resultado já o coloca na refeição (alimento na porção
- * de referência; receita em 1 porção) — a quantidade se ajusta na linha.
+ * favorito. Clicar num resultado já o coloca na refeição (alimento em 1
+ * medida caseira usual, ou na porção de referência se não tiver medida;
+ * receita em 1 porção) — a quantidade e a unidade se ajustam na linha.
  */
 export function MealFoodSearch({ planId, mealId, nextOrdem }: { planId: string; mealId: string; nextOrdem: number }) {
   const [termo, setTermo] = useState("");
@@ -52,7 +55,14 @@ export function MealFoodSearch({ planId, mealId, nextOrdem }: { planId: string; 
     startAdicionar(async () => {
       const res =
         r.tipo === "alimento"
-          ? await addMealItem(planId, mealId, { food_id: r.id, quantidade_g: r.porcaoG }, nextOrdem)
+          ? await addMealItem(
+              planId,
+              mealId,
+              r.medida
+                ? { food_id: r.id, quantidade_g: r.medida.gramas, medida_id: r.medida.id, medida_quantidade: 1 }
+                : { food_id: r.id, quantidade_g: r.porcaoG },
+              nextOrdem,
+            )
           : await addMealItemRecipe(planId, mealId, { recipe_id: r.id, quantidade_porcoes: 1 }, nextOrdem);
       if (!res.success) {
         toast.error("Não foi possível adicionar", { description: res.message });
@@ -89,7 +99,10 @@ export function MealFoodSearch({ planId, mealId, nextOrdem }: { planId: string; 
         />
       </div>
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+        <Search
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
         <Input
           id={`busca-${mealId}`}
           placeholder="Busque pelo nome do alimento ou da receita"
@@ -159,6 +172,8 @@ export function MealFoodSearch({ planId, mealId, nextOrdem }: { planId: string; 
             ) : (
               resultados.map((r) => {
                 const fav = r.tipo === "alimento" && (favs[r.id] ?? r.favorito);
+                // Valores mostrados na quantidade que entra: a medida usual, ou a porção de referência.
+                const fator = r.tipo === "alimento" && r.medida ? r.medida.gramas / (r.porcaoG || 100) : 1;
                 return (
                   <tr key={`${r.tipo}-${r.id}`} className="border-t border-border/60 hover:bg-muted/50">
                     <td className="py-1 pl-2">
@@ -188,11 +203,19 @@ export function MealFoodSearch({ planId, mealId, nextOrdem }: { planId: string; 
                     <td className="hidden py-1 pr-2 text-muted-foreground sm:table-cell">{r.origem}</td>
                     {r.tipo === "alimento" ? (
                       <>
-                        <td className="py-1 pr-2 text-right tabular-nums">{fmt(r.porcaoG, 0)} g</td>
-                        <td className="hidden py-1 pr-2 text-right tabular-nums md:table-cell">{fmt(r.proteinas)}</td>
-                        <td className="hidden py-1 pr-2 text-right tabular-nums md:table-cell">{fmt(r.lipidios)}</td>
-                        <td className="hidden py-1 pr-2 text-right tabular-nums md:table-cell">{fmt(r.carboidratos)}</td>
-                        <td className="py-1 pr-2 text-right tabular-nums">{fmt(Math.round(r.kcal), 0)}</td>
+                        <td className="py-1 pr-2 text-right tabular-nums">
+                          {r.medida ? formatarMedida(1, r.medida.nome, r.medida.gramas) : `${fmt(r.porcaoG, 0)} g`}
+                        </td>
+                        <td className="hidden py-1 pr-2 text-right tabular-nums md:table-cell">
+                          {fmt(r.proteinas * fator)}
+                        </td>
+                        <td className="hidden py-1 pr-2 text-right tabular-nums md:table-cell">
+                          {fmt(r.lipidios * fator)}
+                        </td>
+                        <td className="hidden py-1 pr-2 text-right tabular-nums md:table-cell">
+                          {fmt(r.carboidratos * fator)}
+                        </td>
+                        <td className="py-1 pr-2 text-right tabular-nums">{fmt(Math.round(r.kcal * fator), 0)}</td>
                       </>
                     ) : (
                       <>

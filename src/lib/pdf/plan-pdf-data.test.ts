@@ -12,6 +12,9 @@ function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
     user_id: "user-1",
     quantidade_g: 100,
     quantidade_porcoes: null,
+    medida_nome: null,
+    medida_gramas: null,
+    medida_quantidade: null,
     ordem: 0,
     nome_alimento: "Arroz branco cozido",
     fonte_alimento: "taco",
@@ -174,6 +177,9 @@ describe("buildPlanPdfViewModel — os totais do PDF são os MESMOS da tela", ()
       recipe_id: "recipe-1",
       quantidade_g: 100, // 2 porções * 50g/porção
       quantidade_porcoes: 2,
+      medida_nome: null,
+      medida_gramas: null,
+      medida_quantidade: null,
       nome_alimento: "Panqueca de banana",
       fonte_alimento: "receita",
       fontes_ingredientes_receita: ["taco"],
@@ -202,6 +208,7 @@ describe("buildPlanPdfViewModel — os totais do PDF são os MESMOS da tela", ()
     // ingredientes que a compõem (TACO, nesse caso) — nunca fica muda.
     expect(viewModel.refeicoes[0].itens[0].fonteAlimento).toBe("receita");
     expect(viewModel.refeicoes[0].itens[0].quantidadePorcoes).toBe(2);
+    expect(viewModel.refeicoes[0].itens[0].quantidadeTexto).toBe("2 porção(ões)");
     expect(viewModel.fonteFooter).toContain("TACO");
   });
 });

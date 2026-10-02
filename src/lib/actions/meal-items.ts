@@ -2,16 +2,21 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { mealItemSchema, mealItemRecipeSchema, type MealItemInput, type MealItemRecipeInput } from "@/lib/validations/meal-plan";
+import {
+  mealItemSchema,
+  mealItemRecipeSchema,
+  type MealItemInput,
+  type MealItemRecipeInput,
+} from "@/lib/validations/meal-plan";
 import type { ActionResult } from "@/lib/actions/patients";
-import type { Food, Recipe, RecipeIngredient } from "@/lib/types/database.types";
+import type { Food, FoodMeasure, Recipe, RecipeIngredient } from "@/lib/types/database.types";
 import { buildFoodSnapshot, buildRecipeSnapshot } from "@/lib/nutrition";
 
 export async function addMealItem(
   planId: string,
   mealId: string,
   input: MealItemInput,
-  ordem: number
+  ordem: number,
 ): Promise<ActionResult> {
   const parsed = mealItemSchema.safeParse(input);
   if (!parsed.success) {
@@ -43,11 +48,19 @@ export async function addMealItem(
     return { success: false, message: "Alimento não encontrado." };
   }
 
+  // Medida caseira (Fase 17, Bloco D): também vai como cópia, como o resto.
+  let quantidade: Record<string, number | string> = { quantidade_g: parsed.data.quantidade_g };
+  if (parsed.data.medida_id) {
+    const medida = await buscarMedida(supabase, parsed.data.medida_id, food.id);
+    if (!medida) return { success: false, message: "Medida caseira não encontrada." };
+    quantidade = camposDaMedida(medida, parsed.data.medida_quantidade ?? 1);
+  }
+
   const { error } = await supabase.from("meal_items").insert({
     meal_id: mealId,
     food_id: food.id,
     user_id: user.id,
-    quantidade_g: parsed.data.quantidade_g,
+    ...quantidade,
     ordem,
     ...buildFoodSnapshot(food),
   });
@@ -73,7 +86,7 @@ export async function addMealItemRecipe(
   planId: string,
   mealId: string,
   input: MealItemRecipeInput,
-  ordem: number
+  ordem: number,
 ): Promise<ActionResult> {
   const parsed = mealItemRecipeSchema.safeParse(input);
   if (!parsed.success) {
@@ -102,7 +115,10 @@ export async function addMealItemRecipe(
     return { success: false, message: "Receita não encontrada." };
   }
   if (recipe.rendimento_g === null || recipe.numero_porcoes === null) {
-    return { success: false, message: "Essa receita ainda é um rascunho — finalize o cadastro antes de usá-la em um plano." };
+    return {
+      success: false,
+      message: "Essa receita ainda é um rascunho — finalize o cadastro antes de usá-la em um plano.",
+    };
   }
   if (ingredientsError || !ingredients || ingredients.length === 0) {
     return { success: false, message: "Essa receita ainda não tem ingredientes." };
@@ -132,14 +148,18 @@ export async function addMealItemRecipe(
 export async function updateMealItemQuantity(
   planId: string,
   itemId: string,
-  quantidade_g: number
+  quantidade_g: number,
 ): Promise<ActionResult> {
   if (!(quantidade_g > 0)) {
     return { success: false, message: "A quantidade deve ser maior que zero." };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("meal_items").update({ quantidade_g }).eq("id", itemId);
+  // Em gramas: sai da medida caseira, se o item estava em uma.
+  const { error } = await supabase
+    .from("meal_items")
+    .update({ quantidade_g, medida_nome: null, medida_gramas: null, medida_quantidade: null })
+    .eq("id", itemId);
 
   if (error) {
     return { success: false, message: error.message };
@@ -160,7 +180,7 @@ export async function updateMealItemPortions(
   planId: string,
   itemId: string,
   quantidade_porcoes: number,
-  porcaoReferenciaG: number
+  porcaoReferenciaG: number,
 ): Promise<ActionResult> {
   if (!(quantidade_porcoes > 0)) {
     return { success: false, message: "A quantidade deve ser maior que zero." };
@@ -172,6 +192,70 @@ export async function updateMealItemPortions(
     .update({ quantidade_porcoes, quantidade_g: quantidade_porcoes * porcaoReferenciaG })
     .eq("id", itemId);
 
+  if (error) {
+    return { success: false, message: error.message };
+  }
+
+  revalidatePath(`/planos/${planId}`);
+  return { success: true };
+}
+
+type SupabaseServer = Awaited<ReturnType<typeof createClient>>;
+
+/** Medida que o profissional enxerga (IBGE ou dele) e que é mesmo deste alimento. */
+async function buscarMedida(supabase: SupabaseServer, medidaId: string, foodId: string) {
+  const { data } = await supabase
+    .from("food_measures")
+    .select("*")
+    .eq("id", medidaId)
+    .eq("food_id", foodId)
+    .maybeSingle<FoodMeasure>();
+  return data;
+}
+
+function camposDaMedida(medida: { nome: string; gramas: number }, medidaQuantidade: number) {
+  const gramas = Number(medida.gramas);
+  return {
+    medida_nome: medida.nome,
+    medida_gramas: gramas,
+    medida_quantidade: medidaQuantidade,
+    quantidade_g: Math.round(medidaQuantidade * gramas * 100) / 100,
+  };
+}
+
+/**
+ * Quantidade de um item em medida caseira (Fase 17, Bloco D). Com `medidaId`,
+ * troca a medida (copiando nome e gramas dela agora); sem, mantém a medida já
+ * gravada no item e só muda quantas são — nunca relê a medida "ao vivo".
+ */
+export async function updateMealItemMedida(
+  planId: string,
+  itemId: string,
+  medidaQuantidade: number,
+  medidaId?: string,
+): Promise<ActionResult> {
+  if (!(medidaQuantidade > 0) || medidaQuantidade > 999) {
+    return { success: false, message: "A quantidade deve ser maior que zero." };
+  }
+
+  const supabase = await createClient();
+  const { data: item } = await supabase
+    .from("meal_items")
+    .select("id, food_id, medida_nome, medida_gramas")
+    .eq("id", itemId)
+    .maybeSingle<{ id: string; food_id: string | null; medida_nome: string | null; medida_gramas: number | null }>();
+  if (!item) return { success: false, message: "Item não encontrado." };
+
+  let medida: { nome: string; gramas: number } | null = null;
+  if (medidaId) {
+    if (!item.food_id) return { success: false, message: "Este item não tem alimento de origem para escolher medida." };
+    medida = await buscarMedida(supabase, medidaId, item.food_id);
+  } else if (item.medida_nome && item.medida_gramas) {
+    medida = { nome: item.medida_nome, gramas: item.medida_gramas };
+  }
+  if (!medida) return { success: false, message: "Medida caseira não encontrada." };
+
+  const { error } = await supabase.from("meal_items").update(camposDaMedida(medida, medidaQuantidade)).eq("id", itemId);
   if (error) {
     return { success: false, message: error.message };
   }

@@ -27,7 +27,8 @@
     "test:rate-limit": "node scripts/test-rate-limit.mjs",
     "test:e2e": "playwright test",
     "delete-account": "node scripts/delete-account.mjs",
-    "test:e2e:prod": "playwright test"
+    "test:e2e:prod": "playwright test",
+    "import:medidas": "node scripts/import-medidas/import.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

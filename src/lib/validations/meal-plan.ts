@@ -61,8 +61,21 @@ export const mealItemSchema = z.object({
   quantidade_g: z.coerce
     .number({ invalid_type_error: "Informe a quantidade" })
     .positive("A quantidade deve ser maior que zero"),
+  /** Fase 17, Bloco D: medida caseira (food_measures); com ela, a quantidade é em medidas, não em gramas. */
+  medida_id: z.string().uuid().optional(),
+  medida_quantidade: z.coerce.number().positive().max(999).optional(),
 });
 export type MealItemInput = z.infer<typeof mealItemSchema>;
+
+/** Medida caseira criada pelo profissional (Fase 17, Bloco D). */
+export const medidaCaseiraSchema = z.object({
+  nome: z.string().trim().min(1, "Dê um nome à medida").max(80, "Nome longo demais"),
+  gramas: z.coerce
+    .number({ invalid_type_error: "Informe os gramas" })
+    .positive("Os gramas devem ser maiores que zero")
+    .max(5000, "Confira os gramas"),
+});
+export type MedidaCaseiraInput = z.infer<typeof medidaCaseiraSchema>;
 
 /** Mesma forma de mealItemSchema — reaproveitado para substituições (food_id + quantidade). */
 export const mealItemSubstitutionSchema = mealItemSchema;
