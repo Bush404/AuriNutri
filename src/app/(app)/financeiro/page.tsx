@@ -115,7 +115,7 @@ export default async function FinanceiroPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Financeiro</h1>
+        <h1 className="text-h1 text-foreground">Financeiro</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Despesas do consultório e uma referência de custo por atendimento — não é um ERP.
         </p>

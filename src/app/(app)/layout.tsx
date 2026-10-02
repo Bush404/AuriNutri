@@ -33,9 +33,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const logoUrl = await getProfileFileSignedUrl(profile?.logo_url);
 
   return (
-    <div className="flex min-h-screen bg-muted/30">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="app-backdrop flex min-h-screen min-w-0 flex-1 flex-col">
         <Topbar
           userName={userName}
           userEmail={userEmail}
@@ -43,7 +43,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           crn={profile?.crn ?? null}
           crnUf={profile?.crn_uf ?? null}
         />
-        <main className="flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
+        <main className="flex-1 px-4 py-6 md:px-8 lg:px-10 lg:py-6">{children}</main>
       </div>
     </div>
   );

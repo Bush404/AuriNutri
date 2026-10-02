@@ -1,5 +1,16 @@
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// Os tamanhos de texto do design system (text-h1, text-h2, text-h3, text-overline, em
+// tailwind.config.ts) precisam ser conhecidos aqui: sem isso o tailwind-merge acha que
+// "text-h1" é uma cor e o descarta ao lado de "text-foreground".
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      "font-size": [{ text: ["h1", "h2", "h3", "overline"] }],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

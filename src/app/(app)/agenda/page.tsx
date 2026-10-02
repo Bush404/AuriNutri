@@ -102,7 +102,7 @@ export default async function AgendaPage(props: AgendaPageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Agenda</h1>
+        <h1 className="text-h1 text-foreground">Agenda</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Consultas e horários — fuso horário: {timeZone.replace("_", " ")}.
         </p>

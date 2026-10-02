@@ -39,7 +39,7 @@ export default async function PlanosPage(props: PlanosPageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Planos Alimentares</h1>
+        <h1 className="text-h1 text-foreground">Planos Alimentares</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Todos os planos alimentares criados para os seus pacientes.
         </p>

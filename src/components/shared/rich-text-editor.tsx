@@ -81,7 +81,7 @@ export function RichTextEditor({ value, onChange, ariaLabel, disabled, className
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-md border border-input bg-background focus-within:ring-2 focus-within:ring-ring",
+        "overflow-hidden rounded-md border border-input bg-card focus-within:ring-2 focus-within:ring-ring",
         disabled && "opacity-60",
         className
       )}

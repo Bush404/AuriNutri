@@ -57,7 +57,7 @@ export default async function CalculoEnergeticoPage(props: { params: Promise<{ i
             Voltar para o paciente
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Cálculo energético</h1>
+        <h1 className="text-h1 text-foreground">Cálculo energético</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {patient.nome}
           {idade !== null && ` · ${idade} anos`}

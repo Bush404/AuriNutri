@@ -4,17 +4,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+  "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-medium transition-colors [&_svg]:size-3.5 [&_svg]:shrink-0",
   {
+    // Status: fundo suave + texto forte. success / warning / info / destructive (erro) /
+    // neutral. "default" é a etiqueta da marca (verde AuriNutri).
     variants: {
       variant: {
-        default: "border-transparent bg-primary-100 text-primary-800",
+        default: "border-transparent bg-primary-50 text-primary-800",
         secondary: "border-transparent bg-secondary text-secondary-foreground",
-        accent: "border-transparent bg-accent/20 text-accent-foreground",
-        outline: "border-border text-foreground",
+        accent: "border-transparent bg-warning-soft text-warning",
+        outline: "border-border bg-card text-foreground",
         destructive: "border-transparent bg-destructive/10 text-destructive",
-        success: "border-transparent bg-primary-100 text-primary-700",
-        warning: "border-transparent bg-accent/20 text-accent-foreground",
+        success: "border-transparent bg-success-soft text-success",
+        warning: "border-transparent bg-warning-soft text-warning",
+        info: "border-transparent bg-info-soft text-info",
+        neutral: "border-transparent bg-muted text-muted-foreground",
       },
     },
     defaultVariants: {

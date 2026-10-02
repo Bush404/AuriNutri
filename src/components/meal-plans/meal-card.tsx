@@ -148,13 +148,13 @@ export function MealCard({
         {alca}
         <span
           className={cn(
-            "flex h-8 w-14 items-center justify-center rounded-md border border-border bg-background text-sm tabular-nums",
+            "flex h-8 w-14 items-center justify-center rounded-md border border-border bg-card text-sm tabular-nums",
             !meal.horario && "text-muted-foreground",
           )}
         >
           {meal.horario ? meal.horario.slice(0, 5) : "00:00"}
         </span>
-        <span className="flex h-8 min-w-0 flex-1 basis-40 items-center truncate rounded-md border border-border bg-background px-3 text-sm font-medium">
+        <span className="flex h-8 min-w-0 flex-1 basis-40 items-center truncate rounded-md border border-border bg-card px-3 text-sm font-medium">
           {meal.nome}
         </span>
 
@@ -280,7 +280,7 @@ export function MealCard({
 
       {/* Só monta aberta: cada refeição aberta faz a própria busca de alimentos. */}
       {aberta && (
-        <div id={idConteudo} className="space-y-4 border-t border-border bg-background px-3 pb-3 pt-3">
+        <div id={idConteudo} className="space-y-4 border-t border-border bg-card px-3 pb-3 pt-3">
           <MealFoodSearch planId={planId} mealId={meal.id} nextOrdem={nextOrdem} />
 
           <div className="space-y-2">
@@ -333,7 +333,7 @@ export function MealCard({
 function Chip({ cor, rotulo, children }: { cor?: string; rotulo: string; children: ReactNode }) {
   return (
     <span
-      className="flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-sm tabular-nums"
+      className="flex h-8 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-sm tabular-nums"
       title={rotulo}
     >
       {cor && <span className="h-2 w-2 rounded-full" style={{ backgroundColor: cor }} aria-hidden="true" />}

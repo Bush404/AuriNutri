@@ -539,10 +539,11 @@ próprios que ainda não foram verificados. Isso é assunto jurídico, não de e
 
 ---
 
-## PHASE 19 — Identidade visual e design · `TODO` · `MEDIUM`
+## PHASE 19 — Identidade visual e design · `IN PROGRESS` (desde 02/10/2026) · `MEDIUM`
 
 ```
-[ ] Logotipo: já atende (Fase 2), só entra na revisão visual
+[x] Logotipo: logo oficial (A + folha) adotada em 02/10/2026, recortada em public/brand/
+    (símbolo + completa) e src/app/icon.png; slogan só no login/materiais
 [ ] Carimbo personalizável: o profissional escolhe o que aparece (nome, CRN/UF, especialidade,
     assinatura, contato), a disposição e o estilo, com pré-visualização ao vivo
 [ ] Carimbo aplicado nos PDFs que hoje levam assinatura (plano, recibo, evolução)
@@ -551,6 +552,18 @@ próprios que ainda não foram verificados. Isso é assunto jurídico, não de e
 [ ] PDFs "Relatório" e "Evolução" da antropometria (Fase 15): manter a organização, mas com cara
     própria do AuriNutri — hoje estão quase idênticos aos do WebDiet (pedido de 30/09/2026)
 ```
+**Bloco A — design system (publicado 02/10/2026; falta revisão tela a tela, PDFs e carimbo):** tokens centralizados em `globals.css`
++ `tailwind.config.ts` (paleta oficial #07583F/#063F31/#78C51C/#A5D51F/#FF8A00, fundo #F8FAF9),
+componentes base (Button/Card/Input/Select/Textarea/Badge), StatCard/PageHeader, sidebar em grupos,
+hierarquia do painel. Nenhuma função, rota, ação ou consulta muda. A 19 começou antes da 18
+(bloqueada por R1).
+Painel refeito no layout de referência do usuário (02/10/2026): agenda só de hoje (consultas + tarefas;
+minicalendário de 7 dias sai do painel), tendências "+N este mês"/"% vs mês anterior" + minilinha de 6 meses
+(src/lib/dashboard.ts, com testes), sem busca global, sino "Em breve", banner "Dica do AuriNutri"
+(src/lib/dashboard-dicas.ts; foto Unsplash de Calvin Shelwell em public/brand/banner-prato.jpg).
+Fundo do sistema passa a #F0F6F4 (medido no print); painel ocupa a altura da tela no breakpoint `desk`
+(≥1024 de largura e ≥700 de altura), com listas rolando por dentro; abaixo disso a página rola.
+
 **Por que no fim:** as telas de antropometria, cálculo energético e plano alimentar vão ser refeitas
 nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design fecha o Roadmap 2
 **antes** das testadoras, porque a primeira impressão delas conta.
@@ -594,5 +607,5 @@ nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design 
 - **R2 — TBCA:** usar só a TBCA 7.3 (versão atual).
 - **R3 — Modelos de anamnese:** o próprio profissional cria os seus. O AuriNutri também oferece
   modelos prontos, que podem ser usados direto ou copiados e editados.
-- **R6 — Logo e carimbo:** logo já atende. O carimbo passa a ser personalizável (Fase 19).
+- **R6 — Logo e carimbo:** logo já atende (substituída pela logo oficial em 02/10/2026). O carimbo passa a ser personalizável (Fase 19).
 - **Painel do plano:** fixo à direita no computador, barra no rodapé no celular (Fase 17).

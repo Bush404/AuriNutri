@@ -56,7 +56,7 @@ export default async function BibliotecaPage(props: BibliotecaPageProps) {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Biblioteca</h1>
+          <h1 className="text-h1 text-foreground">Biblioteca</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Sua biblioteca pessoal de materiais de orientação e educação — escritos ou enviados,
             prontos para reenviar a qualquer paciente pela Central de Envio.

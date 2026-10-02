@@ -14,7 +14,7 @@ export default function AppLoading() {
         </div>
         <Skeleton className="h-10 w-36" />
       </div>
-      <div className="space-y-3 rounded-xl border border-border bg-card p-6">
+      <div className="space-y-3 rounded-lg border border-border bg-card p-6">
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />

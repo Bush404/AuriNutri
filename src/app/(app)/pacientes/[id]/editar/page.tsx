@@ -25,7 +25,7 @@ export default async function EditarPacientePage(props: { params: Promise<{ id: 
             Voltar para o perfil
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Editar paciente</h1>
+        <h1 className="text-h1 text-foreground">Editar paciente</h1>
         <p className="mt-1 text-sm text-muted-foreground">Atualize os dados de {patient.nome}.</p>
       </div>
 

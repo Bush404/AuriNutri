@@ -78,7 +78,7 @@ export function WeekView({
     <div className="overflow-x-auto rounded-lg border border-border">
       <div className="grid min-w-[900px] grid-cols-[56px_repeat(7,minmax(140px,1fr))]">
         {/* Cabeçalho */}
-        <div className="sticky left-0 z-20 border-b border-r border-border bg-background" />
+        <div className="sticky left-0 z-20 border-b border-r border-border bg-card" />
         {days.map((dateStr) => (
           <div
             key={dateStr}
@@ -113,7 +113,7 @@ export function WeekView({
         ))}
 
         {/* Coluna de horários */}
-        <div className="sticky left-0 z-20 border-r border-border bg-background">
+        <div className="sticky left-0 z-20 border-r border-border bg-card">
           {HOURS.map((hour) => (
             <div
               key={hour}

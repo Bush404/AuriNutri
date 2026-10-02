@@ -243,7 +243,7 @@ export function EnergyCalculationForm({ patient, calculo, avaliacoes }: Props) {
               <input
                 type="date"
                 aria-required="true"
-                className="rounded-md border border-input bg-background px-2 py-1 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="rounded-md border border-input bg-card px-2 py-1 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 {...register("data_calculo")}
               />
             </label>
@@ -607,7 +607,7 @@ function Caixa({
     <div className={className}>
       <div
         className={cn(
-          "rounded-lg border border-input bg-background px-3 pb-1 pt-2 focus-within:ring-2 focus-within:ring-ring",
+          "rounded-lg border border-input bg-card px-3 pb-1 pt-2 focus-within:ring-2 focus-within:ring-ring",
           desativada && "opacity-50",
           erro && "border-destructive"
         )}
@@ -654,7 +654,7 @@ function CaixaBotao({ rotulo, valor, vazio, onClick }: { rotulo: string; valor: 
     <button
       type="button"
       onClick={onClick}
-      className="rounded-lg border border-input bg-background px-3 pb-2 pt-2 text-left hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="rounded-lg border border-input bg-card px-3 pb-2 pt-2 text-left hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <span className="block text-xs text-muted-foreground">{rotulo}</span>
       <span className={cn("block pt-1 text-sm", valor ? "font-medium text-foreground" : "text-foreground")}>{valor ?? vazio}</span>

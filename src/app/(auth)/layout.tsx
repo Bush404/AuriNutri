@@ -15,13 +15,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* Coluna de branding */}
-      <div className="relative hidden overflow-hidden bg-primary-800 lg:flex lg:flex-col lg:justify-between lg:p-12">
-        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary-700/50 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-accent/20 blur-3xl" />
+      <div className="relative hidden overflow-hidden bg-primary-900 lg:flex lg:flex-col lg:justify-between lg:p-12">
+        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary-700/40 blur-3xl" />
 
         <div className="relative z-10">
-          <p className="text-sm font-medium uppercase tracking-widest text-primary-200">
-            Para nutricionistas modernos
+          {/* Slogan oficial: só no login e em materiais, nunca dentro do sistema. */}
+          <p className="text-overline uppercase text-brand-lime">
+            Tecnologia para transformar a prática nutricional
           </p>
           <h1 className="mt-4 max-w-md text-3xl font-semibold leading-tight text-white">
             Simplifique sua rotina clínica em um só lugar.
@@ -60,9 +60,9 @@ function FeatureItem({
   description: string;
 }) {
   return (
-    <div className="flex items-start gap-4 rounded-xl bg-white/5 p-4 backdrop-blur-sm">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/90">
-        <Icon className="h-5 w-5 text-primary-900" />
+    <div className="flex items-start gap-4 rounded-lg border border-white/10 bg-white/[0.04] p-4">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white/10">
+        <Icon className="h-5 w-5 text-brand-lime" />
       </div>
       <div>
         <p className="text-sm font-medium text-white">{title}</p>

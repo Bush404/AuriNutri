@@ -403,7 +403,7 @@ function BuscarSubstituto({
               value={unidade}
               aria-label="Unidade do substituto"
               disabled={isPending}
-              className="h-8 max-w-56 rounded-md border border-input bg-background px-1.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-8 max-w-56 rounded-md border border-input bg-card px-1.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onChange={(e) => setUnidade(e.target.value)}
             >
               <option value={GRAMAS}>g</option>

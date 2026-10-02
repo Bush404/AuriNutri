@@ -113,7 +113,7 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
         shareLinks={shareLinks}
       />
 
-      <section aria-labelledby="rotina-titulo" className="space-y-3 rounded-xl border border-border bg-card p-4">
+      <section aria-labelledby="rotina-titulo" className="space-y-3 rounded-lg border border-border bg-card p-4">
         <h2 id="rotina-titulo" className="text-base font-semibold text-foreground">
           Rotina do paciente
         </h2>

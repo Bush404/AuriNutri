@@ -9,45 +9,38 @@ export interface NavItem {
   badge?: string;
 }
 
-export const NAV_ITEMS: NavItem[] = [
+export interface NavGroup {
+  /** Sem rótulo no primeiro grupo (Dashboard/Agenda), como no layout de referência. */
+  label?: string;
+  items: NavItem[];
+}
+
+// Menu lateral em grupos (Fase 19). Só a ordem e o agrupamento mudaram: nomes e rotas
+// continuam os mesmos.
+export const NAV_GROUPS: NavGroup[] = [
   {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
+    items: [
+      { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { title: "Agenda", href: "/agenda", icon: CalendarDays },
+    ],
   },
   {
-    title: "Pacientes",
-    href: "/pacientes",
-    icon: Users,
+    label: "Atendimento",
+    items: [
+      { title: "Pacientes", href: "/pacientes", icon: Users },
+      { title: "Planos Alimentares", href: "/planos", icon: ClipboardList },
+      { title: "Receitas", href: "/receitas", icon: CookingPot },
+    ],
   },
   {
-    title: "Agenda",
-    href: "/agenda",
-    icon: CalendarDays,
+    label: "Nutrição",
+    items: [
+      { title: "Meus Alimentos", href: "/alimentos", icon: Apple },
+      { title: "Biblioteca", href: "/biblioteca", icon: BookOpen },
+    ],
   },
   {
-    title: "Meus Alimentos",
-    href: "/alimentos",
-    icon: Apple,
-  },
-  {
-    title: "Receitas",
-    href: "/receitas",
-    icon: CookingPot,
-  },
-  {
-    title: "Planos Alimentares",
-    href: "/planos",
-    icon: ClipboardList,
-  },
-  {
-    title: "Financeiro",
-    href: "/financeiro",
-    icon: Wallet,
-  },
-  {
-    title: "Biblioteca",
-    href: "/biblioteca",
-    icon: BookOpen,
+    label: "Gestão",
+    items: [{ title: "Financeiro", href: "/financeiro", icon: Wallet }],
   },
 ];

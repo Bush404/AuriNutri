@@ -121,7 +121,7 @@ export function PlanejamentoDialog({ planId, patientId, plan, pesoPaciente, calc
       <Input
         id={id}
         inputMode="decimal"
-        className="h-10 w-28 bg-background text-right"
+        className="h-10 w-28 bg-card text-right"
         value={value}
         disabled={disabled}
         onChange={(e) => set(e.target.value)}

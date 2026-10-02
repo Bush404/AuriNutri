@@ -33,7 +33,7 @@ export default async function PerfilPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Editar perfil</h1>
+        <h1 className="text-h1 text-foreground">Editar perfil</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Suas informações profissionais, usadas nos documentos entregues aos pacientes.
         </p>

@@ -140,7 +140,7 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
             <AvatarFallback className="text-lg">{getInitials(patient.nome)}</AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">{patient.nome}</h1>
+            <h1 className="text-h1 text-foreground">{patient.nome}</h1>
             <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               {age !== null && <span>{age} anos</span>}
               {patient.objetivo && (

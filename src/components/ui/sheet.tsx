@@ -18,14 +18,14 @@ const SheetOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     ref={ref}
-    className={cn("fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px]", className)}
+    className={cn("fixed inset-0 z-50 bg-primary-900/40 backdrop-blur-[2px]", className)}
     {...props}
   />
 ));
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out",
+  "fixed z-50 gap-4 bg-card p-6 shadow-lg transition ease-in-out",
   {
     variants: {
       side: {
@@ -57,4 +57,12 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
 );
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
-export { Sheet, SheetTrigger, SheetClose, SheetContent };
+const SheetTitle = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Title>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Title ref={ref} className={cn("text-h3 font-semibold text-foreground", className)} {...props} />
+));
+SheetTitle.displayName = SheetPrimitive.Title.displayName;
+
+export { Sheet, SheetTrigger, SheetClose, SheetContent, SheetTitle };

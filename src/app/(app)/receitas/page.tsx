@@ -53,7 +53,7 @@ export default async function ReceitasPage(props: ReceitasPageProps) {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Receitas</h1>
+          <h1 className="text-h1 text-foreground">Receitas</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Preparações com nutrição calculada a partir dos ingredientes, prontas para usar nos
             planos alimentares.

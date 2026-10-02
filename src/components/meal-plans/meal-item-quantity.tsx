@@ -57,7 +57,7 @@ export function MealItemQuantity({
             value={unidade}
             disabled={isPending}
             aria-label={`Unidade de ${item.nome_alimento}`}
-            className="h-8 max-w-44 rounded-md border border-input bg-background px-1.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="h-8 max-w-44 rounded-md border border-input bg-card px-1.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             onChange={(e) => {
               if (e.target.value === GERENCIAR) setGerenciando(true);
               else setUnidade(e.target.value);

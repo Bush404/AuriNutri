@@ -3,48 +3,63 @@
 @tailwind utilities;
 
 @layer base {
+  /* Design system do AuriNutri (Fase 19, Roadmap 2). Paleta oficial, tirada da logo:
+     verde AuriNutri #07583F (interação), verde escuro #063F31, verde #78C51C, lima #A5D51F,
+     laranja #FF8A00 (só destaque), fundo #F0F6F4 (medido no layout de referência), texto #10201A, borda #E2EAE6.
+     Verde/lima e laranja nunca viram cor de texto: sobre branco não passam no contraste AA.
+     Toda cor nova entra aqui como token — não espalhar hex pelas telas. */
   :root {
     /* Neutros */
-    --background: 0 0% 100%;
-    --foreground: 158 20% 12%;
+    --background: 160 25% 95%; /* #F0F6F4 — fundo do layout de referência (02/10) */
+    --foreground: 158 33% 9%; /* #10201A */
 
     --card: 0 0% 100%;
-    --card-foreground: 158 20% 12%;
+    --card-foreground: 158 33% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 158 20% 12%;
+    --popover-foreground: 158 33% 9%;
 
-    /* Verde profundo - cor principal da marca */
-    --primary: 158 62% 22%;
+    /* Verde AuriNutri — cor principal de interação */
+    --primary: 162 85% 19%; /* #07583F */
     --primary-foreground: 0 0% 100%;
 
-    /* Verde natural - secundária */
-    --secondary: 142 32% 94%;
-    --secondary-foreground: 158 62% 18%;
+    /* Superfície verde bem clara (botão secundário, item ativo) */
+    --secondary: 152 36% 95%;
+    --secondary-foreground: 162 85% 17%;
 
-    --muted: 150 15% 96%;
-    /* Fase 11, Bloco B: 45% de luminosidade não passava em contraste AA (4.06:1
-       sobre --muted, 4.41:1 sobre branco — precisa de 4.5:1). Escurecido pra
-       38%, mesma matiz/saturação — resultado ~5.3-5.7:1, imperceptível a olho
-       nu na tela, mas legível de verdade por quem enxerga menos contraste. */
-    --muted-foreground: 158 8% 38%;
+    --muted: 150 16% 93%;
+    /* Fase 11, Bloco B: o cinza de texto secundário precisa de 4.5:1 (AA) também sobre
+       --muted e o fundo. O #66756E da paleta não passa ali, então fica mais escuro (38%). */
+    --muted-foreground: 152 8% 38%;
 
-    /* Laranja suave - apenas para destaques pontuais */
-    --accent: 28 90% 62%;
-    --accent-foreground: 24 45% 15%;
+    /* Laranja da marca — só destaques pontuais, nunca cor dominante */
+    --accent: 32 100% 50%; /* #FF8A00 */
+    --accent-foreground: 24 60% 12%;
 
-    /* Fase 11, Bloco B: 51% de luminosidade não passava em contraste AA sobre
-       o próprio fundo do badge destructive (bg-destructive/10 ~4.13:1).
-       Escurecido pra 47%, mesma matiz/saturação — ~4.67:1 nesse caso e
-       melhora também o texto puro sobre branco (4.80:1 → 5.42:1). */
+    /* Fase 11, Bloco B: 47% de luminosidade passa AA sobre o próprio fundo do badge. */
     --destructive: 0 72% 47%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 150 15% 90%;
-    --input: 150 15% 88%;
-    --ring: 158 62% 22%;
+    /* Status: fundo suave + texto/ícone forte (todos AA sobre o próprio fundo) */
+    --success: 96 76% 25%;
+    --success-soft: 92 60% 93%;
+    --warning: 28 100% 31%;
+    --warning-soft: 36 100% 93%;
+    --info: 208 66% 36%;
+    --info-soft: 210 70% 95%;
 
-    --radius: 0.65rem;
+    /* Cores da identidade (preenchimentos e detalhes, não texto) */
+    --brand-green: 87 75% 44%; /* #78C51C */
+    --brand-lime: 76 75% 48%; /* #A5D51F */
+
+    /* Menu lateral: quase branco, um tom acima do fundo */
+    --sidebar: 150 20% 98%;
+
+    --border: 150 16% 90%; /* #E2EAE6 */
+    --input: 150 14% 84%;
+    --ring: 162 85% 19%;
+
+    --radius: 0.625rem;
   }
 }
 
@@ -54,6 +69,19 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+  }
+}
+
+/* Fundo da área logada (Fase 19): brilho verde que nasce no canto superior direito
+   (#D7EAD7, medido no layout de referência) e se dissolve no fundo base. Fica preso à
+   janela (fixed), então o brilho não rola junto com o conteúdo. */
+@layer components {
+  .app-backdrop {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(ellipse 65% 50% at 100% 0%, hsl(120 30% 88%) 0%, hsl(120 30% 88% / 0.55) 35%, transparent 75%),
+      radial-gradient(ellipse 40% 30% at 85% 0%, hsl(var(--brand-green) / 0.08) 0%, transparent 70%);
+    background-attachment: fixed;
   }
 }
 

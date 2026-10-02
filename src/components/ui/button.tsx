@@ -8,12 +8,14 @@ const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
+      // Primária = verde AuriNutri, sem gradiente. Secundária = borda (outline) ou fundo
+      // verde clarinho (secondary). Ghost = sem borda. Destructive só quando apaga algo.
       variant: {
-        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary-700",
+        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary-800 active:bg-primary-900",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
-        outline: "border border-input bg-background shadow-sm hover:bg-muted",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-muted",
+        outline: "border border-input bg-card text-foreground shadow-sm hover:border-primary-300 hover:bg-secondary hover:text-secondary-foreground",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-primary-100",
+        ghost: "text-foreground hover:bg-muted",
         link: "text-primary underline-offset-4 hover:underline",
         accent: "bg-accent text-accent-foreground shadow-sm hover:brightness-95",
       },

@@ -39,7 +39,7 @@ export default async function PacientesPage(props: PacientesPageProps) {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Pacientes</h1>
+          <h1 className="text-h1 text-foreground">Pacientes</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Gerencie os pacientes cadastrados na sua clínica.
           </p>

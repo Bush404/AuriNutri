@@ -15,7 +15,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MobileSidebar } from "@/components/layout/mobile-sidebar";
+import { Logo } from "@/components/shared/logo";
 import { SupportFeedbackMenu } from "@/components/feedback/support-feedback-menu";
+import { NotificationsMenu } from "@/components/layout/notifications-menu";
 import { getInitials } from "@/lib/utils";
 
 interface TopbarProps {
@@ -37,29 +39,27 @@ export function Topbar({ userName, userEmail, logoUrl, crn, crnUf }: TopbarProps
   }
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-white px-4 md:px-8">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-border bg-background/70 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/40 md:px-8 lg:px-10">
       <div className="flex items-center gap-2">
         <MobileSidebar />
+        <Link href="/dashboard" aria-label="AuriNutri — ir para o Dashboard" className="md:hidden">
+          <Logo iconOnly />
+        </Link>
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 sm:gap-2">
+        <NotificationsMenu />
         <SupportFeedbackMenu />
 
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-3 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <span className="hidden text-right sm:block">
-              <span className="block text-sm font-medium leading-tight text-foreground">
-                {userName}
-                {crn && (
-                  <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                    CRN {crn}
-                    {crnUf ? `/${crnUf}` : ""}
-                  </span>
-                )}
+              <span className="block text-sm font-medium leading-tight text-foreground">{userName}</span>
+              <span className="block text-xs leading-tight text-muted-foreground">
+                {crn ? `CRN ${crn}${crnUf ? `/${crnUf}` : ""}` : userEmail}
               </span>
-              <span className="block text-xs leading-tight text-muted-foreground">{userEmail}</span>
             </span>
-            <Avatar>
+            <Avatar className="h-9 w-9">
               {logoUrl && <AvatarImage src={logoUrl} alt={userName} />}
               <AvatarFallback>{getInitials(userName)}</AvatarFallback>
             </Avatar>

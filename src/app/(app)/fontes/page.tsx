@@ -5,7 +5,7 @@ export default function FontesDeDadosPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Fontes de Dados</h1>
+        <h1 className="text-h1 text-foreground">Fontes de Dados</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Transparência sobre a origem dos dados nutricionais utilizados na AuriNutri.
         </p>

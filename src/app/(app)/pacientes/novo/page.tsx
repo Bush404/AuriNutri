@@ -14,7 +14,7 @@ export default function NovoPacientePage() {
             Voltar para pacientes
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Novo paciente</h1>
+        <h1 className="text-h1 text-foreground">Novo paciente</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Preencha os dados abaixo para cadastrar um novo paciente.
         </p>

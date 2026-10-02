@@ -46,7 +46,7 @@ export default async function AvaliacaoPage(props: { params: Promise<{ id: strin
             Voltar para o paciente
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-h1 text-foreground">
           Avaliação de {formatDate(assessment.data_avaliacao)}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
