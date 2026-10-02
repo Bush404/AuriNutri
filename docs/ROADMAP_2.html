@@ -120,18 +120,19 @@
     <div class="dot">◆</div>
     <h1>Auri<span>Nutri</span> — Roadmap 2</h1>
   </div>
-  <p class="sub">Do uso no próprio consultório às testadoras · criado em 25/09/2026 a partir de uma semana de uso real · atualizado em 01/10/2026 · continua o Roadmap 1 (<code>DEVELOPMENT_ROADMAP.html</code>, Fases 0–11)</p>
+  <p class="sub">Do uso no próprio consultório às testadoras · criado em 25/09/2026 a partir de uma semana de uso real · atualizado em 02/10/2026 · continua o Roadmap 1 (<code>DEVELOPMENT_ROADMAP.html</code>, Fases 0–11)</p>
 </header>
 
 <section class="overall">
   <div class="overall-top">
     <h2>Progresso do Roadmap 2</h2>
-    <div class="pct">56%</div>
+    <div class="pct">66%</div>
   </div>
-  <div class="bar"><i style="width:56%"></i></div>
+  <div class="bar"><i style="width:66%"></i></div>
   <div class="legend">
     <span><b>4</b> fases concluídas e publicadas (13, 14, 15 e 16)</span>
-    <span><b>2</b> em andamento (17 e 12)</span>
+    <span><b>1</b> publicada, aguardando o seu teste (17)</span>
+    <span><b>1</b> em andamento (12)</span>
     <span><b>1</b> planejada (19)</span>
     <span><b>1</b> bloqueada (licenças)</span>
     <span><b>1</b> decisão pendente</span>
@@ -289,14 +290,14 @@
 <details class="phase active" open>
   <summary class="ph-head">
     <span class="mark">17</span>
-    <span class="ph-title"><span class="n">PHASE 17 · EM ANDAMENTO</span><div class="t">Plano alimentar 2.0</div></span>
-    <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-high">Em andamento</span><span class="caret">▶</span></span>
+    <span class="ph-title"><span class="n">PHASE 17 · PUBLICADA · AGUARDANDO SEU TESTE</span><div class="t">Plano alimentar 2.0</div></span>
+    <span class="ph-meta"><span class="chip c-critical">Critical</span><span class="chip c-done">Todos os blocos prontos · publicada 02/10</span><span class="caret">▶</span></span>
   </summary>
   <div class="ph-body">
-    <p class="obj"><b>Status (01/10/2026):</b> lista aprovada (<code>docs/FASE_17_PLANO.md</code>). Medidas caseiras do IBGE ligadas aos alimentos da TACO (TBCA só com autorização); resumo fixo no rodapé; micronutrientes × DRI. Bloco A (planejamento) e início do Bloco B (tela compacta, refeições em linha, resumo no rodapé) feitos em 01/10/2026, aguardando o seu teste. Bloco A: importar o cálculo energético, distribuir por g/kg ou % do GET e a tabela Prescrito × Teórico × Diferença com a distribuição calórica. Periodização: aguardando você explicar o que faz.</p>
-    <p class="obj"><b>Parou aqui (02/10/2026):</b> Blocos A a C publicados; D e E prontos no computador (ainda não publicados). <b>Falta:</b></p>
+    <p class="obj"><b>Status (02/10/2026):</b> os 7 blocos (A a G) estão prontos e publicados no site. Migrations 0043 a 0047 aplicadas; testes de ponta a ponta 18 de 18 e isolamento entre profissionais 111 de 111. Agora é o seu teste: o que você pedir de ajuste entra antes de fecharmos a fase.</p>
+    <p class="obj"><b>Parou aqui (02/10/2026):</b> tudo publicado (commit 84578f0). <b>O que foi feito e o que falta:</b></p>
     <ul class="tasks">
-      <li>Seu teste do Bloco A e da tela compacta</li>
+      <li class="ok">Bloco A: importar o cálculo energético, distribuir por g/kg ou % do GET, tabela Prescrito × Teórico × Diferença e distribuição calórica</li>
       <li class="ok">Bloco B: arrastar refeições (ou setas do teclado), "reordenar por horário", "expandir tudo", atalho "Ver anamnese"; o plano já grava cada ação na hora</li>
       <li class="ok">Bloco C: refeição aberta como no WebDiet — busca com filtros (Todos, Favoritos, Seus alimentos, Receitas, TACO), estrela de favorito, cadastrar alimento sem sair, análise da refeição (densidade calórica e %), observações com formatação (saem no PDF)</li>
       <li class="ok">Bloco D (02/10, migration 0045 aplicada e medidas gravadas no banco; aguardando o seu teste): medidas caseiras do IBGE ligadas a 315 alimentos da TACO (1.922 medidas, cada ligação revisada); em cada alimento do plano escolha gramas ou a medida ("2 × colher de sopa cheia = 50 g"); criar e excluir as suas próprias medidas; a busca já adiciona na medida mais comum; o PDF sai "1 unidade média (50 g)"; planos antigos continuam em gramas</li>
@@ -304,7 +305,8 @@
       <li class="ok">Bloco F (02/10, migration 0046 aplicada; testes 17 de 17 e isolamento 109 de 109; aguardando o seu teste): "Ver todos os nutrientes" — micronutrientes do dia × recomendação diária (DRI) da idade e sexo do paciente, com gestante/lactante, % da recomendação, "Abaixo / Adequado / Acima" (±20%) e alerta de limite máximo; valores tirados da tabela oficial (National Academies, 2019) por programa, sem digitar, e conferidos (docs/FASE_17_DRI.md). "Lista de compras" para 1, 7, 15 ou 30 dias, por grupo, com botão de copiar. "Baixar PDF" com opções: tabela ou lista simples, página de nutrientes, página de lista de compras, uma refeição por página</li>
       <li class="ok">Bloco G (02/10, migration 0047 aplicada; testes 18 de 18 e isolamento 111 de 111): lista de planos do paciente com kcal, kcal/kg e data; ativo/inativo, estrela de modelo, PDF, editar, duplicar e excluir na própria linha; setas para ordenar; "Novo plano" em branco (já com Café da manhã, Almoço e Jantar) ou "De um modelo" com busca e prévia; duplicar agora leva também os substitutos</li>
       <li class="ok">Periodização explicada (02/10): no WebDiet, o plano só aparece para o paciente no app entre datas escolhidas. Fica para depois, junto com o portal do paciente (adiado) — sem app do paciente, não tem efeito</li>
-      <li>Você: testar os Blocos D a G (publicados em 02/10) · enviar o e-mail da TBCA</li>
+      <li>Você: testar a Fase 17 inteira no site e me dizer o que ajustar</li>
+      <li>Você: enviar o e-mail da TBCA (libera a Fase 18)</li>
       <li class="ok">Testes rodados em 02/10 depois do Bloco D: ponta a ponta 17 de 17 (inclui criar uma medida própria); isolamento entre profissionais 109 de 109 (inclui medidas caseiras)</li>
       <li class="ok">Conferido: a cópia de plano leva tudo o que o item guarda (medida caseira e, desde o Bloco F, os micronutrientes)</li>
     </ul>
@@ -315,12 +317,14 @@
       <li class="ok">Análise do cardápio: Prescrito × Teórico × Diferença e distribuição calórica</li>
       <li class="ok">Resumo fixo no rodapé (decidido: igual ao WebDiet), com prescrito / meta</li>
       <li class="ok">Tela compacta e centralizada; refeições em linhas fechadas (horário, nome, macros, abrir, editar, duplicar, favoritar, excluir)</li>
-      <li>Botão "Gráfico de nutrientes" do cardápio inteiro</li>
-      <li>"Quantidade" + "Medida" (gramas, ml, unidade, fatia, colheres, xícara, copo, concha…), com equivalência em gramas ajustável</li>
-      <li>PDF mostra, por exemplo, "2 fatias (50 g)"</li>
-      <li>Substitutos com comparação lado a lado e critério de equivalência (kcal, carboidrato ou proteína)</li>
-      <li>Busca com filtros: Todos, Favoritos, Receitas, Meus alimentos, TACO (+ TBCA 7.3 e Tucunduva quando liberadas)</li>
-      <li>Favoritar alimentos; receitas na mesma busca</li>
+      <li class="ok">Nutrientes do cardápio inteiro: distribuição calórica e "Ver todos os nutrientes" (micronutrientes × DRI)</li>
+      <li class="ok">"Quantidade" + "Medida" (medidas caseiras do IBGE e as suas, com equivalência em gramas)</li>
+      <li class="ok">PDF mostra, por exemplo, "2 × fatia (50 g)", os substitutos e, se quiser, nutrientes e lista de compras</li>
+      <li class="ok">Substitutos com comparação lado a lado e critério de equivalência (kcal, carboidrato ou proteína)</li>
+      <li class="ok">Busca com filtros: Todos, Favoritos, Receitas, Meus alimentos, TACO (TBCA 7.3 e Tucunduva entram na Fase 18, quando liberadas)</li>
+      <li class="ok">Favoritar alimentos; receitas na mesma busca</li>
+      <li class="ok">Lista de planos com kcal e kcal/kg; planos favoritos viram modelos para outros pacientes</li>
+      <li>Periodização (plano visível ao paciente só entre datas) — depois, junto com o portal do paciente</li>
     </ul>
     <div class="accept"><b>Aceite</b>
       Totais do painel, da tela e do PDF idênticos (testado). Planos antigos, só em gramas, continuam abrindo e calculando igual.</div>
@@ -372,6 +376,7 @@
     logo já atende e o carimbo passa a ser personalizável; painel do plano à direita no computador e no rodapé no celular.
     <br>Decidida em 30/09/2026 — <b>R4</b>: protocolos de antropometria iguais aos do WebDiet, Brozek e Siri à escolha; gestantes e desenhos ficam para depois.
     <br>Decidida em 01/10/2026 — <b>R7</b>: lista da Fase 17; medidas caseiras do IBGE (POF 2008–2009) ligadas à TACO, resumo no rodapé, micronutrientes × DRI.
+    <br>Decidida em 02/10/2026 — <b>Periodização</b> do plano fica para depois, junto com o portal do paciente (só faz sentido com app do paciente).
     <br>Decidida em 01/10/2026 — <b>R5</b>: fórmulas do WebDiet + Henry/Oxford e comparação lado a lado; gestantes e lactantes ficam para a fase de gestantes.
   </p>
   <table>
