@@ -621,7 +621,8 @@ atualizarObservacoesRefeicao) e a tela antiga (MealFoodSearch, MealItemRow/Card,
 foram removidas; sugestões rápidas ficaram em src/lib/substitution-suggestions.ts. Busca ganhou o filtro
 "alimentos" (todas as fontes, sem receitas). FoodThumb aceita imagem opcional (hoje nenhum alimento tem). Depois do teste do usuário: resultados voltaram a ser lista (estrela, nome+origem,
 qtd., PTN/LIP/CHO, kcal, +) e a busca de substituto usa a mesma lista com Todos/TACO/USDA/Meus alimentos
-(o FoodCombobox antigo cortava em 8 globais em ordem alfabética e escondia a USDA).
+(o FoodCombobox antigo cortava em 8 globais em ordem alfabética e escondia a USDA). Busca de ingredientes
+da receita (FoodCombobox) corrigida também: grupos Meus/TACO/USDA com vagas próprias e filtro de fonte.
 Gravação atômica (pedido do usuário, 04/10): migration 0049 cria a função salvar_refeicao (security
 invoker — RLS vale; lixeira via soft_delete_meal_item): refeição, substitutos tirados, itens tirados e itens +
 substitutos numa transação só. test-security-isolation-full ganhou 3 checagens (B não salva a refeição de A;

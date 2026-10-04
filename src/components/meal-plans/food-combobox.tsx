@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { Loader2, Search, X } from "lucide-react";
 
 import type { Food } from "@/lib/types/database.types";
-import { searchFoodsForPicker } from "@/lib/actions/foods";
+import { searchFoodsForPicker, type FontePicker } from "@/lib/actions/foods";
 import { useComboboxKeyboardNav } from "@/lib/use-combobox-keyboard";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +17,13 @@ interface FoodComboboxProps {
   onChange: (food: Food | null) => void;
   disabled?: boolean;
 }
+
+const FONTES: { valor: FontePicker; rotulo: string }[] = [
+  { valor: "todos", rotulo: "Todos" },
+  { valor: "taco", rotulo: "TACO" },
+  { valor: "usda", rotulo: "USDA" },
+  { valor: "meus", rotulo: "Meus alimentos" },
+];
 
 function optionId(listboxId: string, foodId: string) {
   return `${listboxId}-option-${foodId}`;
@@ -36,13 +43,15 @@ function optionId(listboxId: string, foodId: string) {
 export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
-  const [results, setResults] = useState<{ meus: Food[]; taco: Food[] }>({ meus: [], taco: [] });
+  const [results, setResults] = useState<{ meus: Food[]; taco: Food[]; usda: Food[] }>({ meus: [], taco: [], usda: [] });
+  const [fonte, setFonte] = useState<FontePicker>("todos");
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const listboxId = useId();
 
-  const flatResults = [...results.meus, ...results.taco];
+  const flatResults = [...results.meus, ...results.taco, ...results.usda];
+  const nenhum = flatResults.length === 0;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -56,7 +65,7 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
 
   function runSearch(term: string) {
     startTransition(async () => {
-      const data = await searchFoodsForPicker(term);
+      const data = await searchFoodsForPicker(term, fonte);
       setResults(data);
     });
   }
@@ -69,11 +78,11 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, open]);
+  }, [query, open, fonte]);
 
   function handleFocus() {
     setOpen(true);
-    if (results.meus.length === 0 && results.taco.length === 0) {
+    if (nenhum) {
       runSearch(query);
     }
   }
@@ -150,7 +159,29 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
             </div>
           )}
 
-          {!isPending && results.meus.length === 0 && results.taco.length === 0 && (
+          {/* Fonte (Fase 19): as mesmas da janela da refeição. */}
+          <div className="flex flex-wrap gap-1.5 border-b border-border px-3 py-2" role="radiogroup" aria-label="Fonte dos alimentos">
+            {FONTES.map((f) => (
+              <button
+                key={f.valor}
+                type="button"
+                role="radio"
+                aria-checked={fonte === f.valor}
+                tabIndex={-1}
+                className={cn(
+                  "rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+                  fonte === f.valor
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-foreground hover:border-primary/40",
+                )}
+                onClick={() => setFonte(f.valor)}
+              >
+                {f.rotulo}
+              </button>
+            ))}
+          </div>
+
+          {!isPending && nenhum && (
             <p className="px-3 py-3 text-sm text-muted-foreground">
               Nenhum alimento encontrado{query ? ` para "${query}"` : ""}.
             </p>
@@ -170,6 +201,16 @@ export function FoodCombobox({ value, onChange, disabled }: FoodComboboxProps) {
             <FoodGroup
               label="Base TACO"
               foods={results.taco}
+              listboxId={listboxId}
+              highlightedFoodId={highlightedFoodId}
+              onSelect={handleSelect}
+              onHover={(foodId) => setHighlightedIndex(flatResults.findIndex((f) => f.id === foodId))}
+            />
+          )}
+          {!isPending && results.usda.length > 0 && (
+            <FoodGroup
+              label="USDA"
+              foods={results.usda}
               listboxId={listboxId}
               highlightedFoodId={highlightedFoodId}
               onSelect={handleSelect}
@@ -222,7 +263,8 @@ function FoodGroup({
             {food.marca && <span className="text-muted-foreground"> ({food.marca})</span>}
           </span>
           <span className="shrink-0 text-xs text-muted-foreground">
-            {food.calorias_kcal ?? "—"} kcal/{food.porcao_referencia_g}g
+            {food.calorias_kcal === null ? "—" : Math.round(Number(food.calorias_kcal)).toLocaleString("pt-BR")} kcal/
+            {Number(food.porcao_referencia_g).toLocaleString("pt-BR")} g
           </span>
         </button>
       ))}

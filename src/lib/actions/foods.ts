@@ -181,26 +181,32 @@ export async function deleteFood(foodId: string): Promise<ActionResult> {
 export interface FoodPickerGroup {
   meus: Food[];
   taco: Food[];
+  usda: Food[];
 }
 
+export type FontePicker = "todos" | "meus" | "taco" | "usda";
+
 /**
- * Busca alimentos para o seletor do construtor de plano alimentar,
- * já separados por origem (alimentos do próprio nutricionista primeiro,
- * depois a base TACO), respeitando RLS automaticamente.
+ * Busca alimentos para o seletor (ingredientes de receita), já separados por
+ * origem — alimentos do próprio nutricionista, TACO e USDA —, respeitando a
+ * RLS. Cada origem tem as próprias vagas: antes TACO e USDA dividiam 8 vagas
+ * em ordem alfabética e a USDA quase nunca aparecia (Fase 19). Com uma fonte
+ * escolhida, só ela, com mais resultados.
  */
-export async function searchFoodsForPicker(query: string): Promise<FoodPickerGroup> {
+export async function searchFoodsForPicker(query: string, fonte: FontePicker = "todos"): Promise<FoodPickerGroup> {
   const supabase = await createClient();
   const termo = query.trim();
+  const limite = fonte === "todos" ? { meus: 8, taco: 15, usda: 15 } : { meus: 40, taco: 40, usda: 40 };
 
-  let meusQuery = supabase.from("foods").select("*").eq("is_global", false).order("nome").limit(8);
-  let tacoQuery = supabase.from("foods").select("*").eq("is_global", true).order("nome").limit(8);
+  const buscar = async (origem: keyof FoodPickerGroup) => {
+    if (fonte !== "todos" && fonte !== origem) return [];
+    let q = supabase.from("foods").select("*").order("nome").limit(limite[origem]);
+    q = origem === "meus" ? q.eq("is_global", false) : q.eq("is_global", true).eq("fonte", origem);
+    if (termo) q = q.ilike("nome", `%${termo}%`);
+    const { data } = await q.returns<Food[]>();
+    return data ?? [];
+  };
 
-  if (termo) {
-    meusQuery = meusQuery.ilike("nome", `%${termo}%`);
-    tacoQuery = tacoQuery.ilike("nome", `%${termo}%`);
-  }
-
-  const [{ data: meus }, { data: taco }] = await Promise.all([meusQuery, tacoQuery]);
-
-  return { meus: meus ?? [], taco: taco ?? [] };
+  const [meus, taco, usda] = await Promise.all([buscar("meus"), buscar("taco"), buscar("usda")]);
+  return { meus, taco, usda };
 }
