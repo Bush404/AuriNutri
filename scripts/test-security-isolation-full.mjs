@@ -556,6 +556,48 @@ async function main() {
       updateValue: 999,
       canDelete: true,
     });
+    // Fase 19 — "Salvar alterações" da refeição numa transação (migration 0049, security invoker).
+    const { error: salvarBError } = await userB.client.rpc("salvar_refeicao", {
+      p_meal_id: meal.id,
+      p_refeicao: { nome: "alterado por B", horario: null, observacoes: null },
+      p_itens: [],
+      p_itens_removidos: [mealItem.id],
+      p_subs_removidos: [],
+    });
+    const { data: mealDepoisB } = await admin.from("meals").select("nome").eq("id", meal.id).single();
+    const { data: itemDepoisB } = await admin.from("meal_items").select("deleted_at").eq("id", mealItem.id).single();
+    if (mealDepoisB?.nome === "alterado por B") breach("B CONSEGUIU renomear a refeição de A (RPC salvar_refeicao)");
+    if (itemDepoisB?.deleted_at) breach("B CONSEGUIU tirar um alimento da refeição de A (RPC salvar_refeicao)");
+    pass("B não consegue salvar a refeição de A (RPC salvar_refeicao)", salvarBError?.message ?? "sem efeito");
+
+    // Controle: a dona consegue (prova que a função existe e a checagem acima não passou por engano).
+    const { error: salvarAError } = await userA.client.rpc("salvar_refeicao", {
+      p_meal_id: meal.id,
+      p_refeicao: { nome: "Refeição de teste (salva)", horario: "08:30", observacoes: null },
+      p_itens: [{ id: mealItem.id, linha: { ordem: 0, quantidade_g: 120 }, substitutos: [] }],
+      p_itens_removidos: [],
+      p_subs_removidos: [],
+    });
+    if (salvarAError) throw new Error(`A não conseguiu salvar a própria refeição (salvar_refeicao): ${salvarAError.message}`);
+    const { data: itemDepoisA } = await admin.from("meal_items").select("quantidade_g").eq("id", mealItem.id).single();
+    if (Number(itemDepoisA?.quantidade_g) !== 120) throw new Error("salvar_refeicao não gravou a quantidade da dona");
+    pass("A salva a própria refeição numa transação (RPC salvar_refeicao)");
+
+    // Tudo ou nada: o nome muda no passo 1, mas um alimento inexistente no passo 4 tem de desfazer o passo 1.
+    const { error: salvarFalhaError } = await userA.client.rpc("salvar_refeicao", {
+      p_meal_id: meal.id,
+      p_refeicao: { nome: "NÃO deveria ficar gravado", horario: null, observacoes: null },
+      p_itens: [{ id: crypto.randomUUID(), linha: { ordem: 0, quantidade_g: 50 }, substitutos: [] }],
+      p_itens_removidos: [],
+      p_subs_removidos: [],
+    });
+    const { data: mealDepoisFalha } = await admin.from("meals").select("nome").eq("id", meal.id).single();
+    if (!salvarFalhaError) throw new Error("salvar_refeicao aceitou um alimento inexistente");
+    if (mealDepoisFalha?.nome !== "Refeição de teste (salva)") {
+      throw new Error(`salvar_refeicao gravou pela metade: nome ficou "${mealDepoisFalha?.nome}"`);
+    }
+    pass("Salvamento com erro no meio não grava nada (transação desfeita)", salvarFalhaError.message);
+
     await checkTableIsolation(userB, { table: "meals", id: meal.id, updateField: "observacoes", updateValue: "alterado por B", canDelete: true });
     await checkTableIsolation(userB, {
       table: "meal_plans",

@@ -3,25 +3,27 @@ import { UtensilsCrossed } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 import { calculatePlanTotals, collectFontesUsadas, buildFonteFooter } from "@/lib/nutrition";
-import type { Meal, MealItemSubstitution, MealPlan, Sexo } from "@/lib/types/database.types";
+import { kcalPorKg } from "@/lib/meal-planning";
+import type { Meal, MealItemSubstitution, MealPlan, Patient } from "@/lib/types/database.types";
 import { listMealTemplates } from "@/lib/actions/meal-templates";
 import { listPlanShareLinks } from "@/lib/actions/plan-share";
 import { medidasDosAlimentos } from "@/lib/actions/meal-food-search";
 
 import { EmptyState } from "@/components/shared/empty-state";
-import { MealPlanHeader } from "@/components/meal-plans/meal-plan-header";
+import { MealPlanActions, MealPlanTitle } from "@/components/meal-plans/meal-plan-header";
+import { PatientProfileHeader } from "@/components/patients/patient-profile-header";
+import { PatientTabLinks } from "@/components/patients/patient-tab-links";
 import { PlanSummaryBar } from "@/components/meal-plans/plan-summary-bar";
-import type { MealWithItemsAndSubstitutions } from "@/components/meal-plans/meal-card";
+import type { MealItemWithSubstitutions, MealWithItemsAndSubstitutions } from "@/components/meal-plans/meal-card";
 import { MealList } from "@/components/meal-plans/meal-list";
 import { MedidasProvider } from "@/components/meal-plans/medidas-context";
-import type { MealItemWithSubstitutions } from "@/components/meal-plans/meal-item-row";
 import { NewMealDialog } from "@/components/meal-plans/new-meal-dialog";
 import { NewMealFromTemplateDialog } from "@/components/meal-plans/new-meal-from-template-dialog";
 import { NutrientAnalysisCard } from "@/components/meal-plans/nutrient-analysis-card";
 import type { CalculoParaImportar } from "@/components/meal-plans/planejamento-dialog";
 
 type PlanWithPatient = MealPlan & {
-  patients: { id: string; nome: string; telefone: string | null; sexo: Sexo | null; data_nascimento: string | null };
+  patients: Pick<Patient, "id" | "nome" | "telefone" | "sexo" | "data_nascimento" | "ativo" | "objetivo">;
 };
 
 export default async function PlanoDetalhePage(props: { params: Promise<{ id: string }> }) {
@@ -40,7 +42,7 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
   const [{ data: plan }, { data: meals }, templates, shareLinks] = await Promise.all([
     supabase
       .from("meal_plans")
-      .select("*, patients(id, nome, telefone, sexo, data_nascimento)")
+      .select("*, patients(id, nome, telefone, sexo, data_nascimento, ativo, objetivo)")
       .eq("id", params.id)
       .single<PlanWithPatient>(),
     supabase
@@ -101,37 +103,55 @@ export default async function PlanoDetalhePage(props: { params: Promise<{ id: st
   const nextMealOrdem = mealsWithItems.length;
   const pesoTotalG = mealsWithItems.reduce((s, m) => s + m.items.reduce((t, i) => t + Number(i.quantidade_g), 0), 0);
 
+  const porKg = kcalPorKg(totals.calorias, plan.planejamento_peso_kg ?? latestAssessment?.peso_kg ?? null);
+
   return (
-    // Compacto e centralizado, como no WebDiet; pb-16 deixa espaço para o resumo fixo do rodapé.
-    <div className="mx-auto max-w-5xl space-y-5 pb-16">
-      <MealPlanHeader
-        plan={plan}
-        patientId={plan.patients.id}
-        patientName={plan.patients.nome}
-        patientTelefone={plan.patients.telefone}
-        patientSexo={plan.patients.sexo}
-        shareLinks={shareLinks}
+    // pb-16 deixa espaço para o resumo fixo do rodapé.
+    <div className="space-y-6 pb-16">
+      <PatientProfileHeader
+        patient={plan.patients}
+        voltar={{ href: `/pacientes/${plan.patients.id}?aba=planos`, rotulo: "Voltar para os planos" }}
+        acoes={
+          <MealPlanActions
+            plan={plan}
+            patientId={plan.patients.id}
+            patientName={plan.patients.nome}
+            patientTelefone={plan.patients.telefone}
+            patientSexo={plan.patients.sexo}
+            shareLinks={shareLinks}
+          />
+        }
       />
 
-      <section aria-labelledby="rotina-titulo" className="space-y-3 rounded-lg border border-border bg-card p-4">
-        <h2 id="rotina-titulo" className="text-base font-semibold text-foreground">
-          Rotina do paciente
-        </h2>
-        {mealsWithItems.length > 0 ? (
-          <MedidasProvider medidas={medidas}>
-            <MealList planId={plan.id} meals={mealsWithItems} />
-          </MedidasProvider>
-        ) : (
-          <EmptyState
-            icon={UtensilsCrossed}
-            title="Nenhuma refeição adicionada ainda"
-            description="Adicione refeições como café da manhã, almoço e jantar para começar a montar o plano."
-          />
-        )}
+      <PatientTabLinks patientId={plan.patients.id} ativa="planos" />
 
-        <div className="flex flex-wrap justify-center gap-2 pt-1">
-          <NewMealDialog planId={plan.id} nextOrdem={nextMealOrdem} />
-          <NewMealFromTemplateDialog planId={plan.id} nextOrdem={nextMealOrdem} templates={templates} />
+      <section aria-labelledby="rotina-titulo" className="space-y-5 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
+          <MealPlanTitle plan={plan} kcal={totals.calorias} porKg={porKg} />
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <NewMealFromTemplateDialog planId={plan.id} nextOrdem={nextMealOrdem} templates={templates} />
+            <NewMealDialog planId={plan.id} nextOrdem={nextMealOrdem} />
+          </div>
+        </div>
+
+        <div className="space-y-3 border-t border-border pt-4">
+          <div>
+            <h3 id="rotina-titulo" className="text-base font-semibold text-foreground">
+              Rotina do paciente
+            </h3>
+            <p className="text-sm text-muted-foreground">Clique em uma refeição para visualizar ou editar os alimentos.</p>
+          </div>
+          {mealsWithItems.length > 0 ? (
+            <MedidasProvider medidas={medidas}>
+              <MealList planId={plan.id} meals={mealsWithItems} />
+            </MedidasProvider>
+          ) : (
+            <EmptyState
+              icon={UtensilsCrossed}
+              title="Nenhuma refeição adicionada ainda"
+              description="Adicione refeições como café da manhã, almoço e jantar para começar a montar o plano."
+            />
+          )}
         </div>
       </section>
 

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, ClipboardList, Copy, Download, Loader2, Pencil, Plus, Star, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ClipboardList, Copy, Download, FileText, Loader2, Pencil, Plus, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import type { MealPlan } from "@/lib/types/database.types";
@@ -82,7 +82,7 @@ export function MealPlanList({
     <NewMealPlanDialog
       patientId={patientId}
       trigger={
-        <Button size="sm">
+        <Button>
           <Plus className="h-4 w-4" />
           {rotulo}
         </Button>
@@ -92,18 +92,24 @@ export function MealPlanList({
 
   if (mealPlans.length === 0) {
     return (
-      <EmptyState
-        icon={ClipboardList}
-        title="Nenhum plano alimentar criado ainda"
-        description="Monte o primeiro plano alimentar deste paciente, do zero ou a partir de um dos seus modelos."
-        action={novoPlano("Criar plano alimentar")}
-      />
+      <div className="space-y-4">
+        <h2 className="text-h2 text-foreground">Planos alimentares</h2>
+        <EmptyState
+          icon={ClipboardList}
+          title="Nenhum plano alimentar criado ainda"
+          description="Monte o primeiro plano alimentar deste paciente, do zero ou a partir de um dos seus modelos."
+          action={novoPlano("Criar plano alimentar")}
+        />
+      </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">{novoPlano("Novo plano")}</div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-h2 text-foreground">Planos alimentares</h2>
+        {novoPlano("Novo plano")}
+      </div>
 
       <ul className="space-y-2" aria-label="Planos alimentares">
         {ids.map((id, indice) => {
@@ -144,7 +150,7 @@ function IconeAcao({
       type="button"
       variant="ghost"
       size="icon"
-      className={cn("h-8 w-8", className)}
+      className={cn("h-9 w-9 text-foreground", className)}
       title={rotulo}
       aria-label={rotulo}
       onClick={onClick}
@@ -200,13 +206,13 @@ function MealPlanRow({
   return (
     // O card todo abre o plano com o mouse; o link do nome é o caminho pelo teclado.
     <Card className="cursor-pointer transition-shadow hover:shadow-card" onClick={() => router.push(href)}>
-      <CardContent className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3">
+      <CardContent className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
         <div className="flex flex-col" onClick={(e) => e.stopPropagation()}>
           <IconeAcao
             rotulo={`Mover ${plan.nome} para cima`}
             onClick={() => onMover(-1)}
             disabled={primeiro}
-            className="h-5 w-6"
+            className="h-5 w-6 text-muted-foreground"
           >
             <ArrowUp className="h-3.5 w-3.5" />
           </IconeAcao>
@@ -214,33 +220,37 @@ function MealPlanRow({
             rotulo={`Mover ${plan.nome} para baixo`}
             onClick={() => onMover(1)}
             disabled={ultimo}
-            className="h-5 w-6"
+            className="h-5 w-6 text-muted-foreground"
           >
             <ArrowDown className="h-3.5 w-3.5" />
           </IconeAcao>
         </div>
+
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-success-soft text-primary">
+          <FileText className="h-5 w-5" />
+        </span>
 
         <Link
           href={href}
           onClick={(e) => e.stopPropagation()}
           className="min-w-0 flex-1 basis-48 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <p className="truncate font-medium text-foreground">{plan.nome}</p>
+          <p className="truncate font-semibold text-foreground">{plan.nome}</p>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            <span className="tabular-nums text-foreground">{fmt(plan.kcal)} kcal</span>
+            <span className="tabular-nums">{fmt(plan.kcal)} kcal</span>
             {porKg !== null && <span className="tabular-nums"> · {fmt(porKg, 1)} kcal/kg</span>} · Criado em{" "}
             {formatDate(plan.created_at.slice(0, 10))}
           </p>
         </Link>
 
-        <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
           <Badge
             role="switch"
             aria-checked={plan.ativo}
             aria-label={`${plan.nome}: ${plan.ativo ? "ativo" : "inativo"}`}
             tabIndex={0}
             variant={plan.ativo ? "success" : "outline"}
-            className="mr-1 cursor-pointer select-none"
+            className="cursor-pointer select-none gap-1.5 rounded-full px-3 py-1"
             onClick={() =>
               rodar(
                 () => toggleMealPlanStatus(plan.id, !plan.ativo, patientId),
@@ -254,32 +264,37 @@ function MealPlanRow({
               }
             }}
           >
+            <span
+              aria-hidden
+              className={cn("h-2 w-2 rounded-full", plan.ativo ? "bg-success" : "bg-muted-foreground/50")}
+            />
             {plan.ativo ? "Ativo" : "Inativo"}
           </Badge>
+          <span aria-hidden className="mx-2 h-7 w-px bg-border" />
           <IconeAcao
             rotulo={favorito ? `Tirar ${plan.nome} dos modelos` : `Favoritar ${plan.nome} como modelo`}
             onClick={alternarFavorito}
             disabled={isPending}
           >
-            <Star className={cn("h-4 w-4", favorito && "fill-amber-400 text-amber-500")} />
+            <Star className={cn("h-[18px] w-[18px]", favorito && "fill-amber-400 text-amber-500")} />
           </IconeAcao>
-          <Button variant="ghost" size="icon" className="h-8 w-8" asChild title="Baixar PDF">
+          <Button variant="ghost" size="icon" className="h-9 w-9 text-foreground" asChild title="Baixar PDF">
             <a href={`${href}/pdf`} aria-label={`Baixar PDF de ${plan.nome}`}>
-              <Download className="h-4 w-4" />
+              <Download className="h-[18px] w-[18px]" />
             </a>
           </Button>
           <IconeAcao rotulo={`Editar ${plan.nome}`} onClick={() => router.push(href)}>
-            <Pencil className="h-4 w-4" />
+            <Pencil className="h-[18px] w-[18px]" />
           </IconeAcao>
           <IconeAcao
             rotulo={`Duplicar ${plan.nome}`}
             onClick={() => rodar(() => duplicateMealPlan(plan.id))}
             disabled={isPending}
           >
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+            {isPending ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : <Copy className="h-[18px] w-[18px]" />}
           </IconeAcao>
           <IconeAcao rotulo={`Excluir ${plan.nome}`} onClick={() => setConfirmOpen(true)} disabled={isPending}>
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-[18px] w-[18px]" />
           </IconeAcao>
 
           <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>

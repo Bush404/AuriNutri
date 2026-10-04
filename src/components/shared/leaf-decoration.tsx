@@ -41,3 +41,43 @@ export function CornerLeaves({ className }: { className?: string }) {
     </svg>
   );
 }
+
+/**
+ * Raminho apagado atrás do cabeçalho do perfil do paciente, traçado sobre o layout de
+ * referência (viewBox nas coordenadas do print: o ramo fica entre o nome e os botões).
+ */
+export function ProfileLeaves({ className }: { className?: string }) {
+  return (
+    <svg viewBox="900 62 190 200" aria-hidden className={cn("pointer-events-none select-none", className)}>
+      <path d="M960 250 C 930 225, 908 192, 904 158 C 934 176, 957 211, 960 250 Z" fill="#cfe5c4" opacity={0.35} />
+      <path d="M955 258 C 980 210, 1020 150, 1087 68" fill="none" stroke="#cfe5c4" strokeWidth={1.6} strokeLinecap="round" opacity={0.7} />
+      <path d="M972 228 C 950 195, 944 140, 958 108 C 979 140, 986 195, 972 228 Z" fill="#c9e2bc" opacity={0.55} />
+      <path d="M1003 175 C 1000 130, 1040 86, 1087 68 C 1080 115, 1046 160, 1003 175 Z" fill="#b9d9a8" opacity={0.6} />
+      <path d="M982 232 C 1010 196, 1046 178, 1083 173 C 1065 206, 1026 230, 982 232 Z" fill="#c4dfb5" opacity={0.55} />
+    </svg>
+  );
+}
+
+/**
+ * Montanha com bandeirinha no canto do bloco "Objetivo do paciente", traçada sobre o
+ * layout de referência (viewBox nas coordenadas do print).
+ */
+export function GoalMountain({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="1280 655 345 130"
+      preserveAspectRatio="xMaxYMax meet"
+      aria-hidden
+      className={cn("pointer-events-none select-none", className)}
+    >
+      <path
+        d="M1280 783 C 1320 768, 1350 760, 1372 760 C 1395 760, 1410 768, 1420 760 C 1440 745, 1450 735, 1460 736 C 1470 737, 1475 744, 1485 740 C 1500 732, 1515 718, 1530 703 C 1538 695, 1542 690, 1547 689 C 1553 690, 1560 700, 1572 718 C 1585 735, 1605 752, 1625 765 L 1625 783 Z"
+        className="fill-primary"
+        fillOpacity={0.09}
+      />
+      <path d="M1500 783 C 1515 750, 1530 715, 1547 689 C 1565 720, 1590 760, 1612 783 Z" className="fill-primary" fillOpacity={0.07} />
+      <path d="M1545 690 L 1545 663" className="stroke-primary" strokeOpacity={0.18} strokeWidth={1.6} strokeLinecap="round" />
+      <path d="M1546 663 L 1568 671 L 1546 679 Z" className="fill-primary" fillOpacity={0.16} />
+    </svg>
+  );
+}

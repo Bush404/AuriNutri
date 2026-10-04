@@ -1,9 +1,22 @@
 "use client";
 
-import { useState, useTransition, type ReactNode } from "react";
+import { useState, useTransition, type KeyboardEvent, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDown, Copy, Loader2, Pencil, Star, Trash2 } from "lucide-react";
+import {
+  Apple,
+  ChevronRight,
+  Coffee,
+  Copy,
+  Dumbbell,
+  Loader2,
+  Moon,
+  Soup,
+  Star,
+  Trash2,
+  Utensils,
+  UtensilsCrossed,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import type { Meal } from "@/lib/types/database.types";
@@ -11,18 +24,11 @@ import { calculateMealTotals } from "@/lib/nutrition";
 import { COR_MACRO } from "@/lib/macro-colors";
 import { deleteMeal, duplicateMeal, updateMeal } from "@/lib/actions/meals";
 import { saveMealAsTemplate } from "@/lib/actions/meal-templates";
-import {
-  mealSchema,
-  mealTemplateNameSchema,
-  type MealInput,
-  type MealTemplateNameInput,
-} from "@/lib/validations/meal-plan";
+import { mealTemplateNameSchema, type MealTemplateNameInput } from "@/lib/validations/meal-plan";
+import { useAutoSave } from "@/lib/hooks/use-auto-save";
 import { cn } from "@/lib/utils";
-import { MealItemRow } from "@/components/meal-plans/meal-item-row";
-import { MealItemCard } from "@/components/meal-plans/meal-item-card";
-import type { MealItemWithSubstitutions } from "@/components/meal-plans/use-meal-item-editor";
+import type { MealItem, MealItemSubstitution } from "@/lib/types/database.types";
 
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,8 +44,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { MealFoodSearch } from "@/components/meal-plans/meal-food-search";
-import { MealAnalysis, MealObservations } from "@/components/meal-plans/meal-analysis";
+import { MealEditorDialog } from "@/components/meal-plans/meal-editor-dialog";
+
+export type MealItemWithSubstitutions = MealItem & { meal_item_substitutions: MealItemSubstitution[] };
 
 export interface MealWithItemsAndSubstitutions extends Meal {
   items: MealItemWithSubstitutions[];
@@ -53,36 +60,37 @@ const fmt = (v: number, casas = 1) =>
 
 /**
  * Refeição como uma linha compacta, igual ao WebDiet (Fase 17): horário,
- * nome, proteínas, lipídios, carboidratos e kcal, e os botões abrir, editar,
- * duplicar, favoritar (salvar como refeição favorita) e excluir. Fechada ao
+ * nome (os dois editáveis na própria linha, salvando sozinhos), proteínas,
+ * lipídios, carboidratos e kcal, e os botões abrir, duplicar, favoritar (salvar como refeição favorita) e excluir. Fechada ao
  * abrir o plano; "abrir" mostra os alimentos logo abaixo.
  */
 export function MealCard({
   planId,
   meal,
-  aberta,
-  onAlternar,
   alca,
 }: {
   planId: string;
   meal: MealWithItemsAndSubstitutions;
-  /** Controlado pela lista (para "expandir tudo"). */
-  aberta: boolean;
-  onAlternar: () => void;
   /** Alça de arrastar, desenhada no começo da linha. */
   alca?: ReactNode;
 }) {
   const [isPending, startTransition] = useTransition();
-  const [editOpen, setEditOpen] = useState(false);
   const [templateOpen, setTemplateOpen] = useState(false);
   const totals = calculateMealTotals(meal.items);
-  const nextOrdem = meal.items.length;
-  const idConteudo = `refeicao-${meal.id}`;
+  const [editando, setEditando] = useState(false);
 
-  const editForm = useForm<MealInput>({
-    resolver: zodResolver(mealSchema),
-    defaultValues: { nome: meal.nome, horario: meal.horario ?? "" },
-  });
+  // Nome e horário se editam na própria linha (Fase 19) e salvam sozinhos.
+  // O horário só vai para o salvamento quando está completo (ou ao sair do
+  // campo), para não gravar "sem horário" no meio da digitação.
+  const [nome, setNome] = useState(meal.nome);
+  const [horario, setHorario] = useState(meal.horario ? meal.horario.slice(0, 5) : "");
+  const [horarioParaSalvar, setHorarioParaSalvar] = useState(horario);
+  // Nome apagado (no meio da digitação) não vai para o salvamento: fica o último gravado.
+  const { estado: estadoSalvamento, erro: erroSalvamento } = useAutoSave(
+    { nome: nome.trim() || meal.nome, horario: horarioParaSalvar },
+    (v) => updateMeal(planId, meal.id, v),
+    800,
+  );
 
   const templateForm = useForm<MealTemplateNameInput>({
     resolver: zodResolver(mealTemplateNameSchema),
@@ -113,19 +121,13 @@ export function MealCard({
     });
   }
 
-  function onEditSubmit(values: MealInput) {
-    startTransition(async () => {
-      const result = await updateMeal(planId, meal.id, {
-        nome: values.nome,
-        horario: values.horario,
-      });
-      if (!result.success) {
-        toast.error("Não foi possível salvar", { description: result.message });
-        return;
-      }
-      toast.success("Refeição atualizada.");
-      setEditOpen(false);
-    });
+  /** Enter confirma (sai do campo); Esc desfaz o que foi digitado. */
+  function teclasDoCampo(e: KeyboardEvent<HTMLInputElement>, desfazer: () => void) {
+    if (e.key === "Enter") e.currentTarget.blur();
+    if (e.key === "Escape") {
+      desfazer();
+      e.currentTarget.blur();
+    }
   }
 
   function onTemplateSubmit(values: MealTemplateNameInput) {
@@ -143,78 +145,100 @@ export function MealCard({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-muted/40">
-      <div className="flex flex-wrap items-center gap-2 p-2">
-        {alca}
-        <span
-          className={cn(
-            "flex h-8 w-14 items-center justify-center rounded-md border border-border bg-card text-sm tabular-nums",
-            !meal.horario && "text-muted-foreground",
-          )}
-        >
-          {meal.horario ? meal.horario.slice(0, 5) : "00:00"}
-        </span>
-        <span className="flex h-8 min-w-0 flex-1 basis-40 items-center truncate rounded-md border border-border bg-card px-3 text-sm font-medium">
-          {meal.nome}
-        </span>
+    <div
+      className={cn(
+        "rounded-xl border bg-card transition-colors",
+        "border-border hover:border-primary/30",
+      )}
+    >
+      {/* A linha toda abre a janela da refeição com o mouse; pelo teclado, o botão da seta. */}
+      <div
+        className="flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-3 px-3 py-3 sm:px-4"
+        onClick={() => setEditando(true)}
+      >
+        <div className="flex min-w-0 flex-1 basis-64 items-center gap-3">
+          {alca && <div onClick={(e) => e.stopPropagation()}>{alca}</div>}
+          <input
+            type="time"
+            value={horario}
+            aria-label={`Horário de ${nome || meal.nome}`}
+            title="Clique para mudar o horário"
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              setHorario(e.target.value);
+              if (e.target.value) setHorarioParaSalvar(e.target.value);
+            }}
+            onBlur={() => setHorarioParaSalvar(horario)}
+            onKeyDown={(e) =>
+              teclasDoCampo(e, () => {
+                setHorario(horarioParaSalvar);
+              })
+            }
+            className={cn(
+              "h-9 w-[4.75rem] shrink-0 cursor-text rounded-lg border border-transparent bg-success-soft px-2 text-center text-sm font-semibold tabular-nums text-primary transition-colors hover:border-primary/30 focus:border-primary focus:bg-card focus:outline-none focus:ring-2 focus:ring-ring/30 [&::-webkit-calendar-picker-indicator]:hidden",
+              !horario && "text-muted-foreground",
+            )}
+          />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
+            <IconeRefeicao nome={nome} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <input
+              type="text"
+              value={nome}
+              aria-label="Nome da refeição"
+              title="Clique para mudar o nome"
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => setNome(e.target.value)}
+              onBlur={() => {
+                // Nome em branco não salva: volta para o último nome gravado.
+                if (!nome.trim()) setNome(meal.nome);
+              }}
+              onKeyDown={(e) => teclasDoCampo(e, () => setNome(meal.nome))}
+              className="-ml-1.5 w-full max-w-xs cursor-text truncate rounded-md border border-transparent bg-transparent px-1.5 py-0.5 font-semibold text-foreground transition-colors hover:border-border focus:border-primary focus:bg-card focus:outline-none focus:ring-2 focus:ring-ring/30"
+            />
+            <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              {meal.items.length === 0
+                ? "Nenhum alimento"
+                : `${meal.items.length} ${meal.items.length === 1 ? "alimento" : "alimentos"}`}
+              {(estadoSalvamento === "pendente" || estadoSalvamento === "salvando") && (
+                <span className="inline-flex items-center gap-1 text-xs">
+                  <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+                  Salvando…
+                </span>
+              )}
+              {estadoSalvamento === "erro" && (
+                <span className="text-xs text-destructive" role="alert">
+                  Não salvo: {erroSalvamento}
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
 
-        <Chip cor={COR_MACRO.proteinas} rotulo="Proteínas">
-          {fmt(totals.proteinas)} g
-        </Chip>
-        <Chip cor={COR_MACRO.lipidios} rotulo="Lipídios">
-          {fmt(totals.gorduras)} g
-        </Chip>
-        <Chip cor={COR_MACRO.carboidratos} rotulo="Carboidratos">
-          {fmt(totals.carboidratos)} g
-        </Chip>
-        <Chip rotulo="Calorias">{fmt(Math.round(totals.calorias), 0)} kcal</Chip>
+        <div className="flex flex-wrap items-center gap-2">
+          <MacroChip cor={COR_MACRO.proteinas} rotulo="Proteínas" valor={totals.proteinas} />
+          <MacroChip cor={COR_MACRO.lipidios} rotulo="Gorduras" valor={totals.gorduras} />
+          <MacroChip cor={COR_MACRO.carboidratos} rotulo="Carboidratos" valor={totals.carboidratos} />
+        </div>
 
-        <div className="flex items-center gap-1">
+        <div className="ml-auto flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          <span className="mr-1 rounded-full bg-success-soft px-3 py-1.5 text-sm font-semibold tabular-nums text-primary">
+            {fmt(Math.round(totals.calorias), 0)} kcal
+          </span>
           <Button
             type="button"
-            size="sm"
-            className="h-8"
-            aria-expanded={aberta}
-            aria-controls={idConteudo}
-            onClick={onAlternar}
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 rounded-full"
+            aria-haspopup="dialog"
+            aria-label={`Abrir ${nome || meal.nome}`}
+            title="Abrir e editar os alimentos"
+            onClick={() => setEditando(true)}
           >
-            <ChevronDown className={cn("h-4 w-4 transition-transform", aberta && "rotate-180")} />
-            {aberta ? "Fechar" : `Abrir${meal.items.length ? ` (${meal.items.length})` : ""}`}
+            <ChevronRight className="h-5 w-5" />
           </Button>
-
-          <Dialog open={editOpen} onOpenChange={setEditOpen}>
-            <DialogTrigger asChild>
-              <IconeBotao rotulo="Editar refeição">
-                <Pencil className="h-4 w-4" />
-              </IconeBotao>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Editar refeição</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor={`edit_nome_${meal.id}`}>Nome</Label>
-                  <Input id={`edit_nome_${meal.id}`} aria-required="true" {...editForm.register("nome")} />
-                  {editForm.formState.errors.nome && (
-                    <p className="text-xs text-destructive" role="alert">
-                      {editForm.formState.errors.nome.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`edit_horario_${meal.id}`}>Horário</Label>
-                  <Input id={`edit_horario_${meal.id}`} type="time" {...editForm.register("horario")} />
-                </div>
-                <DialogFooter>
-                  <Button type="submit" disabled={isPending}>
-                    {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                    Salvar
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <span aria-hidden className="mx-1 hidden h-6 w-px bg-border sm:block" />
 
           <IconeBotao rotulo="Duplicar refeição" onClick={handleDuplicate} disabled={isPending}>
             <Copy className="h-4 w-4" />
@@ -278,69 +302,57 @@ export function MealCard({
         </div>
       </div>
 
-      {/* Só monta aberta: cada refeição aberta faz a própria busca de alimentos. */}
-      {aberta && (
-        <div id={idConteudo} className="space-y-4 border-t border-border bg-card px-3 pb-3 pt-3">
-          <MealFoodSearch planId={planId} mealId={meal.id} nextOrdem={nextOrdem} />
-
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">Alimentos prescritos</p>
-            {meal.items.length === 0 ? (
-              <p className="rounded-md border border-dashed border-border px-3 py-3 text-center text-sm text-muted-foreground">
-                Nenhum alimento ainda. Use a busca acima para prescrever.
-              </p>
-            ) : (
-              <>
-                {/* Celular (< sm): cartões empilhados, sem esconder nenhum macro — ver MealItemCard. */}
-                <div className="space-y-2 sm:hidden">
-                  {meal.items.map((item) => (
-                    <MealItemCard key={item.id} planId={planId} item={item} />
-                  ))}
-                </div>
-
-                <div className="hidden sm:block">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Alimento</TableHead>
-                        <TableHead>Qtd.</TableHead>
-                        <TableHead>Kcal</TableHead>
-                        <TableHead>Prot.</TableHead>
-                        <TableHead>Carb.</TableHead>
-                        <TableHead>Gord.</TableHead>
-                        <TableHead className="w-20" />
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {meal.items.map((item) => (
-                        <MealItemRow key={item.id} planId={planId} item={item} />
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </>
-            )}
-          </div>
-
-          <MealAnalysis totais={totals} pesoG={meal.items.reduce((s, i) => s + Number(i.quantidade_g), 0)} />
-          <MealObservations planId={planId} mealId={meal.id} inicial={meal.observacoes} />
-        </div>
-      )}
+      <MealEditorDialog
+        open={editando}
+        onOpenChange={setEditando}
+        planId={planId}
+        meal={meal}
+        nome={nome.trim() || meal.nome}
+        horario={horario}
+        onSalvo={(novoNome, novoHorario) => {
+          // A janela já gravou: a linha só passa a mostrar o mesmo.
+          setNome(novoNome);
+          setHorario(novoHorario);
+          setHorarioParaSalvar(novoHorario);
+        }}
+      />
     </div>
   );
 }
 
-function Chip({ cor, rotulo, children }: { cor?: string; rotulo: string; children: ReactNode }) {
+/** Macro da refeição: fundo bem claro na cor do macro, bolinha, valor e nome embaixo. */
+function MacroChip({ cor, rotulo, valor }: { cor: string; rotulo: string; valor: number }) {
   return (
     <span
-      className="flex h-8 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-sm tabular-nums"
-      title={rotulo}
+      className="flex min-w-[7.5rem] items-center gap-2.5 rounded-lg px-3 py-1.5"
+      style={{ backgroundColor: `${cor}12` }}
     >
-      {cor && <span className="h-2 w-2 rounded-full" style={{ backgroundColor: cor }} aria-hidden="true" />}
-      <span className="sr-only">{rotulo}: </span>
-      {children}
+      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: cor }} aria-hidden="true" />
+      <span className="leading-tight">
+        <span className="block text-sm font-semibold tabular-nums text-foreground">{fmt(valor)} g</span>
+        <span className="block text-xs text-muted-foreground">{rotulo}</span>
+      </span>
     </span>
   );
+}
+
+/** Ícone pelo nome da refeição, só para ajudar a bater o olho; nomes livres caem no talher. */
+function IconeRefeicao({ nome }: { nome: string }) {
+  const n = nome.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const Icone = /cafe|desjejum/.test(n)
+    ? Coffee
+    : /almoco/.test(n)
+      ? UtensilsCrossed
+      : /lanche|colacao/.test(n)
+        ? Apple
+        : /jantar/.test(n)
+          ? Soup
+          : /ceia/.test(n)
+            ? Moon
+            : /treino/.test(n)
+              ? Dumbbell
+              : Utensils;
+  return <Icone className="h-5 w-5" aria-hidden="true" />;
 }
 
 function IconeBotao({
@@ -352,11 +364,11 @@ function IconeBotao({
   return (
     <Button
       type="button"
-      variant="secondary"
+      variant="ghost"
       size="icon"
       aria-label={rotulo}
       title={rotulo}
-      className={cn("h-8 w-8", perigo && "hover:bg-destructive hover:text-destructive-foreground", className)}
+      className={cn("h-9 w-9 text-muted-foreground hover:text-foreground", perigo && "hover:bg-destructive/10 hover:text-destructive", className)}
       {...props}
     />
   );

@@ -94,3 +94,35 @@ export const mealTemplateNameSchema = z.object({
   nome: z.string().min(2, "Informe um nome para o template"),
 });
 export type MealTemplateNameInput = z.infer<typeof mealTemplateNameSchema>;
+
+// ----------------------------------------------------------------------------
+// Fase 19 — janela "Editar refeição": a refeição inteira é gravada de uma vez
+// em "Salvar alterações" (ver src/lib/meal-draft.ts e salvarRefeicao).
+// ----------------------------------------------------------------------------
+
+const fonteSnapshotSchema = z.discriminatedUnion("de", [
+  z.object({ de: z.literal("item"), id: z.string().uuid() }),
+  z.object({ de: z.literal("sub"), id: z.string().uuid() }),
+  z.object({ de: z.literal("alimento"), food_id: z.string().uuid() }),
+  z.object({ de: z.literal("receita"), recipe_id: z.string().uuid() }),
+]);
+
+const quantidadeRascunhoSchema = z.discriminatedUnion("tipo", [
+  z.object({ tipo: z.literal("g"), valor: z.number().positive().max(100000) }),
+  z.object({ tipo: z.literal("medida"), valor: z.number().positive().max(999), medida_id: z.string().uuid().nullable() }),
+  z.object({ tipo: z.literal("porcoes"), valor: z.number().positive().max(999) }),
+]);
+
+const linhaRascunhoSchema = z.object({
+  id: z.string().uuid().nullable(),
+  fonte: fonteSnapshotSchema,
+  quantidade: quantidadeRascunhoSchema,
+});
+
+export const salvarRefeicaoSchema = z.object({
+  nome: z.string().trim().min(1, "Informe o nome da refeição").max(120),
+  horario: z.string().regex(/^(\d{2}:\d{2})?$/, "Horário inválido"),
+  observacoes: z.string().max(20000),
+  itens: z.array(linhaRascunhoSchema.extend({ substitutos: z.array(linhaRascunhoSchema).max(50) })).max(100),
+});
+export type SalvarRefeicaoInput = z.infer<typeof salvarRefeicaoSchema>;

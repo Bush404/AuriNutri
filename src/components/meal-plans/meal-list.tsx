@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, type DragEvent, type KeyboardEvent } from "react";
-import { ArrowUpDown, ChevronsDownUp, ChevronsUpDown, GripVertical, Loader2 } from "lucide-react";
+import { ArrowUpDown, GripVertical, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { reorderMeals, reorderMealsByTime } from "@/lib/actions/meals";
@@ -12,14 +12,14 @@ import { Button } from "@/components/ui/button";
 
 /**
  * "Rotina do paciente" (Fase 17, Bloco B): refeições fechadas em linha, que se
- * arrastam pela alça (ou com as setas do teclado, com a alça em foco),
- * "expandir tudo" e "reordenar por horário", como no WebDiet. A nova ordem
+ * arrastam pela alça (ou com as setas do teclado, com a alça em foco) e
+ * "reordenar por horário", como no WebDiet. Clicar numa refeição abre a
+ * janela "Editar refeição" (Fase 19). A nova ordem
  * aparece na hora e é gravada em seguida.
  */
 export function MealList({ planId, meals }: { planId: string; meals: MealWithItemsAndSubstitutions[] }) {
   // Ordem mostrada enquanto a gravação não volta do servidor; null = a ordem que veio do servidor.
   const [pendente, setPendente] = useState<string[] | null>(null);
-  const [abertas, setAbertas] = useState<Set<string>>(new Set());
   const [arrastando, setArrastando] = useState<string | null>(null);
   const [pegaPelaAlca, setPegaPelaAlca] = useState<string | null>(null);
   const [aviso, setAviso] = useState("");
@@ -27,7 +27,6 @@ export function MealList({ planId, meals }: { planId: string; meals: MealWithIte
 
   const porId = new Map(meals.map((m) => [m.id, m]));
   const ordem = (pendente ?? meals.map((m) => m.id)).filter((id) => porId.has(id));
-  const todasAbertas = meals.length > 0 && meals.every((m) => abertas.has(m.id));
 
   function gravar(nova: string[]) {
     setPendente(nova);
@@ -86,17 +85,7 @@ export function MealList({ planId, meals }: { planId: string; meals: MealWithIte
     <div className="space-y-2">
       {meals.length > 1 && (
         <div className="flex flex-wrap justify-end gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="h-7 text-xs"
-            onClick={() => setAbertas(todasAbertas ? new Set() : new Set(meals.map((m) => m.id)))}
-          >
-            {todasAbertas ? <ChevronsDownUp className="h-3.5 w-3.5" /> : <ChevronsUpDown className="h-3.5 w-3.5" />}
-            {todasAbertas ? "Recolher tudo" : "Expandir tudo"}
-          </Button>
-          <Button type="button" variant="secondary" size="sm" className="h-7 text-xs" onClick={porHorario} disabled={isPending}>
+          <Button type="button" variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground" onClick={porHorario} disabled={isPending}>
             {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowUpDown className="h-3.5 w-3.5" />}
             Reordenar por horário
           </Button>
@@ -125,14 +114,6 @@ export function MealList({ planId, meals }: { planId: string; meals: MealWithIte
               <MealCard
                 planId={planId}
                 meal={meal}
-                aberta={abertas.has(id)}
-                onAlternar={() =>
-                  setAbertas((atual) => {
-                    const nova = new Set(atual);
-                    if (!nova.delete(id)) nova.add(id);
-                    return nova;
-                  })
-                }
                 alca={
                   meals.length > 1 ? (
                     <button

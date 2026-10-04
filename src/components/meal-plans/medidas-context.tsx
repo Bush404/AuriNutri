@@ -25,3 +25,8 @@ export function useMedidasDoAlimento(foodId: string | null): FoodMeasure[] {
   const medidas = useContext(MedidasContext);
   return foodId ? (medidas[foodId] ?? []) : [];
 }
+
+/** Todas as medidas do plano, por alimento (janela da refeição, Fase 19). */
+export function useMedidasDoPlano(): Record<string, FoodMeasure[]> {
+  return useContext(MedidasContext);
+}

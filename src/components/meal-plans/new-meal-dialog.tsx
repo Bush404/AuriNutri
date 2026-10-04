@@ -51,7 +51,7 @@ export function NewMealDialog({ planId, nextOrdem }: { planId: string; nextOrdem
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button>
           <Plus className="h-4 w-4" />
           Adicionar refeição
         </Button>

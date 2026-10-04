@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { STORAGE_STATE } from "./env";
-import { adicionarAlimentoNaRefeicao, criarPaciente, criarPlano, textoVisivel, unico } from "./helpers";
+import { adicionarAlimentoNaRefeicao, criarPaciente, criarPlano, nomesDasRefeicoes, textoVisivel, unico } from "./helpers";
 
 test.use({ storageState: STORAGE_STATE });
 
@@ -13,7 +13,7 @@ test("favoritar plano como modelo e começar o plano de outro paciente a partir 
   await criarPlano(page, pacienteA.id, nomeModelo);
 
   for (const refeicao of ["Café da manhã", "Almoço", "Jantar"]) {
-    await expect(page.getByText(refeicao, { exact: true }).first()).toBeVisible();
+    await expect.poll(() => nomesDasRefeicoes(page)).toContain(refeicao);
   }
   await page.getByRole("button", { name: /^Abrir/ }).first().click();
   const alimento = await adicionarAlimentoNaRefeicao(page, "banana", /banana/i, 86);
@@ -36,7 +36,7 @@ test("favoritar plano como modelo e começar o plano de outro paciente a partir 
   await expect(dialog.getByLabel("Nome do plano")).toHaveValue(nomeModelo);
   await dialog.getByRole("button", { name: "Criar e montar refeições" }).click();
   await expect(page).toHaveURL(/\/planos\/[0-9a-f-]{36}$/);
-  await expect(page.getByText(`Paciente: ${pacienteB.nome}`)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: pacienteB.nome })).toBeVisible();
   await page.getByRole("button", { name: /^Abrir/ }).first().click();
   await expect(textoVisivel(page, alimento)).toBeVisible();
 });

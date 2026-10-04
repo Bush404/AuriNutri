@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Flame, Info, Plus } from "lucide-react";
 
 import { COR_MACRO } from "@/lib/macro-colors";
 import { analisarCardapio, distribuicaoCalorica, type MetasDoPlano } from "@/lib/meal-planning";
@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { PlanejamentoDialog, type CalculoParaImportar } from "@/components/meal-plans/planejamento-dialog";
 import { MicronutrientsDialog } from "@/components/meal-plans/micronutrients-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 const fmt = (v: number, casas = 1) =>
   v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
@@ -56,7 +56,7 @@ interface Props {
   paciente: { sexo: Sexo | null; data_nascimento: string | null };
 }
 
-/** "Análise de nutrientes do cardápio" (Fase 17, Bloco A): Prescrito × Teórico × Diferença + distribuição calórica. */
+/** "Análise de nutrientes do plano" (Fase 17, Bloco A; visual da Fase 19): Prescrito × Teórico × Diferença + distribuição calórica. */
 export function NutrientAnalysisCard({
   planId,
   plan,
@@ -76,16 +76,17 @@ export function NutrientAnalysisCard({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Análise de nutrientes do cardápio</CardTitle>
-      </CardHeader>
-      <CardContent className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <CardContent className="grid gap-8 p-4 sm:p-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">Análise de nutrientes do plano</h2>
+            <p className="text-sm text-muted-foreground">Comparativo entre o prescrito e o teórico calculado.</p>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs text-muted-foreground">
-                  <th className="py-2 pr-3 font-medium">Parâmetro</th>
+                  <th className="py-2 pr-3 font-medium">Nutriente</th>
                   <th className="py-2 pr-3 text-right font-medium">Prescrito</th>
                   <th className="py-2 pr-3 text-right font-medium">Teórico</th>
                   <th className="py-2 text-right font-medium">Diferença</th>
@@ -94,7 +95,7 @@ export function NutrientAnalysisCard({
               <tbody>
                 {linhas.map((l) => (
                   <tr key={l.parametro} className="border-b border-border/60 last:border-0">
-                    <td className="py-1.5 pr-3 text-foreground">
+                    <td className="py-2 pr-3 text-foreground">
                       {l.parametro}
                       {l.parametro === "Carboidratos livres" && (
                         <span className="ml-1 text-xs text-muted-foreground" title="Carboidratos totais menos fibras">
@@ -102,11 +103,22 @@ export function NutrientAnalysisCard({
                         </span>
                       )}
                     </td>
-                    <td className="py-1.5 pr-3 text-right tabular-nums">{valor(l.prescrito, l.unidade)}</td>
-                    <td className="py-1.5 pr-3 text-right tabular-nums text-muted-foreground">
+                    <td className="py-2 pr-3 text-right font-medium tabular-nums text-foreground">
+                      {valor(l.prescrito, l.unidade)}
+                    </td>
+                    <td className="py-2 pr-3 text-right tabular-nums text-muted-foreground">
                       {valor(l.teorico, l.unidade)}
                     </td>
-                    <td className={cn("py-1.5 text-right tabular-nums", l.diferenca ? "font-medium" : "")}>
+                    <td
+                      className={cn(
+                        "py-2 text-right tabular-nums",
+                        !l.diferenca
+                          ? "text-muted-foreground"
+                          : l.diferenca > 0
+                            ? "font-semibold text-success"
+                            : "font-semibold text-destructive/90",
+                      )}
+                    >
                       {l.diferenca === null
                         ? "—"
                         : `${l.diferenca > 0 ? "+" : l.diferenca < 0 ? "−" : ""}${valor(Math.abs(l.diferenca), l.unidade)}`}
@@ -130,11 +142,11 @@ export function NutrientAnalysisCard({
           </div>
         </div>
 
-        <div className="space-y-4">
-          <p className="text-sm font-medium text-foreground">Distribuição calórica do cardápio</p>
+        <div className="space-y-4 lg:border-l lg:border-border lg:pl-8">
+          <h3 className="text-base font-semibold text-foreground">Distribuição calórica do plano</h3>
           {dist.total > 0 ? (
             <div
-              className="flex h-4 w-full gap-[2px] overflow-hidden rounded"
+              className="flex h-3 w-full gap-[3px] overflow-hidden rounded-full"
               role="img"
               aria-label={MACROS.map((m) => `${m.rotulo} ${fmt(dist[m.chave].pct)}%`).join(", ")}
             >
@@ -142,7 +154,7 @@ export function NutrientAnalysisCard({
                 dist[m.chave].pct > 0 ? (
                   <div
                     key={m.chave}
-                    className="h-full first:rounded-l last:rounded-r"
+                    className="h-full first:rounded-l-full last:rounded-r-full"
                     style={{ width: `${dist[m.chave].pct}%`, backgroundColor: m.cor }}
                     title={`${m.rotulo}: ${fmt(Math.round(dist[m.chave].kcal), 0)} kcal (${fmt(dist[m.chave].pct)}%)`}
                   />
@@ -150,33 +162,34 @@ export function NutrientAnalysisCard({
               )}
             </div>
           ) : (
-            <div className="h-4 w-full rounded bg-muted" aria-hidden="true" />
+            <div className="h-3 w-full rounded-full bg-muted" aria-hidden="true" />
           )}
           <div className="grid grid-cols-2 gap-2">
             {MACROS.map((m) => (
-              <div key={m.chave} className="flex gap-2 rounded-md bg-muted/50 px-3 py-2">
+              <div key={m.chave} className="flex gap-2.5 rounded-lg bg-muted/50 px-3 py-2.5">
                 <span
-                  className="mt-1 h-3 w-3 shrink-0 rounded-sm"
+                  className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
                   style={{ backgroundColor: m.cor }}
                   aria-hidden="true"
                 />
                 <div className="text-sm">
                   <p className="text-muted-foreground">{m.rotulo}</p>
-                  <p className="font-medium tabular-nums text-foreground">
+                  <p className="font-semibold tabular-nums text-foreground">
                     {fmt(Math.round(dist[m.chave].kcal), 0)} kcal · {fmt(dist[m.chave].pct)}%
                   </p>
                 </div>
               </div>
             ))}
-            <div className="flex gap-2 rounded-md bg-muted/50 px-3 py-2">
-              <span className="mt-1 h-3 w-3 shrink-0" aria-hidden="true" />
-              <div className="text-sm">
-                <p className="text-muted-foreground">Total</p>
-                <p className="font-medium tabular-nums text-foreground">{fmt(Math.round(dist.total), 0)} kcal</p>
+            <div className="flex gap-2.5 rounded-lg bg-success-soft/60 px-3 py-2.5">
+              <Flame className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <div>
+                <p className="text-sm text-muted-foreground">Total do plano</p>
+                <p className="text-xl font-bold tabular-nums text-primary">{fmt(Math.round(dist.total), 0)} kcal</p>
               </div>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="flex gap-2 rounded-lg border border-border px-3 py-2.5 text-xs text-muted-foreground">
+            <Info className="mt-px h-4 w-4 shrink-0" aria-hidden="true" />
             Percentuais pelas kcal dos macronutrientes (4 kcal/g para proteínas e carboidratos, 9 kcal/g para lipídios).
           </p>
         </div>

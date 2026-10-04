@@ -1,18 +1,15 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
 import { createClient } from "@/lib/supabase/server";
 import { searchRecipesForPicker } from "@/lib/actions/recipes";
-import { sanitizeRichText } from "@/lib/rich-text-sanitize";
-import { isRichTextEmpty } from "@/lib/rich-text";
 import type { ActionResult } from "@/lib/actions/patients";
 import { medidaUsual } from "@/lib/household-measures";
 import { origemDoAlimento } from "@/lib/nutrition";
 import { medidasPorAlimento } from "@/lib/food-measures-db";
 import type { Food, FoodMeasure } from "@/lib/types/database.types";
 
-export type FiltroBusca = "todos" | "favoritos" | "meus" | "receitas" | "taco" | "usda";
+/** "alimentos" = todas as fontes de alimento, sem receitas (aba "Alimentos" da janela da refeição, Fase 19). */
+export type FiltroBusca = "todos" | "alimentos" | "favoritos" | "meus" | "receitas" | "taco" | "usda";
 
 /** Uma linha da busca da refeição: alimento (valores da porção de referência) ou receita (por porção). */
 export type ResultadoBusca =
@@ -88,13 +85,14 @@ export async function buscarAlimentosRefeicao(termo: string, filtro: FiltroBusca
         return alimentos("usda", LIMITE);
       case "receitas":
         return receitas(LIMITE);
-      case "todos": {
+      case "todos":
+      case "alimentos": {
         // A TACO vem antes da USDA: é a referência brasileira.
         const [meus, taco, usda, recs] = await Promise.all([
           alimentos("meus", 10),
           alimentos("taco", 20),
           alimentos("usda", 10),
-          receitas(5),
+          filtro === "todos" ? receitas(5) : Promise.resolve([]),
         ]);
         const lista = [...meus, ...taco, ...usda, ...recs];
         // Favoritos no topo, mantendo a ordem do resto.
@@ -138,27 +136,5 @@ export async function alternarFavoritoAlimento(foodId: string, favoritar: boolea
         .upsert({ user_id: user.id, food_id: foodId }, { onConflict: "user_id,food_id" })
     : await supabase.from("food_favorites").delete().eq("user_id", user.id).eq("food_id", foodId);
   if (error) return { success: false, message: error.message };
-  return { success: true };
-}
-
-/**
- * Observações da refeição com texto formatado (Fase 17, 4.8; mesmo editor da
- * anamnese, Fase 14). O HTML é limpo aqui no servidor antes de gravar.
- */
-export async function atualizarObservacoesRefeicao(
-  planId: string,
-  mealId: string,
-  html: string,
-): Promise<ActionResult> {
-  if (html.length > 20000) return { success: false, message: "Observação longa demais." };
-  const limpo = sanitizeRichText(html);
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("meals")
-    .update({ observacoes: isRichTextEmpty(limpo) ? null : limpo })
-    .eq("id", mealId)
-    .eq("meal_plan_id", planId);
-  if (error) return { success: false, message: error.message };
-  revalidatePath(`/planos/${planId}`);
   return { success: true };
 }

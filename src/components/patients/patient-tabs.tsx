@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ClipboardList } from "lucide-react";
+import type { ComponentType } from "react";
+import { CalendarDays, ClipboardList, FileText, Mail, MapPin, Phone, Target, User } from "lucide-react";
 
 import type {
   Anamnesis,
@@ -15,7 +16,7 @@ import type {
   PatientConsent,
   PatientPhoto,
 } from "@/lib/types/database.types";
-import { calculateAge, formatDate } from "@/lib/utils";
+import { calculateAge, cn, formatDate, formatTelefone } from "@/lib/utils";
 import { updateSearchParams } from "@/lib/url-state";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,18 +32,9 @@ import { LabExamsPanel } from "@/components/patients/lab-exams-panel";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
 import { PatientPhotosPanel } from "@/components/patients/patient-photos-panel";
 import { PatientFinancePanel, type PatientBillingWithPayments } from "@/components/patients/patient-finance-panel";
+import { GoalMountain } from "@/components/shared/leaf-decoration";
+import { ABA_CLASSE, ABAS_FAIXA_CLASSE, ABAS_PACIENTE } from "@/components/patients/patient-tab-links";
 
-const ABAS = [
-  "informacoes",
-  "anamnese",
-  "avaliacoes",
-  "calculo-energetico",
-  "evolucao-fotografica",
-  "planos",
-  "exames",
-  "financeiro",
-  "consentimentos",
-] as const;
 
 interface PatientTabsProps {
   patient: Patient;
@@ -79,39 +71,80 @@ export function PatientTabs({
   // A aba aberta fica na URL (?aba=planos): voltar de um plano, ou pelo
   // navegador, cai na mesma aba em vez de "Informações gerais".
   const abaNaUrl = useSearchParams().get("aba");
-  const aba = ABAS.find((a) => a === abaNaUrl) ?? "informacoes";
+  const aba = ABAS_PACIENTE.find((a) => a.valor === abaNaUrl)?.valor ?? "informacoes";
 
   return (
     <Tabs value={aba} onValueChange={(value) => updateSearchParams({ aba: value, anamnese: null })}>
-      <TabsList className="h-auto flex-wrap">
-        <TabsTrigger value="informacoes">Informações gerais</TabsTrigger>
-        <TabsTrigger value="anamnese">Anamnese</TabsTrigger>
-        <TabsTrigger value="avaliacoes">Antropometria Geral</TabsTrigger>
-        <TabsTrigger value="calculo-energetico">Cálculo energético</TabsTrigger>
-        <TabsTrigger value="evolucao-fotografica">Evolução Fotográfica</TabsTrigger>
-        <TabsTrigger value="planos">Planos alimentares</TabsTrigger>
-        <TabsTrigger value="exames">Exames</TabsTrigger>
-        <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
-        <TabsTrigger value="consentimentos">Consentimentos</TabsTrigger>
+      <TabsList className={ABAS_FAIXA_CLASSE}>
+        {ABAS_PACIENTE.map((a) => (
+          <TabsTrigger key={a.valor} value={a.valor} className={ABA_CLASSE}>
+            {a.rotulo}
+          </TabsTrigger>
+        ))}
       </TabsList>
 
       <TabsContent value="informacoes">
         <Card>
-          <CardHeader>
-            <CardTitle>Informações gerais</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-            <InfoRow label="Nome completo" value={patient.nome} />
-            <InfoRow label="E-mail" value={patient.email ?? "—"} />
-            <InfoRow label="Telefone" value={patient.telefone ?? "—"} />
-            <InfoRow
-              label="Data de nascimento"
-              value={patient.data_nascimento ? `${formatDate(patient.data_nascimento)} (${age} anos)` : "—"}
+          <CardContent className="space-y-3 p-4 sm:p-5">
+            <SectionTitle
+              icon={User}
+              title="Informações gerais"
+              subtitle="Informações pessoais e de contato do paciente"
             />
-            <InfoRow label="Sexo" value={patient.sexo ? capitalize(patient.sexo) : "—"} />
-            <InfoRow label="Endereço" value={patient.endereco ?? "—"} />
-            <InfoRow label="Objetivo" value={patient.objetivo ?? "—"} full />
-            <InfoRow label="Observações" value={patient.observacoes ?? "—"} full />
+
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+              <InfoTile icon={User} label="Nome completo" value={patient.nome} />
+              <InfoTile icon={Mail} label="E-mail" value={patient.email ?? "—"} />
+              <InfoTile icon={Phone} label="Telefone" value={patient.telefone ? formatTelefone(patient.telefone) : "—"} />
+              <InfoTile
+                icon={CalendarDays}
+                label="Data de nascimento"
+                value={patient.data_nascimento ? `${formatDate(patient.data_nascimento)} (${age} anos)` : "—"}
+              />
+              <InfoTile
+                icon={patient.sexo === "masculino" ? MarsIcon : patient.sexo === "feminino" ? VenusIcon : User}
+                label="Sexo"
+                value={patient.sexo ? capitalize(patient.sexo) : "—"}
+              />
+              <InfoTile icon={MapPin} label="Endereço" value={patient.endereco ?? "—"} />
+            </div>
+
+            <div className="relative overflow-hidden rounded-xl border bg-success-soft/40 px-4 py-3">
+              <GoalMountain className="absolute bottom-0 right-0 h-[100px] w-[265px] max-w-full" />
+              <div className="relative space-y-2">
+                <SectionTitle
+                  icon={Target}
+                  title="Objetivo do paciente"
+                  subtitle="Principal objetivo relacionado ao seu acompanhamento"
+                />
+                <div className="flex items-center gap-2.5 rounded-lg border bg-card/70 px-3 py-2 text-sm sm:ml-12">
+                  <IconTile icon={Target} small />
+                  <p
+                    className={cn(
+                      "min-w-0 whitespace-pre-wrap break-words",
+                      patient.objetivo ? "font-semibold text-foreground" : "text-muted-foreground",
+                    )}
+                  >
+                    {patient.objetivo ?? "Nenhum objetivo cadastrado"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 rounded-xl border px-4 py-3">
+              <SectionTitle icon={FileText} title="Observações" subtitle="Anotações gerais sobre o paciente" />
+              <div className="flex items-start gap-2.5 rounded-lg bg-muted/60 px-3 py-2 text-sm sm:ml-12">
+                <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <p
+                  className={cn(
+                    "min-w-0 whitespace-pre-wrap break-words",
+                    patient.observacoes ? "text-foreground" : "text-muted-foreground",
+                  )}
+                >
+                  {patient.observacoes ?? "Nenhuma observação"}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </TabsContent>
@@ -155,10 +188,7 @@ export function PatientTabs({
 
       <TabsContent value="planos">
         <Card>
-          <CardHeader>
-            <CardTitle>Planos alimentares</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6">
             <MealPlanList
               patientId={patient.id}
               mealPlans={mealPlans}
@@ -183,12 +213,63 @@ export function PatientTabs({
   );
 }
 
-function InfoRow({ label, value, full }: { label: string; value: string; full?: boolean }) {
+type IconComponent = ComponentType<{ className?: string }>;
+
+function IconTile({ icon: Icon, small }: { icon: IconComponent; small?: boolean }) {
   return (
-    <div className={full ? "sm:col-span-2" : undefined}>
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm text-foreground">{value}</p>
+    <span
+      className={cn(
+        "flex shrink-0 items-center justify-center rounded-lg bg-success-soft text-primary",
+        small ? "h-7 w-7" : "h-9 w-9",
+      )}
+    >
+      <Icon className={small ? "h-3.5 w-3.5" : "h-4 w-4"} />
+    </span>
+  );
+}
+
+function SectionTitle({ icon, title, subtitle }: { icon: IconComponent; title: string; subtitle: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <IconTile icon={icon} />
+      <div>
+        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+        <p className="text-xs text-muted-foreground">{subtitle}</p>
+      </div>
     </div>
+  );
+}
+
+function InfoTile({ icon, label, value }: { icon: IconComponent; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-3 rounded-lg border bg-card px-3 py-2">
+      <IconTile icon={icon} />
+      <div className="min-w-0">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="break-words text-sm text-foreground">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+/** Símbolos de masculino/feminino no traço dos ícones lucide (a versão instalada não os tem). */
+function MarsIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden className={className}>
+      <circle cx="10" cy="14" r="6" />
+      <path d="M14.2 9.8 21 3" />
+      <path d="M15 3h6v6" />
+    </svg>
+  );
+}
+
+function VenusIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden className={className}>
+      <circle cx="12" cy="9" r="6" />
+      <path d="M12 15v7" />
+      <path d="M9 19h6" />
+    </svg>
   );
 }
 

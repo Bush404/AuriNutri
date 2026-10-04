@@ -594,6 +594,38 @@ Agenda refeita (02/10/2026, publicada, E2E 18/18; + Confirmar/Cancelar no painel
 do mês em pílulas, painel lateral com o dia selecionado + detalhes da consulta (Ficha/Editar/Remarcar);
 clicar no dia seleciona (não cria mais consulta); semana começa na segunda (getWeekDays); a janela
 "dia" (day-detail-dialog) foi substituída pelo painel.
+Perfil do paciente refeito (04/10/2026, local): cabeçalho (avatar 96px + bolinha ativo/inativo via
+`patients.ativo`, idade e objetivo, folhas ProfileLeaves), "Editar dados" como botão principal, "Enviar"
+sem menu (abre a Central de Envio), abas em faixa branca com sublinhado (classes só no PatientTabs, o
+`ui/tabs` global não mudou), Informações gerais em cartões com ícone, `formatTelefone` em src/lib/utils.ts
+(só exibição, com testes), Objetivo com montanha (GoalMountain) e Observações. Conteúdo das demais abas
+espera a referência de cada uma. Aba Planos alimentares (MealPlanList) no layout de referência: título + "Novo
+plano" na mesma linha, ícone por plano, etiqueta Ativo em pílula com bolinha, divisória e ações maiores.
+Tela do plano (/planos/[id]) no layout de referência: cabeçalho do paciente virou componente compartilhado
+(PatientProfileHeader, também na ficha) e as abas viraram PatientTabLinks (links com ?aba=); ações do plano
+no topo (MealPlanActions, secundárias num menu "..."), título do plano (MealPlanTitle) com kcal, kcal/kg e
+status; refeição (MealCard) em linha larga clicável com ícone pelo nome, chips de macro e seta (rótulo
+"Abrir <refeição>" mantém o E2E); análise de nutrientes "do plano" com diferenças em verde/vermelho suaves.
+Nome e horário da refeição editáveis na própria linha (inputs + useAutoSave, 800 ms; horário só salva
+completo ou ao sair do campo; nome em branco volta ao último salvo; Enter confirma, Esc desfaz); a janela
+"Editar refeição" (lápis) saiu por ficar redundante. E2E lê os nomes pelos campos (nomesDasRefeicoes).
+Nada de cálculo, banco ou ação mudou. "Ajustes rápidos" do mockup não existe e não foi criado.
+Janela "Editar refeição" (04/10/2026, local; E2E 19/19): clicar na refeição abre MealEditorDialog (busca
+MealEditorSearch, linhas MealEditorItem com substitutos em acordeão, MealEditorSummary com rosca). Decisão do
+usuário: salvar só no botão. Rascunho puro em src/lib/meal-draft.ts (com testes); salvarRefeicao
+(src/lib/actions/meal-editor.ts) grava tudo de uma vez — cada linha diz a fonte da cópia nutricional
+(linha gravada, outra linha da refeição após "usar este", alimento ou receita) e o servidor copia de lá;
+itens tirados seguem em soft delete; substitutos tirados são apagados. Sem migration. Aviso de saída
+reaproveita useUnsavedChangesWarning. Ações por item antigas (meal-items.ts, meal-item-substitutions.ts,
+atualizarObservacoesRefeicao) e a tela antiga (MealFoodSearch, MealItemRow/Card, dialog de substitutos)
+foram removidas; sugestões rápidas ficaram em src/lib/substitution-suggestions.ts. Busca ganhou o filtro
+"alimentos" (todas as fontes, sem receitas). FoodThumb aceita imagem opcional (hoje nenhum alimento tem). Depois do teste do usuário: resultados voltaram a ser lista (estrela, nome+origem,
+qtd., PTN/LIP/CHO, kcal, +) e a busca de substituto usa a mesma lista com Todos/TACO/USDA/Meus alimentos
+(o FoodCombobox antigo cortava em 8 globais em ordem alfabética e escondia a USDA).
+Gravação atômica (pedido do usuário, 04/10): migration 0049 cria a função salvar_refeicao (security
+invoker — RLS vale; lixeira via soft_delete_meal_item): refeição, substitutos tirados, itens tirados e itens +
+substitutos numa transação só. test-security-isolation-full ganhou 3 checagens (B não salva a refeição de A;
+A salva; erro no meio desfaz tudo). 0049 aplicada em 04/10; isolamento 114/114 e E2E 19/19.
 
 **Por que no fim:** as telas de antropometria, cálculo energético e plano alimentar vão ser refeitas
 nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design fecha o Roadmap 2

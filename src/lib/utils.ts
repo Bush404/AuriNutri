@@ -50,6 +50,20 @@ export function getInitials(name: string) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+/**
+ * Formata um telefone brasileiro só para exibição: "(11) 99899-7906" / "(11) 3456-7890".
+ * Aceita com ou sem DDI 55. Qualquer outro formato volta como foi digitado.
+ */
+export function formatTelefone(telefone: string) {
+  let digitos = telefone.replace(/\D/g, "");
+  if ((digitos.length === 12 || digitos.length === 13) && digitos.startsWith("55")) {
+    digitos = digitos.slice(2);
+  }
+  if (digitos.length === 11) return `(${digitos.slice(0, 2)}) ${digitos.slice(2, 7)}-${digitos.slice(7)}`;
+  if (digitos.length === 10) return `(${digitos.slice(0, 2)}) ${digitos.slice(2, 6)}-${digitos.slice(6)}`;
+  return telefone;
+}
+
 /** Classifica o IMC segundo as faixas padrão da OMS (uso informativo). */
 export function classifyBMI(imc: number) {
   if (imc < 18.5) return { label: "Abaixo do peso", tone: "warning" as const };

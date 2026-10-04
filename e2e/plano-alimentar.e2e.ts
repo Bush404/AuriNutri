@@ -1,7 +1,16 @@
 import { expect, test } from "@playwright/test";
 
 import { STORAGE_STATE } from "./env";
-import { adicionarAlimentoNaRefeicao, adicionarRefeicao, criarPaciente, criarPlano, unico } from "./helpers";
+import {
+  adicionarAlimentoNaRefeicao,
+  adicionarRefeicao,
+  criarPaciente,
+  criarPlano,
+  escaparRegex,
+  janelaDaRefeicao,
+  salvarRefeicao,
+  unico,
+} from "./helpers";
 
 test.use({ storageState: STORAGE_STATE });
 
@@ -13,21 +22,25 @@ test("cadastrar paciente, criar plano, adicionar refeição e alimento TACO", as
   await adicionarRefeicao(page);
   const nome = await adicionarAlimentoNaRefeicao(page, "arroz", /arroz/i, 100);
 
-  // Substitutos (Fase 17, Bloco E): sugestão rápida do mesmo grupo, depois "inverter".
-  await page
-    .getByRole("button", { name: `Substitutos de ${nome}` })
-    .filter({ visible: true })
-    .click();
-  const janela = page.getByRole("dialog", { name: `Substitutos de ${nome}` });
-  const sugestao = janela.getByTitle("Adicionar como substituto").first();
+  // Substitutos (Fase 17, Bloco E; na janela da refeição desde a Fase 19): sugestão rápida, depois "usar este".
+  await page.getByRole("button", { name: /^Abrir/ }).last().click();
+  const janela = janelaDaRefeicao(page);
+  await janela.getByRole("button", { name: `Substitutos de ${nome}` }).click();
+  const painel = janela.getByRole("region", { name: `Substitutos de ${nome}` });
+  const sugestao = painel.getByTitle("Adicionar como substituto").first();
   await expect(sugestao).toBeVisible();
   const nomeSubstituto = ((await sugestao.innerText()).split(" — ")[0] ?? "").trim();
   await sugestao.click();
-  const inverter = janela.getByRole("button", { name: `Inverter: ${nomeSubstituto} vira o alimento do plano` });
-  await expect(inverter).toBeVisible();
-  await inverter.click();
-  await expect(page.getByRole("dialog", { name: `Substitutos de ${nomeSubstituto}` })).toBeVisible();
-  await expect(page.getByRole("dialog")).toContainText(nome);
+  const usar = painel.getByRole("button", { name: `Usar este: ${nomeSubstituto} vira o alimento do plano` });
+  await expect(usar).toBeVisible();
+  await usar.click();
+  await expect(janela.getByRole("region", { name: `Substitutos de ${nomeSubstituto}` })).toContainText(nome);
+  await salvarRefeicao(page);
+
+  // Gravado de verdade: reabrindo, o substituto é o alimento e o original virou substituto.
+  await page.getByRole("button", { name: /^Abrir/ }).last().click();
+  await janela.getByRole("button", { name: `Substitutos de ${nomeSubstituto}` }).click();
+  await expect(janela.getByRole("region", { name: `Substitutos de ${nomeSubstituto}` })).toContainText(nome);
 });
 
 // Fase 18: alimento da USDA pelo filtro próprio, com o selo da fonte no item.
@@ -35,9 +48,12 @@ test("filtrar pela USDA e adicionar um alimento da USDA na refeição", async ({
   const paciente = await criarPaciente(page);
   await criarPlano(page, paciente.id);
   await adicionarRefeicao(page);
-  await page.getByRole("radio", { name: "USDA" }).click();
-  const nome = await adicionarAlimentoNaRefeicao(page, "quinoa", /Quinoa, cozida/, 100);
-  const item = page.locator("div, tr", { hasText: nome }).filter({ visible: true }).last();
+  const janela = janelaDaRefeicao(page);
+  await janela.getByRole("radio", { name: "USDA" }).click();
+  const nome = await adicionarAlimentoNaRefeicao(page, "quinoa", /Quinoa, cozida/, 100, { salvar: false });
+  const item = janela
+    .getByRole("listitem")
+    .filter({ has: page.getByLabel(new RegExp(`^Quantidade de ${escaparRegex(nome)} \\(`)) });
   await expect(item.getByText("USDA", { exact: true })).toBeVisible();
 });
 
@@ -72,17 +88,20 @@ test("criar alimento próprio, montar plano, conferir macros e gerar PDF", async
   await expect(totais).toContainText("Lipídios: 7,5 g");
 
   // Medida caseira própria (Fase 17, Bloco D): "pote" de 50 g; 3 potes = 150 g, mesmos totais.
-  await page.getByLabel(`Unidade de ${nomeAlimento}`).filter({ visible: true }).selectOption("__gerenciar");
+  await page.getByRole("button", { name: /^Abrir/ }).last().click();
+  const janela = janelaDaRefeicao(page);
+  await janela.getByLabel(`Unidade de ${nomeAlimento}`).selectOption("__gerenciar");
   const medidas = page.getByRole("dialog", { name: "Medidas caseiras" });
   await medidas.getByLabel("Nome").fill("pote E2E");
   await medidas.getByLabel("Gramas").fill("50");
   await medidas.getByRole("button", { name: "Criar" }).click();
   await expect(medidas).toBeHidden();
-  await expect(totais).toContainText("Calorias: 100 kcal");
-  const potes = page.getByLabel(`Quantidade de ${nomeAlimento} (medidas)`).filter({ visible: true });
+  const potes = janela.getByLabel(`Quantidade de ${nomeAlimento} (medidas)`);
+  await expect(potes).toHaveValue("1");
   await potes.fill("3");
   await potes.press("Tab");
-  await expect(page.getByText("= 150 g")).toBeVisible();
+  await expect(janela.getByText("= 150 g")).toBeVisible();
+  await salvarRefeicao(page);
   await expect(totais).toContainText("Calorias: 300 kcal");
 
   // "Baixar PDF" abre as opções (Fase 17, Bloco F); conferimos o PDF simples e o completo.

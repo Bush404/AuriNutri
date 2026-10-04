@@ -6,96 +6,16 @@ import { toast } from "sonner";
 
 import { criarMedidaCaseira, excluirMedidaCaseira } from "@/lib/actions/food-measures";
 import type { FoodMeasure } from "@/lib/types/database.types";
-import { UNIDADE_ATUAL, UNIDADE_GRAMAS, type useMealItemEditor } from "@/components/meal-plans/use-meal-item-editor";
-import type { MealItemWithSubstitutions } from "@/components/meal-plans/use-meal-item-editor";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-const GERENCIAR = "__gerenciar";
 const fmtG = (g: number) => g.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
 
-type Editor = ReturnType<typeof useMealItemEditor>;
-
-/**
- * Quantidade de um item: número + unidade (gramas ou medida caseira do IBGE /
- * do profissional) — Fase 17, Bloco D. Itens de receita seguem em porções.
- * Usado pela linha da tabela e pelo cartão do celular.
- */
-export function MealItemQuantity({
-  planId,
-  item,
-  editor,
-}: {
-  planId: string;
-  item: MealItemWithSubstitutions;
-  editor: Editor;
-}) {
-  const { isReceita, quantidade, setQuantidade, unidade, setUnidade, medidas, gramas, isPending, handleBlur } = editor;
-  const [gerenciando, setGerenciando] = useState(false);
-  const emMedida = !isReceita && unidade !== UNIDADE_GRAMAS;
-
-  return (
-    <div className="flex flex-wrap items-center gap-1">
-      <Input
-        value={quantidade}
-        onChange={(e) => setQuantidade(e.target.value)}
-        onBlur={handleBlur}
-        type="number"
-        step={isReceita || emMedida ? "0.5" : "0.1"}
-        className="h-8 w-16"
-        aria-label={`Quantidade de ${item.nome_alimento} (${isReceita ? "porções" : emMedida ? "medidas" : "g"})`}
-        disabled={isPending}
-      />
-      {isReceita ? (
-        <span className="text-xs text-muted-foreground">porção(ões)</span>
-      ) : (
-        <>
-          <select
-            value={unidade}
-            disabled={isPending}
-            aria-label={`Unidade de ${item.nome_alimento}`}
-            className="h-8 max-w-44 rounded-md border border-input bg-card px-1.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            onChange={(e) => {
-              if (e.target.value === GERENCIAR) setGerenciando(true);
-              else setUnidade(e.target.value);
-            }}
-          >
-            <option value={UNIDADE_GRAMAS}>g</option>
-            {unidade === UNIDADE_ATUAL && item.medida_nome && (
-              <option value={UNIDADE_ATUAL}>
-                {item.medida_nome} ({fmtG(Number(item.medida_gramas))} g)
-              </option>
-            )}
-            {medidas.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.nome} ({fmtG(Number(m.gramas))} g)
-              </option>
-            ))}
-            {item.food_id && <option value={GERENCIAR}>+ Criar ou excluir medida…</option>}
-          </select>
-          {emMedida && <span className="text-xs tabular-nums text-muted-foreground">= {fmtG(gramas)} g</span>}
-          {item.food_id && (
-            <MedidasDialog
-              open={gerenciando}
-              onOpenChange={setGerenciando}
-              planId={planId}
-              foodId={item.food_id}
-              nomeAlimento={item.nome_alimento}
-              medidas={medidas}
-              onCriada={(m) => setUnidade(m.id, Number(m.gramas))}
-            />
-          )}
-        </>
-      )}
-    </div>
-  );
-}
-
 /** Lista as medidas do alimento e deixa criar/excluir as próprias (as do IBGE são só de leitura). */
-function MedidasDialog({
+export function MedidasDialog({
   open,
   onOpenChange,
   planId,
@@ -103,6 +23,7 @@ function MedidasDialog({
   nomeAlimento,
   medidas,
   onCriada,
+  onExcluida,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -111,6 +32,7 @@ function MedidasDialog({
   nomeAlimento: string;
   medidas: FoodMeasure[];
   onCriada: (m: FoodMeasure) => void;
+  onExcluida?: (medidaId: string) => void;
 }) {
   const [nome, setNome] = useState("");
   const [gramas, setGramas] = useState("");
@@ -142,6 +64,7 @@ function MedidasDialog({
         return;
       }
       setExcluidas((x) => [...x, m.id]);
+      onExcluida?.(m.id);
     });
   }
 

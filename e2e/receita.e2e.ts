@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { STORAGE_STATE } from "./env";
-import { adicionarRefeicao, criarPaciente, criarPlano, escolherAlimento, textoVisivel, unico } from "./helpers";
+import { adicionarRefeicao, criarPaciente, criarPlano, escolherAlimento, janelaDaRefeicao, salvarRefeicao, textoVisivel, unico } from "./helpers";
 
 test.use({ storageState: STORAGE_STATE });
 
@@ -36,10 +36,13 @@ test("criar receita e usá-la num plano alimentar", async ({ page }) => {
   const paciente = await criarPaciente(page);
   await criarPlano(page, paciente.id);
   await adicionarRefeicao(page, "Almoço");
-  // Busca da refeição (Fase 17): filtro Receitas, clicar no nome entra com 1 porção.
-  await page.getByRole("radio", { name: "Receitas" }).click();
-  await page.getByLabel("Buscar alimentos").fill(nomeReceita);
-  await page.getByRole("row").filter({ hasText: nomeReceita }).getByTitle("Adicionar à refeição").first().click();
-  await expect(page.getByLabel(`Quantidade de ${nomeReceita} (porções)`).filter({ visible: true })).toHaveValue("1");
+  // Janela da refeição (Fase 19): aba "Minhas receitas"; "Adicionar" entra com 1 porção.
+  const janela = janelaDaRefeicao(page);
+  await janela.getByRole("tab", { name: "Minhas receitas" }).click();
+  await janela.getByLabel("Buscar alimentos").fill(nomeReceita);
+  await janela.getByRole("listitem").filter({ hasText: nomeReceita }).getByTitle("Adicionar à refeição").first().click();
+  await expect(janela.getByLabel(`Quantidade de ${nomeReceita} (porções)`)).toHaveValue("1");
+  await salvarRefeicao(page);
+  await page.getByRole("button", { name: /^Abrir/ }).last().click();
   await expect(textoVisivel(page, nomeReceita)).toBeVisible();
 });

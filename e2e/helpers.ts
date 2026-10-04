@@ -20,7 +20,7 @@ export function adminClient() {
  * Várias telas renderizam tabela (desktop) e cartões (celular) com o mesmo
  * conteúdo; só um fica visível. Este localizador ignora a cópia escondida.
  */
-const escaparRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+export const escaparRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export function textoVisivel(page: Page, texto: string | RegExp) {
   return page.getByText(texto, { exact: typeof texto === "string" }).filter({ visible: true }).first();
@@ -45,14 +45,21 @@ export async function criarPlano(page: Page, patientId: string, nome = "Plano E2
   return page.url().split("/").pop()!;
 }
 
+/** Nomes das refeições do plano: ficam em campos editáveis na linha (Fase 19), não em texto solto. */
+export async function nomesDasRefeicoes(page: Page) {
+  return page
+    .getByRole("textbox", { name: "Nome da refeição" })
+    .evaluateAll((campos) => campos.map((c) => (c as HTMLInputElement).value));
+}
+
 export async function adicionarRefeicao(page: Page, nome = "Café da manhã") {
   await page.getByRole("button", { name: "Adicionar refeição" }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Nome da refeição").fill(nome);
   await dialog.locator('button[type="submit"]').click();
   await expect(dialog).toBeHidden();
-  await expect(page.getByText(nome).first()).toBeVisible();
-  // A refeição nova aparece fechada (linha compacta, Fase 17): abre para adicionar alimentos.
+  await expect.poll(() => nomesDasRefeicoes(page)).toContain(nome);
+  // A refeição nova aparece na lista; abrir leva à janela "Editar refeição" (Fase 19).
   await page.getByRole("button", { name: /^Abrir/ }).last().click();
 }
 
@@ -66,25 +73,49 @@ export async function escolherAlimento(page: Page, busca: string, nomeOpcao: str
   return nome;
 }
 
+/** Janela "Editar refeição" (Fase 19). */
+export function janelaDaRefeicao(page: Page) {
+  return page.getByRole("dialog", { name: "Editar refeição" });
+}
+
+/** "Salvar alterações" da janela da refeição: só aí a refeição é gravada. */
+export async function salvarRefeicao(page: Page) {
+  const janela = janelaDaRefeicao(page);
+  await janela.getByRole("button", { name: "Salvar alterações" }).click();
+  await expect(janela).toBeHidden();
+}
+
 /**
- * Busca na refeição aberta (Fase 17, Bloco C), clica no nome (entra na porção de
- * referência) e ajusta a quantidade em gramas na linha do alimento.
+ * Na janela da refeição aberta: busca, clica em "Adicionar" (entra na medida
+ * usual ou na porção de referência), ajusta a quantidade em gramas e, por
+ * padrão, salva a refeição.
  */
-export async function adicionarAlimentoNaRefeicao(page: Page, busca: string, nomeOpcao: string | RegExp, gramas: number) {
-  await page.getByLabel("Buscar alimentos").fill(busca);
-  const resultado = page.getByRole("row").filter({ hasText: nomeOpcao }).getByTitle("Adicionar à refeição").first();
+export async function adicionarAlimentoNaRefeicao(
+  page: Page,
+  busca: string,
+  nomeOpcao: string | RegExp,
+  gramas: number,
+  { salvar = true }: { salvar?: boolean } = {},
+) {
+  const janela = janelaDaRefeicao(page);
+  await janela.getByLabel("Buscar alimentos").fill(busca);
+  const resultado = janela
+    .getByRole("list", { name: "Resultados" })
+    .getByRole("listitem")
+    .filter({ hasText: nomeOpcao })
+    .first();
   await expect(resultado).toBeVisible();
-  const nome = (await resultado.innerText()).trim();
-  await resultado.click();
+  const nome = (await resultado.locator("p").first().innerText()).trim();
+  await resultado.getByTitle("Adicionar à refeição").click();
   // Alimento com medida caseira (Fase 17, Bloco D) entra em "1 medida"; o teste trabalha em gramas.
-  await expect(page.getByLabel(new RegExp(`^Quantidade de ${escaparRegex(nome)} \\(`)).filter({ visible: true })).toBeVisible();
-  const unidade = page.getByLabel(`Unidade de ${nome}`).filter({ visible: true });
+  await expect(janela.getByLabel(new RegExp(`^Quantidade de ${escaparRegex(nome)} \\(`))).toBeVisible();
+  const unidade = janela.getByLabel(`Unidade de ${nome}`);
   if ((await unidade.count()) > 0 && (await unidade.inputValue()) !== "g") await unidade.selectOption("g");
-  const quantidade = page.getByLabel(`Quantidade de ${nome} (g)`).filter({ visible: true });
+  const quantidade = janela.getByLabel(`Quantidade de ${nome} (g)`);
   await expect(quantidade).toBeVisible();
   await quantidade.fill(String(gramas));
   await quantidade.press("Tab");
-  await expect(textoVisivel(page, nome)).toBeVisible();
+  if (salvar) await salvarRefeicao(page);
   return nome;
 }
 

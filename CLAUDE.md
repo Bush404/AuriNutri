@@ -81,7 +81,7 @@ domain types (`Patient`, `Food`, `MealPlan`, ...) are applied explicitly per-que
 ### Server Actions, not API routes
 
 Data mutations live in `src/lib/actions/*.ts` (`"use server"`), one file per domain area
-(`patients`, `clinical`, `foods`, `meal-plans`, `meals`, `meal-items`). Each action: parses
+(`patients`, `clinical`, `foods`, `meal-plans`, `meals`, `meal-editor`, ...). Each action: parses
 input with a Zod schema from `src/lib/validations/`, gets the Supabase server client, checks
 `auth.getUser()` where the row needs an explicit `user_id`, does the query, then
 `revalidatePath(...)` the affected routes and either `redirect()` or return an `ActionResult`
@@ -106,7 +106,10 @@ math in `src/lib/nutrition.ts` (`calculateMealItemMacros`, `calculateMealTotals`
 `calculatePlanTotals`) operates on this snapshot, never on a live join to `foods`. This is
 deliberate: editing or deleting a food must never change a meal plan that already used it. When
 touching meal-item creation, always copy the food's current values in; never read them back out
-live.
+live. Since Phase 19 the meal editor is a draft (`src/lib/meal-draft.ts`) saved in one go by
+`salvarRefeicao` (`src/lib/actions/meal-editor.ts`): each line says where its snapshot comes from
+(the saved row, another row of the same meal, or a food/recipe) and the server takes the copy
+from there — never from numbers sent by the browser. Removed items are still soft-deleted.
 
 `valores_especiais` (a `{column: reason}` map) preserves *why* a nutrient is null — `"traco"`
 (trace amount), `"nao_analisado"` (not analyzed), or `"nao_informado"` (not reported) — sourced
