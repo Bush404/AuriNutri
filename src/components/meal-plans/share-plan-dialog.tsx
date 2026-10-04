@@ -60,7 +60,9 @@ export function SharePlanDialog({ planId, planNome, patientNome, patientTelefone
   function getWhatsAppHref() {
     if (!activeLink) return "#";
     const url = activeLink.token
-      ? `${window.location.origin}/compartilhado/${activeLink.token}`
+      ? // Mesma origem dos outros links de compartilhamento (plan-share.ts); `window` não existe
+        // quando a página é montada no servidor.
+        `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/compartilhado/${activeLink.token}`
       : activeLink.signed_url;
     const mensagem = `Olá, ${patientNome}! Segue o link do seu plano alimentar "${planNome}": ${url}`;
     return buildWhatsAppUrl(patientTelefone, mensagem);

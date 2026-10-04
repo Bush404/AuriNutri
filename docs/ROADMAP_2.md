@@ -623,6 +623,9 @@ foram removidas; sugestões rápidas ficaram em src/lib/substitution-suggestions
 qtd., PTN/LIP/CHO, kcal, +) e a busca de substituto usa a mesma lista com Todos/TACO/USDA/Meus alimentos
 (o FoodCombobox antigo cortava em 8 globais em ordem alfabética e escondia a USDA). Busca de ingredientes
 da receita (FoodCombobox) corrigida também: grupos Meus/TACO/USDA com vagas próprias e filtro de fonte.
+Aba Cálculo energético (EnergyCalculationsPanel) no layout de referência (04/10/2026); "Total ainda não
+calculado" no lugar de "Total de não calculado". SharePlanDialog usava window.location na renderização
+no servidor (erro "window is not defined" em plano com link ativo): agora usa NEXT_PUBLIC_SITE_URL, como plan-share.ts.
 Gravação atômica (pedido do usuário, 04/10): migration 0049 cria a função salvar_refeicao (security
 invoker — RLS vale; lixeira via soft_delete_meal_item): refeição, substitutos tirados, itens tirados e itens +
 substitutos numa transação só. test-security-isolation-full ganhou 3 checagens (B não salva a refeição de A;
