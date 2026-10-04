@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 import { kcalDoPlano, ordenarPlanos } from "@/lib/meal-planning";
@@ -20,11 +18,9 @@ import { getSendCenterContext } from "@/lib/actions/patient-send";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
 import type { PatientBillingWithPayments } from "@/components/patients/patient-finance-panel";
 
-import { Button } from "@/components/ui/button";
 import { PatientTabs } from "@/components/patients/patient-tabs";
-import { ExportPatientButton } from "@/components/patients/export-patient-button";
-import { PatientSendDialog } from "@/components/patients/patient-send-dialog";
 import { PatientProfileHeader } from "@/components/patients/patient-profile-header";
+import { PatientHeaderActions } from "@/components/patients/patient-header-actions";
 
 type PlanoComItens = MealPlan & {
   meals: { meal_items: { quantidade_g: number; porcao_referencia_g: number; calorias_kcal: number }[] }[];
@@ -126,32 +122,7 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
       <PatientProfileHeader
         patient={patient}
         voltar={{ href: "/pacientes", rotulo: "Voltar para pacientes" }}
-        acoes={
-          <>
-            <PatientSendDialog
-              patientId={patient.id}
-              patientNome={patient.nome}
-              patientTelefone={patient.telefone}
-              context={
-                sendCenterContext ?? {
-                  profissionalNome: "",
-                  planoAtivo: null,
-                  planoShareLinks: [],
-                  avaliacoes: [],
-                  proximaConsulta: null,
-                  pagamentosRecebidos: [],
-                }
-              }
-            />
-            <ExportPatientButton patientId={patient.id} patientName={patient.nome} />
-            <Button asChild>
-              <Link href={`/pacientes/${patient.id}/editar`}>
-                <Pencil className="h-4 w-4" />
-                Editar dados
-              </Link>
-            </Button>
-          </>
-        }
+        acoes={<PatientHeaderActions patient={patient} sendCenterContext={sendCenterContext} />}
       />
 
       <PatientTabs

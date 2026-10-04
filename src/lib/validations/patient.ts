@@ -13,10 +13,14 @@ export const optionalText = () =>
  * "não informado" ANTES de coagir para number, evitando que "" vire 0 e quebre
  * a validação de .positive() em campos opcionais.
  */
+/** Número opcional > 0; aceita vírgula decimal ("64,3"), como o profissional digita. */
 export const optionalPositiveNumber = () =>
   z.preprocess(
-    (val) => (val === "" || val === undefined || val === null ? undefined : val),
-    z.coerce.number().positive("Deve ser maior que zero").optional()
+    (val) => {
+      if (val === "" || val === undefined || val === null) return undefined;
+      return typeof val === "string" ? val.trim().replace(",", ".") : val;
+    },
+    z.coerce.number({ invalid_type_error: "Informe um número válido" }).positive("Deve ser maior que zero").optional()
   );
 
 export const patientSchema = z.object({

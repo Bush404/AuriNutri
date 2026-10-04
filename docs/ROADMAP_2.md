@@ -626,6 +626,11 @@ da receita (FoodCombobox) corrigida também: grupos Meus/TACO/USDA com vagas pr�
 Aba Cálculo energético (EnergyCalculationsPanel) no layout de referência (04/10/2026); "Total ainda não
 calculado" no lugar de "Total de não calculado". SharePlanDialog usava window.location na renderização
 no servidor (erro "window is not defined" em plano com link ativo): agora usa NEXT_PUBLIC_SITE_URL, como plan-share.ts.
+Tela do cálculo (EnergyCalculationForm + página /calculos/[id]) no layout de referência: PatientProfileHeader +
+PatientHeaderActions (Enviar/Exportar/Editar, agora compartilhado com a ficha) + PatientTabLinks; PassoAPasso com
+as mesmas partes da Composicao; "⋮" com Duplicar/Excluir (ações existentes). Bug corrigido: optionalPositiveNumber
+(validations/patient.ts) não aceitava vírgula — "64,3" virava NaN, erro em inglês e o autosave falhava; agora
+aceita vírgula e responde "Informe um número válido" (com testes). Vale para antropometria, paciente e plano.
 Gravação atômica (pedido do usuário, 04/10): migration 0049 cria a função salvar_refeicao (security
 invoker — RLS vale; lixeira via soft_delete_meal_item): refeição, substitutos tirados, itens tirados e itens +
 substitutos numa transação só. test-security-isolation-full ganhou 3 checagens (B não salva a refeição de A;
