@@ -594,7 +594,7 @@ Agenda refeita (02/10/2026, publicada, E2E 18/18; + Confirmar/Cancelar no painel
 do mês em pílulas, painel lateral com o dia selecionado + detalhes da consulta (Ficha/Editar/Remarcar);
 clicar no dia seleciona (não cria mais consulta); semana começa na segunda (getWeekDays); a janela
 "dia" (day-detail-dialog) foi substituída pelo painel.
-Perfil do paciente refeito (04/10/2026, local): cabeçalho (avatar 96px + bolinha ativo/inativo via
+Perfil do paciente refeito (04/10/2026, publicado 65639e1): cabeçalho (avatar 96px + bolinha ativo/inativo via
 `patients.ativo`, idade e objetivo, folhas ProfileLeaves), "Editar dados" como botão principal, "Enviar"
 sem menu (abre a Central de Envio), abas em faixa branca com sublinhado (classes só no PatientTabs, o
 `ui/tabs` global não mudou), Informações gerais em cartões com ícone, `formatTelefone` em src/lib/utils.ts
@@ -610,7 +610,7 @@ Nome e horário da refeição editáveis na própria linha (inputs + useAutoSave
 completo ou ao sair do campo; nome em branco volta ao último salvo; Enter confirma, Esc desfaz); a janela
 "Editar refeição" (lápis) saiu por ficar redundante. E2E lê os nomes pelos campos (nomesDasRefeicoes).
 Nada de cálculo, banco ou ação mudou. "Ajustes rápidos" do mockup não existe e não foi criado.
-Janela "Editar refeição" (04/10/2026, local; E2E 19/19): clicar na refeição abre MealEditorDialog (busca
+Janela "Editar refeição" (04/10/2026, publicada 65639e1; E2E 19/19): clicar na refeição abre MealEditorDialog (busca
 MealEditorSearch, linhas MealEditorItem com substitutos em acordeão, MealEditorSummary com rosca). Decisão do
 usuário: salvar só no botão. Rascunho puro em src/lib/meal-draft.ts (com testes); salvarRefeicao
 (src/lib/actions/meal-editor.ts) grava tudo de uma vez — cada linha diz a fonte da cópia nutricional
