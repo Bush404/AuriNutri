@@ -657,6 +657,16 @@ nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design 
 - **TACO com valores zerados:** ex. "Leite, de vaca, integral" todo em 0. Pente fino na importação da
   TACO (scripts/import-taco) e conferência de todos os alimentos.
 
+## Ideias anotadas (ainda sem fase)
+
+- **Busca de alimentos com sinônimos** (anotada em 04/10/2026): quem digita "goma de tapioca" também
+  vê "Fécula, de mandioca"; "aipim"/"macaxeira" trazem "Mandioca"; "mussarela"/"muçarela" trazem
+  "mozarela". Motivo: o usuário não achou tapioca — a TACO não tem goma de tapioca (só "Tapioca, com
+  manteiga" e "Fécula, de mandioca"), a USDA só "Tapioca, pérola, seca". Seria uma lista de sinônimos
+  própria, curada (nunca tradução automática), usada por `buscarAlimentosRefeicao` e pelo seletor de
+  ingredientes. Função nova: decidir a fase antes de fazer. Até lá, a saída é cadastrar o alimento em
+  "Meus alimentos"; a TBCA (Fase 18) deve trazer mais preparações brasileiras.
+
 ## Decisões pendentes
 
 | # | Decisão | Bloqueia | Quem decide |
