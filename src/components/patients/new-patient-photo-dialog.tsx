@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { patientPhotoSchema, type PatientPhotoInput, PATIENT_PHOTO_ACCEPTED_EXTENSIONS } from "@/lib/validations/patient-photo";
 import { uploadPatientPhoto } from "@/lib/actions/patient-photos";
+import { TIPO_FOTO_LABELS, TIPOS_FOTO_NOVOS } from "@/lib/patient-photos";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,7 +88,7 @@ export function NewPatientPhotoDialog({ patientId }: { patientId: string }) {
       }}
     >
       <DialogTrigger asChild>
-        <Button size="sm">
+        <Button>
           <Plus className="h-4 w-4" />
           Nova foto
         </Button>
@@ -116,9 +117,11 @@ export function NewPatientPhotoDialog({ patientId }: { patientId: string }) {
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="frente">Frente</SelectItem>
-                      <SelectItem value="perfil">Perfil</SelectItem>
-                      <SelectItem value="costas">Costas</SelectItem>
+                      {TIPOS_FOTO_NOVOS.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {TIPO_FOTO_LABELS[t]}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}

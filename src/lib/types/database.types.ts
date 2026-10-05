@@ -58,7 +58,8 @@ export interface PatientConsent {
 }
 
 /** Ângulo da foto de evolução — usado para comparar duas datas do MESMO ângulo. */
-export type TipoFotoEvolucao = "frente" | "perfil" | "costas";
+/** perfil: só fotos antigas (antes da migration 0050), sem lado — o envio não oferece mais. */
+export type TipoFotoEvolucao = "frente" | "direita" | "esquerda" | "costas" | "perfil";
 
 export interface PatientPhoto {
   id: string;

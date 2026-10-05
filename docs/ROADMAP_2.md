@@ -658,6 +658,14 @@ pedido; dobras primeiro, bioimpedância com a origem escrita), "% de gordura de 
 linhas leves com unidade em coluna e selo embaixo do rótulo, bloco "Análises por bioimpedância" próprio e SEMPRE
 visível na ordem do WebDiet (pedido do usuário). Nenhum campo, cálculo ou salvamento mudou. **Falta: avaliação de
 crianças (ChildAssessmentForm) no mesmo visual — pedido de 05/10/2026, espera referência própria.**
+Aba Evolução Fotográfica (05/10/2026, local, aguardando teste): filtros por ângulo e ordem (só na tela), cartões em
+grade com miniatura NEUTRA (nunca a foto: carregar geraria link e auditoria sem pedido), Visualizar/Excluir como
+antes; após o teste, a comparação virou a JANELA "Comparar fotos" (botão no cabeçalho): abrir = pedir para ver, já
+carrega A = penúltima e B = mais recente do ângulo; trocar data busca só a foto nova; ↔ troca
+os lados sem buscar de novo; data em cima da foto (não por cima); fechar esquece os links; link vencido tem "Carregar de
+novo". Regras em `src/lib/patient-photos.ts` (+3 testes). Ângulos
+"À direita" e "À esquerda" no lugar de "Perfil" (pedido do usuário): **migration 0050, aplicada 05/10** (check aceita direita/esquerda;
+"perfil" continua para as fotos antigas, que não dizem o lado — não convertidas; o envio não oferece mais).
 
 **Por que no fim:** as telas de antropometria, cálculo energético e plano alimentar vão ser refeitas
 nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design fecha o Roadmap 2

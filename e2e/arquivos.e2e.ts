@@ -18,7 +18,8 @@ test("consentimento → foto de evolução e exame em PDF enviados ao Storage", 
   await page.getByRole("tab", { name: "Evolução Fotográfica" }).click();
   await page.getByRole("button", { name: "Nova foto" }).click();
   let dialog = page.getByRole("dialog");
-  await escolherNoSelect(page, /Ângulo/, "Frente");
+  // "À direita" só existe a partir da migration 0050 — o teste confere que ela está aplicada.
+  await escolherNoSelect(page, /Ângulo/, "À direita");
   await dialog.locator('input[type="file"]').setInputFiles({ name: "foto.png", mimeType: "image/png", buffer: PNG });
   await dialog.getByRole("button", { name: "Registrar foto" }).click();
   await expect(dialog).toBeHidden();

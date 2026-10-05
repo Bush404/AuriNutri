@@ -2,7 +2,8 @@ import { z } from "zod";
 
 export const patientPhotoSchema = z.object({
   data_registro: z.string().min(1, "Informe a data"),
-  tipo: z.enum(["frente", "perfil", "costas"], { required_error: "Selecione o ângulo da foto" }),
+  // "perfil" fica de fora: só existe em fotos antigas (antes da migration 0050), sem lado.
+  tipo: z.enum(["frente", "direita", "esquerda", "costas"], { required_error: "Selecione o ângulo da foto" }),
 });
 export type PatientPhotoInput = z.infer<typeof patientPhotoSchema>;
 
