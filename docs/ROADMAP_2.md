@@ -658,7 +658,7 @@ pedido; dobras primeiro, bioimpedância com a origem escrita), "% de gordura de 
 linhas leves com unidade em coluna e selo embaixo do rótulo, bloco "Análises por bioimpedância" próprio e SEMPRE
 visível na ordem do WebDiet (pedido do usuário). Nenhum campo, cálculo ou salvamento mudou. **Falta: avaliação de
 crianças (ChildAssessmentForm) no mesmo visual — pedido de 05/10/2026, espera referência própria.**
-Aba Evolução Fotográfica (05/10/2026, local, aguardando teste): filtros por ângulo e ordem (só na tela), cartões em
+Aba Evolução Fotográfica (05/10/2026, publicada d24af73): filtros por ângulo e ordem (só na tela), cartões em
 grade com miniatura NEUTRA (nunca a foto: carregar geraria link e auditoria sem pedido), Visualizar/Excluir como
 antes; após o teste, a comparação virou a JANELA "Comparar fotos" (botão no cabeçalho): abrir = pedir para ver, já
 carrega A = penúltima e B = mais recente do ângulo; trocar data busca só a foto nova; ↔ troca
@@ -666,7 +666,7 @@ os lados sem buscar de novo; data em cima da foto (não por cima); fechar esquec
 novo". Regras em `src/lib/patient-photos.ts` (+3 testes). Ângulos
 "À direita" e "À esquerda" no lugar de "Perfil" (pedido do usuário): **migration 0050, aplicada 05/10** (check aceita direita/esquerda;
 "perfil" continua para as fotos antigas, que não dizem o lado — não convertidas; o envio não oferece mais).
-Aba Financeiro do paciente (05/10/2026, local, aguardando teste): resumo (Recebido + nº de pagamentos, Em aberto com
+Aba Financeiro do paciente (05/10/2026, publicada cd7c115): resumo (Recebido + nº de pagamentos, Em aberto com
 "Tudo em dia", Total de cobranças "1 avulsa • 1 pacote", Pacote ativo, Próxima cobrança), filtros Todos/Pagos/Pendentes,
 pendentes com "Marcar como recebido" + ⋮ (Editar, Excluir — mesma lógica de exclusão), pagos com Recibo + Desfazer.
 Regras de leitura em `src/lib/patient-finance.ts` (+5 testes), decididas com o usuário: pacote ativo = o mais recente
@@ -678,7 +678,7 @@ Recibo. Após o teste: "Total de cobranças" mostrava 7 — contava cobranças "
 apagava só o pagamento e deixava o registro). Correção de verdade: `deletePayment` exclui a cobrança junto quando apaga o
 último pagamento (mesma `soft_delete_patient_billing` dos outros caminhos); **migration 0051, aplicada 05/10** (conferido: 0 cobranças sem pagamento) limpa as que já existiam
 (soft delete das cobranças sem pagamento ativo). O cartão também só conta cobranças com pagamento.
-Aba Exames (05/10/2026, local, aguardando teste): as duas telas separadas (Anexar PDF / Preencher marcadores) viraram
+Aba Exames (05/10/2026, publicada d228e72): as duas telas separadas (Anexar PDF / Preencher marcadores) viraram
 uma tabela só (decisão do usuário): nome diz só "PDF anexado"/"Imagem anexada"/"Marcadores" (exame não tem nome nem
 tipo próprios; laboratório embaixo), filtros Todos/Com arquivo/Com marcadores, cartões Total / Mais recente ("há N dias")
 / Marcadores registrados (no lugar de "Próximo exame", que não existe), olho = arquivo (link 1 h) ou janela dos marcadores
@@ -686,7 +686,7 @@ tipo próprios; laboratório embaixo), filtros Todos/Com arquivo/Com marcadores,
 "Novo exame" virou menu (anexar / marcadores / catálogo; os três diálogos ganharam `controle`); gráfico de evolução
 abaixo. Regras em `src/lib/lab-exams-view.ts` (+4 testes). LGPD: excluir exame agora APAGA o arquivo do storage antes
 (como as fotos; antes ficava no bucket) — sem migration. E2E arquivos ganhou marcadores e exclusão.
-Janela "Marcadores" (05/10/2026, local): layout de referência (lista em cartões com resultado, faixa e barra; à direita
+Janela "Marcadores" (05/10/2026, publicada d228e72): layout de referência (lista em cartões com resultado, faixa e barra; à direita
 "Adicionar marcador" com pré-visualização). Decisão do usuário: RASCUNHO — adicionar/tirar só muda a lista; "Salvar
 alterações" grava tudo numa transação (`salvarMarcadores` → **migration 0052** `salvar_marcadores`, security invoker,
 confere também o dono do EXAME, que a policy de INSERT de lab_markers não conferia; aplicada 05/10, E2E 19/19,
@@ -694,6 +694,18 @@ isolamento 117/117); Cancelar/X/Esc com pendência
 pergunta antes. addLabMarker/deleteLabMarker removidas (sem uso). Barra em `src/lib/lab-marker-range.ts` (+5 testes;
 "fora da faixa" = mesma regra da coluna gerada). Isolamento +3 checagens (B não salva no exame de A; A salva; erro no
 meio desfaz). "Salvar como minha faixa padrão" continua gravando na hora (catálogo do profissional).
+
+**Parou aqui (05/10/2026, tudo publicado):** refeitas hoje — aba Antropometria Geral e avaliação de adultos (e035d7e),
+Evolução Fotográfica (d24af73), Financeiro do paciente (cd7c115), Exames + janela dos marcadores (d228e72); migrations
+0050, 0051 e 0052 aplicadas; isolamento 117/117, E2E 19/19. **Falta na Fase 19:**
+```
+[ ] Aba Anamnese no novo visual (espera referência do usuário)
+[ ] Aba Consentimentos no novo visual (espera referência do usuário)
+[ ] Avaliação de crianças (ChildAssessmentForm) no visual da de adultos (espera referência própria)
+[ ] Grade da semana da Agenda (visual antigo)
+[ ] Carimbo personalizável + carimbo nos PDFs; identidade do AuriNutri nos PDFs (plano, recibo, evolução, relatório)
+[ ] Revisão visual tela a tela pelo usuário
+```
 
 **Por que no fim:** as telas de antropometria, cálculo energético e plano alimentar vão ser refeitas
 nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design fecha o Roadmap 2
