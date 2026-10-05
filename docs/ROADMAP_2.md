@@ -635,7 +635,7 @@ Gravação atômica (pedido do usuário, 04/10): migration 0049 cria a função 
 invoker — RLS vale; lixeira via soft_delete_meal_item): refeição, substitutos tirados, itens tirados e itens +
 substitutos numa transação só. test-security-isolation-full ganhou 3 checagens (B não salva a refeição de A;
 A salva; erro no meio desfaz tudo). 0049 aplicada em 04/10; isolamento 114/114 e E2E 19/19.
-Aba Antropometria Geral (05/10/2026, local, aguardando teste): `AnthropometryPanel` substitui `AssessmentsList`
+Aba Antropometria Geral (05/10/2026, publicada e035d7e): `AnthropometryPanel` substitui `AssessmentsList`
 (removido). Números de `linhasAntropometria`/`indicadoresAtuais` (src/lib/evolution.ts, mesmos cálculos da
 evolução e do relatório); regras da tela em `src/lib/anthropometry-overview.ts` (atual = avaliação mais recente
 com peso — corrigido após o 1º teste, uma só com altura virava a atual —, relatórios externos fora do resumo; diferença arredondada nas casas exibidas; período a partir de hoje
@@ -649,7 +649,7 @@ do IMC; "Ver todas as medidas" = Evolução; filtro começa em 6 meses. Ajustes 
 gordura com a mesma folga relativa do de kg (`faixaProporcional` — antes 2 p.p. pareciam a maior mudança), legenda
 clicável liga/desliga séries (+ "Mostrar todas"), preenchimento só no peso, avaliação em branco em cinza com
 "Sem medidas" e depois da que tem dados na mesma data (`ordenarParaLista`), rótulos dos cartões quebram linha.
-Tela da avaliação de ADULTOS (05/10/2026, local, aguardando teste): seções com ícone, explicação, contador
+Tela da avaliação de ADULTOS (05/10/2026, publicada e035d7e): seções com ícone, explicação, contador
 (`src/lib/assessment-progress.ts`, +4 testes: dados básicos "x de 4" sem contar a data; dobras "x de N do protocolo"
 com protocolo e base definidos; diâmetros "x de 3"; observações Vazio/Preenchido) e seta; Dados básicos também
 recolhível, começa aberta; unidade dentro do campo; estimativa de acamado em caixa com link. Resultados: rolam
