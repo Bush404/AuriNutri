@@ -635,6 +635,29 @@ Gravação atômica (pedido do usuário, 04/10): migration 0049 cria a função 
 invoker — RLS vale; lixeira via soft_delete_meal_item): refeição, substitutos tirados, itens tirados e itens +
 substitutos numa transação só. test-security-isolation-full ganhou 3 checagens (B não salva a refeição de A;
 A salva; erro no meio desfaz tudo). 0049 aplicada em 04/10; isolamento 114/114 e E2E 19/19.
+Aba Antropometria Geral (05/10/2026, local, aguardando teste): `AnthropometryPanel` substitui `AssessmentsList`
+(removido). Números de `linhasAntropometria`/`indicadoresAtuais` (src/lib/evolution.ts, mesmos cálculos da
+evolução e do relatório); regras da tela em `src/lib/anthropometry-overview.ts` (atual = avaliação mais recente
+com peso — corrigido após o 1º teste, uma só com altura virava a atual —, relatórios externos fora do resumo; diferença arredondada nas casas exibidas; período a partir de hoje
+no fuso do Brasil, padrão 6 meses; escala das classificações LIDA do próprio classificador, sem faixa nova; +16
+testes). Gráfico SVG próprio (`AnthropometryChart`): peso e MLG em kg à esquerda, % de gordura à direita, só
+pontos reais. Histórico (`AnthropometryHistory`): linha clicável abre a avaliação (ou o arquivo do relatório),
+ações no ⋮. Indicadores (`AnthropometryIndicators`): IMC, % gordura, RCQ com classificação existente; cintura só
+valor; "Ver todas as medidas" abre a EvolutionDialog. `NewAssessmentMenu`: `larguraTotal` virou `rotuloCompleto` +
+`size`. E2E avaliacao.e2e.ts ajustado (ações pelo menu). Decisões do usuário: 3 séries juntas com MLG no lugar
+do IMC; "Ver todas as medidas" = Evolução; filtro começa em 6 meses. Ajustes após o teste (05/10): eixo da % de
+gordura com a mesma folga relativa do de kg (`faixaProporcional` — antes 2 p.p. pareciam a maior mudança), legenda
+clicável liga/desliga séries (+ "Mostrar todas"), preenchimento só no peso, avaliação em branco em cinza com
+"Sem medidas" e depois da que tem dados na mesma data (`ordenarParaLista`), rótulos dos cartões quebram linha.
+Tela da avaliação de ADULTOS (05/10/2026, local, aguardando teste): seções com ícone, explicação, contador
+(`src/lib/assessment-progress.ts`, +4 testes: dados básicos "x de 4" sem contar a data; dobras "x de N do protocolo"
+com protocolo e base definidos; diâmetros "x de 3"; observações Vazio/Preenchido) e seta; Dados básicos também
+recolhível, começa aberta; unidade dentro do campo; estimativa de acamado em caixa com link. Resultados: rolam
+junto com a página (coluna presa ao rolar foi tirada a pedido), três destaques (peso, % gordura, MLG — IMC saiu a
+pedido; dobras primeiro, bioimpedância com a origem escrita), "% de gordura de referência" tirado dos resultados,
+linhas leves com unidade em coluna e selo embaixo do rótulo, bloco "Análises por bioimpedância" próprio e SEMPRE
+visível na ordem do WebDiet (pedido do usuário). Nenhum campo, cálculo ou salvamento mudou. **Falta: avaliação de
+crianças (ChildAssessmentForm) no mesmo visual — pedido de 05/10/2026, espera referência própria.**
 
 **Por que no fim:** as telas de antropometria, cálculo energético e plano alimentar vão ser refeitas
 nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design fecha o Roadmap 2

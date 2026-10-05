@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { iniciarAvaliacao } from "@/lib/actions/clinical";
 
 import { idadeEmMeses, MESES_MAXIMO_INFANTIL } from "@/lib/growth/growth";
-import { cn } from "@/lib/utils";
 
 import { AttachmentDialog } from "@/components/patients/attachment-dialog";
 import { Button } from "@/components/ui/button";
@@ -22,14 +21,17 @@ export function NewAssessmentMenu({
   patientId,
   dataNascimento,
   consentimentoAtivoExames,
-  larguraTotal = false,
+  rotuloCompleto = false,
+  size = "sm",
   variant = "default",
 }: {
   patientId: string;
   /** undefined = não se sabe aqui (a página da avaliação confere); null = sem data cadastrada. */
   dataNascimento?: string | null;
   consentimentoAtivoExames?: boolean;
-  larguraTotal?: boolean;
+  /** "Nova avaliação antropométrica" em vez de "Nova avaliação". */
+  rotuloCompleto?: boolean;
+  size?: "sm" | "default" | "lg";
   variant?: "default" | "outline";
 }) {
   const [aberto, setAberto] = useState(false);
@@ -61,14 +63,9 @@ export function NewAssessmentMenu({
 
   return (
     <>
-      <Button
-        size={larguraTotal ? "default" : "sm"}
-        variant={variant}
-        className={cn(larguraTotal && "w-full")}
-        onClick={() => setAberto(true)}
-      >
+      <Button size={size} variant={variant} onClick={() => setAberto(true)}>
         <Plus className="h-4 w-4" />
-        {larguraTotal ? "Nova avaliação antropométrica" : "Nova avaliação"}
+        {rotuloCompleto ? "Nova avaliação antropométrica" : "Nova avaliação"}
       </Button>
 
       <Dialog open={aberto} onOpenChange={setAberto}>

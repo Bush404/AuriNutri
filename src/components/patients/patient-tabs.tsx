@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type { ComponentType } from "react";
-import { CalendarDays, ClipboardList, FileText, Mail, MapPin, Phone, Target, User } from "lucide-react";
+import { CalendarDays, FileText, Mail, MapPin, Phone, Target, User } from "lucide-react";
 
 import type {
   Anamnesis,
@@ -20,11 +20,9 @@ import { calculateAge, cn, formatDate, formatTelefone } from "@/lib/utils";
 import { updateSearchParams } from "@/lib/url-state";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EmptyState } from "@/components/shared/empty-state";
+import { Card, CardContent } from "@/components/ui/card";
 import { AnamnesisTimeline } from "@/components/patients/anamnesis-timeline";
-import { NewAssessmentMenu } from "@/components/patients/new-assessment-menu";
-import { AssessmentsList } from "@/components/patients/assessments-list";
+import { AnthropometryPanel } from "@/components/patients/anthropometry-panel";
 import { EnergyCalculationsPanel } from "@/components/patients/energy-calculations-panel";
 import { MealPlanList, type PlanoNaLista } from "@/components/meal-plans/meal-plan-list";
 import { PatientConsentsPanel } from "@/components/patients/patient-consents-panel";
@@ -50,6 +48,8 @@ interface PatientTabsProps {
   consentimentoAtivoFotos: boolean;
   billings: PatientBillingWithPayments[];
   anamnesisTemplates: AnamnesisTemplate[];
+  /** "yyyy-mm-dd" no fuso do Brasil (filtro de período da antropometria). */
+  hoje: string;
 }
 
 export function PatientTabs({
@@ -66,6 +66,7 @@ export function PatientTabs({
   consentimentoAtivoFotos,
   billings,
   anamnesisTemplates,
+  hoje,
 }: PatientTabsProps) {
   const age = calculateAge(patient.data_nascimento);
   // A aba aberta fica na URL (?aba=planos): voltar de um plano, ou pelo
@@ -154,28 +155,15 @@ export function PatientTabs({
       </TabsContent>
 
       <TabsContent value="avaliacoes">
-        <Card>
-          <CardHeader>
-            <CardTitle>Antropometria</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <NewAssessmentMenu
-              patientId={patient.id}
-              dataNascimento={patient.data_nascimento}
-              consentimentoAtivoExames={consentimentoAtivoExames}
-              larguraTotal
-            />
-            {assessments.length + attachments.length > 0 ? (
-              <AssessmentsList patientId={patient.id} assessments={assessments} attachments={attachments} />
-            ) : (
-              <EmptyState
-                icon={ClipboardList}
-                title="Nenhuma avaliação registrada"
-                description="Registre a primeira avaliação antropométrica deste paciente."
-              />
-            )}
-          </CardContent>
-        </Card>
+        <AnthropometryPanel
+          patientId={patient.id}
+          sexo={patient.sexo}
+          dataNascimento={patient.data_nascimento}
+          consentimentoAtivoExames={consentimentoAtivoExames}
+          assessments={assessments}
+          attachments={attachments}
+          hoje={hoje}
+        />
       </TabsContent>
 
       <TabsContent value="calculo-energetico">

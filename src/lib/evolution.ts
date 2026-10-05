@@ -362,3 +362,112 @@ export function montarHistorico(entrada: EntradaEvolucao, ate: string, limite = 
     percentual_gordura: serie("% de gordura"),
   } satisfies { datas: string[] } & Record<SerieHistorico, PontoEvolucao[]>;
 }
+
+// ---------------------------------------------------------------------------
+// Aba "Antropometria Geral" (Fase 19): resumo, gráfico e histórico
+// ---------------------------------------------------------------------------
+
+/** Os números de uma avaliação ou relatório anexado na aba — os mesmos da evolução e do relatório. */
+export interface LinhaAntropometria {
+  chave: ChaveItem;
+  id: string;
+  data: string;
+  origem: "avaliacao" | "anexo";
+  rotulo: string;
+  /** Só avaliações: adulto (adultos e idosos) ou criança. */
+  tipo: AnthropometricAssessment["tipo"] | null;
+  pesoKg: number | null;
+  alturaCm: number | null;
+  imc: number | null;
+  percentualGordura: number | null;
+  massaLivreKg: number | null;
+}
+
+const numeroValido = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? v : null);
+
+/** Uma linha por avaliação/relatório, mais recente primeiro (mesma ordem de `itensDisponiveis`). */
+export function linhasAntropometria(entrada: EntradaEvolucao): LinhaAntropometria[] {
+  const avaliacoes = new Map(entrada.assessments.map((a) => [`a:${a.id}`, a]));
+  const anexos = new Map(entrada.attachments.map((x) => [`x:${x.id}`, x]));
+  return itensDisponiveis(entrada).flatMap((item): LinhaAntropometria[] => {
+    const a = avaliacoes.get(item.chave);
+    if (a) {
+      const d = dadosDaAvaliacao(a, entrada.sexo, entrada.dataNascimento);
+      const mlg = a.tipo === "crianca" ? null : numeroValido(massaLivre(a, d.r));
+      return [
+        {
+          chave: item.chave,
+          id: a.id,
+          data: a.data_avaliacao,
+          origem: "avaliacao",
+          rotulo: item.rotulo,
+          tipo: a.tipo,
+          pesoKg: numeroValido(a.peso_kg),
+          alturaCm: numeroValido(a.altura_cm),
+          imc: numeroValido(d.r?.imc ?? d.crianca?.imc),
+          percentualGordura: numeroValido(percentualGordura(a)),
+          massaLivreKg: mlg !== null && mlg > 0 ? mlg : null,
+        },
+      ];
+    }
+    const x = anexos.get(item.chave);
+    if (!x) return [];
+    const mg = massaGordaAnexo(x);
+    const mlg = numeroValido(x.massa_livre_gordura_kg ?? (mg !== null && x.peso_kg !== null ? x.peso_kg - mg : null));
+    return [
+      {
+        chave: item.chave,
+        id: x.id,
+        data: x.data_avaliacao,
+        origem: "anexo",
+        rotulo: item.rotulo,
+        tipo: null,
+        pesoKg: numeroValido(x.peso_kg),
+        alturaCm: null,
+        imc: null,
+        percentualGordura: numeroValido(x.percentual_gordura),
+        massaLivreKg: mlg !== null && mlg > 0 ? mlg : null,
+      },
+    ];
+  });
+}
+
+/**
+ * Indicadores da avaliação de hoje, com as classificações que o sistema já
+ * tem (as mesmas da tela da avaliação): nenhuma faixa nova é criada aqui.
+ * `idade`/`sexo` vão junto para a escala visual reusar o mesmo classificador.
+ */
+export interface IndicadoresAtuais {
+  crianca: boolean;
+  idade: number | null;
+  sexo: ResultadosAvaliacao["sexo"];
+  imc: number | null;
+  classificacaoImc: Classificacao | null;
+  percentualGordura: number | null;
+  classificacaoGordura: Classificacao | null;
+  rcq: number | null;
+  classificacaoRcq: Classificacao | null;
+  cinturaCm: number | null;
+  massaLivreKg: number | null;
+  pesoKg: number | null;
+}
+
+export function indicadoresAtuais(entrada: EntradaEvolucao, a: AnthropometricAssessment): IndicadoresAtuais {
+  const d = dadosDaAvaliacao(a, entrada.sexo, entrada.dataNascimento);
+  const mlg = a.tipo === "crianca" ? null : numeroValido(massaLivre(a, d.r));
+  return {
+    crianca: a.tipo === "crianca",
+    idade: d.r?.idade ?? null,
+    sexo: d.r?.sexo ?? null,
+    imc: numeroValido(d.r?.imc ?? d.crianca?.imc),
+    classificacaoImc:
+      d.r?.classificacaoImc ?? d.crianca?.indicadores.find((i) => i.indicador === "imc_idade")?.classificacao ?? null,
+    percentualGordura: numeroValido(percentualGordura(a)),
+    classificacaoGordura: d.r?.classificacaoGordura ?? null,
+    rcq: numeroValido(d.r?.rcq),
+    classificacaoRcq: d.r?.classificacaoRcq ?? null,
+    cinturaCm: numeroValido(a.circunferencia_cintura_cm),
+    massaLivreKg: mlg !== null && mlg > 0 ? mlg : null,
+    pesoKg: numeroValido(a.peso_kg),
+  };
+}

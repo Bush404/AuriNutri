@@ -14,6 +14,7 @@ import type {
   PatientPhoto,
 } from "@/lib/types/database.types";
 import { hasActiveConsent } from "@/lib/actions/patient-consents";
+import { DEFAULT_TIME_ZONE, todayInTimeZone } from "@/lib/timezone";
 import { getSendCenterContext } from "@/lib/actions/patient-send";
 import type { LabExamWithMarkers } from "@/components/patients/lab-exam-card";
 import type { PatientBillingWithPayments } from "@/components/patients/patient-finance-panel";
@@ -144,6 +145,7 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
         consentimentoAtivoFotos={consentimentoAtivoFotos}
         billings={billings ?? []}
         anamnesisTemplates={anamnesisTemplates ?? []}
+        hoje={todayInTimeZone(DEFAULT_TIME_ZONE)}
       />
     </div>
   );

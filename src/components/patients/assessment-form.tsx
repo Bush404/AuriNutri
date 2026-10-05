@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, type ComponentType, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { Activity, Bone, ChartColumn, Check, ChevronDown, ChevronRight, CircleDashed, FileText, Info, Loader2, Pipette, UserRound } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -24,6 +24,7 @@ import {
   type SexoParaFormula,
 } from "@/lib/anthropometry";
 import { calcularResultados, sexoDasFormulas, type MedidasAvaliacao } from "@/lib/anthropometry-results";
+import { progressoDeTotal, progressoDobras, progressoLivre, progressoTexto, type Progresso } from "@/lib/assessment-progress";
 import {
   assessmentSchema,
   CAMPOS_BIOIMPEDANCIA,
@@ -41,7 +42,7 @@ import { cn } from "@/lib/utils";
 import { AssessmentResultsPanel } from "@/components/patients/assessment-results-panel";
 import { AutoSaveStatus } from "@/components/patients/auto-save-status";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -115,6 +116,18 @@ const BIO_LABELS: Record<(typeof CAMPOS_BIOIMPEDANCIA)[number], string> = {
   bio_peso_osseo_kg: "Peso ósseo (kg)",
   bio_gordura_visceral: "Gordura visceral (nível)",
   bio_agua_corporal_percentual: "Água corporal (%)",
+};
+
+/** Unidade mostrada dentro do campo (gordura visceral é um nível do aparelho, sem unidade). */
+const BIO_UNIDADES: Record<(typeof CAMPOS_BIOIMPEDANCIA)[number], string | undefined> = {
+  bio_percentual_gordura: "%",
+  bio_massa_gorda_kg: "kg",
+  bio_percentual_massa_muscular: "%",
+  bio_massa_muscular_kg: "kg",
+  bio_massa_livre_gordura_kg: "kg",
+  bio_peso_osseo_kg: "kg",
+  bio_gordura_visceral: undefined,
+  bio_agua_corporal_percentual: "%",
 };
 
 interface AssessmentFormProps {
@@ -192,7 +205,8 @@ export function AssessmentForm({ patient, assessment }: AssessmentFormProps) {
       ? estimarPesoAcamado({ sexo, alturaJoelhoCm: aj, circunferenciaBracoCm: cb, circunferenciaPanturrilhaCm: cp, dobraSubescapularMm: se })
       : null;
   const [mostrarEstimativas, setMostrarEstimativas] = useState(false);
-  const [abertas, setAbertas] = useState<Set<SecaoRecolhivel>>(new Set());
+  // Dados básicos começa aberta; as outras, fechadas (ajuste de 01/10/2026).
+  const [abertas, setAbertas] = useState<Set<SecaoRecolhivel>>(() => new Set(["basicos"]));
   const secao = (nome: SecaoRecolhivel) => ({
     aberta: abertas.has(nome),
     onAlternar: () =>
@@ -222,22 +236,38 @@ export function AssessmentForm({ patient, assessment }: AssessmentFormProps) {
     router.push(voltarPara);
   }
 
-  const campo = (name: keyof FormValues, label: string, opts: { destaque?: boolean; required?: boolean; onInput?: () => void } = {}) => {
+  const campo = (
+    name: keyof FormValues,
+    label: string,
+    opts: { destaque?: boolean; required?: boolean; onInput?: () => void; unidade?: string; exemplo?: string } = {},
+  ) => {
     const erro = errors[name]?.message as string | undefined;
     return (
       <div key={name} className="space-y-1.5">
-        <Label htmlFor={name} className="text-xs">
+        <Label htmlFor={name} className="text-sm font-medium">
           {label}
           {opts.required && " *"}
         </Label>
-        <Input
-          id={name}
-          inputMode="decimal"
-          aria-required={opts.required || undefined}
-          aria-invalid={erro ? true : undefined}
-          className={cn(opts.destaque && "border-l-4 border-l-primary")}
-          {...register(name, { onChange: opts.onInput })}
-        />
+        <div className="relative">
+          <Input
+            id={name}
+            inputMode="decimal"
+            placeholder={opts.exemplo ? `Ex.: ${opts.exemplo}` : undefined}
+            aria-required={opts.required || undefined}
+            aria-invalid={erro ? true : undefined}
+            className={cn("h-10", opts.unidade && "pr-12", opts.destaque && "border-l-4 border-l-primary")}
+            {...register(name, { onChange: opts.onInput })}
+          />
+          {/* Unidade dentro do campo (o rótulo já diz a unidade para leitores de tela). */}
+          {opts.unidade && (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-px right-px flex w-10 items-center justify-center rounded-r-md border-l bg-muted/50 text-xs text-muted-foreground"
+            >
+              {opts.unidade}
+            </span>
+          )}
+        </div>
         {erro && (
           <p className="text-xs text-destructive" role="alert">
             {erro}
@@ -247,89 +277,124 @@ export function AssessmentForm({ patient, assessment }: AssessmentFormProps) {
     );
   };
 
+  // Contadores das seções: só leitura do que está digitado (src/lib/assessment-progress.ts).
+  const valores = v as unknown as Record<string, string | undefined>;
+  const progresso = {
+    basicos: progressoDeTotal(valores, CAMPOS_BASICOS),
+    dobras: progressoDobras(
+      valores,
+      DOBRAS.map((d) => `dobra_${d}_mm`),
+      dobrasDoProtocolo.map((d) => `dobra_${d}_mm`),
+    ),
+    circunferencias: progressoLivre(valores, [...TRONCO.map((t) => t.campo), ...CAMPOS_CIRCUNFERENCIAS_MEMBROS.flat()]),
+    diametros: progressoDeTotal(valores, CAMPOS_DIAMETROS),
+    bioimpedancia: progressoLivre(valores, [...CAMPOS_BIOIMPEDANCIA, "bio_idade_metabolica"]),
+    observacoes: progressoTexto(v.observacoes),
+  };
+
   return (
     <form
       // Campo com erro numa seção fechada ficaria invisível: abre todas para mostrar.
       onSubmit={handleSubmit(onSubmit, () => setAbertas(new Set(SECOES_RECOLHIVEIS)))}
-      className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]">
-      <div className="min-w-0 space-y-6">
-        <Secao titulo="Dados básicos">
-          <div className="grid grid-cols-2 gap-4">
+      className="grid items-start gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
+    >
+      <div className="min-w-0 space-y-4">
+        <Secao
+          id="basicos"
+          titulo="Dados básicos"
+          subtitulo="Informações principais da avaliação antropométrica."
+          icon={UserRound}
+          tom="verde"
+          progresso={progresso.basicos}
+          {...secao("basicos")}
+        >
+          <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="data_avaliacao" className="text-xs">
+              <Label htmlFor="data_avaliacao" className="text-sm font-medium">
                 Data da avaliação *
               </Label>
               <Input id="data_avaliacao" type="date" aria-required="true" {...register("data_avaliacao")} />
             </div>
             {campo("peso_kg", `Peso (kg)${v.peso_estimado ? " — estimado" : ""}`, {
               required: true,
+              unidade: "kg",
+              exemplo: "70,5",
               onInput: () => setValue("peso_estimado", false),
             })}
             {campo("altura_cm", `Altura (cm)${v.altura_estimada ? " — estimada" : ""}`, {
               required: true,
+              unidade: "cm",
+              exemplo: "170",
               onInput: () => setValue("altura_estimada", false),
             })}
-            {campo("altura_sentado_cm", "Altura sentado (cm)")}
-            {campo("altura_joelho_cm", "Altura do joelho (cm)")}
+            {campo("altura_sentado_cm", "Altura sentado (cm)", { unidade: "cm", exemplo: "90" })}
+            {campo("altura_joelho_cm", "Altura do joelho (cm)", { unidade: "cm", exemplo: "50" })}
           </div>
 
-          <button
-            type="button"
-            className="text-sm text-primary underline-offset-4 hover:underline"
-            aria-expanded={mostrarEstimativas}
-            onClick={() => setMostrarEstimativas((x) => !x)}
-          >
-            Paciente acamado ou que não fica em pé? Estimar peso e altura
-          </button>
-          {mostrarEstimativas && (
-            <div className="space-y-3 rounded-md border border-border bg-muted/40 p-3 text-sm">
-              {!idosoParaEstimar ? (
-                <p className="text-muted-foreground">
-                  As equações de Chumlea disponíveis são para pacientes com 60 anos ou mais
-                  {idade === null ? " — cadastre a data de nascimento do paciente" : ""}
-                  {sexo === null ? " — escolha a base (masculino/feminino) abaixo" : ""}.
-                </p>
-              ) : (
-                <>
-                  <p className="text-muted-foreground">
-                    Altura: pela altura do joelho (Chumlea, 1985). Peso: altura do joelho, braço relaxado e panturrilha do
-                    lado de referência e dobra subescapular (Chumlea, 1988).
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={alturaEstimada === null}
-                      onClick={() => {
-                        setValue("altura_cm", alturaEstimada!.toFixed(1), { shouldDirty: true });
-                        setValue("altura_estimada", true, { shouldDirty: true });
-                      }}
-                    >
-                      {alturaEstimada ? `Usar altura estimada (${alturaEstimada.toFixed(1)} cm)` : "Altura: preencha a altura do joelho"}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={pesoEstimado === null}
-                      onClick={() => {
-                        setValue("peso_kg", pesoEstimado!.toFixed(1), { shouldDirty: true });
-                        setValue("peso_estimado", true, { shouldDirty: true });
-                      }}
-                    >
-                      {pesoEstimado
-                        ? `Usar peso estimado (${pesoEstimado.toFixed(1)} kg)`
-                        : "Peso: preencha joelho, braço, panturrilha e subescapular"}
-                    </Button>
-                  </div>
-                </>
-              )}
+          <div className="rounded-lg bg-muted/50 px-4 py-3 text-sm">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <Info className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <span className="text-foreground">Paciente acamado ou que não fica em pé?</span>
+              <button
+                type="button"
+                className="inline-flex items-center gap-0.5 font-medium text-primary underline underline-offset-4 hover:no-underline"
+                aria-expanded={mostrarEstimativas}
+                onClick={() => setMostrarEstimativas((x) => !x)}
+              >
+                Estimar peso e altura
+                <ChevronRight className={cn("h-4 w-4 transition-transform", mostrarEstimativas && "rotate-90")} aria-hidden="true" />
+              </button>
             </div>
-          )}
+            {mostrarEstimativas && (
+              <div className="mt-3 space-y-3 border-t pt-3">
+                {!idosoParaEstimar ? (
+                  <p className="text-muted-foreground">
+                    As equações de Chumlea disponíveis são para pacientes com 60 anos ou mais
+                    {idade === null ? " — cadastre a data de nascimento do paciente" : ""}
+                    {sexo === null ? " — escolha a base (masculino/feminino) abaixo" : ""}.
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-muted-foreground">
+                      Altura: pela altura do joelho (Chumlea, 1985). Peso: altura do joelho, braço relaxado e panturrilha do
+                      lado de referência e dobra subescapular (Chumlea, 1988).
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={alturaEstimada === null}
+                        onClick={() => {
+                          setValue("altura_cm", alturaEstimada!.toFixed(1), { shouldDirty: true });
+                          setValue("altura_estimada", true, { shouldDirty: true });
+                        }}
+                      >
+                        {alturaEstimada ? `Usar altura estimada (${alturaEstimada.toFixed(1)} cm)` : "Altura: preencha a altura do joelho"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={pesoEstimado === null}
+                        onClick={() => {
+                          setValue("peso_kg", pesoEstimado!.toFixed(1), { shouldDirty: true });
+                          setValue("peso_estimado", true, { shouldDirty: true });
+                        }}
+                      >
+                        {pesoEstimado
+                          ? `Usar peso estimado (${pesoEstimado.toFixed(1)} kg)`
+                          : "Peso: preencha joelho, braço, panturrilha e subescapular"}
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
 
           {precisaEscolherBase && (
-            <div className="space-y-2 rounded-md border border-accent/40 bg-accent/10 p-3">
+            <div className="space-y-2 rounded-lg border border-accent/40 bg-accent/10 p-3">
               <p className="text-sm text-foreground">
                 {patient.sexo === "outro"
                   ? 'O paciente está cadastrado como "outro". As fórmulas só têm coeficientes publicados para masculino e feminino — escolha qual base usar nesta avaliação.'
@@ -359,8 +424,16 @@ export function AssessmentForm({ patient, assessment }: AssessmentFormProps) {
           )}
         </Secao>
 
-        <Secao titulo="Dobras cutâneas (mm)" {...secao("dobras")}>
-          <fieldset className="space-y-3 rounded-md bg-muted/40 p-3">
+        <Secao
+          id="dobras"
+          titulo="Dobras cutâneas (mm)"
+          subtitulo="Espessura das dobras cutâneas para cálculo da composição corporal."
+          icon={Pipette}
+          tom="verde"
+          progresso={progresso.dobras}
+          {...secao("dobras")}
+        >
+          <fieldset className="space-y-3 rounded-lg bg-muted/50 p-4">
             <legend className="sr-only">Protocolo de % de gordura</legend>
             <p className="text-sm font-medium text-foreground">Fórmula para o % de gordura</p>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Protocolo de % de gordura">
@@ -410,20 +483,28 @@ export function AssessmentForm({ patient, assessment }: AssessmentFormProps) {
               </div>
             )}
           </fieldset>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
             {DOBRAS.map((d) =>
-              campo(`dobra_${d}_mm` as CampoNumerico, DOBRA_LABELS[d], { destaque: dobrasDoProtocolo.includes(d) })
+              campo(`dobra_${d}_mm` as CampoNumerico, DOBRA_LABELS[d], { destaque: dobrasDoProtocolo.includes(d), unidade: "mm" })
             )}
           </div>
         </Secao>
 
-        <Secao titulo="Circunferências (cm)" {...secao("circunferencias")} descricao="Usadas no RCQ, RCEst, CMB e nas estimativas de peso.">
-          <div className="grid grid-cols-2 gap-4">{TRONCO.map((t) => campo(t.campo, t.label))}</div>
+        <Secao
+          id="circunferencias"
+          titulo="Circunferências (cm)"
+          subtitulo="Medidas de perímetros corporais. Usadas no RCQ, RCEst, CMB e nas estimativas de peso."
+          icon={CircleDashed}
+          tom="laranja"
+          progresso={progresso.circunferencias}
+          {...secao("circunferencias")}
+        >
+          <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">{TRONCO.map((t) => campo(t.campo, t.label, { unidade: "cm" }))}</div>
           <div className="space-y-2">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
               {CAMPOS_CIRCUNFERENCIAS_MEMBROS.flatMap(([dir, esq], i) => [
-                campo(dir, `${MEMBRO_LABELS[i]} direito`),
-                campo(esq, `${MEMBRO_LABELS[i]} esquerdo`),
+                campo(dir, `${MEMBRO_LABELS[i]} direito`, { unidade: "cm" }),
+                campo(esq, `${MEMBRO_LABELS[i]} esquerdo`, { unidade: "cm" }),
               ])}
             </div>
             <p className="text-xs text-muted-foreground">Preencher os dois lados é opcional — um lado basta.</p>
@@ -444,116 +525,183 @@ export function AssessmentForm({ patient, assessment }: AssessmentFormProps) {
             </Select>
           </div>
           {temCamposAntigos && (
-            <div className="space-y-2 rounded-md border border-dashed border-border p-3">
+            <div className="space-y-2 rounded-lg border border-dashed border-border p-3">
               <p className="text-xs text-muted-foreground">
                 Medidas do formato antigo desta avaliação (antes da nova antropometria), mantidas como foram registradas.
               </p>
-              <div className="grid grid-cols-2 gap-4">
-                {assessment.circunferencia_braco_cm !== null && campo("circunferencia_braco_cm", "Braço (formato antigo)")}
-                {assessment.circunferencia_coxa_cm !== null && campo("circunferencia_coxa_cm", "Coxa (formato antigo)")}
+              <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
+                {assessment.circunferencia_braco_cm !== null && campo("circunferencia_braco_cm", "Braço (formato antigo)", { unidade: "cm" })}
+                {assessment.circunferencia_coxa_cm !== null && campo("circunferencia_coxa_cm", "Coxa (formato antigo)", { unidade: "cm" })}
                 {!assessment.protocolo_dobras &&
                   assessment.percentual_gordura !== null &&
-                  campo("percentual_gordura", "% de gordura (digitado)")}
+                  campo("percentual_gordura", "% de gordura (digitado)", { unidade: "%" })}
               </div>
             </div>
           )}
         </Secao>
 
-        <Secao titulo="Diâmetros ósseos (cm)" {...secao("diametros")} descricao="Usados no peso ósseo e na massa muscular.">
-          <div className="grid grid-cols-2 gap-4">
-            {campo("diametro_umero_cm", "Úmero")}
-            {campo("diametro_punho_cm", "Punho")}
-            {campo("diametro_femur_cm", "Fêmur")}
+        <Secao
+          id="diametros"
+          titulo="Diâmetros ósseos (cm)"
+          subtitulo="Medidas de diâmetros ósseos. Usados no peso ósseo e na massa muscular."
+          icon={Bone}
+          tom="azul"
+          progresso={progresso.diametros}
+          {...secao("diametros")}
+        >
+          <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
+            {campo("diametro_umero_cm", "Úmero", { unidade: "cm" })}
+            {campo("diametro_punho_cm", "Punho", { unidade: "cm" })}
+            {campo("diametro_femur_cm", "Fêmur", { unidade: "cm" })}
           </div>
         </Secao>
 
-        <Secao titulo="Bioimpedância" {...secao("bioimpedancia")} descricao="Digite os valores que o aparelho mostrou.">
-          <div className="grid grid-cols-2 gap-4">
-            {CAMPOS_BIOIMPEDANCIA.map((c) => campo(c, BIO_LABELS[c]))}
-            {campo("bio_idade_metabolica", "Idade metabólica (anos)")}
+        <Secao
+          id="bioimpedancia"
+          titulo="Bioimpedância"
+          subtitulo="Dados da bioimpedância elétrica: digite os valores que o aparelho mostrou."
+          icon={Activity}
+          tom="roxo"
+          progresso={progresso.bioimpedancia}
+          {...secao("bioimpedancia")}
+        >
+          <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
+            {CAMPOS_BIOIMPEDANCIA.map((c) => campo(c, BIO_LABELS[c], { unidade: BIO_UNIDADES[c] }))}
+            {campo("bio_idade_metabolica", "Idade metabólica (anos)", { unidade: "anos" })}
           </div>
         </Secao>
 
-        <Secao titulo="Observações" {...secao("observacoes")}>
-          <Textarea id="observacoes" aria-label="Observações" rows={3} {...register("observacoes")} />
+        <Secao
+          id="observacoes"
+          titulo="Observações"
+          subtitulo="Anotações adicionais sobre a avaliação."
+          icon={FileText}
+          tom="cinza"
+          progresso={progresso.observacoes}
+          {...secao("observacoes")}
+        >
+          <Textarea id="observacoes" aria-label="Observações" rows={4} {...register("observacoes")} />
         </Secao>
 
-        <div className="space-y-2">
+        <div className="flex flex-col-reverse items-stretch gap-3 rounded-xl border bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <AutoSaveStatus estado={estado} erro={erroSalvamento} />
-          <Button type="submit" size="lg" className="w-full" disabled={loading}>
-            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+          <Button type="submit" size="lg" className="sm:min-w-56" disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
             Salvar e voltar
           </Button>
         </div>
       </div>
 
       <div className="min-w-0">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Resultados</CardTitle>
-            <CardDescription>Calculados enquanto você digita.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            <AssessmentResultsPanel
-              r={resultados}
-              pesoKg={n(v.peso_kg)}
-              alturaCm={n(v.altura_cm)}
-              bio={bio}
-              classificacaoBio={classificacaoBio}
-            />
-          </CardContent>
-        </Card>
+        <section aria-labelledby="resultados-titulo" className="space-y-4 rounded-xl border bg-card p-4 shadow-sm sm:p-5">
+          <div className="flex items-center gap-3">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-success-soft text-primary">
+              <ChartColumn className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div>
+              <h2 id="resultados-titulo" className="text-lg font-semibold text-foreground">
+                Resultados
+              </h2>
+              <p className="text-sm text-muted-foreground">Calculados enquanto você digita.</p>
+            </div>
+          </div>
+          <AssessmentResultsPanel
+            r={resultados}
+            pesoKg={n(v.peso_kg)}
+            alturaCm={n(v.altura_cm)}
+            bio={bio}
+            classificacaoBio={classificacaoBio}
+          />
+        </section>
       </div>
     </form>
   );
 }
 
-const SECOES_RECOLHIVEIS = ["dobras", "circunferencias", "diametros", "bioimpedancia", "observacoes"] as const;
+const CAMPOS_BASICOS = ["peso_kg", "altura_cm", "altura_sentado_cm", "altura_joelho_cm"] as const;
+const CAMPOS_DIAMETROS = ["diametro_umero_cm", "diametro_punho_cm", "diametro_femur_cm"] as const;
+
+const SECOES_RECOLHIVEIS = ["basicos", "dobras", "circunferencias", "diametros", "bioimpedancia", "observacoes"] as const;
 type SecaoRecolhivel = (typeof SECOES_RECOLHIVEIS)[number];
 
+const TOM_ICONE = {
+  verde: "bg-success-soft text-primary",
+  laranja: "bg-warning-soft text-accent",
+  azul: "bg-info-soft text-info",
+  roxo: "bg-violet-100 text-violet-600",
+  cinza: "bg-muted text-muted-foreground",
+} as const;
+
 interface SecaoProps {
+  id: SecaoRecolhivel;
   titulo: string;
-  descricao?: string;
+  subtitulo: string;
+  icon: ComponentType<{ className?: string }>;
+  tom: keyof typeof TOM_ICONE;
+  progresso: Progresso;
   children: ReactNode;
-  /** Sem `aberta`, a seção fica sempre aberta (Dados básicos). */
-  aberta?: boolean;
-  onAlternar?: () => void;
+  aberta: boolean;
+  onAlternar: () => void;
 }
 
 /**
- * Seção do formulário. As recolhíveis abrem e fecham pelo título (como no WebDiet);
- * fechadas, os campos continuam montados (só escondidos) para não perder o que foi digitado.
+ * Seção do formulário: abre e fecha pelo cabeçalho (como no WebDiet), com
+ * ícone, explicação curta e quanto já foi preenchido. Fechada, os campos
+ * continuam montados (só escondidos) para não perder o que foi digitado.
  */
-function Secao({ titulo, descricao, children, aberta, onAlternar }: SecaoProps) {
-  const recolhivel = aberta !== undefined;
-  const id = `secao-${titulo.replace(/\W+/g, "-").toLowerCase()}`;
+function Secao({ id, titulo, subtitulo, icon: Icon, tom, progresso, children, aberta, onAlternar }: SecaoProps) {
+  const conteudo = `secao-${id}`;
+  const descricao = `secao-${id}-descricao`;
+  const comBarra = progresso.total !== null && progresso.total > 0;
   return (
-    <Card>
-      <CardHeader>
-        {recolhivel ? (
-          <CardTitle className="text-base">
-            <button
-              type="button"
-              className="flex w-full items-center justify-between gap-3 text-left"
-              aria-expanded={aberta}
-              aria-controls={id}
-              onClick={onAlternar}
-            >
-              {titulo}
-              <ChevronDown
-                className={cn("h-5 w-5 shrink-0 text-muted-foreground transition-transform", aberta && "rotate-180")}
-                aria-hidden="true"
+    <section className="rounded-xl border bg-card shadow-sm">
+      <button
+        type="button"
+        className="flex w-full items-center gap-3 rounded-xl px-4 py-4 text-left transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-4 sm:px-5"
+        aria-expanded={aberta}
+        aria-controls={conteudo}
+        aria-describedby={descricao}
+        onClick={onAlternar}
+      >
+        <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-full", TOM_ICONE[tom])}>
+          <Icon className="h-5 w-5" aria-hidden="true" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-base font-semibold text-foreground">{titulo}</span>
+          <span id={descricao} className="block text-sm text-muted-foreground">
+            {subtitulo}
+            <span className="sr-only">. {progresso.rotulo}</span>
+          </span>
+        </span>
+        {comBarra && (
+          <span className="hidden w-36 shrink-0 space-y-1.5 sm:block" aria-hidden="true">
+            <span className="block text-xs text-muted-foreground">{progresso.rotulo}</span>
+            <span className="block h-1.5 overflow-hidden rounded-full bg-muted">
+              <span
+                className="block h-full rounded-full bg-primary transition-[width]"
+                style={{ width: `${(progresso.preenchidos / progresso.total!) * 100}%` }}
               />
-            </button>
-          </CardTitle>
-        ) : (
-          <CardTitle className="text-base">{titulo}</CardTitle>
+            </span>
+          </span>
         )}
-        {descricao && (!recolhivel || aberta) && <CardDescription>{descricao}</CardDescription>}
-      </CardHeader>
-      <CardContent id={id} hidden={recolhivel && !aberta} className="space-y-4">
+        <span
+          className={cn(
+            "shrink-0 rounded-full px-2.5 py-1 text-xs",
+            progresso.preenchidos > 0 ? "bg-success-soft text-success" : "bg-muted text-muted-foreground",
+            comBarra && "sm:hidden",
+          )}
+          aria-hidden="true"
+        >
+          {progresso.rotulo}
+        </span>
+        <ChevronDown
+          className={cn("h-5 w-5 shrink-0 text-muted-foreground transition-transform", aberta && "rotate-180")}
+          aria-hidden="true"
+        />
+      </button>
+      <div id={conteudo} hidden={!aberta} className="space-y-4 border-t px-4 pb-5 pt-4 sm:px-5">
         {children}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

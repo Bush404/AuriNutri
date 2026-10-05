@@ -38,7 +38,7 @@ export default async function AvaliacaoPage(props: { params: Promise<{ id: strin
   const idade = idadeNaData(patient.data_nascimento, assessment.data_avaliacao);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6">
       <div>
         <Button variant="ghost" size="sm" asChild className="-ml-3 mb-2">
           <Link href={`/pacientes/${patient.id}?aba=avaliacoes`}>

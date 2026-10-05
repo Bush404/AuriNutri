@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  indicadoresAtuais,
   itensDisponiveis,
+  linhasAntropometria,
   montarComparacao,
   montarHistorico,
   parseItens,
@@ -143,5 +145,29 @@ describe("montarHistorico (Relatório)", () => {
     expect(h.datas).toEqual(["2025-01-10", "2025-03-10", "2025-04-20"]);
     expect(h.peso.map((p) => p.valor)).toEqual([82, 80, 79]);
     expect(h.percentual_gordura.map((p) => p.valor)).toEqual([35, 33]);
+  });
+});
+
+describe("Antropometria Geral (aba)", () => {
+  it("uma linha por item, mais recente primeiro, com os números da evolução", () => {
+    const linhas = linhasAntropometria(entrada);
+    expect(linhas.map((l) => l.data)).toEqual(["2025-06-10", "2025-04-20", "2025-03-10", "2025-01-10"]);
+    // Avaliação antiga com % digitado: MLG = peso − gordura (82 − 28,7).
+    expect(linhas[3]).toMatchObject({ origem: "avaliacao", pesoKg: 82, percentualGordura: 35 });
+    expect(linhas[3].massaLivreKg).toBeCloseTo(53.3, 6);
+    expect(linhas[3].imc).toBeCloseTo(82 / 1.7 ** 2, 6);
+    // Relatório externo: sem altura nem IMC.
+    expect(linhas[1]).toMatchObject({ origem: "anexo", pesoKg: 79, percentualGordura: 33, massaLivreKg: 53, imc: null, alturaCm: null });
+  });
+
+  it("indicadores atuais usam as classificações da tela da avaliação", () => {
+    const ind = indicadoresAtuais(entrada, entrada.assessments[2]);
+    expect(ind.rcq).toBeCloseTo(0.82, 6);
+    expect(ind.classificacaoRcq?.label).toBe("Sem risco aumentado");
+    expect(ind.classificacaoImc?.label).toBe("Sobrepeso");
+    expect(ind.cinturaCm).toBe(82);
+    // Sem protocolo de dobras não há % de gordura nem classificação inventada.
+    expect(ind.percentualGordura).toBeNull();
+    expect(ind.classificacaoGordura).toBeNull();
   });
 });

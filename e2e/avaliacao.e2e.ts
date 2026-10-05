@@ -11,6 +11,12 @@ async function novaAvaliacao(page: Page, tipo: string | RegExp) {
   await page.getByRole("dialog").getByRole("button", { name: tipo }).click();
 }
 
+/** Menu ⋮ de uma linha do histórico (tabela no computador; o cartão do celular fica escondido). */
+async function acaoDaLinha(page: Page, linha: string | RegExp, acao: string) {
+  await page.getByRole("button", { name: linha }).filter({ visible: true }).first().click();
+  await page.getByRole("menuitem", { name: acao }).click();
+}
+
 /** A avaliação é criada ao escolher o tipo e abre na página dela, salvando sozinha. */
 const paginaDaAvaliacao = (id: string) => new RegExp(`/pacientes/${id}/avaliacoes/[0-9a-f-]{36}$`);
 
@@ -23,15 +29,18 @@ test("avaliação de adulto: IMC na tela e PDF do relatório", async ({ page }) 
   await page.getByLabel("Peso (kg)").fill("70");
   await page.getByLabel("Altura (cm)").fill("175");
   // IMC = 70 / 1,75² = 22,857…
-  await expect(textoVisivel(page, /22,86 kg\/m²/)).toBeVisible();
+  await expect(textoVisivel(page, "22,86")).toBeVisible();
   await page.getByRole("button", { name: "Salvar e voltar" }).click();
 
   await expect(page).toHaveURL(new RegExp(`/pacientes/${id}\\?aba=avaliacoes$`));
-  await expect(page.getByText(/Avaliação de adulto - Realizado em/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Ações: Avaliação de adulto/ }).filter({ visible: true })).toHaveCount(1);
+  // Resumo da avaliação atual (sem anterior para comparar).
+  await expect(textoVisivel(page, "Peso atual")).toBeVisible();
+  await expect(textoVisivel(page, "primeira avaliação")).toBeVisible();
 
   const [relatorio] = await Promise.all([
     page.waitForEvent("download"),
-    page.getByRole("link", { name: "Relatório" }).click(),
+    acaoDaLinha(page, /^Ações: Avaliação de adulto/, "Relatório (PDF)"),
   ]);
   expect(relatorio.suggestedFilename()).toMatch(/^relatorio-antropometrico-.*\.pdf$/);
 });
@@ -56,14 +65,14 @@ test("protocolo de dobras: paciente sem sexo pede a base e o % de gordura é gra
   await page.getByLabel("Tricipital").fill("10");
   await page.getByLabel("Suprailíaca").fill("12");
   await page.getByLabel("Abdominal").fill("18");
-  await expect(textoVisivel(page, "15,3%")).toBeVisible();
+  await expect(textoVisivel(page, "15,3")).toBeVisible();
 
   await page.getByRole("button", { name: "Salvar e voltar" }).click();
   await expect(page).toHaveURL(new RegExp(`/pacientes/${id}\\?aba=avaliacoes$`));
 
   // Reabrindo, o % calculado no servidor continua lá.
-  await page.getByRole("listitem").getByRole("link", { name: "Editar", exact: true }).click();
-  await expect(textoVisivel(page, "15,3%")).toBeVisible();
+  await acaoDaLinha(page, /^Ações: Avaliação de adulto/, "Editar");
+  await expect(textoVisivel(page, "15,3")).toBeVisible();
 });
 
 test("criança: curvas da OMS, relatório anexado e PDF de evolução", async ({ page }) => {
@@ -88,7 +97,8 @@ test("criança: curvas da OMS, relatório anexado e PDF de evolução", async ({
   await expect(page.getByRole("heading", { name: "Peso por estatura" })).toBeVisible();
   await page.getByRole("button", { name: "Salvar e voltar" }).click();
   await expect(page).toHaveURL(new RegExp(`/pacientes/${id}\\?aba=avaliacoes$`));
-  await expect(page.getByText(/Avaliação infantil - Realizado em/)).toBeVisible();
+  // Criança: IMC classificado pelas curvas da OMS, não pela régua de adulto.
+  await expect(textoVisivel(page, "IMC (para a idade)")).toBeVisible();
 
   // Relatório externo com peso: exige consentimento de exames.
   await registrarConsentimento(page, "Exames laboratoriais");
@@ -99,10 +109,10 @@ test("criança: curvas da OMS, relatório anexado e PDF de evolução", async ({
   await anexo.getByLabel("Peso (kg)").fill("14.2");
   await anexo.getByRole("button", { name: "Anexar" }).click();
   await expect(anexo).toBeHidden();
-  await expect(page.getByText(/Relatório externo \(Bioimpedância E2E\)/)).toBeVisible();
+  await expect(textoVisivel(page, "Bioimpedância E2E")).toBeVisible();
 
   // Evolução: as duas datas vêm marcadas e o PDF da comparação é gerado.
-  await page.getByRole("button", { name: "Evolução" }).first().click();
+  await acaoDaLinha(page, /^Ações: /, "Ver evolução");
   const evolucao = page.getByRole("dialog");
   await expect(evolucao.getByRole("checkbox", { checked: true })).toHaveCount(2);
   const [pdf] = await Promise.all([page.waitForEvent("download"), evolucao.getByRole("link", { name: "Gerar PDF" }).click()]);
