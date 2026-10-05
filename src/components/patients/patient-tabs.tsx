@@ -18,6 +18,7 @@ import type {
 } from "@/lib/types/database.types";
 import { calculateAge, cn, formatDate, formatTelefone } from "@/lib/utils";
 import { updateSearchParams } from "@/lib/url-state";
+import type { SendCenterContext } from "@/lib/actions/patient-send";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -50,6 +51,8 @@ interface PatientTabsProps {
   anamnesisTemplates: AnamnesisTemplate[];
   /** "yyyy-mm-dd" no fuso do Brasil (filtro de período da antropometria). */
   hoje: string;
+  /** Central de Envio (botão "Recibo" da aba Financeiro). */
+  sendCenterContext: SendCenterContext | null;
 }
 
 export function PatientTabs({
@@ -67,6 +70,7 @@ export function PatientTabs({
   billings,
   anamnesisTemplates,
   hoje,
+  sendCenterContext,
 }: PatientTabsProps) {
   const age = calculateAge(patient.data_nascimento);
   // A aba aberta fica na URL (?aba=planos): voltar de um plano, ou pelo
@@ -191,7 +195,14 @@ export function PatientTabs({
       </TabsContent>
 
       <TabsContent value="financeiro">
-        <PatientFinancePanel patientId={patient.id} billings={billings} />
+        <PatientFinancePanel
+          patientId={patient.id}
+          patientNome={patient.nome}
+          patientTelefone={patient.telefone}
+          billings={billings}
+          sendCenterContext={sendCenterContext}
+          hoje={hoje}
+        />
       </TabsContent>
 
       <TabsContent value="consentimentos">

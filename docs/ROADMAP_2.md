@@ -666,6 +666,18 @@ os lados sem buscar de novo; data em cima da foto (não por cima); fechar esquec
 novo". Regras em `src/lib/patient-photos.ts` (+3 testes). Ângulos
 "À direita" e "À esquerda" no lugar de "Perfil" (pedido do usuário): **migration 0050, aplicada 05/10** (check aceita direita/esquerda;
 "perfil" continua para as fotos antigas, que não dizem o lado — não convertidas; o envio não oferece mais).
+Aba Financeiro do paciente (05/10/2026, local, aguardando teste): resumo (Recebido + nº de pagamentos, Em aberto com
+"Tudo em dia", Total de cobranças "1 avulsa • 1 pacote", Pacote ativo, Próxima cobrança), filtros Todos/Pagos/Pendentes,
+pendentes com "Marcar como recebido" + ⋮ (Editar, Excluir — mesma lógica de exclusão), pagos com Recibo + Desfazer.
+Regras de leitura em `src/lib/patient-finance.ts` (+5 testes), decididas com o usuário: pacote ativo = o mais recente
+com consulta agendada/confirmada; barra só com realizadas, faltas à parte (se falta "gasta" a consulta é política do
+consultório); sem "válido até" (pacote não tem validade); "Vencido" = pendente com vencimento antes de hoje (só leitura
+da data que já existe). Botão "Recibo" abre a MESMA Central de Envio com o recibo daquele pagamento escolhido
+(PatientSendDialog/Panel ganharam só valores iniciais); aviso do rodapé removido. E2E agenda ganhou o fluxo receber →
+Recibo. Após o teste: "Total de cobranças" mostrava 7 — contava cobranças "fantasmas" (excluir cobrança pendente
+apagava só o pagamento e deixava o registro). Correção de verdade: `deletePayment` exclui a cobrança junto quando apaga o
+último pagamento (mesma `soft_delete_patient_billing` dos outros caminhos); **migration 0051, aplicada 05/10** (conferido: 0 cobranças sem pagamento) limpa as que já existiam
+(soft delete das cobranças sem pagamento ativo). O cartão também só conta cobranças com pagamento.
 
 **Por que no fim:** as telas de antropometria, cálculo energético e plano alimentar vão ser refeitas
 nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design fecha o Roadmap 2

@@ -509,8 +509,22 @@ export async function unregisterPayment(paymentId: string): Promise<ActionResult
 }
 
 /** Soft delete via função `security definer` (migration 0025). */
+/**
+ * Exclui um pagamento (parcela). Se era o ÚLTIMO da cobrança, exclui a
+ * cobrança também (05/10/2026): antes ela ficava no banco sem nenhum
+ * pagamento — uma cobrança "fantasma", que o próprio sistema evita em todos
+ * os outros caminhos (criação que falha, troca de status na agenda,
+ * cancelamento de consulta). Cobrança sem pagamento nunca é legítima:
+ * "gratuito" não cria cobrança nenhuma.
+ */
 export async function deletePayment(paymentId: string): Promise<ActionResult> {
   const supabase = await createClient();
+
+  const { data: pagamento } = await supabase
+    .from("payments")
+    .select("billing_id")
+    .eq("id", paymentId)
+    .maybeSingle<{ billing_id: string }>();
 
   const { data, error } = await supabase.rpc("soft_delete_payment", { payment_id: paymentId });
 
@@ -519,6 +533,17 @@ export async function deletePayment(paymentId: string): Promise<ActionResult> {
   }
   if (!data) {
     return { success: false, message: "Pagamento não encontrado." };
+  }
+
+  if (pagamento) {
+    // Pagamentos excluídos ficam invisíveis pela RLS: a contagem é só das parcelas que sobraram.
+    const { count } = await supabase
+      .from("payments")
+      .select("id", { count: "exact", head: true })
+      .eq("billing_id", pagamento.billing_id);
+    if (count === 0) {
+      await supabase.rpc("soft_delete_patient_billing", { billing_id: pagamento.billing_id });
+    }
   }
 
   revalidatePath("/financeiro");

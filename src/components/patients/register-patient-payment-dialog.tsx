@@ -67,7 +67,7 @@ export function RegisterPatientPaymentDialog({ paymentId, descricaoCobranca }: R
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
+        <Button variant="outline" size="sm">
           <CircleDollarSign className="h-4 w-4" />
           Marcar como recebido
         </Button>

@@ -32,4 +32,13 @@ test("agendar consulta, marcar como realizada e conferir a cobrança gerada", as
   await page.getByRole("tab", { name: "Financeiro" }).click();
   const emAberto = page.locator("div", { has: page.getByText("Em aberto", { exact: true }) }).last();
   await expect(emAberto).toContainText("200,00");
+
+  // Fase 19: recebe o pagamento e o botão "Recibo" abre a Central de Envio já com o recibo dele escolhido.
+  await page.getByRole("button", { name: "Marcar como recebido" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Confirmar recebimento" }).click();
+  await expect(page.getByText("Tudo em dia")).toBeVisible();
+  await page.getByRole("button", { name: /^Recibo:/ }).click();
+  const central = page.getByRole("dialog");
+  await expect(central.getByRole("checkbox", { name: "Recibo de pagamento" })).toBeChecked();
+  await expect(central.getByRole("button", { name: "Gerar recibo e link" })).toBeEnabled();
 });

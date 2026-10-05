@@ -146,6 +146,7 @@ export default async function PacienteDetalhePage(props: { params: Promise<{ id:
         billings={billings ?? []}
         anamnesisTemplates={anamnesisTemplates ?? []}
         hoje={todayInTimeZone(DEFAULT_TIME_ZONE)}
+        sendCenterContext={sendCenterContext}
       />
     </div>
   );

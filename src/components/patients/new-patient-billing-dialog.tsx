@@ -93,7 +93,7 @@ export function NewPatientBillingDialog({ patientId }: { patientId: string }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
+        <Button>
           <Plus className="h-4 w-4" />
           Nova cobrança
         </Button>

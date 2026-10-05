@@ -49,6 +49,8 @@ interface PatientSendPanelProps {
   patientNome: string;
   patientTelefone: string | null;
   context: SendCenterContext;
+  /** Abrir já com estes itens marcados — ex.: botão "Recibo" da aba Financeiro (só o ponto de partida; tudo continua editável). */
+  inicial?: { itens: SendItemId[]; reciboPagamentoId?: string };
 }
 
 const SEND_ITEMS = [
@@ -61,7 +63,7 @@ const SEND_ITEMS = [
   { id: "mensagem", label: "Mensagem livre" },
 ] as const;
 
-type SendItemId = (typeof SEND_ITEMS)[number]["id"];
+export type SendItemId = (typeof SEND_ITEMS)[number]["id"];
 
 /** Mantém uma callback sempre atualizada sem precisar entrar como dependência do efeito que a usa — evita loop de re-render quando o componente pai passa uma função nova a cada render. */
 function useEventCallback<T extends (...args: never[]) => void>(fn: T): T {
@@ -77,10 +79,10 @@ interface ImpressoPronto {
   link: string;
 }
 
-export function PatientSendPanel({ patientId, patientNome, patientTelefone, context }: PatientSendPanelProps) {
+export function PatientSendPanel({ patientId, patientNome, patientTelefone, context, inicial }: PatientSendPanelProps) {
   const primeiroNome = primeiroNomeDe(patientNome);
   const telefone = normalizePhoneToWhatsApp(patientTelefone);
-  const [selecionados, setSelecionados] = useState<Set<SendItemId>>(new Set());
+  const [selecionados, setSelecionados] = useState<Set<SendItemId>>(() => new Set(inicial?.itens ?? []));
 
   const [planoInfo, setPlanoInfo] = useState<{ nome: string; link: string } | null>(null);
   const [avaliacaoInfo, setAvaliacaoInfo] = useState<{ dataFormatada: string; link: string } | null>(null);
@@ -173,7 +175,12 @@ export function PatientSendPanel({ patientId, patientNome, patientTelefone, cont
       )}
 
       {selecionados.has("recibo") && (
-        <ReciboCard patientId={patientId} pagamentos={context.pagamentosRecebidos} onLinkReady={setReciboInfo} />
+        <ReciboCard
+          patientId={patientId}
+          pagamentos={context.pagamentosRecebidos}
+          inicialId={inicial?.reciboPagamentoId}
+          onLinkReady={setReciboInfo}
+        />
       )}
 
       {selecionados.has("material") && (
@@ -394,13 +401,18 @@ function AvaliacaoAntropometricaCard({
 function ReciboCard({
   patientId,
   pagamentos,
+  inicialId,
   onLinkReady,
 }: {
   patientId: string;
   pagamentos: SendCenterPayment[];
+  /** Pagamento já escolhido ao abrir (botão "Recibo" da aba Financeiro); sem ele, o mais recente. */
+  inicialId?: string;
   onLinkReady: (info: { descricao: string; link: string } | null) => void;
 }) {
-  const [selecionadoId, setSelecionadoId] = useState<string | null>(pagamentos[0]?.id ?? null);
+  const [selecionadoId, setSelecionadoId] = useState<string | null>(
+    () => pagamentos.find((p) => p.id === inicialId)?.id ?? pagamentos[0]?.id ?? null,
+  );
   const [link, setLink] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
