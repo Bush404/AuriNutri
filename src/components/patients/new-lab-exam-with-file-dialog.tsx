@@ -24,6 +24,8 @@ import {
 interface NewLabExamWithFileDialogProps {
   patientId: string;
   consentimentoAtivoExames: boolean;
+  /** Aberto por fora (menu "Novo exame" da aba), sem o botão próprio. */
+  controle?: { open: boolean; onOpenChange: (open: boolean) => void };
 }
 
 /**
@@ -36,8 +38,10 @@ interface NewLabExamWithFileDialogProps {
  * é desfeito (soft delete) para não deixar um registro "fantasma" sem
  * arquivo que vazaria pra lista de marcadores.
  */
-export function NewLabExamWithFileDialog({ patientId, consentimentoAtivoExames }: NewLabExamWithFileDialogProps) {
-  const [open, setOpen] = useState(false);
+export function NewLabExamWithFileDialog({ patientId, consentimentoAtivoExames, controle }: NewLabExamWithFileDialogProps) {
+  const [openProprio, setOpenProprio] = useState(false);
+  const open = controle ? controle.open : openProprio;
+  const setOpen = controle ? controle.onOpenChange : setOpenProprio;
   const [loading, setLoading] = useState(false);
   const [dataColeta, setDataColeta] = useState(new Date().toISOString().slice(0, 10));
   const [laboratorio, setLaboratorio] = useState("");
@@ -105,6 +109,8 @@ export function NewLabExamWithFileDialog({ patientId, consentimentoAtivoExames }
   }
 
   if (!consentimentoAtivoExames) {
+    // Aberto por fora, quem chama já desativou a opção (o menu mostra o motivo).
+    if (controle) return null;
     return (
       <Button size="sm" disabled title="Registre o consentimento de exames para poder anexar arquivos.">
         <Plus className="h-4 w-4" />
@@ -121,12 +127,14 @@ export function NewLabExamWithFileDialog({ patientId, consentimentoAtivoExames }
         if (!v) resetTudo();
       }}
     >
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus className="h-4 w-4" />
-          Novo exame
-        </Button>
-      </DialogTrigger>
+      {!controle && (
+        <DialogTrigger asChild>
+          <Button size="sm">
+            <Plus className="h-4 w-4" />
+            Novo exame
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Anexar exame</DialogTitle>

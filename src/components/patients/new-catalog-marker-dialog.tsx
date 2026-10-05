@@ -43,8 +43,15 @@ const EMPTY = {
  * lab_reference_ranges, uma por sexo), em vez de precisar abrir o diálogo
  * duas vezes.
  */
-export function NewCatalogMarkerDialog() {
-  const [open, setOpen] = useState(false);
+export function NewCatalogMarkerDialog({
+  controle,
+}: {
+  /** Aberto por fora (menu "Novo exame" da aba), sem o botão próprio. */
+  controle?: { open: boolean; onOpenChange: (open: boolean) => void };
+} = {}) {
+  const [openProprio, setOpenProprio] = useState(false);
+  const open = controle ? controle.open : openProprio;
+  const setOpen = controle ? controle.onOpenChange : setOpenProprio;
   const [variaPorSexo, setVariaPorSexo] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [isPending, startTransition] = useTransition();
@@ -119,12 +126,14 @@ export function NewCatalogMarkerDialog() {
         if (!v) resetTudo();
       }}
     >
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
-          <Plus className="h-4 w-4" />
-          Adicionar marcador ao catálogo
-        </Button>
-      </DialogTrigger>
+      {!controle && (
+        <DialogTrigger asChild>
+          <Button size="sm" variant="outline">
+            <Plus className="h-4 w-4" />
+            Adicionar marcador ao catálogo
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Novo marcador no catálogo</DialogTitle>

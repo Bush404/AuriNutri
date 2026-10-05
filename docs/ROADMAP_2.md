@@ -678,6 +678,22 @@ Recibo. Após o teste: "Total de cobranças" mostrava 7 — contava cobranças "
 apagava só o pagamento e deixava o registro). Correção de verdade: `deletePayment` exclui a cobrança junto quando apaga o
 último pagamento (mesma `soft_delete_patient_billing` dos outros caminhos); **migration 0051, aplicada 05/10** (conferido: 0 cobranças sem pagamento) limpa as que já existiam
 (soft delete das cobranças sem pagamento ativo). O cartão também só conta cobranças com pagamento.
+Aba Exames (05/10/2026, local, aguardando teste): as duas telas separadas (Anexar PDF / Preencher marcadores) viraram
+uma tabela só (decisão do usuário): nome diz só "PDF anexado"/"Imagem anexada"/"Marcadores" (exame não tem nome nem
+tipo próprios; laboratório embaixo), filtros Todos/Com arquivo/Com marcadores, cartões Total / Mais recente ("há N dias")
+/ Marcadores registrados (no lugar de "Próximo exame", que não existe), olho = arquivo (link 1 h) ou janela dos marcadores
+(ExamMarkersDialog: tabela + o mesmo LabMarkerForm), baixar (o mesmo link com cabeçalho de download), ⋮ Excluir;
+"Novo exame" virou menu (anexar / marcadores / catálogo; os três diálogos ganharam `controle`); gráfico de evolução
+abaixo. Regras em `src/lib/lab-exams-view.ts` (+4 testes). LGPD: excluir exame agora APAGA o arquivo do storage antes
+(como as fotos; antes ficava no bucket) — sem migration. E2E arquivos ganhou marcadores e exclusão.
+Janela "Marcadores" (05/10/2026, local): layout de referência (lista em cartões com resultado, faixa e barra; à direita
+"Adicionar marcador" com pré-visualização). Decisão do usuário: RASCUNHO — adicionar/tirar só muda a lista; "Salvar
+alterações" grava tudo numa transação (`salvarMarcadores` → **migration 0052** `salvar_marcadores`, security invoker,
+confere também o dono do EXAME, que a policy de INSERT de lab_markers não conferia; aplicada 05/10, E2E 19/19,
+isolamento 117/117); Cancelar/X/Esc com pendência
+pergunta antes. addLabMarker/deleteLabMarker removidas (sem uso). Barra em `src/lib/lab-marker-range.ts` (+5 testes;
+"fora da faixa" = mesma regra da coluna gerada). Isolamento +3 checagens (B não salva no exame de A; A salva; erro no
+meio desfaz). "Salvar como minha faixa padrão" continua gravando na hora (catálogo do profissional).
 
 **Por que no fim:** as telas de antropometria, cálculo energético e plano alimentar vão ser refeitas
 nas Fases 15–17. Redesenhar antes seria refazer o design duas vezes. O design fecha o Roadmap 2

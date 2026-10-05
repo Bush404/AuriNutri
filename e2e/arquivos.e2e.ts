@@ -37,10 +37,36 @@ test("consentimento → foto de evolução e exame em PDF enviados ao Storage", 
   // Exame com arquivo (bucket profissional)
   await registrarConsentimento(page, "Exames laboratoriais");
   await page.getByRole("tab", { name: "Exames" }).click();
-  await page.getByRole("button", { name: /Anexar PDF/ }).click();
+  // Fase 19: "Novo exame" é um menu — anexar arquivo ou preencher marcadores.
   await page.getByRole("button", { name: "Novo exame" }).click();
+  await page.getByRole("menuitem", { name: /Anexar PDF/ }).click();
   dialog = page.getByRole("dialog");
   await dialog.locator('input[type="file"]').setInputFiles({ name: "exame.pdf", mimeType: "application/pdf", buffer: PDF });
   await dialog.getByRole("button", { name: "Registrar exame" }).click();
   await expect(page.getByText("Exame e arquivo registrados.")).toBeVisible();
+  await expect(page.getByText("PDF anexado", { exact: true })).toBeVisible();
+
+  // Exame de marcadores: ao registrar, a janela dos marcadores já abre.
+  await page.getByRole("button", { name: "Novo exame" }).click();
+  await page.getByRole("menuitem", { name: /Preencher marcadores/ }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Registrar exame" }).click();
+  const marcadores = page.getByRole("dialog");
+  await expect(marcadores.getByText(/^Marcadores — coleta em/)).toBeVisible();
+  // Rascunho: "Adicionar marcador" só põe na lista; "Salvar alterações" grava (migration 0052, uma transação).
+  await marcadores.getByRole("combobox", { name: /Marcador/ }).fill("Marcador E2E");
+  await marcadores.getByLabel(/^Resultado/).fill("180");
+  await marcadores.getByLabel(/^Unidade/).fill("mg/dL");
+  await marcadores.getByLabel(/Referência máx/).fill("190");
+  await marcadores.getByRole("button", { name: "Adicionar marcador" }).click();
+  await expect(marcadores.getByText("1 alteração ainda não salva", { exact: false })).toBeVisible();
+  await marcadores.getByRole("button", { name: "Salvar alterações" }).click();
+  await expect(page.getByText("Marcadores salvos.")).toBeVisible();
+  await expect(page.getByText("1 marcador", { exact: true }).filter({ visible: true }).first()).toBeVisible();
+
+  // Excluir o exame com arquivo apaga o arquivo do armazenamento de verdade (antes ficava lá).
+  await page.getByRole("button", { name: /^Mais ações: PDF anexado/ }).click();
+  await page.getByRole("menuitem", { name: "Excluir exame" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Excluir", exact: true }).click();
+  await expect(page.getByText("Exame excluído.")).toBeVisible();
+  await expect(page.getByText("PDF anexado", { exact: true })).toHaveCount(0);
 });

@@ -81,8 +81,33 @@ export async function updateLabExam(patientId: string, examId: string, input: La
 }
 
 /** Soft delete via função `security definer` (mesmo padrão da migration 0017) — ver comentário em deleteRecipe (recipes.ts). */
+/**
+ * Exclusão: remove o arquivo anexado do storage DE VERDADE antes de marcar o
+ * exame como excluído (05/10/2026) — mesmo padrão de deletePatientPhoto:
+ * "direito ao esquecimento" não se satisfaz com deleted_at se o PDF do exame
+ * continua no bucket. Se a remoção falhar, o exame NÃO é excluído (o
+ * profissional tenta de novo, em vez do sistema dizer que apagou um arquivo
+ * que ainda existe). Antes, o arquivo ficava no armazenamento.
+ */
 export async function deleteLabExam(patientId: string, examId: string): Promise<ActionResult> {
   const supabase = await createClient();
+
+  const { data: exame, error: fetchError } = await supabase
+    .from("lab_exams")
+    .select("arquivo_path")
+    .eq("id", examId)
+    .maybeSingle<{ arquivo_path: string | null }>();
+  if (fetchError) {
+    return { success: false, message: fetchError.message };
+  }
+
+  if (exame?.arquivo_path) {
+    const { error: removeError } = await supabase.storage.from(BUCKET).remove([exame.arquivo_path]);
+    if (removeError) {
+      return { success: false, message: `Não foi possível remover o arquivo do armazenamento: ${removeError.message}` };
+    }
+  }
+
   const { data, error } = await supabase.rpc("soft_delete_lab_exam", { exam_id: examId });
 
   if (error) {
@@ -172,8 +197,14 @@ export async function uploadLabExamFile(
  * Gera uma URL assinada de curta duração (1h) para o arquivo do exame —
  * nunca uma URL permanente. Confere que o path pertence ao usuário
  * autenticado antes de assinar, mesmo padrão de getProfileFileSignedUrl.
+ * `baixarComo`: nome do arquivo para o navegador SALVAR em vez de abrir
+ * (botão de baixar da aba Exames) — o mesmo link temporário, só com o
+ * cabeçalho de download.
  */
-export async function getLabExamFileSignedUrl(path: string | null | undefined): Promise<string | null> {
+export async function getLabExamFileSignedUrl(
+  path: string | null | undefined,
+  baixarComo?: string,
+): Promise<string | null> {
   if (!path) return null;
 
   const supabase = await createClient();
@@ -187,7 +218,7 @@ export async function getLabExamFileSignedUrl(path: string | null | undefined): 
 
   const { data, error } = await supabase.storage
     .from(BUCKET)
-    .createSignedUrl(path, SIGNED_URL_EXPIRES_IN_SECONDS);
+    .createSignedUrl(path, SIGNED_URL_EXPIRES_IN_SECONDS, baixarComo ? { download: baixarComo } : undefined);
 
   if (error) {
     return null;

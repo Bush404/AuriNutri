@@ -421,6 +421,40 @@ async function main() {
       .select("id")
       .single();
     if (labMarkerError) throw new Error(`Falha ao criar marcador de A: ${labMarkerError.message}`);
+
+    // Fase 19 — "Salvar alterações" dos marcadores numa transação (migration 0052, security invoker).
+    const novoMarcador = { nome_marcador: "Colesterol total", valor: 180, unidade: "mg/dL", referencia_min: null, referencia_max: 190, referencia_editada: false };
+    const { error: marcadoresBError } = await userB.client.rpc("salvar_marcadores", {
+      p_exam_id: labExam.id,
+      p_novos: [novoMarcador],
+      p_removidos: [labMarker.id],
+    });
+    const { count: marcadoresDepoisB } = await admin.from("lab_markers").select("id", { count: "exact", head: true }).eq("exam_id", labExam.id);
+    if (marcadoresDepoisB !== 1) breach("B CONSEGUIU mexer nos marcadores do exame de A (RPC salvar_marcadores)");
+    pass("B não consegue salvar marcadores no exame de A (RPC salvar_marcadores)", marcadoresBError?.message ?? "sem efeito");
+
+    // Controle: a dona consegue (adiciona um e mantém o de antes).
+    const { error: marcadoresAError } = await userA.client.rpc("salvar_marcadores", {
+      p_exam_id: labExam.id,
+      p_novos: [novoMarcador],
+      p_removidos: [],
+    });
+    if (marcadoresAError) throw new Error(`A não conseguiu salvar os próprios marcadores (salvar_marcadores): ${marcadoresAError.message}`);
+    const { data: colesterol } = await admin.from("lab_markers").select("fora_da_faixa").eq("exam_id", labExam.id).eq("nome_marcador", "Colesterol total").single();
+    if (colesterol?.fora_da_faixa !== false) throw new Error("salvar_marcadores não gravou o marcador da dona (ou calculou a faixa errado)");
+    pass("A salva os próprios marcadores numa transação (RPC salvar_marcadores)");
+
+    // Tudo ou nada: o novo seria inserido, mas um marcador removido inexistente desfaz tudo.
+    const { error: marcadoresFalhaError } = await userA.client.rpc("salvar_marcadores", {
+      p_exam_id: labExam.id,
+      p_novos: [{ ...novoMarcador, nome_marcador: "NÃO deveria ficar gravado" }],
+      p_removidos: [crypto.randomUUID()],
+    });
+    const { count: naoGravado } = await admin.from("lab_markers").select("id", { count: "exact", head: true }).eq("nome_marcador", "NÃO deveria ficar gravado");
+    if (!marcadoresFalhaError) throw new Error("salvar_marcadores aceitou remover um marcador inexistente");
+    if (naoGravado !== 0) throw new Error("salvar_marcadores gravou pela metade");
+    pass("Marcadores com erro no meio não gravam nada (transação desfeita)", marcadoresFalhaError.message);
+
     await checkTableIsolation(userB, { table: "lab_markers", id: labMarker.id, updateField: "unidade", updateValue: "g/L", canDelete: true });
     await checkTableIsolation(userB, {
       table: "lab_exams",

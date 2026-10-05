@@ -22,8 +22,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export function NewLabExamDialog({ patientId }: { patientId: string }) {
-  const [open, setOpen] = useState(false);
+export function NewLabExamDialog({
+  patientId,
+  controle,
+  onCreated,
+}: {
+  patientId: string;
+  /** Aberto por fora (menu "Novo exame" da aba), sem o botão próprio. */
+  controle?: { open: boolean; onOpenChange: (open: boolean) => void };
+  /** Chamado com o id do exame criado (a aba abre os marcadores dele em seguida). */
+  onCreated?: (examId: string) => void;
+}) {
+  const [openProprio, setOpenProprio] = useState(false);
+  const open = controle ? controle.open : openProprio;
+  const setOpen = controle ? controle.onOpenChange : setOpenProprio;
   const [loading, setLoading] = useState(false);
 
   const {
@@ -47,18 +59,21 @@ export function NewLabExamDialog({ patientId }: { patientId: string }) {
     }
 
     toast.success("Exame registrado.");
+    if (result.id) onCreated?.(result.id);
     reset({ data_coleta: new Date().toISOString().slice(0, 10) });
     setOpen(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus className="h-4 w-4" />
-          Novo exame
-        </Button>
-      </DialogTrigger>
+      {!controle && (
+        <DialogTrigger asChild>
+          <Button size="sm">
+            <Plus className="h-4 w-4" />
+            Novo exame
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Novo exame laboratorial</DialogTitle>

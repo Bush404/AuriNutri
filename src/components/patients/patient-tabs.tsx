@@ -191,7 +191,12 @@ export function PatientTabs({
       </TabsContent>
 
       <TabsContent value="exames">
-        <LabExamsPanel patientId={patient.id} exams={labExams} consentimentoAtivoExames={consentimentoAtivoExames} />
+        <LabExamsPanel
+          patientId={patient.id}
+          exams={labExams}
+          consentimentoAtivoExames={consentimentoAtivoExames}
+          hoje={hoje}
+        />
       </TabsContent>
 
       <TabsContent value="financeiro">

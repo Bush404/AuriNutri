@@ -10,51 +10,48 @@ import { resolveReferenceRange, type ReferenceRangeOption } from "@/lib/lab-refe
 
 export type { ReferenceRangeOption } from "@/lib/lab-reference";
 
-export async function addLabMarker(patientId: string, examId: string, input: LabMarkerInput): Promise<ActionResult> {
-  const parsed = labMarkerSchema.safeParse(input);
-  if (!parsed.success) {
-    return { success: false, message: "Informe o marcador, o valor e a unidade." };
+/**
+ * "Salvar alterações" da janela dos marcadores (Fase 19, 05/10/2026): os
+ * novos e os tirados de uma coleta numa transação só (função
+ * salvar_marcadores, migration 0052) — ou grava tudo, ou nada. Cada novo
+ * passa pela mesma validação de antes (labMarkerSchema); remover continua
+ * sendo exclusão real da linha (marcador não tem deleted_at, como recipe_ingredients).
+ */
+export async function salvarMarcadores(
+  patientId: string,
+  examId: string,
+  novos: LabMarkerInput[],
+  removidos: string[],
+): Promise<ActionResult> {
+  const validados = [];
+  for (const novo of novos) {
+    const parsed = labMarkerSchema.safeParse(novo);
+    if (!parsed.success) {
+      return { success: false, message: `Confira o marcador "${novo.nome_marcador || "sem nome"}": informe o valor e a unidade.` };
+    }
+    validados.push({
+      nome_marcador: parsed.data.nome_marcador,
+      valor: parsed.data.valor,
+      unidade: parsed.data.unidade,
+      referencia_min: parsed.data.referencia_min ?? null,
+      referencia_max: parsed.data.referencia_max ?? null,
+      referencia_editada: parsed.data.referencia_editada,
+    });
   }
+  if (validados.length === 0 && removidos.length === 0) return { success: true };
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, message: "Sessão expirada. Faça login novamente." };
-  }
-
-  const { error } = await supabase.from("lab_markers").insert({
-    exam_id: examId,
-    user_id: user.id,
-    nome_marcador: parsed.data.nome_marcador,
-    valor: parsed.data.valor,
-    unidade: parsed.data.unidade,
-    referencia_min: parsed.data.referencia_min ?? null,
-    referencia_max: parsed.data.referencia_max ?? null,
-    referencia_editada: parsed.data.referencia_editada,
+  const { error } = await supabase.rpc("salvar_marcadores", {
+    p_exam_id: examId,
+    p_novos: validados,
+    p_removidos: removidos,
   });
-
   if (error) {
     return { success: false, message: error.message };
   }
 
   revalidatePath(`/pacientes/${patientId}`);
-  return { success: true, message: "Marcador registrado." };
-}
-
-/** Sem deleted_at própria (mesmo padrão de recipe_ingredients) — remover um marcador é exclusão real da linha. */
-export async function deleteLabMarker(patientId: string, markerId: string): Promise<ActionResult> {
-  const supabase = await createClient();
-  const { error } = await supabase.from("lab_markers").delete().eq("id", markerId);
-
-  if (error) {
-    return { success: false, message: error.message };
-  }
-
-  revalidatePath(`/pacientes/${patientId}`);
-  return { success: true, message: "Marcador removido." };
+  return { success: true, message: "Marcadores salvos." };
 }
 
 export interface ReferenceRangeSuggestion {
